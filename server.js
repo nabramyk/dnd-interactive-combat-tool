@@ -3,6 +3,10 @@ var app = express();
 
 var bodyParser = require('body-parser')
 
+function coordinate_comparison(obj_1, obj_2) {
+	return obj_1.x_coord == obj_2.x_coord && obj_1.y_coord == obj_2.y_coord;
+}
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(function(req, res, next) {
@@ -22,14 +26,14 @@ app.post('/update', function (req,res) {
 	var correction_vector = [];
 	
 	cells.find(function(el, ind, arr) {
-		if(live_objects.findIndex(function (el2) { return JSON.stringify(el) == JSON.stringify(el2); }) == -1) {
+		if(live_objects.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			correction_vector.push({"action":"add","item":el});
 		};
 	});
 	
 	live_objects.find(function(el, ind, arr) {
-		if(cells.findIndex(function (el2) { return JSON.stringify(el) == JSON.stringify(el2); }) == -1) {
-			correction_vector.push({"action":"delete","item":el});
+		if(cells.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
+			correction_vector.push({"action":"erase","item":el});
 		};
 	});
 		

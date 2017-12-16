@@ -2,8 +2,10 @@
 <html>
 <head>
 	<style>
-		canvas {
-			border:1px solid #000000;
+		.myCanvas {
+			display: block;
+			margin: auto;
+			border: 1px solid #000000;
 		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -11,7 +13,7 @@
 		var grid_size = 20;
 		var grid_count_width = 30;
 		var grid_count_height = 24;
-		var update_interval = 150;
+		var update_interval = 200;
 		
 		var myCanvas, ctx;
 		var live_objects = new Array();
@@ -104,7 +106,7 @@
 				dataType: 'json',
 				success: function(result) {
 					for(var i = 0; i < result.length; i++) {
-						if(result[i].action=="delete") {
+						if(result[i].action=="erase") {
 							live_objects.find(function(el, ind, arr) {
 								if(JSON.stringify(el) == JSON.stringify(result[i].item)) {
 									arr.splice(ind,1);
