@@ -18,44 +18,40 @@ app.get('/', function (req,res) {
 });
 
 app.post('/update', function (req,res) {
-	var live_objects = JSON.parse(req.body.live_objects);
+	var live_objects = JSON.parse(req.body.live_objects);	
+	var correction_vector = [];
+	
+	cells.find(function(el, ind, arr) {
+		if(live_objects.findIndex(function (el2) { return JSON.stringify(el) == JSON.stringify(el2); }) == -1) {
+			correction_vector.push({"action":"add","item":el});
+		};
+	});
+	
+	live_objects.find(function(el, ind, arr) {
+		if(cells.findIndex(function (el2) { return JSON.stringify(el) == JSON.stringify(el2); }) == -1) {
+			correction_vector.push({"action":"delete","item":el});
+		};
+	});
+		
 	res.setHeader('Content-Type', 'application/json');
-	
-	var correction_vector = new Array();
-	
-	//If something exists in the users grid that is not in the servers grid,
-	//then delete it
-	live_objects.forEach(function (item, index) {
-		if(cells.indexOf(item)==-1) {
-			
-		};
-	});
-	
-	//If something exists in the servers grid that is not in the users grid,
-	//then add it
-	cells.forEach(function(item, index) {
-		if(live_objects.indexOf(item) == -1) {
-			
-		};
-	});
+	res.send(JSON.stringify(correction_vector));
 });
 
 app.post('/push_change', function(req,res) {
 	var input = {color: req.body.color, x_coord: req.body.x_coord, y_coord: req.body.y_coord};
-	console.log('Input: ' + input.color + ',' + input.x_coord + ',' + input.y_coord);
 	for(var i=0; i < cells.length; i++) {
 		if(cells[i].color==input.color && cells[i].x_coord==input.x_coord && cells[i].y_coord==input.y_coord) {
-			console.log('Matched live cell at: ' + input.x_coord + ',' + input.y_coord);
 			res.setHeader('Content-Type', 'application/json');
 			res.send(JSON.stringify({color: '#FFFFFF', x_coord: input.x_coord, y_coord: input.y_coord}));
-			cells.splice(i,i+1);
+			cells.splice(i,1);
+			console.log(JSON.stringify(cells));
 			return;
 		}
 	}
 	cells.push(input);
-	console.log("Pushed change, cells: " + cells.length);
 	res.setHeader('Content-Type', 'application/json');
 	res.send(JSON.stringify(input));
+	console.log(JSON.stringify(cells));
 });
 
 var server = app.listen(8080, function() {
