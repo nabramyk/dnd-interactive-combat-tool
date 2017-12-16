@@ -44,14 +44,12 @@ app.post('/push_change', function(req,res) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send(JSON.stringify({color: '#FFFFFF', x_coord: input.x_coord, y_coord: input.y_coord}));
 			cells.splice(i,1);
-			console.log(JSON.stringify(cells));
 			return;
 		}
 	}
 	cells.push(input);
 	res.setHeader('Content-Type', 'application/json');
 	res.send(JSON.stringify(input));
-	console.log(JSON.stringify(cells));
 });
 
 var server = app.listen(8080, function() {

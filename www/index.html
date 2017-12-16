@@ -11,13 +11,10 @@
 		var grid_size = 20;
 		var grid_count_width = 30;
 		var grid_count_height = 24;
-		var update_interval = 300;
+		var update_interval = 150;
 		
 		var myCanvas, ctx;
 		var live_objects = new Array();
-		
-		//live_objects.push({color:"#000000",x_coord:"0",y_coord:"0"});
-		//live_objects.push({color:"#000000",x_coord:"100",y_coord:"100"});
 		
 		window.addEventListener('load', eventWindowLoaded, false);
 		console.log(window.location.href);
@@ -106,19 +103,19 @@
 				data: {'live_objects': JSON.stringify(live_objects)},
 				dataType: 'json',
 				success: function(result) {
-					console.log(result.length);
 					for(var i = 0; i < result.length; i++) {
 						if(result[i].action=="delete") {
-							var index = live_objects.indexOf(result[i].item);
-							live_objects.splice(index,1);
+							live_objects.find(function(el, ind, arr) {
+								if(JSON.stringify(el) == JSON.stringify(result[i].item)) {
+									arr.splice(ind,1);
+								};
+							});
 							ctx.fillStyle="#FFFFFF";
 							ctx.fillRect(result[i].item.x_coord,result[i].item.y_coord,grid_size,grid_size);
-							console.log("delete: " + JSON.stringify(result[i].item));
 						} else if(result[i].action=="add") {
 							live_objects.push(result[i].item);
 							ctx.fillStyle=result[i].item.color;
 							ctx.fillRect(result[i].item.x_coord,result[i].item.y_coord,grid_size,grid_size);
-							console.log("add: " + JSON.stringify(result[i].item));
 						}
 					}
 				},
