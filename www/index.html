@@ -2,7 +2,7 @@
 <html>
 <head>
 	<style>
-		.myCanvas {
+		#grid_canvas {
 			display: block;
 			margin: auto;
 			border: 1px solid #000000;
@@ -15,7 +15,7 @@
 		var grid_count_height = 24;
 		var update_interval = 200;
 		
-		var myCanvas, ctx;
+		var grid_canvas, ctx;
 		var live_objects = new Array();
 		
 		window.addEventListener('load', eventWindowLoaded, false);
@@ -31,21 +31,21 @@
 		}
 				
 		function canvasApp () {		
-		  myCanvas = document.getElementById('myCanvas');
-		  ctx = myCanvas.getContext('2d');
+		  grid_canvas = document.getElementById('grid_canvas');
+		  ctx = grid_canvas.getContext('2d');
 
-		  if (!canvasSupport(myCanvas)) {
+		  if (!canvasSupport(grid_canvas)) {
 			  return; 
 			}
   
-		  myCanvas.width = grid_size * grid_count_width;
-		  myCanvas.height = grid_size * grid_count_height;
+		  grid_canvas.width = grid_size * grid_count_width;
+		  grid_canvas.height = grid_size * grid_count_height;
   
-  		  myCanvas.addEventListener('click', function(event) {
+  		  grid_canvas.addEventListener('click', function(event) {
   		  		drawElement(event);
   		  }, false); 
   		  
-  		  myCanvas.addEventListener('touchend', function(event) {
+  		  grid_canvas.addEventListener('touchend', function(event) {
   			  drawElement(event);
   		  }, false);
   		  
@@ -56,21 +56,21 @@
 	
 			var x = 0;
 			var y = 0;
-			var w = myCanvas.width;
-			var h = myCanvas.height;
+			var w = grid_canvas.width;
+			var h = grid_canvas.height;
 	
 			ctx.lineWidth = 1;
 	
-			while (y < h) {
+			while (y < h - grid_size) {
 			  y = y + grid_size;
 			  ctx.moveTo(x, y);
 			  ctx.lineTo(w, y);
 			  ctx.stroke();
 			}
 	
-			y =0;  
+			y = 0;  
 
-			while (x < w) {
+			while (x < w - grid_size) {
 			  x = x + grid_size;
 			  ctx.moveTo(x, y);  
 			  ctx.lineTo(x,h);  
@@ -106,6 +106,11 @@
 				dataType: 'json',
 				success: function(result) {
 					for(var i = 0; i < result.length; i++) {
+						
+						var x = parseInt(result[i].item.x_coord) + ctx.lineWidth;
+						var y = parseInt(result[i].item.y_coord) + ctx.lineWidth;
+						var corrected_grid_size = grid_size - ctx.lineWidth * 2;
+						
 						if(result[i].action=="erase") {
 							live_objects.find(function(el, ind, arr) {
 								if(JSON.stringify(el) == JSON.stringify(result[i].item)) {
@@ -113,12 +118,12 @@
 								};
 							});
 							ctx.fillStyle="#FFFFFF";
-							ctx.fillRect(result[i].item.x_coord,result[i].item.y_coord,grid_size,grid_size);
 						} else if(result[i].action=="add") {
 							live_objects.push(result[i].item);
 							ctx.fillStyle=result[i].item.color;
-							ctx.fillRect(result[i].item.x_coord,result[i].item.y_coord,grid_size,grid_size);
 						}
+						
+						ctx.fillRect(x,y,corrected_grid_size,corrected_grid_size);
 					}
 				},
 				error: function(status, error) {
@@ -133,6 +138,6 @@
 	</script>
 </head>
 <body>
-	<canvas id="myCanvas"></canvas>
+	<canvas id="grid_canvas"></canvas>
 </body>
 </html>
