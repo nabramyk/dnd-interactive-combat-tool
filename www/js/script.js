@@ -107,7 +107,7 @@ function drawElement(evt) {
 
 	if (document.getElementById("selected_shape").value == "square") {
 		changes_to_grid = {
-			color : "#000000",
+			color : document.getElementById("element_color").value,
 			x_coord : x_snap_to_grid,
 			y_coord : y_snap_to_grid
 		};
