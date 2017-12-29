@@ -52,15 +52,23 @@ function canvasApp() {
 	drawScreen();
 }
 
+/*
+ * 
+ */
 function drawScreen() {
 
+	//Set the initial x and y coordinate counters
 	var x = 0;
 	var y = 0;
+	
+	//Retrieve the width and height of the canvas
 	var w = grid_canvas.width;
 	var h = grid_canvas.height;
 
+	//Set the width of the lines that are to be drawn
 	ctx.lineWidth = 1;
 
+	//Draw the horizontal lines of the grid
 	while (y <= h - grid_size) {
 		ctx.moveTo(x, y);
 		ctx.lineTo(w, y);
@@ -68,17 +76,24 @@ function drawScreen() {
 		y = y + grid_size;
 	}
 
+	//Draw the bottom bounding line
 	ctx.moveTo(0, h - 1);
 	ctx.lineTo(w, h - 1);
 	ctx.stroke();
 	y = 0;
 
+	//Draw the vertical lines of the grid
 	while (x <= w - grid_size) {
 		ctx.moveTo(x, y);
 		ctx.lineTo(x, h);
 		ctx.stroke();
 		x = x + grid_size;
 	}
+	
+	//Draw the right most bounding line
+	ctx.moveTo(w - 1, 0);
+	ctx.lineTo(w - 1, h);
+	ctx.stroke();
 }
 
 function drawElement(evt) {
