@@ -151,6 +151,8 @@ function update() {
 				if (result[i].action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if (JSON.stringify(el) == JSON.stringify(result[i].item)) {
+							console.log(JSON.stringify(el));
+							clear_item(result[i].item);
 							arr.splice(ind, 1);
 						}
 					});
@@ -192,8 +194,10 @@ function clear_item(item) {
 	console.log("erase: " + JSON.stringify(item));
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
-	ctx.clearRect(item.x_coord + grid_line_width, item.y_coord + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(item.x_coord + grid_line_width, item.y_coord + grid_line_width, grid_size, grid_size);
+	var x = parseInt(item.x_coord) + grid_line_width;
+	var y = parseInt(item.y_coord) + grid_line_width;
+	ctx.clearRect(x, y, grid_size, grid_size);
+	ctx.strokeRect(x, y, grid_size, grid_size);
 }
 
 function draw_grid(item) {
@@ -211,6 +215,7 @@ function canvas_mouse_down(evt) {
 	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
 	
 	//Outline the selected grid space
+	/*
 	ctx.lineWidth = grid_line_width;
 	ctx.strokeStyle = grid_highlight;
 	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
@@ -221,6 +226,7 @@ function canvas_mouse_down(evt) {
 		ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 		ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	}
+	*/
 	
 	selected_grid_x = x_snap_to_grid;
 	selected_grid_y = y_snap_to_grid;
@@ -239,15 +245,23 @@ function canvas_mouse_up(evt) {
 
 	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
 
+	//Exit this function if the mouse is released within the same grid element it was activated in
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y) {
 		console.log("returning");
 		return;
 	}
 	
-	ctx.strokeStyle = grid_color;
+	//Clear the last grid space and redraw
+	/*ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	ctx.clearRect(mouse_down_grid_x + grid_line_width, mouse_down_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(mouse_down_grid_x + grid_line_width, mouse_down_grid_y + grid_line_width, grid_size, grid_size);
+	
+	//Draw the grid cursor
+	ctx.lineWidth = grid_line_width;
+	ctx.strokeStyle = grid_highlight;
+	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
+	*/
 	
 	for(var i=0; i<live_objects.length; i++) {
 		if(live_objects[i].x_coord == mouse_down_grid_x && live_objects[i].y_coord == mouse_down_grid_y) {
@@ -257,13 +271,9 @@ function canvas_mouse_up(evt) {
 			var move_shape = live_objects[i].shape;
 			
 			send_element_to_server(move_color, move_x, move_y, move_shape);
-			send_element_to_server(move_color, selected_grid_x, selected_grid_y, move_shape);
+			send_element_to_server(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
 		}
 	}
-	
-	ctx.lineWidth = grid_line_width;
-	ctx.strokeStyle = grid_highlight;
-	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
 	
 	selected_grid_x = x_snap_to_grid;
 	selected_grid_y = y_snap_to_grid;
