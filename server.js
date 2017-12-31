@@ -70,18 +70,23 @@ app.post('/update', function (req,res) {
 
 //Function for modifying the servers internal model of the grid board
 app.post('/push_change', function(req,res) {
-	var input = {color: req.body.color, x_coord: req.body.x_coord, y_coord: req.body.y_coord};
+	
+	//Parse the input request and store it as a JSON object
+	var input = {color: req.body.color, x_coord: req.body.x_coord, y_coord: req.body.y_coord, shape: req.body.object_type};
+	
+	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {
 		if(cells[i].color==input.color && cells[i].x_coord==input.x_coord && cells[i].y_coord==input.y_coord) {
 			res.setHeader('Content-Type', 'application/json');
-			res.send(JSON.stringify({color: '#FFFFFF', x_coord: input.x_coord, y_coord: input.y_coord}));
+			res.send("Done");
 			cells.splice(i,1);
+			console.log("deleted: " + JSON.stringify(input));
 			return;
 		}
 	}
 	cells.push(input);
 	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(input));
+	res.send("Done");
 });
 
 //Main driver for booting up the server

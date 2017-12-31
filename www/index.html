@@ -6,12 +6,19 @@
 	<link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
-	<canvas id="grid_canvas"></canvas>
-	<select id="selected_shape">
-		<option value="square">Square</option>
-		<option value="line">Line</option>
-	</select>
-	<input type="checkbox" id="on_hover_highlight">Highlight cursor position when hovering over the grid
-	<input type="color" id="element_color">
+	<div>
+		<canvas id="grid_canvas"></canvas>
+	</div>
+	<div id="tool_editor">
+		<p id="grid_location"></p>	
+		<select id="selected_shape">
+			<option value="square">Square</option>
+			<option value="circle">Circle</option>
+			<option value="line">Line</option>
+		</select>
+		<input type="checkbox" id="on_hover_highlight">Highlight cursor position when hovering over the grid<br>
+		Color: <input type="color" id="element_color"><br>
+		<button id="place_element_button">Place Element</button>
+	</div>
 </body>
 </html>
