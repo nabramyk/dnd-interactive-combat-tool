@@ -66,7 +66,6 @@ app.post('/update', function (req,res) {
 	//Return the correction vector as a json array
 	res.setHeader('Content-Type', 'application/json');
 	res.send(JSON.stringify(correction_vector));
-	console.log(JSON.stringify(correction_vector));
 });
 
 //Function for modifying the servers internal model of the grid board
@@ -81,13 +80,11 @@ app.post('/push_change', function(req,res) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send("Done");
 			cells.splice(i,1);
-			console.log("deleted: " + JSON.stringify(input));
 			return;
 		}
 	}
 	
 	cells.push(input);
-	console.log("added: " + JSON.stringify(input));
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });

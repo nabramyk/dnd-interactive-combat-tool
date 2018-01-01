@@ -14,7 +14,13 @@ var mouse_down_grid_y = -1;
 
 var update_interval = 200;
 
-var grid_canvas, ctx;
+//GUI Elements
+var grid_canvas, 
+	ctx, 
+	place_element_button,
+	clear_element_button,
+	reset_board_button;
+
 var live_objects = new Array();
 
 window.addEventListener('load', eventWindowLoaded, false);
@@ -30,8 +36,12 @@ function canvasSupport(e) {
 }
 
 function canvasApp() {
+	
 	grid_canvas = document.getElementById('grid_canvas');
-	var place_element_button = document.getElementById('place_element_button');
+	place_element_button = document.getElementById('place_element_button');
+	clear_element_button = document.getElementById('clear_element_button');
+	reset_board_button = document.getElementById('reset_board_button');
+	
 	ctx = grid_canvas.getContext('2d');
 
 	if (!canvasSupport(grid_canvas)) {
@@ -67,6 +77,13 @@ function canvasApp() {
 		send_element_to_server(document.getElementById("element_color").value, selected_grid_x, selected_grid_y, document.getElementById("selected_shape").value);
 	}, false);
 
+	clear_element_button.addEventListener('click', function(event) {
+		live_objects.forEach(function(element) {
+			if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
+				send_element_to_server(element.color, element.x_coord, element.y_coord, element.shape);
+		});
+	}, false);
+	
 	drawScreen();
 }
 
@@ -106,7 +123,6 @@ function select_grid(evt) {
 		}
 	}
 	
-	
 	ctx.lineWidth = grid_line_width;
 	ctx.strokeStyle = grid_highlight;
 	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
@@ -115,10 +131,7 @@ function select_grid(evt) {
 	selected_grid_y = y_snap_to_grid;
 }
 
-function send_element_to_server(el_color, el_x, el_y, el_shape) {
-	
-	console.log("send");
-	
+function send_element_to_server(el_color, el_x, el_y, el_shape) {	
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "push_change",
@@ -134,7 +147,6 @@ function send_element_to_server(el_color, el_x, el_y, el_shape) {
 			console.log("Error: " + status.status + ", " + error);
 		}
 	});
-
 }
 
 function update() {
@@ -146,12 +158,10 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
-			for (var i = 0; i < result.length; i++) {
-				
+			for (var i = 0; i < result.length; i++) {			
 				if (result[i].action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if (JSON.stringify(el) == JSON.stringify(result[i].item)) {
-							console.log(JSON.stringify(el));
 							clear_item(result[i].item);
 							arr.splice(ind, 1);
 						}
@@ -185,13 +195,10 @@ function draw_item(item) {
 			ctx.fill();
 			break;
 	}
-	
-	console.log("draw: " + JSON.stringify(item));
 }
 
 
 function clear_item(item) {
-	console.log("erase: " + JSON.stringify(item));
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	var x = parseInt(item.x_coord) + grid_line_width;
@@ -214,19 +221,23 @@ function canvas_mouse_down(evt) {
 	
 	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
 	
-	//Outline the selected grid space
-	/*
-	ctx.lineWidth = grid_line_width;
-	ctx.strokeStyle = grid_highlight;
-	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
-	
-	if(selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) {
+	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid)
+			&& (selected_grid_x != -1 && selected_grid_y != -1)) {
 		ctx.strokeStyle = grid_color;
 		ctx.lineWidth = grid_line_width;
 		ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 		ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	}
-	*/
+	
+	live_objects.forEach( function(element) {
+		if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y) 
+			draw_item(element);
+	});
+	
+	//Outline the selected grid space
+	ctx.lineWidth = grid_line_width;
+	ctx.strokeStyle = grid_highlight;
+	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
 	
 	selected_grid_x = x_snap_to_grid;
 	selected_grid_y = y_snap_to_grid;
@@ -246,35 +257,31 @@ function canvas_mouse_up(evt) {
 	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
 
 	//Exit this function if the mouse is released within the same grid element it was activated in
-	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y) {
-		console.log("returning");
+	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
 		return;
-	}
 	
 	//Clear the last grid space and redraw
-	/*ctx.strokeStyle = grid_color;
+	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	ctx.clearRect(mouse_down_grid_x + grid_line_width, mouse_down_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(mouse_down_grid_x + grid_line_width, mouse_down_grid_y + grid_line_width, grid_size, grid_size);
-	
-	//Draw the grid cursor
-	ctx.lineWidth = grid_line_width;
-	ctx.strokeStyle = grid_highlight;
-	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
-	*/
-	
+		
 	for(var i=0; i<live_objects.length; i++) {
 		if(live_objects[i].x_coord == mouse_down_grid_x && live_objects[i].y_coord == mouse_down_grid_y) {
 			var move_color = live_objects[i].color;
 			var move_x = live_objects[i].x_coord;
 			var move_y = live_objects[i].y_coord;
 			var move_shape = live_objects[i].shape;
-			
 			send_element_to_server(move_color, move_x, move_y, move_shape);
 			send_element_to_server(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
 		}
 	}
 	
+	//Draw the grid cursor
+	ctx.lineWidth = grid_line_width;
+	ctx.strokeStyle = grid_highlight;
+	ctx.strokeRect(x_snap_to_grid + grid_line_width, y_snap_to_grid + grid_line_width, grid_size, grid_size);
+
 	selected_grid_x = x_snap_to_grid;
 	selected_grid_y = y_snap_to_grid;
 	
