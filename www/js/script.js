@@ -25,7 +25,14 @@ var grid_canvas,
 	clear_element_button,
 	reset_board_button,
 	place_vertex_button,
-	start_new_line_button;
+	start_new_line_button,
+	move_button,
+	move_element_x,
+	move_element_y,
+	incremental_move_up,
+	incremental_move_down,
+	incremental_move_left,
+	incremental_move_right;
 
 var live_objects = new Array();
 
@@ -70,6 +77,13 @@ function canvasApp() {
 	reset_board_button = document.getElementById('reset_board_button');
 	place_vertex_button = document.getElementById('place_vertex_button');
 	start_new_line_button = document.getElementById('start_new_line_button');
+	move_button = document.getElementById('move_button');
+	move_element_x = document.getElementById('move_to_x');
+	move_element_y = document.getElementById('move_to_y');
+	incremental_move_up = document.getElementById('move_inc_up');
+	incremental_move_down = document.getElementById('move_inc_down');
+	incremental_move_left = document.getElementById('move_inc_left');
+	incremental_move_right = document.getElementById('move_inc_right');
 	
 	ctx = grid_canvas.getContext('2d');
 
@@ -138,6 +152,69 @@ function canvasApp() {
 		y_vertices = [];
 	}, false);
 	
+	move_button.addEventListener('click', function(event) {
+		live_objects.find(function(el,ind,arr) {
+			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
+				var move_to_color = el.color;
+				var move_to_x = el.x_coord;
+				var move_to_y = el.y_coord;
+				var move_to_shape = el.shape;
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : move_to_x,
+										"y_coord" : move_to_y,
+										"object_type" : move_to_shape });
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : (move_element_x.value - 1) * grid_size,
+										"y_coord" : (move_element_y.value - 1) * grid_size,
+										"object_type" : move_to_shape });
+			}
+		});
+	}, false);
+	
+	incremental_move_up.addEventListener('click', function(event) {
+		live_objects.find(function(el,ind,arr) {
+			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
+				var move_to_color = el.color;
+				var move_to_x = el.x_coord;
+				var move_to_y = el.y_coord;
+				var move_to_shape = el.shape;
+				move_element_y.value--;
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : move_to_x,
+										"y_coord" : move_to_y,
+										"object_type" : move_to_shape });
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : (move_element_x.value - 1) * grid_size,
+										"y_coord" : move_element_y.value * grid_size,
+										"object_type" : move_to_shape });
+				selected_grid_y = move_element_y.value * grid_size;
+				draw_cursor_at_position(selected_grid_x, selected_grid_y);
+			}
+		});
+	}, false);
+	
+	incremental_move_down.addEventListener('click', function(event) {
+		live_objects.find(function(el,ind,arr) {
+			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
+				var move_to_color = el.color;
+				var move_to_x = el.x_coord;
+				var move_to_y = el.y_coord;
+				var move_to_shape = el.shape;
+				move_element_y.value++;
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : move_to_x,
+										"y_coord" : move_to_y,
+										"object_type" : move_to_shape });
+				send_element_to_server({ "color" : move_to_color,
+										"x_coord" : (move_element_x.value - 1) * grid_size,
+										"y_coord" : move_element_y.value * grid_size,
+										"object_type" : move_to_shape });
+				selected_grid_y = move_element_y.value * grid_size;
+				draw_cursor_at_position(selected_grid_x, selected_grid_y);
+			}
+		});
+	}, false);
+	
 	drawScreen();
 }
 
@@ -164,6 +241,8 @@ function send_element_to_server(item_to_send) {
 			return;
 		},
 		error : function(status, error) {
+			if(error == 'parsererror')
+				return
 			console.log("Error: " + status.status + ", " + error);
 		}
 	});
@@ -276,7 +355,9 @@ function canvas_mouse_down(evt) {
 	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
 	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
 		
-	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
+	//document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
+	move_element_x.value = (1+x_snap_to_grid/grid_size);
+	move_element_y.value = (1+y_snap_to_grid/grid_size);
 	
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) 
 			&& (selected_grid_x != -1 && selected_grid_y != -1)) 
@@ -309,11 +390,12 @@ function canvas_mouse_up(evt) {
 	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
 	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
 
-	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
-
 	//Exit this function if the mouse is released within the same grid element it was activated in
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
 		return;
+	
+	move_element_x.value = (1+x_snap_to_grid/grid_size);
+	move_element_y.value = (1+y_snap_to_grid/grid_size);
 	
 	//Clear the last grid space and redraw
 	clear_previous_cursor_position();

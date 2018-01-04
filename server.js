@@ -79,11 +79,13 @@ app.post('/push_change', function(req,res) {
 		if(cells[i].color==input.color && cells[i].x_coord==input.x_coord && cells[i].y_coord==input.y_coord) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send("Done");
+			console.log("Deleted: " + JSON.stringify(cells[i]));
 			cells.splice(i,1);
 			return;
 		}
 	}
 	
+	console.log("Added: " + JSON.stringify(input));
 	cells.push(input);
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
