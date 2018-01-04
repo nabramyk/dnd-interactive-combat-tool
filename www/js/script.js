@@ -32,8 +32,25 @@ var live_objects = new Array();
 window.addEventListener('load', eventWindowLoaded, false);
 console.log(window.location.href);
 
-function line_pass_through_grid_point() {
-	
+function redraw_line(element) {
+	var x = JSON.parse(element.x_coord);
+	var y = JSON.parse(element.y_coord);
+	var m, b, y_val, region;
+	for(var i=1; i < x.length; i++) {
+		m = (y[i] - y[i-1]) / (x[i] - x[i-1]);
+		b = y[i-1] - m * x[i-1];
+		y_val = m * selected_grid_x + b;
+		region = (y_val - (y_val % grid_size));
+		if(selected_grid_y == region || 
+				selected_grid_y + grid_size == region ||
+					(isNaN(region) && (selected_grid_x == x[i-1] ||
+							selected_grid_x  + grid_size == x[i-1]))) {
+			draw_item({ "color" : element.color,
+						"x_coord" : JSON.stringify([x[i-1],x[i]]),
+						"y_coord" : JSON.stringify([y[i-1],y[i]]),
+						"shape" : element.shape });
+		}
+	}
 }
 
 function eventWindowLoaded() {
@@ -258,9 +275,7 @@ function canvas_mouse_down(evt) {
 	
 	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
 	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
-	
-	console.log(y_snap_to_grid);
-	
+		
 	document.getElementById("grid_location").innerHTML = "X = " + (1+x_snap_to_grid/grid_size) + "; Y = " + (1+y_snap_to_grid/grid_size);
 	
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) 
@@ -272,20 +287,7 @@ function canvas_mouse_down(evt) {
 			draw_item(element);
 		
 		if(element.shape == "line") {
-			var x = JSON.parse(element.x_coord);
-			var y = JSON.parse(element.y_coord);
-			var m, b, y_val;
-			for(var i=1; i < x.length; i++) {
-				m = (y[i] - y[i-1]) / (x[i] - x[i-1]);
-				b = y[i-1] - m * x[i-1];
-				y_val = m * selected_grid_x + b;
-				if(selected_grid_y == (y_val - (y_val % grid_size))) {
-					draw_item({ "color" : element.color,
-								"x_coord" : JSON.stringify([x[i-1],x[i]]),
-								"y_coord" : JSON.stringify([y[i-1],y[i]]),
-								"shape" : element.shape });
-				}
-			}
+			redraw_line(element);
 		}
 	});
 	
@@ -337,22 +339,8 @@ function canvas_mouse_up(evt) {
 									"object_type" : move_shape});
 		}
 
-		if(element.shape == "line") {
-			var x = JSON.parse(element.x_coord);
-			var y = JSON.parse(element.y_coord);
-			var m, b, y_val;
-			for(var i=1; i < x.length; i++) {
-				m = (y[i] - y[i-1]) / (x[i] - x[i-1]);
-				b = y[i-1] - m * x[i-1];
-				y_val = m * selected_grid_x + b;
-				if(selected_grid_y == (y_val - (y_val % grid_size))) {
-					console.log(element.color);
-					draw_item({ "color" : element.color,
-								"x_coord" : JSON.stringify([x[i-1],x[i]]),
-								"y_coord" : JSON.stringify([y[i-1],y[i]]),
-								"shape" : element.shape});
-				}
-			}
+		if(live_objects[i].shape == "line") {
+			redraw_line(live_objects[i]);
 		}
 	}
 	
