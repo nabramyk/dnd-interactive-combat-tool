@@ -44,6 +44,7 @@ function redraw_line(element) {
 	var y = JSON.parse(element.y_coord);
 	var m, b, y_val, region;
 	for(var i=1; i < x.length; i++) {
+		console.log(calculate_grid_points_on_line({ "x" : x[i-1], "y" : y[i-1]}, { "x" : x[i], "y" : y[i]}));
 		m = (y[i] - y[i-1]) / (x[i] - x[i-1]);
 		b = y[i-1] - m * x[i-1];
 		y_val = m * selected_grid_x + b;
@@ -58,6 +59,29 @@ function redraw_line(element) {
 						"shape" : element.shape });
 		}
 	}
+}
+
+function calculate_grid_points_on_line(starting_point, ending_point) {
+	var start = starting_point;
+	var end = ending_point;
+	var grid_points = [];
+	var m, b, y_val;
+	
+	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
+	b = starting_point.y - m * starting_point.x;
+	
+	if(m === -Infinity || m === Infinity) {
+		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
+			grid_points.push({ "x" : starting_point.x, "y" : y_val });
+		}
+	}
+	else 
+		for(var x_val = starting_point.x; x_val < ending_point.x; x_val = x_val + grid_size) {
+			y_val = m * x_val + b;
+			grid_points.push({ "x" : x_val, "y" : (y_val - (y_val % grid_size)) });
+		}
+	
+	return grid_points;
 }
 
 function eventWindowLoaded() {
@@ -134,7 +158,7 @@ function canvasApp() {
 										"x_coord" : element.x_coord, 
 										"y_coord" : element.y_coord, 
 										"object_type" : element.shape });
-		})
+		});
 	}, false);
 	
 	place_vertex_button.addEventListener('click', function(event) {
@@ -320,12 +344,18 @@ function draw_item(item) {
 
 
 function clear_item(item) {
-	ctx.strokeStyle = grid_color;
-	ctx.lineWidth = grid_line_width;
-	var x = parseInt(item.x_coord) + grid_line_width;
-	var y = parseInt(item.y_coord) + grid_line_width;
-	ctx.clearRect(x, y, grid_size, grid_size);
-	ctx.strokeRect(x, y, grid_size, grid_size);
+	switch(item.shape) {
+		case "square":
+		case "circle":
+			ctx.strokeStyle = grid_color;
+			ctx.lineWidth = grid_line_width;
+			var x = parseInt(item.x_coord) + grid_line_width;
+			var y = parseInt(item.y_coord) + grid_line_width;
+			ctx.clearRect(x, y, grid_size, grid_size);
+			ctx.strokeRect(x, y, grid_size, grid_size);
+		case "line":
+			
+	}
 }
 
 function clear_previous_cursor_position() {
