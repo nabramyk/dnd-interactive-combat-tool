@@ -172,50 +172,61 @@ function canvasApp() {
 	}, false);
 	
 	incremental_move_up.addEventListener('click', function(event) {
-		live_objects.find(function(el,ind,arr) {
-			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
-				var move_to_color = el.color;
-				var move_to_x = el.x_coord;
-				var move_to_y = el.y_coord;
-				var move_to_shape = el.shape;
-				move_element_y.value--;
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : move_to_x,
-										"y_coord" : move_to_y,
-										"object_type" : move_to_shape });
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : (move_element_x.value - 1) * grid_size,
-										"y_coord" : move_element_y.value * grid_size,
-										"object_type" : move_to_shape });
-				selected_grid_y = move_element_y.value * grid_size;
-				draw_cursor_at_position(selected_grid_x, selected_grid_y);
-			}
-		});
+		incremental_move_element("up");
 	}, false);
 	
 	incremental_move_down.addEventListener('click', function(event) {
-		live_objects.find(function(el,ind,arr) {
-			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
-				var move_to_color = el.color;
-				var move_to_x = el.x_coord;
-				var move_to_y = el.y_coord;
-				var move_to_shape = el.shape;
-				move_element_y.value++;
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : move_to_x,
-										"y_coord" : move_to_y,
-										"object_type" : move_to_shape });
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : (move_element_x.value - 1) * grid_size,
-										"y_coord" : move_element_y.value * grid_size,
-										"object_type" : move_to_shape });
-				selected_grid_y = move_element_y.value * grid_size;
-				draw_cursor_at_position(selected_grid_x, selected_grid_y);
-			}
-		});
+		incremental_move_element("down");
+	}, false);
+	
+	incremental_move_left.addEventListener('click', function(event) {
+		incremental_move_element("left");
+	}, false);
+
+	incremental_move_right.addEventListener('click', function(event) {
+		incremental_move_element("right");
 	}, false);
 	
 	drawScreen();
+}
+
+function incremental_move_element(direction) {
+	live_objects.find(function(el,ind,arr) {
+		if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
+			var move_to_color = el.color;
+			var move_to_x = el.x_coord;
+			var move_to_y = el.y_coord;
+			var move_to_shape = el.shape;
+			
+			if(direction=="right") {
+				move_element_x.value++;
+				selected_grid_x = (move_element_x.value - 1) * grid_size;
+			}
+			else if(direction=="left") {
+				move_element_x.value--;
+				selected_grid_x = (move_element_x.value - 1) * grid_size;
+			}
+			else if(direction=="up") {
+				move_element_y.value--;
+				selected_grid_y = (move_element_y.value - 1) * grid_size;	
+			}
+			else if(direction=="down") {
+				move_element_y.value++;
+				selected_grid_y = (move_element_y.value - 1) * grid_size;	
+			}
+			
+			send_element_to_server({ "color" : move_to_color,
+									"x_coord" : move_to_x,
+									"y_coord" : move_to_y,
+									"object_type" : move_to_shape });
+			send_element_to_server({ "color" : move_to_color,
+									"x_coord" : (move_element_x.value - 1) * grid_size,
+									"y_coord" : (move_element_y.value - 1) * grid_size,
+									"object_type" : move_to_shape });
+			
+			draw_cursor_at_position(selected_grid_x, selected_grid_y);
+		}
+	});
 }
 
 /* Function for drawing the grid board
