@@ -27,10 +27,20 @@
 		<br>
 		Move selected element to -> X:<input type="number" id="move_to_x"> | Y:<input type="number" id="move_to_y"><button id="move_button">Move</button>
 		<br>
-		Move Incremental<button id="move_inc_left"><i class="arrow left"></i></button>
-						<button id="move_inc_up"><i class="arrow up"></i></button>
-						<button id="move_inc_right"><i class="arrow right"></i></button>
-						<button id="move_inc_down"><i class="arrow down"></i></button>
+		<div id="incremental_movement_control_container">
+			<div id="miu_div">
+				<button id="move_inc_up" class="incr_move_button"><i class="arrow up"></i></button>
+			</div>
+			<div id="mil_div">
+				<button id="move_inc_left" class="incr_move_button"><i class="arrow left"></i></button>
+			</div>
+			<div id="mir_div">
+				<button id="move_inc_right" class="incr_move_button"><i class="arrow right"></i></button>
+			</div>
+			<div id="mid_div">			
+				<button id="move_inc_down" class="incr_move_button"><i class="arrow down"></i></button>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

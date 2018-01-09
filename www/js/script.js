@@ -68,17 +68,28 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
 	b = starting_point.y - m * starting_point.x;
 	
-	if(m === -Infinity || m === Infinity) {
+	if(m === -Infinity || m === Infinity)
 		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
 			grid_points.push({ "x" : starting_point.x, "y" : y_val });
 		}
-	}
-	else 
-		for(var x_val = starting_point.x; x_val < ending_point.x; x_val = x_val + grid_size) {
+	else
+		for(var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
 			y_val = m * x_val + b;
-			grid_points.push({ "x" : x_val, "y" : (y_val - (y_val % grid_size)) });
+			var xy_pair = { "x" : (x_val  - (x_val % grid_size)), "y" : (y_val - (y_val % grid_size))};
+			
+			if(grid_points.length==0) {
+				grid_points.push(xy_pair);
+				continue;
+			}
+			
+			for(var i=0; i<grid_points.length; i++) {
+				if(xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
+					break; 
+				else if(i == grid_points.length-1)
+					grid_points.push(xy_pair);
+			}
 		}
-	
+	console.log(grid_points);
 	return grid_points;
 }
 
@@ -297,7 +308,6 @@ function send_element_to_server(item_to_send) {
 }
 
 function check_for_clipped_regions() {
-	console.log('clipped');
 	draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	
 }
@@ -373,8 +383,20 @@ function clear_item(item) {
 			var y = parseInt(item.y_coord) + grid_line_width;
 			ctx.clearRect(x, y, grid_size, grid_size);
 			ctx.strokeRect(x, y, grid_size, grid_size);
+			break;
 		case "line":
-			
+			ctx.strokeStyle = grid_color;
+			ctx.lineWidth = grid_line_width;
+			var x = JSON.parse(item.x_coord);
+			var y = JSON.parse(item.y_coord);
+			for(var i=1; i < x.length; i++) {
+				var grid_points = calculate_grid_points_on_line({ "x" : x[i-1], "y" : y[i-1]},
+																{ "x" : x[i], "y" : y[i]});
+				grid_points.forEach(function(element) {
+					clear_item({"shape":"square","x_coord":element.x,"y_coord":element.y});
+				});
+			}
+			break;
 	}
 }
 
