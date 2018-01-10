@@ -1,44 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="/js/script.js"></script>
-	<link rel="stylesheet" type="text/css" href="/css/style.css">
+<title>DND Interactive Combat Tool</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+<script src="/js/jscolor.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
-	<div>
-		<canvas id="grid_canvas"></canvas>
-	</div>
-	<div id="tool_editor">
-		<p id="grid_location"></p>	
-		<select id="selected_shape">
-			<option value="square">Square</option>
-			<option value="circle">Circle</option>
-			<option value="line">Line</option>
-		</select>
-		Color: <input type="color" id="element_color"><br>
-		<button id="place_element_button">Place Element</button>
-		<button id="clear_element_button">Clear Element</button>
-		<button id="reset_board_button">Reset Board</button>
-		<br>
-		<button id="start_new_line_button">Start New Line</button>
-		<button id="place_vertex_button">Place Vertex</button>
-		<br>
-		Move selected element to -> X:<input type="number" id="move_to_x"> | Y:<input type="number" id="move_to_y"><button id="move_button">Move</button>
-		<br>
-		<div id="incremental_movement_control_container">
-			<div id="miu_div">
-				<button id="move_inc_up" class="incr_move_button"><i class="arrow up"></i></button>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-3">
+				<p id="grid_location"></p>
+				<select id="selected_shape">
+					<option value="square">Square</option>
+					<option value="circle">Circle</option>
+					<option value="line">Line</option>
+				</select> <br> Color: <input class="jscolor" id="element_color"
+					value="000000"> <br>
+				<button id="place_element_button">Add Element</button>
+				<br>
+				<button id="clear_element_button">Delete Element</button>
+				<br>
+				<button id="reset_board_button">Reset Board</button>
+				<br>
+				<button id="start_new_line_button">Start New Line</button>
+				<br>
+				<button id="place_vertex_button">Place Vertex</button>
+				<br> X: <input type="number" id="move_to_x"><br>
+				Y: <input type="number" id="move_to_y"> <br>
+				<button id="move_button">Move</button>
+				<br>
+				<table id="incremental_movement_control_container">
+					<tr>
+						<td>
+						<td>
+							<button id="move_inc_up" class="incr_move_button">
+								<i class="arrow up"></i>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<button id="move_inc_left" class="incr_move_button">
+							<i class="arrow left"></i>
+						</button>
+						</td>
+						<td>
+						<td>
+						<button id="move_inc_right" class="incr_move_button">
+							<i class="arrow right"></i>
+						</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<td>
+						<button id="move_inc_down" class="incr_move_button">
+							<i class="arrow down"></i>
+						</button>
+						</td>
+					</tr>
+				</table>
 			</div>
-			<div id="mil_div">
-				<button id="move_inc_left" class="incr_move_button"><i class="arrow left"></i></button>
+			<div class="col-xs-6">
+				<canvas id="grid_canvas"></canvas>
 			</div>
-			<div id="mir_div">
-				<button id="move_inc_right" class="incr_move_button"><i class="arrow right"></i></button>
-			</div>
-			<div id="mid_div">			
-				<button id="move_inc_down" class="incr_move_button"><i class="arrow down"></i></button>
-			</div>
+			<div class="col-xs-3"></div>
 		</div>
 	</div>
 </body>

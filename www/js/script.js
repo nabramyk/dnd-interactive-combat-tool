@@ -80,7 +80,7 @@ function canvasApp() {
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
 	
-	grid_canvas.addEventListener('mousemove', function(event) {
+	/*grid_canvas.addEventListener('mousemove', function(event) {
 		if (document.getElementById('on_hover_highlight').checked == true) {
 			console.log('X:' + event.offsetX + ', Y: ' + event.offsetY);
 			var mouse_x = event.offsetX;
@@ -90,7 +90,7 @@ function canvasApp() {
 			ctx.fillStyle = "#CCFF33";
 			ctx.fillRect(x_snap_to_grid, y_snap_to_grid, 5, 5);
 		}
-	})
+	})*/
 
 	place_element_button.addEventListener('click', function(event) {
 		send_element_to_server({ "color" : document.getElementById("element_color").value,
@@ -305,13 +305,13 @@ function redraw_live_objects() {
 function draw_item(item) {
 	switch(item.shape) {
 		case "square":
-			ctx.fillStyle = item.color;
+			ctx.fillStyle = "#" + item.color;
 			var x = parseInt(item.x_coord) + grid_line_width;
 			var y = parseInt(item.y_coord) + grid_line_width;
 			ctx.fillRect(x + grid_line_width, y + grid_line_width, grid_size - grid_line_width * 2, grid_size - grid_line_width * 2);
 			break;
 		case "circle":
-			ctx.fillStyle = item.color;
+			ctx.fillStyle = "#" + item.color;
 			var x = parseInt(item.x_coord) + grid_line_width;
 			var y = parseInt(item.y_coord) + grid_line_width;
 			ctx.beginPath();
@@ -319,7 +319,7 @@ function draw_item(item) {
 			ctx.fill();
 			break;
 		case "line":
-			ctx.strokeStyle = item.color;
+			ctx.strokeStyle = "#" + item.color;
 			ctx.beginPath();
 			var x = JSON.parse(item.x_coord);
 			var y = JSON.parse(item.y_coord);
@@ -381,12 +381,12 @@ function clear_previous_cursor_position() {
 }
 
 function draw_cursor_at_position(x, y) {
-	ctx.lineWidth = grid_line_width;
-	ctx.strokeStyle = grid_highlight;
-	
 	if(document.getElementById("selected_shape").value == "square" || document.getElementById("selected_shape").value == "circle" ) {
+		ctx.lineWidth = grid_line_width;
+		ctx.strokeStyle = grid_highlight;
 		ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
 	} else if(document.getElementById("selected_shape").value == "line") {
+		ctx.fillStyle = grid_highlight;
 		ctx.beginPath();
 		ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
 		ctx.fill();

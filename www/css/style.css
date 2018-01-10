@@ -1,13 +1,14 @@
+body {
+
+}
+
 #grid_canvas {
-	display: block;
+	display: inline-block;
 	margin: auto;
 }
 
 #incremental_movement_control_container {
-	display: grid;
-	grid-template-columns: 50px 50px 50px;
-	grid-gap: 0px;
-	width: 150px;
+	
 }
 
 #miu_div {
