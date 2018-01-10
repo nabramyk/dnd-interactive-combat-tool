@@ -19,13 +19,12 @@ var line_interval_id = 0;
 var x_vertices = [];
 var y_vertices = [];
 
-//GUI Elements
+// GUI Elements
 var grid_canvas, 
 	ctx, 
 	place_element_button,
 	clear_element_button,
 	reset_board_button,
-	place_vertex_button,
 	start_new_line_button,
 	move_button,
 	move_element_x,
@@ -34,7 +33,8 @@ var grid_canvas,
 	incremental_move_down,
 	incremental_move_left,
 	incremental_move_right,
-	selected_shape;
+	selected_shape,
+	movement_controls;
 
 var live_objects = new Array();
 
@@ -54,9 +54,7 @@ function canvasApp() {
 	
 	grid_canvas = document.getElementById('grid_canvas');
 	place_element_button = document.getElementById('place_element_button');
-	clear_element_button = document.getElementById('clear_element_button');
 	reset_board_button = document.getElementById('reset_board_button');
-	place_vertex_button = document.getElementById('place_vertex_button');
 	start_new_line_button = document.getElementById('start_new_line_button');
 	move_button = document.getElementById('move_button');
 	move_element_x = document.getElementById('move_to_x');
@@ -66,6 +64,11 @@ function canvasApp() {
 	incremental_move_left = document.getElementById('move_inc_left');
 	incremental_move_right = document.getElementById('move_inc_right');
 	selected_shape = document.getElementById('selected_shape');
+	movement_controls = document.getElementById('movement_controls');
+	
+	$("#movement_controls").hide();
+	$("#reset_board_button").hide();
+	$("#start_new_line_button").hide();
 	
 	ctx = grid_canvas.getContext('2d');
 
@@ -80,55 +83,47 @@ function canvasApp() {
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
 	
-	/*grid_canvas.addEventListener('mousemove', function(event) {
-		if (document.getElementById('on_hover_highlight').checked == true) {
-			console.log('X:' + event.offsetX + ', Y: ' + event.offsetY);
-			var mouse_x = event.offsetX;
-			var mouse_y = event.offsetY;
-			var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
-			var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
-			ctx.fillStyle = "#CCFF33";
-			ctx.fillRect(x_snap_to_grid, y_snap_to_grid, 5, 5);
-		}
-	})*/
+	/*
+	 * grid_canvas.addEventListener('mousemove', function(event) { if
+	 * (document.getElementById('on_hover_highlight').checked == true) {
+	 * console.log('X:' + event.offsetX + ', Y: ' + event.offsetY); var mouse_x =
+	 * event.offsetX; var mouse_y = event.offsetY; var x_snap_to_grid = mouse_x -
+	 * (mouse_x % grid_size); var y_snap_to_grid = mouse_y - (mouse_y %
+	 * grid_size); ctx.fillStyle = "#CCFF33"; ctx.fillRect(x_snap_to_grid,
+	 * y_snap_to_grid, 5, 5); } })
+	 */
 
 	place_element_button.addEventListener('click', function(event) {
-		send_element_to_server({ "color" : document.getElementById("element_color").value,
-								"x_coord" : selected_grid_x, 
-								"y_coord" : selected_grid_y,
-								"object_type" : document.getElementById("selected_shape").value });
-	}, false);
-
-	
-	clear_element_button.addEventListener('click', function(event) {
-		live_objects.forEach(function(element) {
-			if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
-				send_element_to_server({ "color" : element.color, 
-										"x_coord" : element.x_coord, 
-										"y_coord" : element.y_coord, 
-										"object_type" : element.shape });
-		});
+		if(place_element_button.innerHTML == "Add Element" || place_element_button.innerHTML == "Add Vertex") {
+			switch(selected_shape.value) {
+				case "square":
+				case "circle":
+					add_element(document.getElementById("element_color").value, selected_grid_x, selected_grid_y, document.getElementById("selected_shape").value);
+					break;
+				case "line":
+					x_vertices.push(selected_grid_x);
+					y_vertices.push(selected_grid_y);
+					break;
+			}
+			$('#movement_controls').show();
+		} else if(place_element_button.innerHTML == "Delete Element") {
+			live_objects.forEach(function(element) {
+				if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
+					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
+			});
+			$('#movement_controls').hide();
+		}
 	}, false);
 	
 	reset_board_button.addEventListener('click', function(element) {
 		live_objects.forEach(function(element) {
-				send_element_to_server({ "color" : element.color, 
-										"x_coord" : element.x_coord, 
-										"y_coord" : element.y_coord, 
-										"object_type" : element.shape });
+				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 		});
-	}, false);
-	
-	place_vertex_button.addEventListener('click', function(event) {
-		x_vertices.push(selected_grid_x);
-		y_vertices.push(selected_grid_y);
+		$('#movement_controls').hide();
 	}, false);
 	
 	start_new_line_button.addEventListener('click', function(event) {
-		send_element_to_server({ "color" : document.getElementById("element_color").value,
-								"x_coord" : JSON.stringify(x_vertices),
-								"y_coord" : JSON.stringify(y_vertices),
-								"object_type" : document.getElementById("selected_shape").value });
+		add_element(document.getElementById("element_color").value, JSON.stringify(x_vertices), JSON.stringify(y_vertices), document.getElementById("selected_shape").value);
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
@@ -170,12 +165,22 @@ function canvasApp() {
 	}, false);
 	
 	selected_shape.addEventListener('change', function(event) {
+		switch(selected_shape.value) {
+		case "line":
+			place_element_button.innerHTML = "Add Vertex";
+			$('#start_new_line_button').show();
+			break;
+		case "square":
+		case "circle":
+			place_element_button.innerHTML = "Add Element";
+			$('#start_new_line_button').hide();
+			break;
+		}
 		if(selected_grid_x == -1 && selected_grid_y == -1)
 			return;
 		clear_previous_cursor_position();
 		redraw_live_objects();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
-		console.log("on change");
 	}, false);
 	drawScreen();
 }
@@ -218,7 +223,8 @@ function incremental_move_element(direction) {
 	});
 }
 
-/* Function for drawing the grid board
+/*
+ * Function for drawing the grid board
  * 
  */
 function drawScreen() {
@@ -330,6 +336,7 @@ function draw_item(item) {
 			ctx.stroke();
 			break;
 	}
+	place_element_button.innerHTML = "Delete Element";
 }
 
 
@@ -356,6 +363,12 @@ function clear_item(item) {
 			}
 			break;
 	}
+	
+	if(selected_shape.value=="line") {
+		place_element_button.innerHTML = "Add Vertex";
+	} else {
+		place_element_button.innerHTML = "Add Element";
+	}
 }
 
 function clear_previous_cursor_position() {
@@ -363,19 +376,19 @@ function clear_previous_cursor_position() {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	
-	//Clear the selected position
+	// Clear the selected position
 	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	
-	//Clear the position to the top left of the selected position
+	// Clear the position to the top left of the selected position
 	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 	
-	//Clear the position left of this the selected postion
+	// Clear the position left of this the selected postion
 	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
 	
-	//Clear the position above the current position
+	// Clear the position above the current position
 	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 }
@@ -413,8 +426,28 @@ function canvas_mouse_down(evt) {
 	
 	redraw_live_objects();
 	
-	//Outline the selected grid space, depending on the style of element to be drawn
+	// Outline the selected grid space, depending on the style of element to be
+	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
+	
+	// Find if this grid point contains a live element
+	for(var i=0; i<live_objects.length; i++) {
+		if(live_objects[i].x_coord == x_snap_to_grid && live_objects[i].y_coord == y_snap_to_grid) {
+			place_element_button.innerHTML = "Delete Element";
+			$('#movement_controls').show();
+			break;
+		}
+		
+		if(i == 0 || i == live_objects.length - 1) {
+			if(selected_shape.value == "square" || selected_shape.value == "circle") {
+				place_element_button.innerHTML = "Add Element";
+			} else if(selected_shape.value == "line") {
+				place_element_button.innerHTML = "Add Vertex";
+			}
+			$('#movement_controls').hide();
+		}
+	}
+	
 	
 	mouse_down_grid_x = x_snap_to_grid;
 	mouse_down_grid_y = y_snap_to_grid;
@@ -428,14 +461,15 @@ function canvas_mouse_up(evt) {
 	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
 	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
 
-	//Exit this function if the mouse is released within the same grid element it was activated in
+	// Exit this function if the mouse is released within the same grid element
+	// it was activated in
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
 		return;
 	
 	move_element_x.value = (1+x_snap_to_grid/grid_size);
 	move_element_y.value = (1+y_snap_to_grid/grid_size);
 	
-	//Clear the last grid space and redraw
+	// Clear the last grid space and redraw
 	clear_previous_cursor_position();
 		
 	for(var i=0; i<live_objects.length; i++) {
@@ -445,11 +479,13 @@ function canvas_mouse_up(evt) {
 			var move_y = live_objects[i].y_coord;
 			var move_shape = live_objects[i].shape;
 			
-			//Send the item that is to be moved with the original coordinates, which will 
-			//cause the server to delete that element from the server grid
+			// Send the item that is to be moved with the original coordinates,
+			// which will
+			// cause the server to delete that element from the server grid
 			delete_element(move_color, move_x, move_y, move_shape);
 			
-			//Send the item again but with the updated coordinates, which will be added to the server grid
+			// Send the item again but with the updated coordinates, which will
+			// be added to the server grid
 			add_element(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
 		}
 
@@ -458,11 +494,31 @@ function canvas_mouse_up(evt) {
 		}
 	}
 	
-	//Outline the selected grid space, depending on the style of element to be drawn
+	// Outline the selected grid space, depending on the style of element to be
+	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
 
 	mouse_down_grid_x = -1;
 	mouse_down_grid_y = -1;
+}
+
+function delete_element(color, x, y, shape) {
+	send_element_to_server({"color" : color, 
+							"x_coord" : x, 
+							"y_coord" : y, 
+							"object_type" : shape});
+}
+
+function add_element(color, x, y, shape) {
+	send_element_to_server({"color" : color, 
+		"x_coord" : x, 
+		"y_coord" : y, 
+		"object_type" : shape});
+}
+
+function move_element(color, from, to, shape) {
+	delete_element(color, from.x, from.y, shape);
+	add_element(color, to.x, to.y, shape);
 }
 
 function update() {
@@ -488,30 +544,16 @@ function update() {
 					draw_item(result[i].item);
 				}
 			}
+			
+			if(live_objects.length == 0)
+				$('#reset_board_button').hide();
+			else 
+				$('#reset_board_button').show();
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
 		}
 	});
-}
-
-function delete_element(color, x, y, shape) {
-	send_element_to_server({"color" : color, 
-							"x_coord" : x, 
-							"y_coord" : y, 
-							"object_type" : shape});
-}
-
-function add_element(color, x, y, shape) {
-	send_element_to_server({"color" : color, 
-		"x_coord" : x, 
-		"y_coord" : y, 
-		"object_type" : shape});
-}
-
-function move_element(color, from, to, shape) {
-	delete_element(color, from.x, from.y, shape);
-	add_element(color, to.x, to.y, shape);
 }
 
 function send_element_to_server(item_to_send) {	

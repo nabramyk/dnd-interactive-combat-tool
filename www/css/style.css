@@ -1,5 +1,5 @@
-body {
-
+#move_to_x,#move_to_y {
+	width: 43%;
 }
 
 #grid_canvas {
@@ -7,8 +7,8 @@ body {
 	margin: auto;
 }
 
-#incremental_movement_control_container {
-	
+#move_button,#place_element_button,#reset_board_button,#start_new_line_button {
+	width: 100%;
 }
 
 #miu_div {
