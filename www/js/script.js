@@ -217,8 +217,6 @@ function incremental_move_element(direction) {
 					redraw_line(live_objects[i]);
 				}
 			}
-			
-			draw_cursor_at_position(selected_grid_x, selected_grid_y);
 		}
 	});
 }
@@ -286,7 +284,6 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 					grid_points.push(xy_pair);
 			}
 		}
-	console.log(grid_points);
 	return grid_points;
 }
 
@@ -296,15 +293,12 @@ function check_for_clipped_regions() {
 
 function redraw_live_objects() {
 	live_objects.forEach( function(element, index) {
-		if(		(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y) ||
-				(element.x_coord == selected_grid_x - grid_size && element.y_coord == selected_grid_y - grid_size) ||
-				(element.x_coord == selected_grid_x - grid_size && element.y_coord == selected_grid_y) ||
-				(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y - grid_size)) 
-			draw_item(element);
-		
 		if(element.shape == "line") {
 			redraw_line(element);
 		}
+		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
+				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) 
+			draw_item(element);
 	});
 }
 
@@ -404,7 +398,9 @@ function draw_cursor_at_position(x, y) {
 		ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
 		ctx.fill();
 	}
+	
 	redraw_live_objects();
+	
 	selected_grid_x = x;
 	selected_grid_y = y;
 }
