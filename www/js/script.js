@@ -209,12 +209,6 @@ function incremental_move_element(direction) {
 			}
 			
 			move_element(move_to_color, {"x" : move_to_x, "y" : move_to_y}, {"x" : selected_grid_x, "y" : selected_grid_y}, move_to_shape);
-			
-			for(var i=0; i<live_objects.length; i++) {
-				if(live_objects[i].shape == "line") {
-					redraw_line(live_objects[i]);
-				}
-			}
 		}
 	});
 }
@@ -286,14 +280,41 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 }
 
 function check_for_clipped_regions() {
-	draw_cursor_at_position(selected_grid_x, selected_grid_y);
+	//draw_cursor_at_position(selected_grid_x, selected_grid_y);
+	
+	//Find all of the lines in live_objects
+	var temp = live_objects.filter(element => element.shape === "line");
+	
+	//Execute function for each set of line segments
+	temp.find(function(element,ind,arr) {
+		var vertices_x = JSON.parse(element.x_coord);
+		var vertices_y = JSON.parse(element.y_coord);
+		var m, b, y_val, region;
+		
+		for(var i=1; i < vertices_x.length; i++) {
+			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
+															{ "x" : vertices_x[i], "y" : vertices_y[i]});
+			grid_points.find( function(el,ind,arr) {
+				if((el.x > selected_grid_x - grid_size && el.x < selected_grid_x + grid_size) 
+						&& (el.y > selected_grid_y - grid_size && el.y < selected_grid_y + grid_size)) {
+					
+					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
+					console.log(line_segment);
+					draw_item({ "color" : element.color,
+								"x_coord" : JSON.stringify(line_segment[0]),
+								"y_coord" : JSON.stringify(line_segment[1]),
+								"shape" : "line" });
+				}
+			});
+		}
+	});
 }
 
 function redraw_live_objects() {
 	live_objects.forEach( function(element, index) {
-		if(element.shape == "line") {
+		/*if(element.shape == "line") {
 			redraw_line(element);
-		}
+		}*/
 		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
 				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) 
 			draw_item(element);
@@ -368,21 +389,23 @@ function clear_previous_cursor_position() {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	
+	if(selected_shape.value == "line") {
+		// Clear the position to the top left of the selected position
+		ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+		ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+		
+		// Clear the position left of this the selected postion
+		ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
+		ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
+		
+		// Clear the position above the current position
+		ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+		ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	}
+	
 	// Clear the selected position
 	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
-	
-	// Clear the position to the top left of the selected position
-	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	
-	// Clear the position left of this the selected postion
-	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-	
-	// Clear the position above the current position
-	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -397,7 +420,7 @@ function draw_cursor_at_position(x, y) {
 		ctx.fill();
 	}
 	
-	redraw_live_objects();
+	//redraw_live_objects();
 	
 	selected_grid_x = x;
 	selected_grid_y = y;
@@ -419,6 +442,7 @@ function canvas_mouse_down(evt) {
 		clear_previous_cursor_position();
 	
 	redraw_live_objects();
+	check_for_clipped_regions();
 	
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
@@ -483,9 +507,10 @@ function canvas_mouse_up(evt) {
 			add_element(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
 		}
 
+		/*
 		if(live_objects[i].shape == "line") {
 			redraw_line(live_objects[i]);
-		}
+		}*/
 	}
 	
 	// Outline the selected grid space, depending on the style of element to be
@@ -504,7 +529,7 @@ function add_element(color, x, y, shape) {
 }
 
 function delete_element(color, x, y, shape) {
-	add_element(coloe, x, y, shape);
+	add_element(color, x, y, shape);
 }
 
 function move_element(color, from, to, shape) {
@@ -566,4 +591,49 @@ function send_element_to_server(item_to_send) {
 
 function error_report(status, error) {
 	console.log("Error: " + status.status + ", " + error);
+}
+
+/**
+ * Liang-Barsky function by Daniel White 
+ * 
+ * NOTE: Slight modification to the return value
+ * 
+ * @link http://www.skytopia.com/project/articles/compsci/clipping.html
+ *
+ * @param  {number}        x0
+ * @param  {number}        y0
+ * @param  {number}        x1
+ * @param  {number}        y1
+ * @param  {array<number>} bbox
+ * @return {array<array<number>>|null}
+ */
+function liangBarsky (x0, y0, x1, y1, bbox) {
+  var [xmin, xmax, ymin, ymax] = bbox;
+  var t0 = 0, t1 = 1;
+  var dx = x1 - x0, dy = y1 - y0;
+  var p, q, r;
+ 
+  for(var edge = 0; edge < 4; edge++) {   // Traverse through left, right, bottom, top edges.
+    if (edge === 0) { p = -dx; q = -(xmin - x0); }
+    if (edge === 1) { p =  dx; q =  (xmax - x0); }
+    if (edge === 2) { p = -dy; q = -(ymin - y0); }
+    if (edge === 3) { p =  dy; q =  (ymax - y0); }
+ 
+    r = q / p;
+ 
+    if (p === 0 && q < 0) return null;   // Don't draw line at all. (parallel line outside)
+ 
+    if(p < 0) {
+      if (r > t1) return null;     // Don't draw line at all.
+      else if (r > t0) t0 = r;     // Line is clipped!
+    } else if (p > 0) {
+      if(r < t0) return null;      // Don't draw line at all.
+      else if (r < t1) t1 = r;     // Line is clipped!
+    }
+  }
+ 
+  return [
+    [x0 + t0 * dx, x0 + t1 * dx],
+    [y0 + t0 * dy, y0 + t1 * dy]
+  ];
 }
