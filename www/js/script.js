@@ -496,18 +496,15 @@ function canvas_mouse_up(evt) {
 	mouse_down_grid_y = -1;
 }
 
-function delete_element(color, x, y, shape) {
-	send_element_to_server({"color" : color, 
-							"x_coord" : x, 
-							"y_coord" : y, 
-							"object_type" : shape});
-}
-
 function add_element(color, x, y, shape) {
 	send_element_to_server({"color" : color, 
 		"x_coord" : x, 
 		"y_coord" : y, 
 		"object_type" : shape});
+}
+
+function delete_element(color, x, y, shape) {
+	add_element(coloe, x, y, shape);
 }
 
 function move_element(color, from, to, shape) {
