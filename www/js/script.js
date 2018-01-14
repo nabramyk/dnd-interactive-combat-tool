@@ -136,14 +136,12 @@ function canvasApp() {
 				var move_to_x = el.x_coord;
 				var move_to_y = el.y_coord;
 				var move_to_shape = el.shape;
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : move_to_x,
-										"y_coord" : move_to_y,
-										"object_type" : move_to_shape });
-				send_element_to_server({ "color" : move_to_color,
-										"x_coord" : (move_element_x.value - 1) * grid_size,
-										"y_coord" : (move_element_y.value - 1) * grid_size,
-										"object_type" : move_to_shape });
+				selected_grid_x = (move_element_x.value - 1) * grid_size;
+				selected_grid_y = (move_element_y.value - 1) * grid_size;
+				move_element(move_to_color,
+						{"x" : move_to_x, "y" : move_to_y},
+						{"x" : selected_grid_x, "y" : selected_grid_y},
+						move_to_shape);
 			}
 		});
 	}, false);
