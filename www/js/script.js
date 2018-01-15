@@ -176,6 +176,7 @@ function canvasApp() {
 		}
 		if(selected_grid_x == -1 && selected_grid_y == -1)
 			return;
+		
 		clear_previous_cursor_position();
 		redraw_live_objects();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
@@ -209,6 +210,7 @@ function incremental_move_element(direction) {
 			}
 			
 			move_element(move_to_color, {"x" : move_to_x, "y" : move_to_y}, {"x" : selected_grid_x, "y" : selected_grid_y}, move_to_shape);
+			draw_cursor_at_position(selected_grid_x, selected_grid_y);
 		}
 	});
 }
@@ -279,9 +281,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	return grid_points;
 }
 
-function check_for_clipped_regions() {
-	//draw_cursor_at_position(selected_grid_x, selected_grid_y);
-	
+function check_for_clipped_regions(grid_x, grid_y) {
 	//Find all of the lines in live_objects
 	var temp = live_objects.filter(element => element.shape === "line");
 	
@@ -289,17 +289,16 @@ function check_for_clipped_regions() {
 	temp.find(function(element,ind,arr) {
 		var vertices_x = JSON.parse(element.x_coord);
 		var vertices_y = JSON.parse(element.y_coord);
-		var m, b, y_val, region;
 		
 		for(var i=1; i < vertices_x.length; i++) {
 			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
 															{ "x" : vertices_x[i], "y" : vertices_y[i]});
 			grid_points.find( function(el,ind,arr) {
-				if((el.x > selected_grid_x - grid_size && el.x < selected_grid_x + grid_size) 
-						&& (el.y > selected_grid_y - grid_size && el.y < selected_grid_y + grid_size)) {
+				if((el.x > grid_x - grid_size && el.x < grid_x + grid_size) 
+						&& (el.y > grid_y - grid_size && el.y < grid_y + grid_size)) {
 					
 					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
-					console.log(line_segment);
+
 					draw_item({ "color" : element.color,
 								"x_coord" : JSON.stringify(line_segment[0]),
 								"y_coord" : JSON.stringify(line_segment[1]),
@@ -312,13 +311,20 @@ function check_for_clipped_regions() {
 
 function redraw_live_objects() {
 	live_objects.forEach( function(element, index) {
-		/*if(element.shape == "line") {
-			redraw_line(element);
-		}*/
 		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
 				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) 
 			draw_item(element);
 	});
+	
+	check_for_clipped_regions(selected_grid_x, selected_grid_y);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y - grid_size);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y + grid_size);
 }
 
 function draw_item(item) {
@@ -389,23 +395,21 @@ function clear_previous_cursor_position() {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	
-	if(selected_shape.value == "line") {
-		// Clear the position to the top left of the selected position
-		ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-		ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-		
-		// Clear the position left of this the selected postion
-		ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-		ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-		
-		// Clear the position above the current position
-		ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-		ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	}
-	
 	// Clear the selected position
 	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
+	
+	// Clear the position to the top left of the selected position
+	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	
+	// Clear the position left of this the selected postion
+	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
+	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
+	
+	// Clear the position above the current position
+	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -419,8 +423,6 @@ function draw_cursor_at_position(x, y) {
 		ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
 		ctx.fill();
 	}
-	
-	//redraw_live_objects();
 	
 	selected_grid_x = x;
 	selected_grid_y = y;
@@ -442,7 +444,6 @@ function canvas_mouse_down(evt) {
 		clear_previous_cursor_position();
 	
 	redraw_live_objects();
-	check_for_clipped_regions();
 	
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
@@ -478,7 +479,9 @@ function canvas_mouse_up(evt) {
 
 	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
 	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
-
+	
+	redraw_live_objects();
+	
 	// Exit this function if the mouse is released within the same grid element
 	// it was activated in
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
@@ -506,11 +509,6 @@ function canvas_mouse_up(evt) {
 			// be added to the server grid
 			add_element(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
 		}
-
-		/*
-		if(live_objects[i].shape == "line") {
-			redraw_line(live_objects[i]);
-		}*/
 	}
 	
 	// Outline the selected grid space, depending on the style of element to be
@@ -551,8 +549,8 @@ function update() {
 					live_objects.find(function(el, ind, arr) {
 						if (JSON.stringify(el) == JSON.stringify(result[i].item)) {
 							clear_item(result[i].item);
+							check_for_clipped_regions(result[i].item.x_coord,result[i].item.y_coord);
 							arr.splice(ind, 1);
-							check_for_clipped_regions();
 						}
 					});
 				} else if (result[i].action == "add") {
