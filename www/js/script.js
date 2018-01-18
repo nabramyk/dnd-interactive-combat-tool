@@ -250,8 +250,10 @@ function redraw_line(element) {
 function redraw_live_objects() {
 	live_objects.forEach( function(element, index) {
 		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
-				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) 
-			draw_item(element);
+				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) { 
+			draw_item(element.shape, element.x_coord, element.y_coord, element.color);
+			console.log(element.x_coord);
+		}
 	});
 	
 	check_for_clipped_regions(selected_grid_x, selected_grid_y);
@@ -266,15 +268,11 @@ function redraw_live_objects() {
 }
 
 function draw_item(shape, x_coord, y_coord, color) {
-	
-	console.log(x_coord);
-	
 	switch(shape) {
 		case "square":
 			ctx.fillStyle = "#" + color;
-			x = x_coord + grid_line_width;
-			y = y_coord + grid_line_width;
-			console.log(x);
+			x = x_coord + grid_line_width * 2;
+			y = y_coord + grid_line_width * 2;
 			ctx.fillRect(x, y, grid_size - grid_line_width * 2, grid_size - grid_line_width * 2);
 			break;
 		case "circle":
@@ -301,25 +299,25 @@ function draw_item(shape, x_coord, y_coord, color) {
 }
 
 
-function clear_item(item) {
+function clear_item(shape, x_coord, y_coord, color) {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
-	switch(item.shape) {
+	switch(shape) {
 		case "square":
 		case "circle":
-			var x = parseInt(item.x_coord) + grid_line_width;
-			var y = parseInt(item.y_coord) + grid_line_width;
+			var x = x_coord + grid_line_width;
+			var y = y_coord + grid_line_width;
 			ctx.clearRect(x, y, grid_size, grid_size);
 			ctx.strokeRect(x, y, grid_size, grid_size);
 			break;
 		case "line":
-			var x = JSON.parse(item.x_coord);
-			var y = JSON.parse(item.y_coord);
+			var x = x_coord;
+			var y = y_coord;
 			for(var i=1; i < x.length; i++) {
 				var grid_points = calculate_grid_points_on_line({ "x" : x[i-1], "y" : y[i-1]},
 																{ "x" : x[i], "y" : y[i]});
 				grid_points.forEach(function(element) {
-					clear_item({"shape":"square","x_coord":element.x,"y_coord":element.y});
+					clear_item("square", element.x, element.y, null);
 				});
 			}
 			break;
@@ -479,23 +477,21 @@ function update() {
 		dataType : 'json',
 		success : function(result) {
 			result.forEach( function(element,ind,arr) {
+				var x = parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
+				var y = parseInt(element.item.y_coord) == "number" ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
 				if (element.action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
 							return;
-						if (element.item.x_coord == el.x_coord &&
-							 element.item.y_coord == el.y_coord) {
-							clear_item(el);
+						if (x === el.x_coord && y === el.y_coord) {
+							clear_item(el.shape, x, y, el.color);
 							check_for_clipped_regions(el.x_coord,el.y_coord);
 							arr.splice(ind, 1);
 						}
 					});
 				} else if (element.action == "add") {
-					live_objects.push(element.item);
-					draw_item(element.item.shape, 
-										parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord),
-									 	parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord),
-									 	element.item.color);
+					live_objects.push({"shape" : element.item.shape, "x_coord" : x, "y_coord" : y, "color" : element.item.color});
+					draw_item(element.item.shape, x, y, element.item.color);
 				}
 			});
 			
