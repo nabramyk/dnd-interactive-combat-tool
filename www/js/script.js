@@ -123,7 +123,7 @@ function canvasApp() {
 	}, false);
 	
 	start_new_line_button.addEventListener('click', function(event) {
-		add_element(document.getElementById("element_color").value, JSON.stringify(x_vertices), JSON.stringify(y_vertices), document.getElementById("selected_shape").value);
+		add_element(document.getElementById("element_color").value, x_vertices, y_vertices, document.getElementById("selected_shape").value);
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
@@ -288,6 +288,7 @@ function draw_item(shape, x_coord, y_coord, color) {
 			x = x_coord;
 			y = y_coord;
 			ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
+			console.log(x);
 			for(var i=1; i < x.length; i++) {
 				ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
 			}
@@ -466,6 +467,7 @@ function move_element(color, from, to, shape) {
 }
 
 //SERVER COMMUNICATION FUNCTIONS
+//All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
 	$.ajax({
 		type : "POST",
@@ -511,8 +513,8 @@ function send_element_to_server(color, x, y, shape) {
 		type : "POST",
 		url : window.location.href + "push_change",
 		data : 	{"color" : color, 
-						"x_coord" : x, 
-						"y_coord" : y, 
+						"x_coord" : JSON.stringify(x), 
+						"y_coord" : JSON.stringify(y), 
 						"object_type" : shape},
 		dataType : 'json',
 		success : function(result) {
@@ -531,7 +533,6 @@ function error_report(status, error) {
 }
 
 //MATH FUNCTIONS
-
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var start = starting_point;
 	var end = ending_point;
