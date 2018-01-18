@@ -252,7 +252,6 @@ function redraw_live_objects() {
 		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
 				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) { 
 			draw_item(element.shape, element.x_coord, element.y_coord, element.color);
-			console.log(element.x_coord);
 		}
 	});
 	
@@ -476,9 +475,10 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
+			console.log(result);
 			result.forEach( function(element,ind,arr) {
-				var x = parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
-				var y = parseInt(element.item.y_coord) == "number" ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
+				var x = !isNaN(parseInt(element.item.x_coord)) ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
+				var y = !isNaN(parseInt(element.item.y_coord)) ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
 				if (element.action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
