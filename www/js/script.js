@@ -36,7 +36,7 @@ var grid_canvas,
 	selected_shape,
 	movement_controls;
 
-var live_objects = new Array();
+var live_objects = [];
 
 window.addEventListener('load', eventWindowLoaded, false);
 console.log(window.location.href);
@@ -139,8 +139,8 @@ function canvasApp() {
 				selected_grid_x = (move_element_x.value - 1) * grid_size;
 				selected_grid_y = (move_element_y.value - 1) * grid_size;
 				move_element(move_to_color,
-						{"x" : move_to_x, "y" : move_to_y},
-						{"x" : selected_grid_x, "y" : selected_grid_y},
+						{x:move_to_x, y:move_to_y},
+						{x:selected_grid_x, y:selected_grid_y},
 						move_to_shape);
 			}
 		});
@@ -217,7 +217,6 @@ function incremental_move_element(direction) {
 
 /*
  * Function for drawing the grid board
- * 
  */
 function drawScreen() {
 	ctx.lineWidth = grid_line_width;
@@ -248,67 +247,6 @@ function redraw_line(element) {
 	}
 }
 
-function calculate_grid_points_on_line(starting_point, ending_point) {
-	var start = starting_point;
-	var end = ending_point;
-	var grid_points = [];
-	var m, b, y_val;
-	
-	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
-	b = starting_point.y - m * starting_point.x;
-	
-	if(m === -Infinity || m === Infinity)
-		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
-			grid_points.push({ "x" : starting_point.x, "y" : y_val });
-		}
-	else
-		for(var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
-			y_val = m * x_val + b;
-			var xy_pair = { "x" : (x_val  - (x_val % grid_size)), "y" : (y_val - (y_val % grid_size))};
-			
-			if(grid_points.length==0) {
-				grid_points.push(xy_pair);
-				continue;
-			}
-			
-			for(var i=0; i<grid_points.length; i++) {
-				if(xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
-					break; 
-				else if(i == grid_points.length-1)
-					grid_points.push(xy_pair);
-			}
-		}
-	return grid_points;
-}
-
-function check_for_clipped_regions(grid_x, grid_y) {
-	//Find all of the lines in live_objects
-	var temp = live_objects.filter(element => element.shape === "line");
-	
-	//Execute function for each set of line segments
-	temp.find(function(element,ind,arr) {
-		var vertices_x = JSON.parse(element.x_coord);
-		var vertices_y = JSON.parse(element.y_coord);
-		
-		for(var i=1; i < vertices_x.length; i++) {
-			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
-															{ "x" : vertices_x[i], "y" : vertices_y[i]});
-			grid_points.find( function(el,ind,arr) {
-				if((el.x > grid_x - grid_size && el.x < grid_x + grid_size) 
-						&& (el.y > grid_y - grid_size && el.y < grid_y + grid_size)) {
-					
-					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
-
-					draw_item({ "color" : element.color,
-								"x_coord" : JSON.stringify(line_segment[0]),
-								"y_coord" : JSON.stringify(line_segment[1]),
-								"shape" : "line" });
-				}
-			});
-		}
-	});
-}
-
 function redraw_live_objects() {
 	live_objects.forEach( function(element, index) {
 		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
@@ -327,27 +265,31 @@ function redraw_live_objects() {
 	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y + grid_size);
 }
 
-function draw_item(item) {
-	switch(item.shape) {
+function draw_item(shape, x_coord, y_coord, color) {
+	
+	console.log(x_coord);
+	
+	switch(shape) {
 		case "square":
-			ctx.fillStyle = "#" + item.color;
-			var x = parseInt(item.x_coord) + grid_line_width;
-			var y = parseInt(item.y_coord) + grid_line_width;
-			ctx.fillRect(x + grid_line_width, y + grid_line_width, grid_size - grid_line_width * 2, grid_size - grid_line_width * 2);
+			ctx.fillStyle = "#" + color;
+			x = x_coord + grid_line_width;
+			y = y_coord + grid_line_width;
+			console.log(x);
+			ctx.fillRect(x, y, grid_size - grid_line_width * 2, grid_size - grid_line_width * 2);
 			break;
 		case "circle":
-			ctx.fillStyle = "#" + item.color;
-			var x = parseInt(item.x_coord) + grid_line_width;
-			var y = parseInt(item.y_coord) + grid_line_width;
+			ctx.fillStyle = "#" + color;
+			x = x_coord + grid_line_width;
+			y = y_coord + grid_line_width;
 			ctx.beginPath();
 			ctx.arc(x + (grid_size / 2), y + (grid_size / 2), (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 			ctx.fill();
 			break;
 		case "line":
-			ctx.strokeStyle = "#" + item.color;
+			ctx.strokeStyle = "#" + color;
 			ctx.beginPath();
-			var x = JSON.parse(item.x_coord);
-			var y = JSON.parse(item.y_coord);
+			x = x_coord;
+			y = y_coord;
 			ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
 			for(var i=1; i < x.length; i++) {
 				ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
@@ -413,34 +355,32 @@ function clear_previous_cursor_position() {
 }
 
 function draw_cursor_at_position(x, y) {
-	if(document.getElementById("selected_shape").value == "square" || document.getElementById("selected_shape").value == "circle" ) {
-		ctx.lineWidth = grid_line_width;
-		ctx.strokeStyle = grid_highlight;
-		ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
-	} else if(document.getElementById("selected_shape").value == "line") {
-		ctx.fillStyle = grid_highlight;
-		ctx.beginPath();
-		ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
-		ctx.fill();
+	switch(selected_shape.value) {
+		case "square":
+		case "circle":
+			ctx.lineWidth = grid_line_width;
+			ctx.strokeStyle = grid_highlight;
+			ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
+			break;
+		case "line":
+			ctx.fillStyle = grid_highlight;
+			ctx.beginPath();
+			ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
+			ctx.fill();
 	}
-	
 	selected_grid_x = x;
 	selected_grid_y = y;
 }
 
 function canvas_mouse_down(evt) {
 	
-	var mouse_x = evt.offsetX;
-	var mouse_y = evt.offsetY;
-	
-	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
-	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
+	var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
+	var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
 		
 	move_element_x.value = (1+x_snap_to_grid/grid_size);
 	move_element_y.value = (1+y_snap_to_grid/grid_size);
 	
-	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) 
-			&& (selected_grid_x != -1 && selected_grid_y != -1)) 
+	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
 	
 	redraw_live_objects();
@@ -457,7 +397,7 @@ function canvas_mouse_down(evt) {
 			break;
 		}
 		
-		if(i == 0 || i == live_objects.length - 1) {
+		if(i === 0 || i == live_objects.length - 1) {
 			if(selected_shape.value == "square" || selected_shape.value == "circle") {
 				place_element_button.innerHTML = "Add Element";
 			} else if(selected_shape.value == "line") {
@@ -466,19 +406,15 @@ function canvas_mouse_down(evt) {
 			$('#movement_controls').hide();
 		}
 	}
-	
-	
+
 	mouse_down_grid_x = x_snap_to_grid;
 	mouse_down_grid_y = y_snap_to_grid;
 }
 
 function canvas_mouse_up(evt) {
-	
-	var mouse_x = evt.offsetX;
-	var mouse_y = evt.offsetY;
 
-	var x_snap_to_grid = mouse_x - (mouse_x % grid_size);
-	var y_snap_to_grid = mouse_y - (mouse_y % grid_size);
+	var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
+	var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
 	
 	redraw_live_objects();
 	
@@ -520,10 +456,7 @@ function canvas_mouse_up(evt) {
 }
 
 function add_element(color, x, y, shape) {
-	send_element_to_server({"color" : color, 
-		"x_coord" : x, 
-		"y_coord" : y, 
-		"object_type" : shape});
+	send_element_to_server(color, x, y, shape);
 }
 
 function delete_element(color, x, y, shape) {
@@ -535,6 +468,7 @@ function move_element(color, from, to, shape) {
 	add_element(color, to.x, to.y, shape);
 }
 
+//SERVER COMMUNICATION FUNCTIONS
 function update() {
 	$.ajax({
 		type : "POST",
@@ -544,22 +478,28 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
-			for (var i = 0; i < result.length; i++) {			
-				if (result[i].action == "erase") {
+			result.forEach( function(element,ind,arr) {
+				if (element.action == "erase") {
 					live_objects.find(function(el, ind, arr) {
-						if (JSON.stringify(el) == JSON.stringify(result[i].item)) {
-							clear_item(result[i].item);
-							check_for_clipped_regions(result[i].item.x_coord,result[i].item.y_coord);
+						if(el === undefined)
+							return;
+						if (element.item.x_coord == el.x_coord &&
+							 element.item.y_coord == el.y_coord) {
+							clear_item(el);
+							check_for_clipped_regions(el.x_coord,el.y_coord);
 							arr.splice(ind, 1);
 						}
 					});
-				} else if (result[i].action == "add") {
-					live_objects.push(result[i].item);
-					draw_item(result[i].item);
+				} else if (element.action == "add") {
+					live_objects.push(element.item);
+					draw_item(element.item.shape, 
+										parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord),
+									 	parseInt(element.item.x_coord) == "number" ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord),
+									 	element.item.color);
 				}
-			}
+			});
 			
-			if(live_objects.length == 0)
+			if(live_objects.length === 0)
 				$('#reset_board_button').hide();
 			else 
 				$('#reset_board_button').show();
@@ -570,11 +510,14 @@ function update() {
 	});
 }
 
-function send_element_to_server(item_to_send) {	
+function send_element_to_server(color, x, y, shape) {	
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "push_change",
-		data : 	item_to_send,
+		data : 	{"color" : color, 
+						"x_coord" : x, 
+						"y_coord" : y, 
+						"object_type" : shape},
 		dataType : 'json',
 		success : function(result) {
 			return;
@@ -591,9 +534,72 @@ function error_report(status, error) {
 	console.log("Error: " + status.status + ", " + error);
 }
 
+//MATH FUNCTIONS
+
+function calculate_grid_points_on_line(starting_point, ending_point) {
+	var start = starting_point;
+	var end = ending_point;
+	var grid_points = [];
+	var m, b, y_val;
+	
+	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
+	b = starting_point.y - m * starting_point.x;
+	
+	if(m === -Infinity || m === Infinity)
+		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
+			grid_points.push({ "x" : starting_point.x, "y" : y_val });
+		}
+	else
+		for(var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
+			y_val = m * x_val + b;
+			var xy_pair = { "x" : (x_val  - (x_val % grid_size)), "y" : (y_val - (y_val % grid_size))};
+			
+			if(grid_points.length===0) {
+				grid_points.push(xy_pair);
+				continue;
+			}
+			
+			for(var i=0; i<grid_points.length; i++) {
+				if(xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
+					break; 
+				else if(i == grid_points.length-1)
+					grid_points.push(xy_pair);
+			}
+		}
+	return grid_points;
+}
+
+function check_for_clipped_regions(grid_x, grid_y) {
+	//Find all of the lines in live_objects
+	var temp = live_objects.filter(element => element.shape === "line");
+	
+	//Execute function for each set of line segments
+	temp.find(function(element,ind,arr) {
+		var vertices_x = element.x_coord;
+		var vertices_y = element.y_coord;
+		
+		for(var i=1; i < vertices_x.length; i++) {
+			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
+															{ "x" : vertices_x[i], "y" : vertices_y[i]});
+			grid_points.find( function(el,ind,arr) {
+				if((el.x > grid_x - grid_size && el.x < grid_x + grid_size) && (el.y > grid_y - grid_size && el.y < grid_y + grid_size)) {
+					
+					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
+
+					draw_item(element.color,
+										line_segment[0],
+										line_segment[1],
+										element.shape);
+				}
+			});
+		}
+	});
+}
+
 /**
  * Liang-Barsky function by Daniel White 
  * 
+ * Used for checking for lines clipped within grid spaces
  * NOTE: Slight modification to the return value
  * 
  * @link http://www.skytopia.com/project/articles/compsci/clipping.html
