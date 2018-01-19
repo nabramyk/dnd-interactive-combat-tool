@@ -5,7 +5,14 @@ var app = express();
 var bodyParser = require('body-parser')
 
 function coordinate_comparison(obj_1, obj_2) {
-	return obj_1.x_coord == obj_2.x_coord && obj_1.y_coord == obj_2.y_coord;
+	console.log("1:" + obj_1.x_coord);
+	console.log("2:" + obj_2.x_coord);
+	if(obj_1.x_coord instanceof Array) {
+		return obj_1.x_coord.every(function(u,i) { return u === obj_2.x_coord[i]; }) &&
+				obj_1.y_coord.every(function(u,i) { return u === obj_2.y_coord[i]; });
+	}
+	else 
+		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
 }
 
 app.use(bodyParser.json());
@@ -72,7 +79,10 @@ app.post('/update', function (req,res) {
 app.post('/push_change', function(req,res) {
 	
 	//Parse the input request and store it as a JSON object
-	var input = {color: req.body.color, x_coord: req.body.x_coord, y_coord: req.body.y_coord, shape: req.body.object_type};
+	var input = {"color": req.body.color, 
+				"x_coord": JSON.parse(req.body.x_coord), 
+				"y_coord": JSON.parse(req.body.y_coord), 
+				"shape": req.body.object_type};
 	
 	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {
