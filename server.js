@@ -5,12 +5,9 @@ var app = express();
 var bodyParser = require('body-parser')
 
 function coordinate_comparison(obj_1, obj_2) {
-	console.log("1:" + obj_1.x_coord);
-	console.log("2:" + obj_2.x_coord);
-	if(obj_1.x_coord instanceof Array) {
+	if(obj_1.x_coord instanceof Array) 
 		return obj_1.x_coord.every(function(u,i) { return u === obj_2.x_coord[i]; }) &&
 				obj_1.y_coord.every(function(u,i) { return u === obj_2.y_coord[i]; });
-	}
 	else 
 		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
 }

@@ -477,10 +477,10 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
-			console.log(result);
+			//console.log(result);
 			result.forEach( function(element,ind,arr) {
-				var x = !isNaN(parseInt(element.item.x_coord)) ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
-				var y = !isNaN(parseInt(element.item.y_coord)) ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
+				var x = element.item.x_coord;//isNaN(parseInt(element.item.x_coord)) ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
+				var y = element.item.y_coord;//isNaN(parseInt(element.item.y_coord)) ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
 				if (element.action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
@@ -583,10 +583,8 @@ function check_for_clipped_regions(grid_x, grid_y) {
 					
 					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
 
-					draw_item(element.color,
-										line_segment[0],
-										line_segment[1],
-										element.shape);
+					console.log(element.color);
+					draw_item(element.shape, line_segment[0], line_segment[1], element.color);
 				}
 			});
 		}
