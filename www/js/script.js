@@ -479,8 +479,8 @@ function update() {
 		success : function(result) {
 			//console.log(result);
 			result.forEach( function(element,ind,arr) {
-				var x = element.item.x_coord;//isNaN(parseInt(element.item.x_coord)) ? parseInt(element.item.x_coord) : JSON.parse(element.item.x_coord);
-				var y = element.item.y_coord;//isNaN(parseInt(element.item.y_coord)) ? parseInt(element.item.y_coord) : JSON.parse(element.item.y_coord);
+				var x = element.item.x_coord;
+				var y = element.item.y_coord;
 				if (element.action == "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
