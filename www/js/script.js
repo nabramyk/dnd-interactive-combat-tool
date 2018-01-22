@@ -530,10 +530,17 @@ function error_report(status, error) {
 
 //MATH FUNCTIONS
 function calculate_grid_points_on_line(starting_point, ending_point) {
-	var start = starting_point;
-	var end = ending_point;
+	//var start = starting_point;
+	//var end = ending_point;
 	var grid_points = [];
 	var m, b, y_val;
+	
+	//Swap the points if the x value at the end is smaller than the starting x value
+	if(ending_point.x < starting_point.x || ending_point.y < starting_point.y) {
+		var temp = starting_point;
+		starting_point = ending_point;
+		ending_point = temp;
+	}
 	
 	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
 	b = starting_point.y - m * starting_point.x;
@@ -572,6 +579,7 @@ function check_for_clipped_regions(grid_x, grid_y) {
 		var vertices_y = element.y_coord;
 		
 		for(var i=1; i < vertices_x.length; i++) {
+			
 			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
 															{ "x" : vertices_x[i], "y" : vertices_y[i]});
 			grid_points.find( function(el,ind,arr) {
