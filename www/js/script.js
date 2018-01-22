@@ -115,7 +115,7 @@ function canvasApp() {
 		}
 	}, false);
 	
-	reset_board_button.addEventListener('click', function(element) {
+	reset_board_button.addEventListener('click', function() {
 		live_objects.forEach(function(element) {
 				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 		});
@@ -236,8 +236,8 @@ function redraw_line(element) {
 		var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
 														{ "x" : vertices_x[i], "y" : vertices_y[i]});
 		grid_points.find( function(el,ind,arr) {
-			if((el.x >= selected_grid_x - grid_size && el.x <= selected_grid_x + grid_size) 
-					&& (el.y >= selected_grid_y - grid_size && el.y <= selected_grid_y + grid_size)) {
+			if((el.x >= selected_grid_x - grid_size && el.x <= selected_grid_x + grid_size) &&
+				 (el.y >= selected_grid_y - grid_size && el.y <= selected_grid_y + grid_size)) {
 				draw_item({ "color" : element.color,
 					"x_coord" : JSON.stringify([vertices_x[i-1],vertices_x[i]]),
 					"y_coord" : JSON.stringify([vertices_y[i-1],vertices_y[i]]),
@@ -288,7 +288,6 @@ function draw_item(shape, x_coord, y_coord, color) {
 			x = x_coord;
 			y = y_coord;
 			ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
-			console.log(x);
 			for(var i=1; i < x.length; i++) {
 				ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
 			}
@@ -309,13 +308,11 @@ function clear_item(shape, x_coord, y_coord, color) {
 			var y = y_coord + grid_line_width;
 			ctx.clearRect(x, y, grid_size, grid_size);
 			ctx.strokeRect(x, y, grid_size, grid_size);
+			check_for_clipped_regions(x_coord, y_coord);
 			break;
 		case "line":
-			var x = x_coord;
-			var y = y_coord;
-			for(var i=1; i < x.length; i++) {
-				var grid_points = calculate_grid_points_on_line({ "x" : x[i-1], "y" : y[i-1]},
-																{ "x" : x[i], "y" : y[i]});
+			for(var i=1; i < x_coord.length; i++) {
+				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[i-1], "y" : y_coord[i-1]}, { "x" : x_coord[i], "y" : y_coord[i]});
 				grid_points.forEach(function(element) {
 					clear_item("square", element.x, element.y, null);
 				});
@@ -485,10 +482,9 @@ function update() {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
 							return;
-						if (x === el.x_coord && y === el.y_coord) {
-							clear_item(el.shape, x, y, el.color);
-							check_for_clipped_regions(el.x_coord,el.y_coord);
+						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
+							clear_item(el.shape, x, y, el.color);
 						}
 					});
 				} else if (element.action == "add") {
@@ -583,7 +579,6 @@ function check_for_clipped_regions(grid_x, grid_y) {
 					
 					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
 
-					console.log(element.color);
 					draw_item(element.shape, line_segment[0], line_segment[1], element.color);
 				}
 			});
@@ -635,4 +630,12 @@ function liangBarsky (x0, y0, x1, y1, bbox) {
     [x0 + t0 * dx, x0 + t1 * dx],
     [y0 + t0 * dy, y0 + t1 * dy]
   ];
+}
+
+function coordinate_comparison(obj_1, obj_2) {
+	if(obj_1.x_coord instanceof Array) 
+		return obj_1.x_coord.every(function(u,i) { return u === obj_2.x_coord[i]; }) &&
+				obj_1.y_coord.every(function(u,i) { return u === obj_2.y_coord[i]; });
+	else 
+		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
 }

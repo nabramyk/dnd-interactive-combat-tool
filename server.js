@@ -55,7 +55,7 @@ app.post('/update', function (req,res) {
 		if(live_objects.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//...push to the correction vector so that it is added to the user's grid
 			correction_vector.push({"action":"add","item":el});
-		};
+		}
 	});
 	
 	//For each live element in the user's model...
@@ -64,7 +64,7 @@ app.post('/update', function (req,res) {
 		if(cells.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//push to the correction vector so that it is removed from the user's grid
 			correction_vector.push({"action":"erase","item":el});
-		};
+		}
 	});
 	
 	//Return the correction vector as a json array
@@ -81,9 +81,11 @@ app.post('/push_change', function(req,res) {
 				"y_coord": JSON.parse(req.body.y_coord), 
 				"shape": req.body.object_type};
 	
+	console.log(input);
+	
 	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {
-		if(cells[i].color==input.color && cells[i].x_coord==input.x_coord && cells[i].y_coord==input.y_coord) {
+		if(cells[i].color==input.color && coordinate_comparison(cells[i],input)) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send("Done");
 			console.log("Deleted: " + JSON.stringify(cells[i]));
