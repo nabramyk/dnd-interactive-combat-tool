@@ -54,15 +54,10 @@ function canvasApp() {
 	
 	grid_canvas = document.getElementById('grid_canvas');
 	place_element_button = document.getElementById('place_element_button');
-	reset_board_button = document.getElementById('reset_board_button');
 	start_new_line_button = document.getElementById('start_new_line_button');
 	move_button = document.getElementById('move_button');
 	move_element_x = document.getElementById('move_to_x');
 	move_element_y = document.getElementById('move_to_y');
-	incremental_move_up = document.getElementById('move_inc_up');
-	incremental_move_down = document.getElementById('move_inc_down');
-	incremental_move_left = document.getElementById('move_inc_left');
-	incremental_move_right = document.getElementById('move_inc_right');
 	selected_shape = document.getElementById('selected_shape');
 	movement_controls = document.getElementById('movement_controls');
 	
@@ -117,19 +112,19 @@ function canvasApp() {
 		}
 	}, false);
 	
-	reset_board_button.addEventListener('click', function() {
+	$("#reset_board_button").click(function() {
 		live_objects.forEach(function(element) {
 				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 		});
 		$('#movement_controls').hide();
-	}, false);
+	});
 	
-	start_new_line_button.addEventListener('click', function(event) {
+	$("#start_new_line_button").click(function() {
 		add_element(document.getElementById("element_color").value, x_vertices, y_vertices, document.getElementById("selected_shape").value);
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
-	}, false);
+	});
 	
 	move_button.addEventListener('click', function(event) {
 		live_objects.find(function(el,ind,arr) {
@@ -148,21 +143,10 @@ function canvasApp() {
 		});
 	}, false);
 	
-	incremental_move_up.addEventListener('click', function(event) {
-		incremental_move_element("up");
-	}, false);
-	
-	incremental_move_down.addEventListener('click', function(event) {
-		incremental_move_element("down");
-	}, false);
-	
-	incremental_move_left.addEventListener('click', function(event) {
-		incremental_move_element("left");
-	}, false);
-
-	incremental_move_right.addEventListener('click', function(event) {
-		incremental_move_element("right");
-	}, false);
+	$("#move_inc_up").click(function() { incremental_move_element("up") });
+	$("#move_inc_down").click(function() { incremental_move_element("down") });
+	$("#move_inc_left").click(function() { incremental_move_element("left") });
+	$("#move_inc_right").click(function() { incremental_move_element("right") });
 	
 	selected_shape.addEventListener('change', function(event) {
 		switch(selected_shape.value) {
@@ -658,4 +642,8 @@ function coordinate_comparison(obj_1, obj_2) {
 				obj_1.y_coord.every(function(u,i) { return u === obj_2.y_coord[i]; });
 	else 
 		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
+}
+
+function convert_to_grid_point(raw_location) {
+	return raw_location - (raw_location % grid_size);
 }
