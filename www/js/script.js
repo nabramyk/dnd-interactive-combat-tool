@@ -79,6 +79,8 @@ function canvasApp() {
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	
+	$("#element_list").css("height",grid_canvas.height/2 + "px");
+	
 	grid_canvas.addEventListener('mousedown', function(event) { canvas_mouse_down(event) }, false);
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
@@ -497,9 +499,12 @@ function update() {
 				$('#reset_board_button').hide();
 			else 
 				$('#reset_board_button').show();
+			
+			refresh_elements_list();
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
+			//$("#console_output")
 		}
 	});
 }
@@ -591,6 +596,13 @@ function check_for_clipped_regions(grid_x, grid_y) {
 				}
 			});
 		}
+	});
+}
+
+function refresh_elements_list() {
+	$("#element_list").empty();
+	live_objects.forEach( function(el) {
+		$("#element_list").append("<div class=\"element_list_row\">" + el.color + "<br>" + el.shape + "<br>" + el.x_coord + "<br>" + el.y_coord + "</div>");
 	});
 }
 
