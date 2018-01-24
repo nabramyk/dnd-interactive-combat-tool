@@ -53,13 +53,7 @@ function canvasSupport(e) {
 function canvasApp() {
 	
 	grid_canvas = document.getElementById('grid_canvas');
-	place_element_button = document.getElementById('place_element_button');
 	start_new_line_button = document.getElementById('start_new_line_button');
-	move_button = document.getElementById('move_button');
-	move_element_x = document.getElementById('move_to_x');
-	move_element_y = document.getElementById('move_to_y');
-	selected_shape = document.getElementById('selected_shape');
-	movement_controls = document.getElementById('movement_controls');
 	
 	$("#movement_controls").hide();
 	$("#reset_board_button").hide();
@@ -90,12 +84,12 @@ function canvasApp() {
 	 * y_snap_to_grid, 5, 5); } })
 	 */
 
-	place_element_button.addEventListener('click', function(event) {
-		if(place_element_button.innerHTML == "Add Element" || place_element_button.innerHTML == "Add Vertex") {
-			switch(selected_shape.value) {
+	$('#place_element_button').click(function() {
+		if($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
+			switch($("#selected_shape").val()) {
 				case "square":
 				case "circle":
-					add_element(document.getElementById("element_color").value, selected_grid_x, selected_grid_y, document.getElementById("selected_shape").value);
+					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
 					break;
 				case "line":
 					x_vertices.push(selected_grid_x);
@@ -103,16 +97,16 @@ function canvasApp() {
 					break;
 			}
 			$('#movement_controls').show();
-		} else if(place_element_button.innerHTML == "Delete Element") {
+		} else if($("#place_element_button").html() == "Delete Element") {
 			live_objects.forEach(function(element) {
 				if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
 					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 			});
 			$('#movement_controls').hide();
 		}
-	}, false);
+	});
 	
-	$("#reset_board_button").click(function() {
+	$('#reset_board_button').click(function() {
 		live_objects.forEach(function(element) {
 				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 		});
@@ -120,36 +114,36 @@ function canvasApp() {
 	});
 	
 	$("#start_new_line_button").click(function() {
-		add_element(document.getElementById("element_color").value, x_vertices, y_vertices, document.getElementById("selected_shape").value);
+		add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
 	});
 	
-	move_button.addEventListener('click', function(event) {
+	$('#move_button').click(function() {
 		live_objects.find(function(el,ind,arr) {
 			if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
 				var move_to_color = el.color;
 				var move_to_x = el.x_coord;
 				var move_to_y = el.y_coord;
 				var move_to_shape = el.shape;
-				selected_grid_x = (move_element_x.value - 1) * grid_size;
-				selected_grid_y = (move_element_y.value - 1) * grid_size;
+				selected_grid_x = ($("#move_to_x").val() - 1) * grid_size;
+				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;
 				move_element(move_to_color,
 						{x:move_to_x, y:move_to_y},
 						{x:selected_grid_x, y:selected_grid_y},
 						move_to_shape);
 			}
 		});
-	}, false);
+	});
 	
-	$("#move_inc_up").click(function() { incremental_move_element("up") });
-	$("#move_inc_down").click(function() { incremental_move_element("down") });
-	$("#move_inc_left").click(function() { incremental_move_element("left") });
-	$("#move_inc_right").click(function() { incremental_move_element("right") });
+	$("#move_inc_up").click(function() { incremental_move_element("up"); });
+	$("#move_inc_down").click(function() { incremental_move_element("down"); });
+	$("#move_inc_left").click(function() { incremental_move_element("left"); });
+	$("#move_inc_right").click(function() { incremental_move_element("right"); });
 	
-	selected_shape.addEventListener('change', function(event) {
-		switch(selected_shape.value) {
+	$("#selected_shape").change(function() {
+		switch($("#selected_shape").val()) {
 		case "line":
 			place_element_button.innerHTML = "Add Vertex";
 			$('#start_new_line_button').show();
@@ -177,24 +171,23 @@ function incremental_move_element(direction) {
 			var move_to_x = el.x_coord;
 			var move_to_y = el.y_coord;
 			var move_to_shape = el.shape;
-			
+			var temp = 0;
 			if(direction=="right") {
-				move_element_x.value++;
-				selected_grid_x = (move_element_x.value - 1) * grid_size;
+				$("#move_to_x").val(parseInt($("#move_to_x").val()) + 1);
+				selected_grid_x = ($("#move_to_x").val() - 1) * grid_size;
 			}
 			else if(direction=="left") {
-				move_element_x.value--;
-				selected_grid_x = (move_element_x.value - 1) * grid_size;
+				$("#move_to_x").val($("#move_to_x").val() - 1);
+				selected_grid_x = ($("#move_to_x").val() - 1) * grid_size;
 			}
 			else if(direction=="up") {
-				move_element_y.value--;
-				selected_grid_y = (move_element_y.value - 1) * grid_size;	
+				$("#move_to_y").val($("#move_to_y").val() - 1);
+				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;	
 			}
 			else if(direction=="down") {
-				move_element_y.value++;
-				selected_grid_y = (move_element_y.value - 1) * grid_size;	
+				$("#move_to_y").val(parseInt($("#move_to_y").val()) + 1);
+				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;	
 			}
-			
 			move_element(move_to_color, {"x" : move_to_x, "y" : move_to_y}, {"x" : selected_grid_x, "y" : selected_grid_y}, move_to_shape);
 			draw_cursor_at_position(selected_grid_x, selected_grid_y);
 		}
@@ -280,7 +273,7 @@ function draw_item(shape, x_coord, y_coord, color) {
 			ctx.stroke();
 			break;
 	}
-	place_element_button.innerHTML = "Delete Element";
+	$("#place_element_button").html("Delete Element");
 }
 
 
@@ -306,10 +299,10 @@ function clear_item(shape, x_coord, y_coord, color) {
 			break;
 	}
 	
-	if(selected_shape.value=="line") {
-		place_element_button.innerHTML = "Add Vertex";
+	if($('#selected_shape').val()=="line") {
+		$('#place_element_button').html("Add Vertex");
 	} else {
-		place_element_button.innerHTML = "Add Element";
+		$('#place_element_button').html("Add Element");
 	}
 }
 
@@ -336,7 +329,7 @@ function clear_previous_cursor_position() {
 }
 
 function draw_cursor_at_position(x, y) {
-	switch(selected_shape.value) {
+	switch($('#selected_shape').val()) {
 		case "square":
 		case "circle":
 			ctx.lineWidth = grid_line_width;
@@ -358,8 +351,8 @@ function canvas_mouse_down(evt) {
 	var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
 	var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
 		
-	move_element_x.value = (1+x_snap_to_grid/grid_size);
-	move_element_y.value = (1+y_snap_to_grid/grid_size);
+	$("#move_to_x").val(1+x_snap_to_grid/grid_size);
+	$("#move_to_y").val(1+y_snap_to_grid/grid_size);
 	
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
@@ -373,16 +366,16 @@ function canvas_mouse_down(evt) {
 	// Find if this grid point contains a live element
 	for(var i=0; i<live_objects.length; i++) {
 		if(live_objects[i].x_coord == x_snap_to_grid && live_objects[i].y_coord == y_snap_to_grid) {
-			place_element_button.innerHTML = "Delete Element";
+			$("#place_element_button").html("Delete Element");
 			$('#movement_controls').show();
 			break;
 		}
 		
 		if(i === 0 || i == live_objects.length - 1) {
-			if(selected_shape.value == "square" || selected_shape.value == "circle") {
-				place_element_button.innerHTML = "Add Element";
-			} else if(selected_shape.value == "line") {
-				place_element_button.innerHTML = "Add Vertex";
+			if($('#selected_shape').val() == "square" || $('#selected_shape').val == "circle") {
+				$('#place_element_button').html("Add Element");
+			} else if($('#selected_shape').val() == "line") {
+				$('#place_element_button').html("Add Vertex");
 			}
 			$('#movement_controls').hide();
 		}
@@ -404,8 +397,8 @@ function canvas_mouse_up(evt) {
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
 		return;
 	
-	move_element_x.value = (1+x_snap_to_grid/grid_size);
-	move_element_y.value = (1+y_snap_to_grid/grid_size);
+	$("#move_element_x").val(1+x_snap_to_grid/grid_size);
+	$("#move_element_y").val(1+y_snap_to_grid/grid_size);
 	
 	// Clear the last grid space and redraw
 	clear_previous_cursor_position();
@@ -460,7 +453,6 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
-			//console.log(result);
 			result.forEach( function(element,ind,arr) {
 				var x = element.item.x_coord;
 				var y = element.item.y_coord;
