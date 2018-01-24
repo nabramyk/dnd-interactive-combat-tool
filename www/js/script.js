@@ -51,7 +51,6 @@ function canvasSupport(e) {
 }
 
 function canvasApp() {
-	
 	grid_canvas = document.getElementById('grid_canvas');
 	start_new_line_button = document.getElementById('start_new_line_button');
 	
@@ -160,7 +159,8 @@ function canvasApp() {
 		clear_previous_cursor_position();
 		redraw_live_objects();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
-	}, false);
+	});
+	
 	drawScreen();
 }
 
@@ -442,8 +442,8 @@ function move_element(color, from, to, shape) {
 	add_element(color, to.x, to.y, shape);
 }
 
-//SERVER COMMUNICATION FUNCTIONS
-//All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
+// //SERVER COMMUNICATION FUNCTIONS
+// //All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
 	$.ajax({
 		type : "POST",
@@ -509,7 +509,7 @@ function error_report(status, error) {
 	console.log("Error: " + status.status + ", " + error);
 }
 
-//MATH FUNCTIONS
+// //MATH FUNCTIONS
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	//var start = starting_point;
 	//var end = ending_point;
@@ -552,7 +552,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 
 function check_for_clipped_regions(grid_x, grid_y) {
 	//Find all of the lines in live_objects
-	var temp = live_objects.filter(element => element.shape === "line");
+	var temp = live_objects.filter(function(element) { return element.shape === "line"; } );
 	
 	//Execute function for each set of line segments
 	temp.find(function(element,ind,arr) {
@@ -582,21 +582,21 @@ function refresh_elements_list() {
 	});
 }
 
-/**
- * Liang-Barsky function by Daniel White 
- * 
- * Used for checking for lines clipped within grid spaces
- * NOTE: Slight modification to the return value
- * 
- * @link http://www.skytopia.com/project/articles/compsci/clipping.html
- *
- * @param  {number}        x0
- * @param  {number}        y0
- * @param  {number}        x1
- * @param  {number}        y1
- * @param  {array<number>} bbox
- * @return {array<array<number>>|null}
- */
+// /**
+//  * Liang-Barsky function by Daniel White 
+//  * 
+//  * Used for checking for lines clipped within grid spaces
+//  * NOTE: Slight modification to the return value
+//  * 
+//  * @link http://www.skytopia.com/project/articles/compsci/clipping.html
+//  *
+//  * @param  {number}        x0
+//  * @param  {number}        y0
+//  * @param  {number}        x1
+//  * @param  {number}        y1
+//  * @param  {array<number>} bbox
+//  * @return {array<array<number>>|null}
+//  */
 function liangBarsky (x0, y0, x1, y1, bbox) {
   var [xmin, xmax, ymin, ymax] = bbox;
   var t0 = 0, t1 = 1;
