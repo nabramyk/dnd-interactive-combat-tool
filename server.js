@@ -79,9 +79,10 @@ app.post('/push_change', function(req,res) {
 	var input = {"color": req.body.color, 
 				"x_coord": JSON.parse(req.body.x_coord), 
 				"y_coord": JSON.parse(req.body.y_coord), 
-				"shape": req.body.object_type};
+				"shape": req.body.object_type,
+				"name" : typeof(req.body.name) !== 'undefined' ? req.body.name : "object"};
 	
-	console.log(input);
+	console.log(req.body);
 	
 	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {

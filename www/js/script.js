@@ -59,12 +59,6 @@ function canvasApp() {
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
 	
-	window.addEventListener('keydown', function(event) {
-		if(event.which == 65) {
-			add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
-		} 
-	}, true);
-	
 	/*
 	 * grid_canvas.addEventListener('mousemove', function(event) { if
 	 * (document.getElementById('on_hover_highlight').checked == true) {
@@ -148,7 +142,6 @@ function canvasApp() {
 		}
 		if(selected_grid_x == -1 && selected_grid_y == -1) { return; }
 		clear_previous_cursor_position();
-		redraw_live_objects();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 	
@@ -215,25 +208,6 @@ function redraw_line(element) {
 			}
 		});
 	}
-}
-
-function redraw_live_objects() {
-	live_objects.forEach( function(element, index) {
-		if((element.x_coord == selected_grid_x || element.x_coord == selected_grid_x - grid_size) &&
-				(element.y_coord == selected_grid_y || element.y_coord == selected_grid_y - grid_size)) { 
-			draw_item(element.shape, element.x_coord, element.y_coord, element.color);
-		}
-	});
-	
-	check_for_clipped_regions(selected_grid_x, selected_grid_y);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y - grid_size);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y + grid_size);
 }
 
 function draw_item(shape, x_coord, y_coord, color) {
@@ -360,9 +334,7 @@ function canvas_mouse_down(evt) {
 	
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
-	
-	//redraw_live_objects();
-	
+		
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
@@ -393,9 +365,7 @@ function canvas_mouse_up(evt) {
 
 	var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
 	var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
-	
-	//redraw_live_objects();
-	
+		
 	// Exit this function if the mouse is released within the same grid element
 	// it was activated in
 	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
@@ -440,17 +410,18 @@ function canvas_mouse_up(evt) {
 	mouse_down_grid_y = -1;
 }
 
-function add_element(color, x, y, shape) {
-	send_element_to_server(color, x, y, shape);
+function add_element(color, x, y, shape, name) {
+	console.log(name);
+	send_element_to_server(color, x, y, shape, name);
 }
 
-function delete_element(color, x, y, shape) {
-	add_element(color, x, y, shape);
+function delete_element(color, x, y, shape, name) {
+	add_element(color, x, y, shape, name);
 }
 
-function move_element(color, from, to, shape) {
-	delete_element(color, from.x, from.y, shape);
-	add_element(color, to.x, to.y, shape);
+function move_element(color, from, to, shape, name) {
+	delete_element(color, from.x, from.y, shape, name);
+	add_element(color, to.x, to.y, shape, name);
 }
 
 //SERVER COMMUNICATION FUNCTIONS
@@ -474,11 +445,13 @@ function update() {
 						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
 							clear_item(el.shape, x, y, el.color);
+							refresh_elements_list();
 						}
 					});
 				} else if (element.action == "add") {
-					live_objects.push({"shape" : element.item.shape, "x_coord" : x, "y_coord" : y, "color" : element.item.color});
+					live_objects.push({"shape" : element.item.shape, "x_coord" : x, "y_coord" : y, "color" : element.item.color, "name" : element.item.name});
 					draw_item(element.item.shape, x, y, element.item.color);
+					refresh_elements_list();
 				}
 			});
 			
@@ -487,7 +460,6 @@ function update() {
 			else 
 				$('#reset_board_button').show();
 			
-			refresh_elements_list();
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
@@ -495,14 +467,15 @@ function update() {
 	});
 }
 
-function send_element_to_server(color, x, y, shape) {	
+function send_element_to_server(color, x, y, shape, name) {	
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "push_change",
 		data : 	{"color" : color, 
 						"x_coord" : JSON.stringify(x), 
 						"y_coord" : JSON.stringify(y), 
-						"object_type" : shape},
+						"object_type" : shape,
+						"name" : name !== null ? name : null},
 		dataType : 'json',
 		success : function(result) {
 			return;
@@ -585,10 +558,23 @@ function check_for_clipped_regions(grid_x, grid_y) {
 function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el) {
-		$("#element_list").append("<div class=\"element_list_row\">" + el.color + "<br>" + el.shape + "<br>" + el.x_coord + "<br>" + el.y_coord + "</div>");
+		$("#element_list").append("<div class=\"element_list_row\">" +
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"doit(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
+															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
+															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
+															"</div>");
 	});
 }
 
+function doit(evt, x, y, name) {
+		if(evt.which == 13) {
+			var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
+			if(typeof(temp) !== undefined) {
+				delete_element(temp.color, x, y, temp.shape, undefined);
+				add_element(temp.color, x, y, temp.shape, name);
+			}
+		}
+}
 // /**
 //  * Liang-Barsky function by Daniel White 
 //  * 
