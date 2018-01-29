@@ -73,6 +73,12 @@ function canvasApp() {
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
 	
+	window.addEventListener('keydown', function(event) {
+		if(event.which == 65) {
+			add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
+		} 
+	}, true);
+	
 	/*
 	 * grid_canvas.addEventListener('mousemove', function(event) { if
 	 * (document.getElementById('on_hover_highlight').checked == true) {
@@ -499,7 +505,6 @@ function update() {
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
-			//$("#console_output")
 		}
 	});
 }
