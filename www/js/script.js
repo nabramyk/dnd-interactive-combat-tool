@@ -93,6 +93,7 @@ function canvasApp() {
 				case "line":
 					x_vertices.push(selected_grid_x);
 					y_vertices.push(selected_grid_y);
+					$('#start_new_line_button').show();
 					break;
 			}
 			$('#movement_controls').show();
@@ -117,6 +118,7 @@ function canvasApp() {
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
+		$('#start_new_line_button').hide();
 	});
 	
 	$('#move_button').click(function() {
@@ -141,21 +143,18 @@ function canvasApp() {
 	$("#move_inc_left").click(function() { incremental_move_element("left"); });
 	$("#move_inc_right").click(function() { incremental_move_element("right"); });
 	
-	$("#selected_shape").change(function() {
+	$("#selected_shape").change(function(el) {
 		switch($("#selected_shape").val()) {
-		case "line":
-			place_element_button.innerHTML = "Add Vertex";
-			$('#start_new_line_button').show();
+		case 'line':
+			$('#place_element_button').html("Add Vertex");
 			break;
 		case "square":
 		case "circle":
-			place_element_button.innerHTML = "Add Element";
+			$('#place_element_button').html("Add Element");
 			$('#start_new_line_button').hide();
 			break;
 		}
-		if(selected_grid_x == -1 && selected_grid_y == -1)
-			return;
-		
+		if(selected_grid_x == -1 && selected_grid_y == -1) { return; }
 		clear_previous_cursor_position();
 		redraw_live_objects();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
@@ -273,7 +272,6 @@ function draw_item(shape, x_coord, y_coord, color) {
 			ctx.stroke();
 			break;
 	}
-	$("#place_element_button").html("Delete Element");
 }
 
 
@@ -326,6 +324,18 @@ function clear_previous_cursor_position() {
 	// Clear the position above the current position
 	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	
+	live_objects.forEach(function(el) {
+		if((el.x_coord == selected_grid_x || el.x_coord == selected_grid_x - grid_size) &&
+			el.y_coord == selected_grid_y || el.y_coord == selected_grid_y - grid_size) {
+			draw_item(el.shape, el.x_coord, el.y_coord, el.color);
+		}
+	});
+	
+	check_for_clipped_regions(selected_grid_x, selected_grid_y);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -357,7 +367,7 @@ function canvas_mouse_down(evt) {
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
 	
-	redraw_live_objects();
+	//redraw_live_objects();
 	
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
@@ -390,7 +400,7 @@ function canvas_mouse_up(evt) {
 	var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
 	var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
 	
-	redraw_live_objects();
+	//redraw_live_objects();
 	
 	// Exit this function if the mouse is released within the same grid element
 	// it was activated in
@@ -425,6 +435,13 @@ function canvas_mouse_up(evt) {
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
 
+	var el = live_objects.find( function(el) { return el.x_coord == x_snap_to_grid && el.y_coord == y_snap_to_grid; });
+	if(typeof(el) == 'undefined') {
+		$("#place_element_button").html("Add Element");
+	} else {
+		$("#place_element_button").html("Delete Element");
+	}
+	
 	mouse_down_grid_x = -1;
 	mouse_down_grid_y = -1;
 }
@@ -442,8 +459,8 @@ function move_element(color, from, to, shape) {
 	add_element(color, to.x, to.y, shape);
 }
 
-// //SERVER COMMUNICATION FUNCTIONS
-// //All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
+//SERVER COMMUNICATION FUNCTIONS
+//All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
 	$.ajax({
 		type : "POST",
