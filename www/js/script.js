@@ -67,7 +67,7 @@ function canvasApp() {
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	
-	$("#element_list").css("height",grid_canvas.height/2 + "px");
+	$("#element_list").css("height",grid_canvas.height + "px");
 	
 	grid_canvas.addEventListener('mousedown', function(event) { canvas_mouse_down(event) }, false);
 	
@@ -336,6 +336,8 @@ function clear_previous_cursor_position() {
 	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size);
 	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y);
 	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -372,7 +374,7 @@ function canvas_mouse_down(evt) {
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
-	
+		
 	// Find if this grid point contains a live element
 	for(var i=0; i<live_objects.length; i++) {
 		if(live_objects[i].x_coord == x_snap_to_grid && live_objects[i].y_coord == y_snap_to_grid) {
@@ -528,13 +530,11 @@ function error_report(status, error) {
 
 // //MATH FUNCTIONS
 function calculate_grid_points_on_line(starting_point, ending_point) {
-	//var start = starting_point;
-	//var end = ending_point;
 	var grid_points = [];
 	var m, b, y_val;
-	
+
 	//Swap the points if the x value at the end is smaller than the starting x value
-	if(ending_point.x < starting_point.x || ending_point.y < starting_point.y) {
+	if(ending_point.x < starting_point.x) {
 		var temp = starting_point;
 		starting_point = ending_point;
 		ending_point = temp;
@@ -542,7 +542,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	
 	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
 	b = starting_point.y - m * starting_point.x;
-	
+
 	if(m === -Infinity || m === Infinity)
 		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
 			grid_points.push({ "x" : starting_point.x, "y" : y_val });
@@ -572,7 +572,8 @@ function check_for_clipped_regions(grid_x, grid_y) {
 	var temp = live_objects.filter(function(element) { return element.shape === "line"; } );
 	
 	//Execute function for each set of line segments
-	temp.find(function(element,ind,arr) {
+	temp.forEach(function(element,ind,arr) {
+
 		var vertices_x = element.x_coord;
 		var vertices_y = element.y_coord;
 		
@@ -580,11 +581,9 @@ function check_for_clipped_regions(grid_x, grid_y) {
 			
 			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
 															{ "x" : vertices_x[i], "y" : vertices_y[i]});
-			grid_points.find( function(el,ind,arr) {
+			grid_points.forEach( function(el,ind,arr) {
 				if((el.x > grid_x - grid_size && el.x < grid_x + grid_size) && (el.y > grid_y - grid_size && el.y < grid_y + grid_size)) {
-					
 					var line_segment = liangBarsky(vertices_x[i-1], vertices_y[i-1], vertices_x[i], vertices_y[i], [el.x, el.x+grid_size, el.y, el.y+grid_size]);
-
 					draw_item(element.shape, line_segment[0], line_segment[1], element.color);
 				}
 			});
