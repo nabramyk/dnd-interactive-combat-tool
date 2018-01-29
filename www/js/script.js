@@ -20,21 +20,7 @@ var x_vertices = [];
 var y_vertices = [];
 
 // GUI Elements
-var grid_canvas, 
-	ctx, 
-	place_element_button,
-	clear_element_button,
-	reset_board_button,
-	start_new_line_button,
-	move_button,
-	move_element_x,
-	move_element_y,
-	incremental_move_up,
-	incremental_move_down,
-	incremental_move_left,
-	incremental_move_right,
-	selected_shape,
-	movement_controls;
+var grid_canvas, ctx;
 
 var live_objects = [];
 
