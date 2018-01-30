@@ -452,6 +452,14 @@ function update() {
 					live_objects.push({"shape" : element.item.shape, "x_coord" : x, "y_coord" : y, "color" : element.item.color, "name" : element.item.name});
 					draw_item(element.item.shape, x, y, element.item.color);
 					refresh_elements_list();
+				} else if (element.action == "rename") {
+					live_objects.find( function(el,ind,arr) {
+						if(coordinate_comparison(el,element.item)) {
+							live_objects[ind].name = element.item.name;
+							refresh_elements_list();
+						}
+						console.log("renamed: " + JSON.stringify(live_objects[ind]));
+					}); 
 				}
 			});
 			
@@ -488,11 +496,30 @@ function send_element_to_server(color, x, y, shape, name) {
 	});
 }
 
+function rename_element(x, y, name) {
+	$.ajax({
+		type : "POST",
+		url : window.location.href + "rename_element",
+		data : {"x_coord" : JSON.stringify(x),
+					 "y_coord" : JSON.stringify(y),
+					 "name" : name},
+		dataType : 'json',
+		success : function(result) {
+			return;
+		},
+		error : function(status, error) {
+			if(error == 'parsererror')
+				return
+			console.log("Error: " + status.status + ", " + error);
+		}
+	});	
+}
+
 function error_report(status, error) {
 	console.log("Error: " + status.status + ", " + error);
 }
 
-// //MATH FUNCTIONS
+//MATH FUNCTIONS
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var grid_points = [];
 	var m, b, y_val;
@@ -570,8 +597,7 @@ function doit(evt, x, y, name) {
 		if(evt.which == 13) {
 			var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
 			if(typeof(temp) !== undefined) {
-				delete_element(temp.color, x, y, temp.shape, undefined);
-				add_element(temp.color, x, y, temp.shape, name);
+				rename_element(x, y, name);
 			}
 		}
 }

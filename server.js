@@ -50,21 +50,26 @@ app.post('/update', function (req,res) {
 	var correction_vector = [];
 	
 	//For each live element in the server model...
-	cells.find(function(el, ind, arr) {
+	cells.forEach(function(el, ind, arr) {
 		//...if this live element does not exist in the user's grid...
 		if(live_objects.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//...push to the correction vector so that it is added to the user's grid
 			correction_vector.push({"action":"add","item":el});
 		}
+		
+		if(live_objects.findIndex(function (el2) { return el2.name == el.name; })) {
+			correction_vector.push({"action":"rename","item":el})
+		}
 	});
 	
 	//For each live element in the user's model...
-	live_objects.find(function(el, ind, arr) {
+	live_objects.forEach(function(el, ind, arr) {
 		//...if this live element does not exist in the server's grid...
 		if(cells.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//push to the correction vector so that it is removed from the user's grid
 			correction_vector.push({"action":"erase","item":el});
 		}
+		
 	});
 	
 	//Return the correction vector as a json array
@@ -82,8 +87,6 @@ app.post('/push_change', function(req,res) {
 				"shape": req.body.object_type,
 				"name" : typeof(req.body.name) !== 'undefined' ? req.body.name : "object"};
 	
-	console.log(req.body);
-	
 	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {
 		if(cells[i].color==input.color && coordinate_comparison(cells[i],input)) {
@@ -97,6 +100,14 @@ app.post('/push_change', function(req,res) {
 	
 	console.log("Added: " + JSON.stringify(input));
 	cells.push(input);
+	res.setHeader('Content-Type', 'application/json');
+	res.send("Done");
+});
+
+app.post('/rename_element', function(req,res) {
+	var ob = cells.find( function(el) { return el.x_coord == req.body.x_coord && el.y_coord == req.body.y_coord });
+	ob.name = req.body.name;
+	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });
