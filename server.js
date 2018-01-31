@@ -57,7 +57,7 @@ app.post('/update', function (req,res) {
 			correction_vector.push({"action":"add","item":el});
 		}
 		
-		if(live_objects.findIndex(function (el2) { return el2.name == el.name; })) {
+		if(live_objects.find(function (el2) { return el2.name !== el.name && coordinate_comparison(el,el2); })) {
 			correction_vector.push({"action":"rename","item":el})
 		}
 	});
@@ -110,6 +110,15 @@ app.post('/rename_element', function(req,res) {
 	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
+});
+
+app.post('/move_element', function(req,res) {
+	var ob = cells.find(function(el) { return el.x_coord == req.body.from_x && el.y_coord == req.body.from_y });
+	ob.x_coord = JSON.parse(req.body.to_x);
+	ob.y_coord = JSON.parse(req.body.to_y);
+	console.log("Moved: " + JSON.stringify(req.body));
+	res.setHeader('Content-Type', 'application/json');
+	res.send('Done');
 });
 
 //Main driver for booting up the server

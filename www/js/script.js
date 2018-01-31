@@ -155,6 +155,7 @@ function incremental_move_element(direction) {
 			var move_to_x = el.x_coord;
 			var move_to_y = el.y_coord;
 			var move_to_shape = el.shape;
+			var move_to_name = el.name;
 			var temp = 0;
 			if(direction=="right") {
 				$("#move_to_x").val(parseInt($("#move_to_x").val()) + 1);
@@ -172,7 +173,7 @@ function incremental_move_element(direction) {
 				$("#move_to_y").val(parseInt($("#move_to_y").val()) + 1);
 				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;	
 			}
-			move_element(move_to_color, {"x" : move_to_x, "y" : move_to_y}, {"x" : selected_grid_x, "y" : selected_grid_y}, move_to_shape);
+			move_element_on_server(move_to_x, move_to_y, selected_grid_x, selected_grid_y);
 			draw_cursor_at_position(selected_grid_x, selected_grid_y);
 		}
 	});
@@ -411,17 +412,11 @@ function canvas_mouse_up(evt) {
 }
 
 function add_element(color, x, y, shape, name) {
-	console.log(name);
 	send_element_to_server(color, x, y, shape, name);
 }
 
 function delete_element(color, x, y, shape, name) {
 	add_element(color, x, y, shape, name);
-}
-
-function move_element(color, from, to, shape, name) {
-	delete_element(color, from.x, from.y, shape, name);
-	add_element(color, to.x, to.y, shape, name);
 }
 
 //SERVER COMMUNICATION FUNCTIONS
@@ -458,7 +453,6 @@ function update() {
 							live_objects[ind].name = element.item.name;
 							refresh_elements_list();
 						}
-						console.log("renamed: " + JSON.stringify(live_objects[ind]));
 					}); 
 				}
 			});
@@ -513,6 +507,26 @@ function rename_element(x, y, name) {
 			console.log("Error: " + status.status + ", " + error);
 		}
 	});	
+}
+
+function move_element_on_server(from_x, from_y, to_x, to_y) {
+	$.ajax({
+		type : "POST",
+		url : window.location.href + "move_element",
+		data : {"from_x" : JSON.stringify(from_x),
+					 "from_y" : JSON.stringify(from_y),
+					 "to_x" : JSON.stringify(to_x),
+					 "to_y" : JSON.stringify(to_y)},
+		dataType : 'json',
+		success : function(result) {
+			return;
+		},
+		error : function(status, error) {
+			if(error == 'parsererror')
+				return
+			console.log("Error: " + status.status + ", " + error);
+		}
+	});
 }
 
 function error_report(status, error) {
@@ -586,14 +600,14 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el) {
 		$("#element_list").append("<div class=\"element_list_row\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"doit(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
 															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
 															"</div>");
 	});
 }
 
-function doit(evt, x, y, name) {
+function change_name_of_element(evt, x, y, name) {
 		if(evt.which == 13) {
 			var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
 			if(typeof(temp) !== undefined) {
@@ -601,6 +615,7 @@ function doit(evt, x, y, name) {
 			}
 		}
 }
+
 // /**
 //  * Liang-Barsky function by Daniel White 
 //  * 
