@@ -1,3 +1,8 @@
+#element_color {
+	border:2px solid black;
+	width: 100%;
+}
+
 #move_to_x,#move_to_y {
 	width: 23%;
 }

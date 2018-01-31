@@ -75,6 +75,7 @@ function canvasApp() {
 				case "square":
 				case "circle":
 					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
+					console.log(element_color);
 					break;
 				case "line":
 					x_vertices.push(selected_grid_x);
