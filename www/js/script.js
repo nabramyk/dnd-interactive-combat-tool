@@ -29,7 +29,8 @@ console.log(window.location.href);
 
 function eventWindowLoaded() {
 	canvasApp();
-	var v = setInterval(update, update_interval);
+	//var v = setInterval(update, update_interval);
+	update();
 }
 
 function canvasSupport(e) {
@@ -431,20 +432,22 @@ function update() {
 		},
 		dataType : 'json',
 		success : function(result) {
+			var data_updated = false;
+			//alert(JSON.stringify(result));
 			result.forEach( function(element,ind,arr) {
 				var x = element.item.x_coord;
 				var y = element.item.y_coord;
-				if (element.action == "erase") {
+				if (element.action === "erase") {
 					live_objects.find(function(el, ind, arr) {
 						if(el === undefined)
 							return;
 						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
 							clear_item(el.shape, x, y, el.color);
-							refresh_elements_list();
+							data_updated = true;
 						}
 					});
-				} else if (element.action == "add") {
+				} else if (element.action === "add") {
 					live_objects.push({
 						"id" : element.item.id, 
 						"shape" : element.item.shape, 
@@ -453,26 +456,30 @@ function update() {
 						"color" : element.item.color, 
 						"name" : element.item.name
 					});
-					live_objects.sort(function(pre, post) {
-														return pre.id - post.id;
+					live_objects.sort(function(pre, post) { 
+						return pre.id - post.id;
 					});
 					draw_item(element.item.shape, x, y, element.item.color);
-					refresh_elements_list();
-				} else if (element.action == "rename") {
+					data_updated = true;
+				} else if (element.action === "rename") {
 					live_objects.find( function(el,ind,arr) {
 						if(coordinate_comparison(el,element.item)) {
 							live_objects[ind].name = element.item.name;
-							refresh_elements_list();
+							data_updated = true;
 						}
 					}); 
 				}
 			});
+			
+			if(data_updated)
+				refresh_elements_list();
 			
 			if(live_objects.length === 0)
 				$('#reset_board_button').hide();
 			else 
 				$('#reset_board_button').show();
 			
+			setTimeout(update(), update_interval);
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
@@ -610,7 +617,6 @@ function check_for_clipped_regions(grid_x, grid_y) {
 function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
-		console.log(arr);
 		$("#element_list").append("<div class=\"element_list_row\">" +
 															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
