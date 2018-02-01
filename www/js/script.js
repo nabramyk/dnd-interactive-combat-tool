@@ -445,7 +445,17 @@ function update() {
 						}
 					});
 				} else if (element.action == "add") {
-					live_objects.push({"shape" : element.item.shape, "x_coord" : x, "y_coord" : y, "color" : element.item.color, "name" : element.item.name});
+					live_objects.push({
+						"id" : element.item.id, 
+						"shape" : element.item.shape, 
+						"x_coord" : x, 
+						"y_coord" : y, 
+						"color" : element.item.color, 
+						"name" : element.item.name
+					});
+					live_objects.sort(function(pre, post) {
+														return pre.id - post.id;
+					});
 					draw_item(element.item.shape, x, y, element.item.color);
 					refresh_elements_list();
 				} else if (element.action == "rename") {
@@ -599,7 +609,8 @@ function check_for_clipped_regions(grid_x, grid_y) {
 
 function refresh_elements_list() {
 	$("#element_list").empty();
-	live_objects.forEach( function(el) {
+	live_objects.forEach( function(el,ind,arr) {
+		console.log(arr);
 		$("#element_list").append("<div class=\"element_list_row\">" +
 															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +

@@ -4,6 +4,8 @@ var app = express();
 
 var bodyParser = require('body-parser')
 
+var element_id_counter = 1;
+
 function coordinate_comparison(obj_1, obj_2) {
 	if(obj_1.x_coord instanceof Array) 
 		return obj_1.x_coord.every(function(u,i) { return u === obj_2.x_coord[i]; }) &&
@@ -81,11 +83,14 @@ app.post('/update', function (req,res) {
 app.post('/push_change', function(req,res) {
 	
 	//Parse the input request and store it as a JSON object
-	var input = {"color": req.body.color, 
+	var input = {
+				"id" : element_id_counter,
+				"color": req.body.color, 
 				"x_coord": JSON.parse(req.body.x_coord), 
 				"y_coord": JSON.parse(req.body.y_coord), 
 				"shape": req.body.object_type,
-				"name" : typeof(req.body.name) !== 'undefined' ? req.body.name : "object"};
+				"name" : typeof(req.body.name) !== 'undefined' ? req.body.name : "object"
+	};
 	
 	//For each element in the internal state...
 	for(var i=0; i < cells.length; i++) {
@@ -102,6 +107,8 @@ app.post('/push_change', function(req,res) {
 	cells.push(input);
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
+	
+	element_id_counter++;
 });
 
 app.post('/rename_element', function(req,res) {
