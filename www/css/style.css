@@ -1,3 +1,8 @@
+body {
+	min-width: 1000px;
+	max-height: 100px;
+}
+
 button {
 	-webkit-appearance: none;
 }
@@ -46,10 +51,7 @@ button {
 #element_list {
 	overflow-y: scroll;
 	border: solid black 1px;
-}
-
-#console_output {
-	
+	width: 100%;
 }
 
 .element_list_row {
@@ -66,6 +68,30 @@ i {
     border-width: 0 3px 3px 0;
     display: inline-block;
     padding: 3px;
+}
+
+#row {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	
+}
+
+#center_column {
+	display: table-cell;
+	width: 60%;
+}
+
+#left_column {
+	display: table-cell;
+	width: 20%;
+	background: red;
+}
+
+#right_column {
+	display: table-cell;
+	width: 20%;
+	background: blue;
 }
 
 .right {
