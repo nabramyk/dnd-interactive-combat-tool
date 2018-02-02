@@ -1,6 +1,6 @@
 body {
-	min-width: 1000px;
-	max-height: 100px;
+	width: 1200px;
+	height: 500px;
 }
 
 button {
@@ -21,31 +21,11 @@ button {
 	margin: auto;
 }
 
-#move_button,#place_element_button,#reset_board_button,#start_new_line_button {
+#move_button,#place_element_button,#reset_board_button,#start_new_line_button,#element_color_changer {
 	width: 100%;
 	font-size: 16px;
 	height: 50px;
 	background: #99ccff;
-}
-
-#miu_div {
-	grid-column: 2;
-	grid-row: 1;
-}
-
-#mil_div {
-	grid-column: 1;
-	grid-row: 2;
-}
-
-#mir_div {
-	grid-column: 3;
-	grid-row: 2;
-}
-
-#mid_div {
-	grid-column: 2;
-	grid-row: 3;
 }
 
 #element_list {
@@ -59,8 +39,8 @@ button {
 }
 
 .incr_move_button {
-	width: 50px;
-	height: 50px;
+	width: 66px;
+	height: 66px;
 }
 
 i {
@@ -70,28 +50,22 @@ i {
     padding: 3px;
 }
 
-#row {
-	display: table;
-	width: 100%;
-	table-layout: fixed;
-	
-}
-
 #center_column {
-	display: table-cell;
-	width: 60%;
+	float: left;
+	height: inherit;
+	width: 604px;
 }
 
 #left_column {
-	display: table-cell;
-	width: 20%;
-	background: red;
+	float: left;
+	height: inherit;
+	width: 200px;
 }
 
 #right_column {
-	display: table-cell;
-	width: 20%;
-	background: blue;
+	float: left;
+	height: inherit;
+	width: 200px;
 }
 
 .right {

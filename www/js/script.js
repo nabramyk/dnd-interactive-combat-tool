@@ -275,6 +275,9 @@ function clear_item(shape, x_coord, y_coord, color) {
 
 function clear_previous_cursor_position() {
 	
+	if(selected_grid_x === -1 || selected_grid_y == -1)
+		return;
+	
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	
@@ -617,12 +620,22 @@ function check_for_clipped_regions(grid_x, grid_y) {
 function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
-		$("#element_list").append("<div class=\"element_list_row\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
+		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\">" +
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value\")\><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
 															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
 															"</div>");
 	});
+}
+
+function clicked_element_list(x,y) {	
+	clear_previous_cursor_position();
+	draw_cursor_at_position(x, y);
+	
+	$("#place_element_button").html("Delete Element");
+	$('#movement_controls').show();
+	$("#move_to_x").val(x/grid_size + 1);
+	$("#move_to_y").val(y/grid_size + 1);
 }
 
 function change_name_of_element(evt, x, y, name) {
