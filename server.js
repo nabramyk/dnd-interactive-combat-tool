@@ -1,6 +1,8 @@
 //This server requires the 'express' NodeJS server framework
 var express = require('express');
 var app = express();
+var log4js = require('log4js');
+var log = log4js.getLogger();
 
 var bodyParser = require('body-parser')
 
@@ -97,7 +99,7 @@ app.post('/push_change', function(req,res) {
 		if(cells[i].color==input.color && coordinate_comparison(cells[i],input)) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send("Done");
-			console.log("Deleted: " + JSON.stringify(cells[i]));
+			log.info("Deleted: " + JSON.stringify(cells[i]));
 			cells.splice(i,1);
 			return;
 		}
@@ -114,7 +116,6 @@ app.post('/push_change', function(req,res) {
 app.post('/rename_element', function(req,res) {
 	var ob = cells.find( function(el) { return el.x_coord == req.body.x_coord && el.y_coord == req.body.y_coord });
 	ob.name = req.body.name;
-	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });

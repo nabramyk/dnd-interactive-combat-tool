@@ -621,7 +621,7 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value\")\><br>" + 
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
 															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
 															"</div>");
