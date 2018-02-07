@@ -81,16 +81,13 @@ function canvasApp() {
 				case "line":
 					x_vertices.push(selected_grid_x);
 					y_vertices.push(selected_grid_y);
-					$('#start_new_line_button').show();
 					break;
 			}
-			$('#movement_controls').show();
 		} else if($("#place_element_button").html() == "Delete Element") {
 			live_objects.forEach(function(element) {
 				if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
 					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 			});
-			$('#movement_controls').hide();
 		}
 	});
 	
@@ -98,7 +95,6 @@ function canvasApp() {
 		live_objects.forEach(function(element) {
 				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
 		});
-		$('#movement_controls').hide();
 	});
 	
 	$("#start_new_line_button").click(function() {
@@ -106,7 +102,6 @@ function canvasApp() {
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
-		$('#start_new_line_button').hide();
 	});
 	
 	$('#move_button').click(function() {
@@ -145,6 +140,14 @@ function canvasApp() {
 		if(selected_grid_x == -1 && selected_grid_y == -1) { return; }
 		clear_previous_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
+	});
+	
+	$("#drawing_controls_button").click(function() {
+		$("#drawing_controls").toggle();
+	});
+	
+	$("#movement_controls_button").click(function() {
+		$("#movement_controls").toggle();
 	});
 	
 	drawScreen();
@@ -346,6 +349,7 @@ function canvas_mouse_down(evt) {
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
 		
 	// Find if this grid point contains a live element
+	/*
 	for(var i=0; i<live_objects.length; i++) {
 		if(live_objects[i].x_coord == x_snap_to_grid && live_objects[i].y_coord == y_snap_to_grid) {
 			$("#place_element_button").html("Delete Element");
@@ -362,7 +366,7 @@ function canvas_mouse_down(evt) {
 			$('#movement_controls').hide();
 		}
 	}
-
+	*/
 	mouse_down_grid_x = x_snap_to_grid;
 	mouse_down_grid_y = y_snap_to_grid;
 }
@@ -405,12 +409,13 @@ function canvas_mouse_up(evt) {
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
 
+	/*
 	var el = live_objects.find( function(el) { return el.x_coord == x_snap_to_grid && el.y_coord == y_snap_to_grid; });
 	if(typeof(el) == 'undefined') {
 		$("#place_element_button").html("Add Element");
 	} else {
 		$("#place_element_button").html("Delete Element");
-	}
+	}*/
 	
 	mouse_down_grid_x = -1;
 	mouse_down_grid_y = -1;
@@ -448,6 +453,8 @@ function update() {
 							arr.splice(ind, 1);
 							clear_item(el.shape, x, y, el.color);
 							data_updated = true;
+							clear_previous_cursor_position();
+							draw_cursor_at_position(selected_grid_x, selected_grid_y);
 						}
 					});
 				} else if (element.action === "add") {

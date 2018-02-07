@@ -1,5 +1,5 @@
 body {
-	width: 1200px;
+	width: 1300px;
 	height: 500px;
 }
 
@@ -28,14 +28,24 @@ button {
 	background: #99ccff;
 }
 
+.menu_controls_button {
+	width: 100%;
+	font-size: 16px;
+	height: 50px;
+	background: white;
+	border: solid black 2px;
+}
+
 #element_list {
 	overflow-y: scroll;
 	border: solid black 1px;
 	width: 100%;
+	height: 100%;
 }
 
 .element_list_row {
 	border-bottom: solid black 1px;
+	background: white;
 }
 
 .incr_move_button {
@@ -51,21 +61,27 @@ i {
 }
 
 #center_column {
-	float: left;
-	height: inherit;
+	height: 100%;
 	width: 604px;
+	margin-left: 200px;
+	position: fixed;
 }
 
 #left_column {
-	float: left;
-	height: inherit;
+	position: fixed;
+	height: 100%;
 	width: 200px;
+	top: 0;
+	left: 0;
+	background: #003399;
 }
 
 #right_column {
-	float: left;
-	height: inherit;
+	position: fixed;
+	height: 100%;
 	width: 200px;
+	margin-left: 804px;
+	background: #003399;
 }
 
 .right {

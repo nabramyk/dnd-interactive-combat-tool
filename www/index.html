@@ -1,82 +1,89 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>DND Interactive Combat Tool</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"
-	type="text/javascript"></script>
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="/js/script.js" type="text/javascript"></script>
-<script src="/js/jscolor.min.js" type="text/javascript"></script>
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="/css/style.css">
+	<title>DND Interactive Combat Tool</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="/js/script.js" type="text/javascript"></script>
+	<script src="/js/jscolor.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
+
 <body>
 
-			<div id="left_column">
-				<p id="grid_location"></p>
-				<select id="selected_shape">
+	<div id="left_column">
+		<div style="background: black; height: 30px; margin-top: -10px; text-align: center;">
+			<h4 style="color: white;">Controls</h4>
+		</div>
+		<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
+		<div id="drawing_controls" style="display:none;">
+			<select id="selected_shape">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
-				<input name="elementcolor" id="element_color" type="hidden" value="000000">
-				<button id="element_color_changer" class="jscolor {valueElement:'element_color'}">Element Color</button>
-				<button id="place_element_button">Add Element</button>
-				<br>
-				<button id="reset_board_button">Reset Board</button>
-				<br>
-				<button id="start_new_line_button">Start New Line</button>
-				<br>
-				<div id="movement_controls">
-					X: <input type="number" id="move_to_x">
-					Y: <input type="number" id="move_to_y">
-					<br>
-					<button id="move_button">Move</button>
-					<br>
-					<table id="incremental_movement_control_container">
-						<tr>
-							<td>
-							<td>
-								<button id="move_inc_up" class="incr_move_button">
+			<input name="elementcolor" id="element_color" type="hidden" value="000000">
+			<button id="element_color_changer" class="jscolor {valueElement:'element_color'}">Element Color</button>
+			<button id="place_element_button">Add Element</button>
+			<br>
+			<button id="reset_board_button">Reset Board</button>
+			<br>
+			<button id="start_new_line_button">Start New Line</button>
+			<br>
+		</div>
+		<button id="movement_controls_button" class="menu_controls_button">Movement</button>
+		<div id="movement_controls" style="display:none;">
+			X: <input type="number" id="move_to_x"> Y: <input type="number" id="move_to_y">
+			<br>
+			<button id="move_button">Move</button>
+			<br>
+			<table id="incremental_movement_control_container">
+				<tr>
+					<td>
+						<td>
+							<button id="move_inc_up" class="incr_move_button">
 									<i class="arrow up"></i>
 								</button>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<button id="move_inc_left" class="incr_move_button">
+						</td>
+				</tr>
+				<tr>
+					<td>
+						<button id="move_inc_left" class="incr_move_button">
 									<i class="arrow left"></i>
 								</button>
-							</td>
-							<td>
-							<td>
-								<button id="move_inc_right" class="incr_move_button">
+					</td>
+					<td>
+						<td>
+							<button id="move_inc_right" class="incr_move_button">
 									<i class="arrow right"></i>
 								</button>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							<td>
-								<button id="move_inc_down" class="incr_move_button">
+						</td>
+				</tr>
+				<tr>
+					<td>
+						<td>
+							<button id="move_inc_down" class="incr_move_button">
 									<i class="arrow down"></i>
 								</button>
-							</td>
-						</tr>
-					</table>
-				</div>
-			</div>
-			<div id="center_column">
-				<canvas id="grid_canvas"></canvas>
-			</div>
-			<div id="right_column">
-				<div id="element_list">
-				</div>
-			</div>
+						</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div id="center_column">
+		<canvas id="grid_canvas"></canvas>
+	</div>
+	<div id="right_column">
+		<div style="background: black; height: 30px; margin-top: -10px; text-align: center;">
+			<h4 style="color: white;">Element List</h4>
+		</div>
+		<div id="element_list">
+		</div>
+	</div>
 </body>
+
 </html>
