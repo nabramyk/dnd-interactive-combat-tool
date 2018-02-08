@@ -21,7 +21,6 @@ var y_vertices = [];
 
 // GUI Elements
 var grid_canvas, ctx;
-
 var live_objects = [];
 
 window.addEventListener('load', eventWindowLoaded, false);
@@ -29,7 +28,6 @@ console.log(window.location.href);
 
 function eventWindowLoaded() {
 	canvasApp();
-	//var v = setInterval(update, update_interval);
 	update();
 }
 
@@ -81,6 +79,8 @@ function canvasApp() {
 				case "line":
 					x_vertices.push(selected_grid_x);
 					y_vertices.push(selected_grid_y);
+					if(x_vertices.length === 1 && y_vertices.length === 1)
+						$("#start_new_line_button").toggle();
 					break;
 			}
 		} else if($("#place_element_button").html() == "Delete Element") {
@@ -102,6 +102,7 @@ function canvasApp() {
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
+		$("#start_new_line_button").toggle();
 	});
 	
 	$('#move_button').click(function() {
@@ -343,30 +344,17 @@ function canvas_mouse_down(evt) {
 	
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
-		
+	
+	if($("#selected_shape").val() == "line" && x_vertices.length > 0 && y_vertices.length > 0) {
+		 clear_item("line", x_vertices.slice(x_vertices.length-1).concat(selected_grid_x), y_vertices.slice(y_vertices.length-1).concat(selected_grid_y), $("#element_color").val());
+		 check_for_clipped_regions();
+		 draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), $("#element_color").val());
+	}
+	
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
-		
-	// Find if this grid point contains a live element
-	/*
-	for(var i=0; i<live_objects.length; i++) {
-		if(live_objects[i].x_coord == x_snap_to_grid && live_objects[i].y_coord == y_snap_to_grid) {
-			$("#place_element_button").html("Delete Element");
-			$('#movement_controls').show();
-			break;
-		}
-		
-		if(i === 0 || i == live_objects.length - 1) {
-			if($('#selected_shape').val() == "square" || $('#selected_shape').val == "circle") {
-				$('#place_element_button').html("Add Element");
-			} else if($('#selected_shape').val() == "line") {
-				$('#place_element_button').html("Add Vertex");
-			}
-			$('#movement_controls').hide();
-		}
-	}
-	*/
+	
 	mouse_down_grid_x = x_snap_to_grid;
 	mouse_down_grid_y = y_snap_to_grid;
 }

@@ -21,13 +21,6 @@ button {
 	margin: auto;
 }
 
-#move_button,#place_element_button,#reset_board_button,#start_new_line_button,#element_color_changer {
-	width: 100%;
-	font-size: 16px;
-	height: 50px;
-	background: #99ccff;
-}
-
 .menu_controls_button {
 	width: 100%;
 	font-size: 16px;
@@ -74,6 +67,10 @@ i {
 	top: 0;
 	left: 0;
 	background: #003399;
+}
+
+#left_column > div {
+	background: white;
 }
 
 #right_column {
