@@ -258,7 +258,7 @@ function clear_item(shape, x_coord, y_coord, color) {
 			var y = y_coord + grid_line_width;
 			ctx.clearRect(x, y, grid_size, grid_size);
 			ctx.strokeRect(x, y, grid_size, grid_size);
-			check_for_clipped_regions(x_coord, y_coord);
+			check_for_clipped_regions(x_coord, y_coord, live_objects.filter(function(element) { return element.shape === "line"; }));
 			break;
 		case "line":
 			for(var i=1; i < x_coord.length; i++) {
@@ -307,13 +307,13 @@ function clear_previous_cursor_position() {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color);
 		}
 	});
-	
-	check_for_clipped_regions(selected_grid_x, selected_grid_y);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size);
+	var lines = live_objects.filter(function(element) { return element.shape === "line"; } );
+	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size, lines);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size, lines);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size, lines);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size, lines);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -346,9 +346,11 @@ function canvas_mouse_down(evt) {
 		clear_previous_cursor_position();
 	
 	if($("#selected_shape").val() == "line" && x_vertices.length > 0 && y_vertices.length > 0) {
-		 clear_item("line", x_vertices.slice(x_vertices.length-1).concat(selected_grid_x), y_vertices.slice(y_vertices.length-1).concat(selected_grid_y), $("#element_color").val());
-		 check_for_clipped_regions();
-		 draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), $("#element_color").val());
+		clear_item("line", x_vertices.slice(x_vertices.length-1).concat(selected_grid_x), y_vertices.slice(y_vertices.length-1).concat(selected_grid_y), $("#element_color").val());
+		for(var i=1; i <= x_vertices.length; i++) {
+			
+		}
+		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), $("#element_color").val());
 	}
 	
 	// Outline the selected grid space, depending on the style of element to be
@@ -588,12 +590,9 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	return grid_points;
 }
 
-function check_for_clipped_regions(grid_x, grid_y) {
-	//Find all of the lines in live_objects
-	var temp = live_objects.filter(function(element) { return element.shape === "line"; } );
-	
+function check_for_clipped_regions(grid_x, grid_y, lines) {
 	//Execute function for each set of line segments
-	temp.forEach(function(element,ind,arr) {
+	lines.forEach(function(element,ind,arr) {
 
 		var vertices_x = element.x_coord;
 		var vertices_y = element.y_coord;
