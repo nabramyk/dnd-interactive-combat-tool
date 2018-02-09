@@ -114,7 +114,11 @@ app.post('/push_change', function(req,res) {
 });
 
 app.post('/rename_element', function(req,res) {
-	var ob = cells.find( function(el) { return el.x_coord == req.body.x_coord && el.y_coord == req.body.y_coord });
+	var x = JSON.parse(req.body.x_coord);
+	var y = JSON.parse(req.body.y_coord);
+	x = x.length === 1 ? x[0] : x;
+	y = y.length === 1 ? y[0] : y;
+	var ob = cells.find( function(el) { return coordinate_comparison({ "x_coord" : el.x_coord, "y_coord" : el.y_coord},{ "x_coord" : x, "y_coord" : y}) });
 	ob.name = req.body.name;
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");

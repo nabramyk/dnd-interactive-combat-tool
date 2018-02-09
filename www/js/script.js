@@ -614,7 +614,7 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.x_coord + "," + el.y_coord + ",this.value)\"><br>" + 
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
 															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
 															"</div>");
@@ -623,6 +623,7 @@ function refresh_elements_list() {
 
 function clicked_element_list(x,y) {	
 	clear_previous_cursor_position();
+	var temp = live_objects.find(function(el) {});
 	draw_cursor_at_position(x, y);
 	
 	$("#place_element_button").html("Delete Element");
@@ -633,7 +634,9 @@ function clicked_element_list(x,y) {
 
 function change_name_of_element(evt, x, y, name) {
 		if(evt.which == 13) {
-			var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
+			//var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
+			var temp = live_objects.find(function(el) { return coordinate_comparison(el, {"x_coord" : x, "y_coord" : y}); });
+			console.log(x);
 			if(typeof(temp) !== undefined) {
 				rename_element(x, y, name);
 			}
