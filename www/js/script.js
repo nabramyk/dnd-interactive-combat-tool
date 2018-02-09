@@ -319,6 +319,7 @@ function clear_previous_cursor_position() {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color);
 		}
 	});
+	
 	var lines = live_objects.filter(function(element) { return element.shape === "line"; } );
 	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
 	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size, lines);
@@ -326,6 +327,14 @@ function clear_previous_cursor_position() {
 	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size, lines);
 	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size, lines);
 	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size, lines);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y - grid_size, lines);
+	
+	lines = [{"shape" : "line", "x_coord" : x_vertices, "y_coord" : y_vertices, "color" : temporary_line_color}];
+	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size, lines);
+	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size, lines);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -383,7 +392,7 @@ function canvas_mouse_up(evt) {
 		
 	// Exit this function if the mouse is released within the same grid element
 	// it was activated in
-	if(x_snap_to_grid == mouse_down_grid_x && y_snap_to_grid == mouse_down_grid_y)
+	if(x_snap_to_grid === mouse_down_grid_x && y_snap_to_grid === mouse_down_grid_y)
 		return;
 	
 	$("#move_element_x").val(1+x_snap_to_grid/grid_size);
@@ -573,11 +582,14 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	
 	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
 	b = starting_point.y - m * starting_point.x;
-
-	if(m === -Infinity || m === Infinity)
+	if(!isFinite(m)) {
+		console.log("StartingY: " + starting_point.y);
+		console.log("EndingY: " + ending_point.y);
 		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
 			grid_points.push({ "x" : starting_point.x, "y" : y_val });
+			console.log("pushed");
 		}
+	}
 	else
 		for(var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
 			y_val = m * x_val + b;
