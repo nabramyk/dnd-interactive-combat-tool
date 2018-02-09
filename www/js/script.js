@@ -5,6 +5,7 @@ var grid_count_height = 24;
 var canvas_padding = 5;
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,0,0,1)';
+var temporary_line_color = '8c8c8c';
 var grid_line_width = 2;
 
 var selected_grid_x = -1 
@@ -99,6 +100,9 @@ function canvasApp() {
 	
 	$("#start_new_line_button").click(function() {
 		add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
+		if(x_vertices[x_vertices.length-1] === selected_grid_x && y_vertices[y_vertices.length] === selected_grid_y) {
+			
+		}
 		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
@@ -345,16 +349,19 @@ function canvas_mouse_down(evt) {
 	if((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1)) 
 		clear_previous_cursor_position();
 	
+	//Drawing temporary lines before sending the line to the server
 	if($("#selected_shape").val() == "line" && x_vertices.length > 0 && y_vertices.length > 0) {
-		clear_item("line", x_vertices.slice(x_vertices.length-1).concat(selected_grid_x), y_vertices.slice(y_vertices.length-1).concat(selected_grid_y), $("#element_color").val());
-		for(var i=1; i <= x_vertices.length; i++) {
-			
-		}
-		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), $("#element_color").val());
+		var temp = calculate_grid_points_on_line({ "x" : x_vertices.slice(x_vertices.length-1), "y" : y_vertices.slice(y_vertices.length-1)},
+																							 { "x" : selected_grid_x, "y" : selected_grid_y });
+		var x = x_vertices.slice(x_vertices.length-1).concat(selected_grid_x);
+		var y = y_vertices.slice(y_vertices.length-1).concat(selected_grid_y);
+		clear_item("line", x, y, $("#element_color").val());
+		temp.forEach(function(el,ind,arr) {
+			check_for_clipped_regions(el.x, el.y, [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
+		});
+		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), temporary_line_color);
 	}
-	
-	// Outline the selected grid space, depending on the style of element to be
-	// drawn
+
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
 	
 	mouse_down_grid_x = x_snap_to_grid;
@@ -384,14 +391,7 @@ function canvas_mouse_up(evt) {
 			var move_y = live_objects[i].y_coord;
 			var move_shape = live_objects[i].shape;
 			
-			// Send the item that is to be moved with the original coordinates,
-			// which will
-			// cause the server to delete that element from the server grid
-			delete_element(move_color, move_x, move_y, move_shape);
-			
-			// Send the item again but with the updated coordinates, which will
-			// be added to the server grid
-			add_element(move_color, x_snap_to_grid, y_snap_to_grid, move_shape);
+			move_element_on_server(move_x, move_y, x_snap_to_grid, y_snap_to_grid);
 		}
 	}
 	
@@ -596,7 +596,6 @@ function check_for_clipped_regions(grid_x, grid_y, lines) {
 
 		var vertices_x = element.x_coord;
 		var vertices_y = element.y_coord;
-		
 		for(var i=1; i < vertices_x.length; i++) {
 			
 			var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
