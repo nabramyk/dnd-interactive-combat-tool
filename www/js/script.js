@@ -75,7 +75,6 @@ function canvasApp() {
 				case "square":
 				case "circle":
 					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
-					console.log(element_color);
 					break;
 				case "line":
 					x_vertices.push(selected_grid_x);
@@ -143,6 +142,15 @@ function canvasApp() {
 			break;
 		}
 		if(selected_grid_x == -1 && selected_grid_y == -1) { return; }
+		
+		for(var i=1; i<x_vertices.length; i++) {
+			clear_item("line",[x_vertices[i-1],x_vertices[i]],[y_vertices[i-1],y_vertices[i]],{});
+		}
+		clear_item("line",[x_vertices[x_vertices.length-1],selected_grid_x],[y_vertices[y_vertices.length-1],selected_grid_y],{});
+		
+		x_vertices.length = [];
+		y_vertices.length = [];
+		
 		clear_previous_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
@@ -636,7 +644,6 @@ function change_name_of_element(evt, x, y, name) {
 		if(evt.which == 13) {
 			//var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
 			var temp = live_objects.find(function(el) { return coordinate_comparison(el, {"x_coord" : x, "y_coord" : y}); });
-			console.log(x);
 			if(typeof(temp) !== undefined) {
 				rename_element(x, y, name);
 			}
