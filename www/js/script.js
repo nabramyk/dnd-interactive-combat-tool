@@ -436,6 +436,11 @@ function delete_element(color, x, y, shape, name) {
 	add_element(color, x, y, shape, name);
 }
 
+function delete_element_with_id(id) {
+	var temp = live_objects.find(function(el) { return el.id === id; });
+	delete_element(temp.color, temp.x_coord, temp.y_coord, temp.shape, temp.name);
+}
+
 //SERVER COMMUNICATION FUNCTIONS
 //All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
@@ -582,12 +587,18 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	
 	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
 	b = starting_point.y - m * starting_point.x;
+
 	if(!isFinite(m)) {
-		console.log("StartingY: " + starting_point.y);
-		console.log("EndingY: " + ending_point.y);
-		for(y_val = starting_point.y; y_val < ending_point.y; y_val = y_val + grid_size) {
-			grid_points.push({ "x" : starting_point.x, "y" : y_val });
-			console.log("pushed");
+		var _start, _end;
+		if(starting_point.y < ending_point.y) {
+			_start = starting_point.y;
+			_end = ending_point.y;
+		} else {
+			_start = ending_point.y;
+			_end = starting_point.y;
+		}
+		for(; _start < _end; _start = _start + grid_size) {
+			grid_points.push({ "x" : starting_point.x, "y" : _start });
 		}
 	}
 	else
@@ -636,7 +647,8 @@ function refresh_elements_list() {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\">" +
 															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\"><br>" + 
 															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
-															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" + 
+															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" +
+															"<button onclick=\"delete_element_with_id(" + el.id + ")\">Delete</button>" +
 															"</div>");
 	});
 }
