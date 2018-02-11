@@ -277,6 +277,11 @@ function clear_item(shape, x_coord, y_coord, color) {
 				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[i-1], "y" : y_coord[i-1]}, { "x" : x_coord[i], "y" : y_coord[i]});
 				grid_points.forEach(function(element) {
 					clear_item("square", element.x, element.y, null);
+					var temp = live_objects.find(function(el) { return el.x === element.x && el.y === element.y; });
+					if(typeof temp != 'undefined') {
+						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color);
+						console.log('redrawing after line');
+					}
 				});
 			}
 			break;
