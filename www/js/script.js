@@ -97,12 +97,14 @@ function canvasApp() {
 	});
 	
 	$("#start_new_line_button").click(function() {
+		if(selected_grid_x !== x_vertices[x_vertices.length-1] || selected_grid_y !== y_vertices[y_vertices.length-1]) {
+			x_vertices.push(selected_grid_x);
+			y_vertices.push(selected_grid_y);
+		}
+		
 		if(x_vertices.length > 1 && y_vertices.length > 1)
 			 add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
 		
-		if(x_vertices[x_vertices.length-1] === selected_grid_x && y_vertices[y_vertices.length] === selected_grid_y) {
-			
-		}
 		x_vertices = [];
 		y_vertices = [];
 		$("#start_new_line_button").toggle();
@@ -118,8 +120,8 @@ function canvasApp() {
 				selected_grid_x = ($("#move_to_x").val() - 1) * grid_size;
 				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;
 				move_element(move_to_color,
-						{x:move_to_x, y:move_to_y},
-						{x:selected_grid_x, y:selected_grid_y},
+						{"x":move_to_x, "y":move_to_y},
+						{"x":selected_grid_x, "y":selected_grid_y},
 						move_to_shape);
 			}
 		});
