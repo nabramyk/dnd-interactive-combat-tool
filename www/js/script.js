@@ -212,25 +212,6 @@ function drawScreen() {
 	}
 }
 
-function redraw_line(element) {
-	var vertices_x = JSON.parse(element.x_coord);
-	var vertices_y = JSON.parse(element.y_coord);
-	var m, b, y_val, region;
-	for(var i=1; i < vertices_x.length; i++) {
-		var grid_points = calculate_grid_points_on_line({ "x" : vertices_x[i-1], "y" : vertices_y[i-1]},
-														{ "x" : vertices_x[i], "y" : vertices_y[i]});
-		grid_points.find( function(el,ind,arr) {
-			if((el.x >= selected_grid_x - grid_size && el.x <= selected_grid_x + grid_size) &&
-				 (el.y >= selected_grid_y - grid_size && el.y <= selected_grid_y + grid_size)) {
-				draw_item({ "color" : element.color,
-					"x_coord" : JSON.stringify([vertices_x[i-1],vertices_x[i]]),
-					"y_coord" : JSON.stringify([vertices_y[i-1],vertices_y[i]]),
-					"shape" : element.shape });
-			}
-		});
-	}
-}
-
 function draw_item(shape, x_coord, y_coord, color) {
 	switch(shape) {
 		case "square":
