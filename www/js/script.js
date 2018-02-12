@@ -58,16 +58,6 @@ function canvasApp() {
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
 	
-	/*
-	 * grid_canvas.addEventListener('mousemove', function(event) { if
-	 * (document.getElementById('on_hover_highlight').checked == true) {
-	 * console.log('X:' + event.offsetX + ', Y: ' + event.offsetY); var mouse_x =
-	 * event.offsetX; var mouse_y = event.offsetY; var x_snap_to_grid = mouse_x -
-	 * (mouse_x % grid_size); var y_snap_to_grid = mouse_y - (mouse_y %
-	 * grid_size); ctx.fillStyle = "#CCFF33"; ctx.fillRect(x_snap_to_grid,
-	 * y_snap_to_grid, 5, 5); } })
-	 */
-
 	$('#place_element_button').click(function() {
 		if($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
 			switch($("#selected_shape").val()) {
@@ -447,14 +437,6 @@ function canvas_mouse_up(evt) {
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
-
-	/*
-	var el = live_objects.find( function(el) { return el.x_coord == x_snap_to_grid && el.y_coord == y_snap_to_grid; });
-	if(typeof(el) == 'undefined') {
-		$("#place_element_button").html("Add Element");
-	} else {
-		$("#place_element_button").html("Delete Element");
-	}*/
 	
 	mouse_down_grid_x = -1;
 	mouse_down_grid_y = -1;
@@ -694,10 +676,6 @@ function clicked_element_list(id) {
 	} else {
 		draw_cursor_at_position(temp.x_coord, temp.y_coord);
 	}
-	//$("#place_element_button").html("Delete Element");
-	//$('#movement_controls').show();
-	//$("#move_to_x").val(x/grid_size + 1);
-	//$("#move_to_y").val(y/grid_size + 1);
 }
 
 function change_name_of_element(evt, x, y, name) {
