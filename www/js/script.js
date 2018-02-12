@@ -157,10 +157,20 @@ function canvasApp() {
 	
 	$("#drawing_controls_button").click(function() {
 		$("#drawing_controls").toggle();
+		$("#movement_controls").hide();
+		$("#settings_controls").hide();
 	});
 	
 	$("#movement_controls_button").click(function() {
 		$("#movement_controls").toggle();
+		$("#drawing_controls").hide();
+		$("#settings_controls").hide();
+	});
+	
+	$("#settings_controls_button").click(function() {
+		$("#settings_controls").toggle();
+		$("#drawing_controls").hide();
+		$("#movement_controls").hide();
 	});
 	
 	drawScreen();
@@ -280,7 +290,6 @@ function clear_item(shape, x_coord, y_coord, color) {
 					var temp = live_objects.find(function(el) { return el.x === element.x && el.y === element.y; });
 					if(typeof temp != 'undefined') {
 						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color);
-						console.log('redrawing after line');
 					}
 				});
 			}
@@ -334,6 +343,8 @@ function clear_previous_cursor_position() {
 	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size, lines);
 	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y, lines);
 	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y - grid_size, lines);
+	check_for_clipped_regions(selected_grid_x + grid_size * 2, selected_grid_y, lines);
+	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y + grid_size, lines);
 	
 	lines = [{"shape" : "line", "x_coord" : x_vertices, "y_coord" : y_vertices, "color" : temporary_line_color}];
 	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
@@ -653,7 +664,8 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\"><button onclick=\"delete_element_with_id(" + el.id + ")\" class=\"destructive\">&times</button><br>" + 
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\">" +
+															"<button onclick=\"delete_element_with_id(" + el.id + ")\" class=\"destructive\">&times</button><br>" + 
 															"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
 															"</div>");
 	});
