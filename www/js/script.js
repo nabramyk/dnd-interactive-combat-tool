@@ -282,7 +282,7 @@ function clear_item(shape, x_coord, y_coord, color) {
 			var y = y_coord + grid_line_width;
 			ctx.clearRect(x, y, grid_size, grid_size);
 			ctx.strokeRect(x, y, grid_size, grid_size);
-			check_for_clipped_regions(x_coord, y_coord, live_objects.filter(function(element) { return element.shape === "line"; }));
+			check_for_clipped_regions([x_coord, y_coord], live_objects.filter(function(element) { return element.shape === "line"; }));
 			break;
 		case "line":
 			for(var i=1; i < x_coord.length; i++) {
@@ -337,23 +337,34 @@ function clear_previous_cursor_position() {
 	});
 	
 	var lines = live_objects.filter(function(element) { return element.shape === "line"; } );
-	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size, lines);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size, lines);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y + grid_size, lines);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y + grid_size, lines);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y - grid_size, lines);
-	check_for_clipped_regions(selected_grid_x + grid_size * 2, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x + grid_size, selected_grid_y + grid_size, lines);
+	check_for_clipped_regions(center(), lines);
+	check_for_clipped_regions(north(), lines);
+	check_for_clipped_regions(northwest(), lines);
+	check_for_clipped_regions(west(), lines);
+	check_for_clipped_regions(southwest(), lines);
+	check_for_clipped_regions(south(), lines);
+	check_for_clipped_regions(southeast(), lines);
+	check_for_clipped_regions(east(), lines);
+	check_for_clipped_regions(northeast(), lines);
+	check_for_clipped_regions(east2(), lines);
 	
 	lines = [{"shape" : "line", "x_coord" : x_vertices, "y_coord" : y_vertices, "color" : temporary_line_color}];
-	check_for_clipped_regions(selected_grid_x, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y, lines);
-	check_for_clipped_regions(selected_grid_x, selected_grid_y - grid_size, lines);
-	check_for_clipped_regions(selected_grid_x - grid_size, selected_grid_y - grid_size, lines);
+	check_for_clipped_regions(center(), lines);
+	check_for_clipped_regions(west(), lines);
+	check_for_clipped_regions(north(), lines);
+	check_for_clipped_regions(northwest(), lines);
 }
+
+function north() { 		return [selected_grid_x, selected_grid_y - grid_size]; }
+function east() {			return [selected_grid_x + grid_size, selected_grid_y]; }
+function east2() {			return [selected_grid_x + grid_size * 2, selected_grid_y]; }
+function west() {			return [selected_grid_x - grid_size, selected_grid_y]; }
+function south() {			return [selected_grid_x, selected_grid_y + grid_size]; }
+function northeast() { return [selected_grid_x + grid_size, selected_grid_y - grid_size]; }
+function northwest() {	return [selected_grid_x - grid_size, selected_grid_y - grid_size]; }
+function southeast() {	return [selected_grid_x + grid_size, selected_grid_y + grid_size]; }
+function southwest() {	return [selected_grid_x - grid_size, selected_grid_y + grid_size]; }
+function center() {		return [selected_grid_x, selected_grid_y]; }
 
 function draw_cursor_at_position(x, y) {
 	switch($('#selected_shape').val()) {
@@ -392,7 +403,7 @@ function canvas_mouse_down(evt) {
 		var y = y_vertices.slice(y_vertices.length-1).concat(selected_grid_y);
 		clear_item("line", x, y, $("#element_color").val());
 		temp.forEach(function(el,ind,arr) {
-			check_for_clipped_regions(el.x, el.y, [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
+			check_for_clipped_regions([el.x, el.y], [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
 			var object_that_needs_to_be_redrawn = live_objects.find(function(e) { return coordinate_comparison({ "x_coord" : el.x, "y_coord" : el.y}, e); });
 			if(typeof object_that_needs_to_be_redrawn !== 'undefined')
 				draw_item(object_that_needs_to_be_redrawn.shape, object_that_needs_to_be_redrawn.x_coord, object_that_needs_to_be_redrawn.y_coord, object_that_needs_to_be_redrawn.color);
@@ -642,7 +653,9 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	return grid_points;
 }
 
-function check_for_clipped_regions(grid_x, grid_y, lines) {
+function check_for_clipped_regions(grid_location, lines) {
+	var [grid_x, grid_y] = grid_location;
+	
 	//Execute function for each set of line segments
 	lines.forEach(function(element,ind,arr) {
 
