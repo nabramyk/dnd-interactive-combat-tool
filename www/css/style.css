@@ -7,6 +7,16 @@ button {
 	-webkit-appearance: none;
 }
 
+.destructive {
+	background-color: #cc0000;
+	border: none;
+	color: white;
+}
+
+#reset_board_button {
+	width: 100%;
+}
+
 #element_color {
 	border:2px solid black;
 	width: 100%;

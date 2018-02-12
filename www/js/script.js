@@ -16,7 +16,6 @@ var mouse_down_grid_y = -1;
 
 var update_interval = 200;
 
-var line_interval_id = 0;
 var x_vertices = [];
 var y_vertices = [];
 
@@ -98,11 +97,12 @@ function canvasApp() {
 	});
 	
 	$("#start_new_line_button").click(function() {
-		add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
+		if(x_vertices.length > 1 && y_vertices.length > 1)
+			 add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
+		
 		if(x_vertices[x_vertices.length-1] === selected_grid_x && y_vertices[y_vertices.length] === selected_grid_y) {
 			
 		}
-		line_interval_id++;
 		x_vertices = [];
 		y_vertices = [];
 		$("#start_new_line_button").toggle();
@@ -380,6 +380,9 @@ function canvas_mouse_down(evt) {
 		clear_item("line", x, y, $("#element_color").val());
 		temp.forEach(function(el,ind,arr) {
 			check_for_clipped_regions(el.x, el.y, [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
+			var object_that_needs_to_be_redrawn = live_objects.find(function(e) { return coordinate_comparison({ "x_coord" : el.x, "y_coord" : el.y}, e); });
+			if(typeof object_that_needs_to_be_redrawn !== 'undefined')
+				draw_item(object_that_needs_to_be_redrawn.shape, object_that_needs_to_be_redrawn.x_coord, object_that_needs_to_be_redrawn.y_coord, object_that_needs_to_be_redrawn.color);
 		});
 		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), temporary_line_color);
 	}
@@ -650,10 +653,8 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\"><br>" + 
-															"<div contenteditable=false>Position = X : " + el.x_coord + " | Y : " + el.y_coord + "</div>" +
-															"<div style=\"background: #" + el.color + ";width:20px;height:20px;\"></div>" +
-															"<button onclick=\"delete_element_with_id(" + el.id + ")\">Delete</button>" +
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\"><button onclick=\"delete_element_with_id(" + el.id + ")\" class=\"destructive\">&times</button><br>" + 
+															"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
 															"</div>");
 	});
 }
