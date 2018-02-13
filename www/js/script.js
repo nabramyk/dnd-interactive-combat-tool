@@ -63,7 +63,7 @@ function canvasApp() {
 			switch($("#selected_shape").val()) {
 				case "square":
 				case "circle":
-					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val());
+					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val());
 					break;
 				case "line":
 					x_vertices.push(selected_grid_x);
@@ -165,6 +165,16 @@ function canvasApp() {
 		$("#movement_controls").hide();
 	});
 	
+	$("#randomize").click(function() {
+		for(var w=0; w<grid_count_width; w++) {
+			for(var h=0; h<grid_count_height; h++) {
+				if(Math.random() < 0.5) {
+					add_element("000000", w * grid_size, h * grid_size, "square", "rando" + h*w, 1);
+				}
+			}
+		}
+	});
+	
 	drawScreen();
 }
 
@@ -212,20 +222,20 @@ function drawScreen() {
 	}
 }
 
-function draw_item(shape, x_coord, y_coord, color) {
+function draw_item(shape, x_coord, y_coord, color, size) {
 	switch(shape) {
 		case "square":
 			ctx.fillStyle = "#" + color;
 			x = x_coord + grid_line_width * 2;
 			y = y_coord + grid_line_width * 2;
-			ctx.fillRect(x, y, grid_size - grid_line_width * 2, grid_size - grid_line_width * 2);
+			ctx.fillRect(x, y, size * grid_size - grid_line_width * 2, size * grid_size - grid_line_width * 2);
 			break;
 		case "circle":
 			ctx.fillStyle = "#" + color;
 			x = x_coord + grid_line_width;
 			y = y_coord + grid_line_width;
 			ctx.beginPath();
-			ctx.arc(x + (grid_size / 2), y + (grid_size / 2), (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+			ctx.arc(x + (grid_size / 2), y + (grid_size / 2), size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 			ctx.fill();
 			break;
 		case "line":
@@ -260,9 +270,9 @@ function clear_item(shape, x_coord, y_coord, color) {
 				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[i-1], "y" : y_coord[i-1]}, { "x" : x_coord[i], "y" : y_coord[i]});
 				grid_points.forEach(function(element) {
 					clear_item("square", element.x, element.y, null);
-					var temp = live_objects.find(function(el) { return el.x === element.x && el.y === element.y; });
+					var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : element.x, "y_coord" : element.y }); });
 					if(typeof temp != 'undefined') {
-						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color);
+						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color, temp.size);
 					}
 				});
 			}
@@ -303,7 +313,7 @@ function clear_previous_cursor_position() {
 	live_objects.forEach(function(el) {
 		if((el.x_coord == selected_grid_x || el.x_coord == selected_grid_x - grid_size) &&
 			el.y_coord == selected_grid_y || el.y_coord == selected_grid_y - grid_size) {
-			draw_item(el.shape, el.x_coord, el.y_coord, el.color);
+			draw_item(el.shape, el.x_coord, el.y_coord, el.color, el.size);
 		}
 	});
 	
@@ -338,12 +348,17 @@ function southwest() {	return [selected_grid_x - grid_size, selected_grid_y + gr
 function center() {		return [selected_grid_x, selected_grid_y]; }
 
 function draw_cursor_at_position(x, y) {
+	var cursor_size = 1;
+	var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : x, "y_coord" : y})});
+	if(typeof(temp) !== 'undefined')
+		cursor_size = temp.size;
+	
 	switch($('#selected_shape').val()) {
 		case "square":
 		case "circle":
 			ctx.lineWidth = grid_line_width;
 			ctx.strokeStyle = grid_highlight;
-			ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
+			ctx.strokeRect(x + grid_line_width, y + grid_line_width, cursor_size * grid_size, cursor_size * grid_size);
 			break;
 		case "line":
 			ctx.fillStyle = grid_highlight;
@@ -377,9 +392,9 @@ function canvas_mouse_down(evt) {
 			check_for_clipped_regions([el.x, el.y], [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
 			var object_that_needs_to_be_redrawn = live_objects.find(function(e) { return coordinate_comparison({ "x_coord" : el.x, "y_coord" : el.y}, e); });
 			if(typeof object_that_needs_to_be_redrawn !== 'undefined')
-				draw_item(object_that_needs_to_be_redrawn.shape, object_that_needs_to_be_redrawn.x_coord, object_that_needs_to_be_redrawn.y_coord, object_that_needs_to_be_redrawn.color);
+				draw_item(object_that_needs_to_be_redrawn.shape, object_that_needs_to_be_redrawn.x_coord, object_that_needs_to_be_redrawn.y_coord, object_that_needs_to_be_redrawn.color, object_that_needs_to_be_redrawn.size);
 		});
-		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), temporary_line_color);
+		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), temporary_line_color, null);
 	}
 
 	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
@@ -423,17 +438,17 @@ function canvas_mouse_up(evt) {
 	mouse_down_grid_y = -1;
 }
 
-function add_element(color, x, y, shape, name) {
-	send_element_to_server(color, x, y, shape, name);
+function add_element(color, x, y, shape, name, size) {
+	send_element_to_server(color, x, y, shape, name, size);
 }
 
-function delete_element(color, x, y, shape, name) {
+function delete_element(color, x, y, shape, name, size) {
 	add_element(color, x, y, shape, name);
 }
 
 function delete_element_with_id(id) {
 	var temp = live_objects.find(function(el) { return el.id === id; });
-	delete_element(temp.color, temp.x_coord, temp.y_coord, temp.shape, temp.name);
+	delete_element(temp.color, temp.x_coord, temp.y_coord, temp.shape, temp.name, temp.size);
 }
 
 //SERVER COMMUNICATION FUNCTIONS
@@ -471,12 +486,13 @@ function update() {
 						"x_coord" : x, 
 						"y_coord" : y, 
 						"color" : element.item.color, 
-						"name" : element.item.name
+						"name" : element.item.name,
+						"size" : element.item.size
 					});
 					live_objects.sort(function(pre, post) { 
 						return pre.id - post.id;
 					});
-					draw_item(element.item.shape, x, y, element.item.color);
+					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
 					data_updated = true;
 				} else if (element.action === "rename") {
 					live_objects.find( function(el,ind,arr) {
@@ -504,7 +520,7 @@ function update() {
 	});
 }
 
-function send_element_to_server(color, x, y, shape, name) {	
+function send_element_to_server(color, x, y, shape, name, size) {
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "push_change",
@@ -512,7 +528,8 @@ function send_element_to_server(color, x, y, shape, name) {
 						"x_coord" : JSON.stringify(x), 
 						"y_coord" : JSON.stringify(y), 
 						"object_type" : shape,
-						"name" : name !== null ? name : null},
+						"name" : name,
+						"size" : size },
 		dataType : 'json',
 		success : function(result) {
 			return;

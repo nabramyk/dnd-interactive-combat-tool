@@ -83,7 +83,6 @@ app.post('/update', function (req,res) {
 
 //Function for modifying the servers internal model of the grid board
 app.post('/push_change', function(req,res) {
-	
 	//Parse the input request and store it as a JSON object
 	var input = {
 				"id" : element_id_counter,
@@ -91,7 +90,8 @@ app.post('/push_change', function(req,res) {
 				"x_coord": JSON.parse(req.body.x_coord), 
 				"y_coord": JSON.parse(req.body.y_coord), 
 				"shape": req.body.object_type,
-				"name" : typeof(req.body.name) !== 'undefined' ? req.body.name : "object"
+				"name" : req.body.name!=="" ? req.body.name : "object",
+				"size" : req.body.size
 	};
 	
 	//For each element in the internal state...
@@ -99,7 +99,7 @@ app.post('/push_change', function(req,res) {
 		if(cells[i].color==input.color && coordinate_comparison(cells[i],input)) {
 			res.setHeader('Content-Type', 'application/json');
 			res.send("Done");
-			log.info("Deleted: " + JSON.stringify(cells[i]));
+			console.log("Deleted: " + JSON.stringify(req.body));	
 			cells.splice(i,1);
 			return;
 		}
@@ -120,6 +120,7 @@ app.post('/rename_element', function(req,res) {
 	y = y.length === 1 ? y[0] : y;
 	var ob = cells.find( function(el) { return coordinate_comparison({ "x_coord" : el.x_coord, "y_coord" : el.y_coord},{ "x_coord" : x, "y_coord" : y}) });
 	ob.name = req.body.name;
+	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });
