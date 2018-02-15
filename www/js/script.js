@@ -136,9 +136,9 @@ function canvasApp() {
 		if(selected_grid_x == -1 && selected_grid_y == -1) { return; }
 		
 		for(var i=1; i<x_vertices.length; i++) {
-			clear_item("line",[x_vertices[i-1],x_vertices[i]],[y_vertices[i-1],y_vertices[i]],{});
+			clear_item("line",[x_vertices[i-1],x_vertices[i]],[y_vertices[i-1],y_vertices[i]],{},0);
 		}
-		clear_item("line",[x_vertices[x_vertices.length-1],selected_grid_x],[y_vertices[y_vertices.length-1],selected_grid_y],{});
+		clear_item("line",[x_vertices[x_vertices.length-1],selected_grid_x],[y_vertices[y_vertices.length-1],selected_grid_y],{},0);
 		
 		x_vertices.length = [];
 		y_vertices.length = [];
@@ -168,7 +168,7 @@ function canvasApp() {
 	$("#randomize").click(function() {
 		for(var w=0; w<grid_count_width; w++) {
 			for(var h=0; h<grid_count_height; h++) {
-				if(Math.random() < 0.5) {
+				if(Math.random() < 0.75) {
 					add_element("000000", w * grid_size, h * grid_size, "square", "rando" + h*w, 1);
 				}
 			}
@@ -235,7 +235,7 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 			x = x_coord + grid_line_width;
 			y = y_coord + grid_line_width;
 			ctx.beginPath();
-			ctx.arc(x + (grid_size / 2), y + (grid_size / 2), size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+			ctx.arc(x + (grid_size / 2) * size, y + (grid_size / 2) * size, size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 			ctx.fill();
 			break;
 		case "line":
@@ -253,7 +253,7 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 }
 
 
-function clear_item(shape, x_coord, y_coord, color) {
+function clear_item(shape, x_coord, y_coord, color, size) {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	switch(shape) {
@@ -269,7 +269,7 @@ function clear_item(shape, x_coord, y_coord, color) {
 			for(var i=1; i < x_coord.length; i++) {
 				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[i-1], "y" : y_coord[i-1]}, { "x" : x_coord[i], "y" : y_coord[i]});
 				grid_points.forEach(function(element) {
-					clear_item("square", element.x, element.y, null);
+					clear_item("square", element.x, element.y, null, 1);
 					var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : element.x, "y_coord" : element.y }); });
 					if(typeof temp != 'undefined') {
 						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color, temp.size);
@@ -348,17 +348,21 @@ function southwest() {	return [selected_grid_x - grid_size, selected_grid_y + gr
 function center() {		return [selected_grid_x, selected_grid_y]; }
 
 function draw_cursor_at_position(x, y) {
-	var cursor_size = 1;
-	var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : x, "y_coord" : y})});
-	if(typeof(temp) !== 'undefined')
-		cursor_size = temp.size;
+	//var cursor_size = 1;
+	//var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : x, "y_coord" : y})});
+	var temp = live_objects.find(function(el) { return ((el.x_coord <= x && el.x_coord + el.size * grid_size > x) && (el.y_coord <= y && el.y_coord + el.size * grid_size > y)); });
+	//if(typeof(temp) !== 'undefined')
+	//	cursor_size = temp.size;
 	
 	switch($('#selected_shape').val()) {
 		case "square":
 		case "circle":
 			ctx.lineWidth = grid_line_width;
 			ctx.strokeStyle = grid_highlight;
-			ctx.strokeRect(x + grid_line_width, y + grid_line_width, cursor_size * grid_size, cursor_size * grid_size);
+			if(typeof(temp) !== 'undefined')
+				ctx.strokeRect(temp.x_coord + grid_line_width, temp.y_coord + grid_line_width, temp.size * grid_size, temp.size * grid_size);
+			else
+				ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
 			break;
 		case "line":
 			ctx.fillStyle = grid_highlight;
@@ -387,7 +391,7 @@ function canvas_mouse_down(evt) {
 																							 { "x" : selected_grid_x, "y" : selected_grid_y });
 		var x = x_vertices.slice(x_vertices.length-1).concat(selected_grid_x);
 		var y = y_vertices.slice(y_vertices.length-1).concat(selected_grid_y);
-		clear_item("line", x, y, $("#element_color").val());
+		clear_item("line", x, y, $("#element_color").val(), 1);
 		temp.forEach(function(el,ind,arr) {
 			check_for_clipped_regions([el.x, el.y], [{ "x_coord" : x_vertices, "y_coord" : y_vertices, "shape" : "line", "color" : temporary_line_color}]);
 			var object_that_needs_to_be_redrawn = live_objects.find(function(e) { return coordinate_comparison({ "x_coord" : el.x, "y_coord" : el.y}, e); });
@@ -473,7 +477,7 @@ function update() {
 							return;
 						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
-							clear_item(el.shape, x, y, el.color);
+							clear_item(el.shape, x, y, el.color, el.size);
 							data_updated = true;
 							clear_previous_cursor_position();
 							draw_cursor_at_position(selected_grid_x, selected_grid_y);
@@ -492,6 +496,10 @@ function update() {
 					live_objects.sort(function(pre, post) { 
 						return pre.id - post.id;
 					});
+					if(coordinate_comparison(element.item, {"x_coord" : selected_grid_x, "y_coord" : selected_grid_y})) {
+						clear_previous_cursor_position();
+						draw_cursor_at_position(selected_grid_x, selected_grid_y);
+					}
 					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
 					data_updated = true;
 				} else if (element.action === "rename") {
