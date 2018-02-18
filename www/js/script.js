@@ -15,7 +15,7 @@ var mouse_down_grid_x = -1;
 var mouse_down_grid_y = -1;
 var cursor_size = 1;
 
-var update_interval = 200;
+var update_interval = 0;
 
 var x_vertices = [];
 var y_vertices = [];
