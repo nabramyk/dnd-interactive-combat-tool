@@ -663,7 +663,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 }
 
 function check_for_clipped_regions(grid_location, lines) {
-	var [grid_x, grid_y] = grid_location;
+	[grid_x, grid_y] = grid_location;
 	
 	//Execute function for each set of line segments
 	lines.forEach(function(element,ind,arr) {
