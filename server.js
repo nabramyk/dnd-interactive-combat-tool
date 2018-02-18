@@ -37,6 +37,9 @@ app.use('/css', express.static(__dirname + '/www/css'))
 //Initialize the array for centralizing the model between multiple users
 var cells = [];
 
+var grid_width = 30;
+var grid_height = 24;
+
 /* Function for updating the users view when called
  * 
  * Recieves: a json array containing the list of elements which are currently displayed
@@ -52,6 +55,8 @@ app.post('/update', function (req,res) {
 	//Initialize the correction vector for returning the actions the webpage must take in
 	//order to be up to date with the server model
 	var correction_vector = [];
+	
+	correction_vector.push({ "width" : grid_width , "height" : grid_height });
 	
 	//For each live element in the user's model...
 	live_objects.forEach(function(el, ind, arr) {
@@ -130,6 +135,14 @@ app.post('/move_element', function(req,res) {
 	ob.x_coord = JSON.parse(req.body.to_x);
 	ob.y_coord = JSON.parse(req.body.to_y);
 	console.log("Moved: " + JSON.stringify(req.body));
+	res.setHeader('Content-Type', 'application/json');
+	res.send('Done');
+});
+
+app.post('/resize_grid', function(req,res) {
+	grid_width = JSON.parse(req.body.width);
+	grid_height = JSON.parse(req.body.height);
+	console.log("Resized: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send('Done');
 });

@@ -55,6 +55,45 @@ function canvasApp() {
 	
 	$("#element_list").css("height",grid_canvas.height + "px");
 	
+	$("#grid_size_vertical").val(grid_count_height);
+	$("#grid_size_horizontal").val(grid_count_width);
+	
+	$("#grid_size_vertical").change(function() {
+		grid_count_height = $("#grid_size_vertical").val();
+		$.ajax({
+			type: "POST",
+			url: window.location.href + "resize_grid",
+			data: { "width" : grid_count_width, "height" : grid_count_height},
+			dataType : 'json',
+			success : function(result) {
+				return;
+			},
+			error : function(status, error) {
+				if(error == 'parsererror')
+					return
+				console.log("Error: " + status.status + ", " + error);
+			}
+		});
+	});
+	
+	$("#grid_size_horizontal").change(function() {
+		grid_count_width = $("#grid_size_horizontal").val();
+		$.ajax({
+			type: "POST",
+			url: window.location.href + "resize_grid",
+			data: { "width" : grid_count_width, "height" : grid_count_height},
+			dataType : 'json',
+			success : function(result) {
+				return;
+			},
+			error : function(status, error) {
+				if(error == 'parsererror')
+					return
+				console.log("Error: " + status.status + ", " + error);
+			}
+		});
+	});
+	
 	grid_canvas.addEventListener('mousedown', function(event) { canvas_mouse_down(event) }, false);
 	
 	grid_canvas.addEventListener('mouseup', function(event) { canvas_mouse_up(event) }, false);
@@ -487,7 +526,25 @@ function update() {
 		dataType : 'json',
 		success : function(result) {
 			var data_updated = false;
-			//alert(JSON.stringify(result));
+			var server_grid_size = result.shift();
+			if( server_grid_size.width != grid_count_width ) {
+				grid_count_width = server_grid_size.width;
+				$("#grid_size_horizontal").val(server_grid_size.width);
+				grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+				drawScreen();
+				live_objects.forEach(function(element) {
+					draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
+				});
+			}
+			if( server_grid_size.height != grid_count_height ) {
+				grid_count_height = server_grid_size.height;
+				$("#grid_size_vertical").val(server_grid_size.height);
+				grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+				drawScreen();
+				live_objects.forEach(function(element) {
+					draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
+				});
+			}
 			result.forEach( function(element,ind,arr) {
 				var x = element.item.x_coord;
 				var y = element.item.y_coord;

@@ -68,6 +68,8 @@ i {
 	width: 604px;
 	margin-left: 200px;
 	position: fixed;
+	overflow-x: scroll;
+	overflow-y: scroll;
 }
 
 #left_column {
@@ -89,6 +91,10 @@ i {
 	width: 200px;
 	margin-left: 804px;
 	background: #003399;
+}
+
+#grid_size_vertical,#grid_size_horizontal {
+	width: 23%;
 }
 
 .right {
