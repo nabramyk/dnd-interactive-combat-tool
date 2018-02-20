@@ -1,0 +1,28 @@
+{
+  "name": "dnd-interactive-combat-tool",
+  "version": "1.0.0",
+  "description": "A lightweight tool for handling grid based interaction in real time with the aim of being usable on all platforms.",
+  "main": "server.js",
+  "dependencies": {
+    "express-logging": "^1.1.1",
+    "express": "^4.16.2",
+    "log4js": "^2.5.2",
+    "logops": "^2.1.0",
+    "simple-node-logger": "^0.93.37"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nabramyk/dnd-interactive-combat-tool.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nabramyk/dnd-interactive-combat-tool/issues"
+  },
+  "homepage": "https://github.com/nabramyk/dnd-interactive-combat-tool#readme"
+}
