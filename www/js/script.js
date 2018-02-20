@@ -365,8 +365,10 @@ function clear_previous_cursor_position() {
 	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
 	
 	live_objects.forEach(function(el) {
-		if((el.x_coord <= selected_grid_x && el.x_coord * el.size >= selected_grid_x) &&
-			(el.y_coord <= selected_grid_y && el.y_coord * el.size >= selected_grid_y)) {
+		if(((el.x_coord <= selected_grid_x && el.x_coord * el.size >= selected_grid_x) && (el.y_coord <= selected_grid_y && el.y_coord * el.size >= selected_grid_y)) ||
+												coordinate_comparison(el, {"x_coord" : north()[0], "y_coord" : north()[1]}) ||
+													coordinate_comparison(el, {"x_coord" : west()[0], "y_coord" : west()[1]}) ||
+														coordinate_comparison(el, {"x_coord" : northwest()[0], "y_coord" : northwest()[1]})) {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color, el.size);
 		}
 	});
@@ -430,7 +432,6 @@ function draw_cursor_at_position(x, y) {
 	
 	selected_grid_x = x;
 	selected_grid_y = y;
-	console.log("x: " + selected_grid_x + ", y:" + selected_grid_y);
 }
 
 function canvas_mouse_down(evt) {
