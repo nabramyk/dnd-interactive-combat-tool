@@ -121,9 +121,11 @@ function canvasApp() {
 	});
 	
 	$('#reset_board_button').click(function() {
-		live_objects.forEach(function(element) {
-				delete_element(element.color, element.x_coord, element.y_coord, element.shape);
-		});
+		if(confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
+			live_objects.forEach(function(element) {
+					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
+			});
+		}
 	});
 	
 	$("#start_new_line_button").click(function() {
@@ -230,9 +232,10 @@ function incremental_move_element(direction) {
 			var move_to_x = el.x_coord;
 			var move_to_y = el.y_coord;
 			
+			do {
 			if(direction=="right") {
-				move_to_x += grid_size;
-				$("#move_to_x").val(1 + move_to_x / grid_size);
+					move_to_x += grid_size;
+					$("#move_to_x").val(1 + move_to_x / grid_size);
 			}
 			else if(direction=="left") {
 				move_to_x -= grid_size;
@@ -246,6 +249,8 @@ function incremental_move_element(direction) {
 				move_to_y += grid_size;
 				$("#move_to_y").val(1 + move_to_y / grid_size);
 			}
+			} while(live_objects.findIndex(function(element) { return coordinate_comparison(element, { "x_coord" : move_to_x, "y_coord" : move_to_y}) }) != -1);
+			
 			draw_cursor_at_position(move_to_x, move_to_y);
 			move_element_on_server(move_from_x, move_from_y, move_to_x, move_to_y);
 		}
@@ -313,8 +318,8 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 			}
 			break;
 		case "line":
-			for(var i=1; i < x_coord.length; i++) {
-				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[i-1], "y" : y_coord[i-1]}, { "x" : x_coord[i], "y" : y_coord[i]});
+			for(var t=1; t < x_coord.length; t++) {
+				var grid_points = calculate_grid_points_on_line({ "x" : x_coord[t-1], "y" : y_coord[t-1]}, { "x" : x_coord[t], "y" : y_coord[t]});
 				grid_points.forEach(function(element) {
 					clear_item("square", element.x, element.y, null, 1);
 					var temp = live_objects.find(function(el) { return coordinate_comparison(el, { "x_coord" : element.x, "y_coord" : element.y }); });
@@ -576,7 +581,6 @@ function update() {
 					});
 					if(coordinate_comparison(element.item, {"x_coord" : selected_grid_x, "y_coord" : selected_grid_y})) {
 						clear_previous_cursor_position();
-						//alert('here');
 						draw_cursor_at_position(selected_grid_x, selected_grid_y);
 					}
 					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
@@ -765,7 +769,6 @@ function clicked_element_list(id) {
 
 function change_name_of_element(evt, x, y, name) {
 		if(evt.which == 13) {
-			//var temp = live_objects.find(function(el) {return el.x_coord == x && el.y_coord == y;});
 			var temp = live_objects.find(function(el) { return coordinate_comparison(el, {"x_coord" : x, "y_coord" : y}); });
 			if(typeof(temp) !== undefined) {
 				rename_element(x, y, name);

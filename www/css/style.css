@@ -53,8 +53,8 @@ button {
 }
 
 .incr_move_button {
-	width: 66px;
-	height: 66px;
+	width: 100%;
+	height: 100%;
 }
 
 i {
@@ -62,6 +62,10 @@ i {
     border-width: 0 3px 3px 0;
     display: inline-block;
     padding: 3px;
+}
+
+#incremental_movement_control_container {
+
 }
 
 #center_column {
@@ -117,4 +121,8 @@ i {
 .down {
     transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
+}
+
+.menu_item {
+	width: 100%;
 }

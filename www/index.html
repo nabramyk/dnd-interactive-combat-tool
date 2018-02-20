@@ -21,23 +21,23 @@
 		</div>
 		<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
 		<div id="drawing_controls" style="display:none;">
-			<select id="selected_shape">
+			<select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
 			<input name="elementcolor" id="element_color" type="hidden" value="000000">
-			<button id="element_color_changer" class="jscolor {valueElement:'element_color'}">Element Color</button>
+			<button id="element_color_changer" class="jscolor {valueElement:'element_color'} menu_item">Element Color</button>
 			<br>
-			<button id="place_element_button">Add Element</button>
+			<button id="place_element_button" class="menu_item">Add Element</button>
 			<br>
-			Size:<input type="number" id="element_size" value=1>
+			Size:<input type="number" id="element_size" class="menu_item" value=1>
 			<br>
-			<button id="start_new_line_button" style="display:none;">Start New Line</button>
+			<button id="start_new_line_button" class="menu_item" style="display:none;">Start New Line</button>
 		</div>
 		<button id="movement_controls_button" class="menu_controls_button">Movement</button>
 		<div id="movement_controls" style="display:none;">
-			X: <input type="number" id="move_to_x"> Y: <input type="number" id="move_to_y">
+			X: <input type="number" id="move_to_x" class="menu_item" > Y: <input type="number" id="move_to_y" class="menu_item" >
 			<br>
 			<button id="move_button">Move</button>
 			<br>
@@ -75,11 +75,11 @@
 		</div>
 		<button id="settings_controls_button" class="menu_controls_button">Settings</button>
 		<div id="settings_controls" style="display:none;">
-				Height Size:<input name="grid_size_vertical" type="number">
+				Height Size:<input name="grid_size_vertical" type="number" class="menu_item">
 			<br>
-				Width Size:<input name="grid_size_horizontal" type="number">
+				Width Size:<input name="grid_size_horizontal" type="number" class="menu_item">
 			<br>
-				<button id="randomize">Randomize</button>
+				<button id="randomize" class="menu_item">Randomize</button>
 		</div>
 	</div>
 	<div id="center_column">
