@@ -103,27 +103,24 @@ function canvasApp() {
 			switch($("#selected_shape").val()) {
 				case "square":
 				case "circle":
-					add_element($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val());
+					add_element($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), null, $("#element_size").val());
 					break;
 				case "line":
-					x_vertices.push(selected_grid_x);
-					y_vertices.push(selected_grid_y);
+					x_vertices.push(pixel2GridPoint(selected_grid_x));
+					y_vertices.push(pixel2GridPoint(selected_grid_y));
 					if(x_vertices.length === 1 && y_vertices.length === 1)
 						$("#start_new_line_button").toggle();
 					break;
 			}
 		} else if($("#place_element_button").html() == "Delete Element") {
-			live_objects.forEach(function(element) {
-				if(element.x_coord == selected_grid_x && element.y_coord == selected_grid_y)
-					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
-			});
+			delete_element(pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y));
 		}
 	});
 	
 	$('#reset_board_button').click(function() {
 		if(confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
 			live_objects.forEach(function(element) {
-					delete_element(element.color, element.x_coord, element.y_coord, element.shape);
+					delete_element(element.x_coord, element.y_coord);
 			});
 		}
 	});
@@ -223,36 +220,10 @@ function canvasApp() {
 function incremental_move_element(direction) {
 	live_objects.find(function(el,ind,arr) {
 		if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
-			var move_to_color = el.color;
-			var move_from_x = el.x_coord;
-			var move_from_y = el.y_coord;
-			var move_to_shape = el.shape;
-			var move_to_name = el.name;
-			var temp = 0;
 			var move_to_x = el.x_coord;
 			var move_to_y = el.y_coord;
-			
-			do {
-			if(direction=="right") {
-					move_to_x += grid_size;
-					$("#move_to_x").val(1 + move_to_x / grid_size);
-			}
-			else if(direction=="left") {
-				move_to_x -= grid_size;
-				$("#move_to_x").val(1 + move_to_x / grid_size);
-			}
-			else if(direction=="up") {
-				move_to_y -= grid_size;
-				$("#move_to_y").val(1 + move_to_y / grid_size);
-			}
-			else if(direction=="down") {
-				move_to_y += grid_size;
-				$("#move_to_y").val(1 + move_to_y / grid_size);
-			}
-			} while(live_objects.findIndex(function(element) { return coordinate_comparison(element, { "x_coord" : move_to_x, "y_coord" : move_to_y}) }) != -1);
-			
-			draw_cursor_at_position(move_to_x, move_to_y);
-			move_element_on_server(move_from_x, move_from_y, move_to_x, move_to_y);
+			move_element_on_server(el.x_coord, el.y_coord, direction).done( function(data) { draw_cursor_at_position(data.position_x, data.position_y) });
+			return true;
 		}
 	});
 }
@@ -274,14 +245,14 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 	switch(shape) {
 		case "square":
 			ctx.fillStyle = "#" + color;
-			x = x_coord + grid_line_width * 2;
-			y = y_coord + grid_line_width * 2;
+			x = gridPoint2Pixel(x_coord) + grid_line_width * 2;
+			y = gridPoint2Pixel(y_coord) + grid_line_width * 2;
 			ctx.fillRect(x, y, size * grid_size - grid_line_width * 2, size * grid_size - grid_line_width * 2);
 			break;
 		case "circle":
 			ctx.fillStyle = "#" + color;
-			x = x_coord + grid_line_width;
-			y = y_coord + grid_line_width;
+			x = gridPoint2Pixel(x_coord) + grid_line_width;
+			y = gridPoint2Pixel(y_coord) + grid_line_width;
 			ctx.beginPath();
 			ctx.arc(x + (grid_size / 2) * size, y + (grid_size / 2) * size, size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 			ctx.fill();
@@ -289,8 +260,8 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 		case "line":
 			ctx.strokeStyle = "#" + color;
 			ctx.beginPath();
-			x = x_coord;
-			y = y_coord;
+			x = x_coord.map(function(e) { return gridPoint2Pixel(e) });
+			y = y_coord.map(function(e) { return gridPoint2Pixel(e) });
 			ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
 			for(var i=1; i < x.length; i++) {
 				ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
@@ -300,15 +271,14 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 	}
 }
 
-
 function clear_item(shape, x_coord, y_coord, color, size) {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	switch(shape) {
 		case "square":
 		case "circle":
-			var x = x_coord + grid_line_width;
-			var y = y_coord + grid_line_width;
+			var x = gridPoint2Pixel(x_coord) + grid_line_width;
+			var y = gridPoint2Pixel(y_coord) + grid_line_width;
 			for(var i=0; i<size; i++) {
 				for(var n=0; n<size; n++) {
 					ctx.clearRect(x + i * grid_size, y + n * grid_size, grid_size, grid_size);
@@ -437,6 +407,9 @@ function draw_cursor_at_position(x, y) {
 	
 	selected_grid_x = x;
 	selected_grid_y = y;
+	
+	$("#move_to_x").val(x);
+	$("#move_to_y").val(y);
 }
 
 function canvas_mouse_down(evt) {
@@ -487,17 +460,6 @@ function canvas_mouse_up(evt) {
 	
 	// Clear the last grid space and redraw
 	clear_previous_cursor_position();
-		
-	for(var i=0; i<live_objects.length; i++) {
-		if(live_objects[i].x_coord == mouse_down_grid_x && live_objects[i].y_coord == mouse_down_grid_y) {
-			var move_color = live_objects[i].color;
-			var move_x = live_objects[i].x_coord;
-			var move_y = live_objects[i].y_coord;
-			var move_shape = live_objects[i].shape;
-			
-			move_element_on_server(move_x, move_y, x_snap_to_grid, y_snap_to_grid);
-		}
-	}
 	
 	// Outline the selected grid space, depending on the style of element to be
 	// drawn
@@ -508,16 +470,16 @@ function canvas_mouse_up(evt) {
 }
 
 function add_element(color, x, y, shape, name, size) {
-	send_element_to_server(color, x, y, shape, name, size);
+	add_element_to_server(color, x, y, shape, name, size);
 }
 
-function delete_element(color, x, y, shape, name, size) {
-	add_element(color, x, y, shape, name);
+function delete_element(x, y) {
+	delete_element_from_server(x, y);
 }
 
 function delete_element_with_id(id) {
 	var temp = live_objects.find(function(el) { return el.id === id; });
-	delete_element(temp.color, temp.x_coord, temp.y_coord, temp.shape, temp.name, temp.size);
+	delete_element(temp.x_coord, temp.y_coord);
 }
 
 //SERVER COMMUNICATION FUNCTIONS
@@ -576,6 +538,7 @@ function update() {
 						"name" : element.item.name,
 						"size" : element.item.size
 					});
+					console.log(live_objects);
 					live_objects.sort(function(pre, post) { 
 						return pre.id - post.id;
 					});
@@ -611,16 +574,36 @@ function update() {
 	});
 }
 
-function send_element_to_server(color, x, y, shape, name, size) {
+function add_element_to_server(color, x, y, shape, name, size) {
 	$.ajax({
 		type : "POST",
-		url : window.location.href + "push_change",
+		url : window.location.href + "add_element",
 		data : 	{"color" : color, 
 						"x_coord" : JSON.stringify(x), 
 						"y_coord" : JSON.stringify(y), 
 						"object_type" : shape,
 						"name" : name,
 						"size" : size },
+		dataType : 'json',
+		success : function(result) {
+			return;
+		},
+		error : function(status, error) {
+			if(error == 'parsererror')
+				return
+			console.log("Error: " + status.status + ", " + error);
+		}
+	});
+}
+
+function delete_element_from_server(x, y) {
+	$.ajax({
+		type : "POST",
+		url : window.location.href + "delete_element",
+		data : {
+						"x_coord" : JSON.stringify(x), 
+						"y_coord" : JSON.stringify(y), 
+					},
 		dataType : 'json',
 		success : function(result) {
 			return;
@@ -652,18 +635,14 @@ function rename_element(x, y, name) {
 	});	
 }
 
-function move_element_on_server(from_x, from_y, to_x, to_y) {
-	$.ajax({
+function move_element_on_server(from_x, from_y, direction) {
+	return $.ajax({
 		type : "POST",
 		url : window.location.href + "move_element",
 		data : {"from_x" : JSON.stringify(from_x),
 					 "from_y" : JSON.stringify(from_y),
-					 "to_x" : JSON.stringify(to_x),
-					 "to_y" : JSON.stringify(to_y)},
+					 "direction" : direction},
 		dataType : 'json',
-		success : function(result) {
-			return;
-		},
 		error : function(status, error) {
 			if(error == 'parsererror')
 				return
@@ -830,6 +809,10 @@ function coordinate_comparison(obj_1, obj_2) {
 		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
 }
 
-function convert_to_grid_point(raw_location) {
-	return raw_location - (raw_location % grid_size);
+function pixel2GridPoint(raw_location) {
+	return (raw_location - (raw_location % grid_size))/grid_size;
+}
+
+function gridPoint2Pixel(grid_point) {
+	return grid_point * grid_size;
 }

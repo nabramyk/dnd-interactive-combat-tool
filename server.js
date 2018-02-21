@@ -87,7 +87,29 @@ app.post('/update', function (req,res) {
 });
 
 //Function for modifying the servers internal model of the grid board
-app.post('/push_change', function(req,res) {
+app.post('/delete_element', function(req,res) {
+	
+	var input = {
+		"x_coord" : JSON.parse(req.body.x_coord),
+		"y_coord" : JSON.parse(req.body.y_coord)
+	};
+	
+	//For each element in the internal state...
+	cells.find( function(el) { return function() {
+			if(coordinate_comparison(el,input)) {
+				console.log("Deleted: " + JSON.stringify(req.body));	
+				cells.splice(i,1);
+				return true;
+			} else {
+				return false;
+			}
+		}
+	})
+	res.setHeader('Content-Type', 'application/json');
+	res.send("Done");
+});
+
+app.post('/add_element', function(req, res) {
 	//Parse the input request and store it as a JSON object
 	var input = {
 				"id" : element_id_counter,
@@ -98,17 +120,6 @@ app.post('/push_change', function(req,res) {
 				"name" : req.body.name!=="" ? req.body.name : "object",
 				"size" : req.body.size
 	};
-	
-	//For each element in the internal state...
-	for(var i=0; i < cells.length; i++) {
-		if(cells[i].color==input.color && coordinate_comparison(cells[i],input)) {
-			res.setHeader('Content-Type', 'application/json');
-			res.send("Done");
-			console.log("Deleted: " + JSON.stringify(req.body));	
-			cells.splice(i,1);
-			return;
-		}
-	}
 	
 	console.log("Added: " + JSON.stringify(input));
 	cells.push(input);
@@ -127,16 +138,26 @@ app.post('/rename_element', function(req,res) {
 	ob.name = req.body.name;
 	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
-	res.send("Done");
+	res.send({message : "message"});
 });
 
 app.post('/move_element', function(req,res) {
 	var ob = cells.find(function(el) { return el.x_coord == req.body.from_x && el.y_coord == req.body.from_y });
-	ob.x_coord = JSON.parse(req.body.to_x);
-	ob.y_coord = JSON.parse(req.body.to_y);
+	if(typeof ob === 'undefined') {
+		res.status(200).json({ "position_x" : undefined, "position_y" : undefined});
+		return;
+	}
+	var direction = req.body.direction;
+	var move_to_x = ob.x_coord;
+	var move_to_y = ob.y_coord;
+	do {
+		if(direction=="right") move_to_x++;
+		else if(direction=="left") move_to_x--;
+		else if(direction=="up") move_to_y--;
+		else if(direction=="down") move_to_y++;
+	} while(live_objects.findIndex(function(element) { return coordinate_comparison(element, { "x_coord" : move_to_x, "y_coord" : move_to_y}) }) != -1);
 	console.log("Moved: " + JSON.stringify(req.body));
-	res.setHeader('Content-Type', 'application/json');
-	res.send('Done');
+	res.status(200).json({ "position_x" : ob.x_coord, "position_y" : ob.y_coord});
 });
 
 app.post('/resize_grid', function(req,res) {
