@@ -14,7 +14,11 @@
 </head>
 
 <body>
-	
+	<div id="header_row">
+		<input type="text" id="player_name" placeholder="Player Name">
+		<button id="undo_button">Undo Action</button>
+		<button id="redo_button">Redo Action</button>
+	</div>
 	<div id="left_column">
 		<div style="background: black; height: 30px; margin-top: -10px; text-align: center;">
 			<h4 style="color: white;">Controls</h4>
@@ -75,14 +79,15 @@
 		</div>
 		<button id="settings_controls_button" class="menu_controls_button">Settings</button>
 		<div id="settings_controls" style="display:none;">
-				Height Size:<input name="grid_size_vertical" type="number" class="menu_item">
+				Height Size:<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
 			<br>
-				Width Size:<input name="grid_size_horizontal" type="number" class="menu_item">
+				Width Size:<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
 			<br>
 				<button id="randomize" class="menu_item">Randomize</button>
 		</div>
 	</div>
 	<div id="center_column">
+		<canvas id="ruler_top"></canvas>
 		<canvas id="grid_canvas"></canvas>
 	</div>
 	<div id="right_column">

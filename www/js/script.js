@@ -23,6 +23,7 @@ var y_vertices = [];
 // GUI Elements
 var grid_canvas, ctx;
 var live_objects = [];
+var temporary_changed_objects = [];
 
 window.addEventListener('load', eventWindowLoaded, false);
 console.log(window.location.href);
@@ -52,6 +53,11 @@ function canvasApp() {
 
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	
+	//$("#ruler_top").height(grid_size);
+	//$("#ruler_top").width(grid_size * grid_count_width + 2 * grid_line_width);
+	
+	drawTopRuler();
 	
 	$("#element_list").css("height",grid_canvas.height + "px");
 	
@@ -103,24 +109,24 @@ function canvasApp() {
 			switch($("#selected_shape").val()) {
 				case "square":
 				case "circle":
-					add_element($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), null, $("#element_size").val());
+					add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val());
 					break;
 				case "line":
-					x_vertices.push(pixel2GridPoint(selected_grid_x));
-					y_vertices.push(pixel2GridPoint(selected_grid_y));
+					x_vertices.push(selected_grid_x);
+					y_vertices.push(selected_grid_y);
 					if(x_vertices.length === 1 && y_vertices.length === 1)
 						$("#start_new_line_button").toggle();
 					break;
 			}
 		} else if($("#place_element_button").html() == "Delete Element") {
-			delete_element(pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y));
+			delete_element(selected_grid_x, selected_grid_y);
 		}
 	});
 	
 	$('#reset_board_button').click(function() {
 		if(confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
 			live_objects.forEach(function(element) {
-					delete_element(element.x_coord, element.y_coord);
+					delete_element_from_server(element.id);
 			});
 		}
 	});
@@ -208,7 +214,7 @@ function canvasApp() {
 		for(var w=0; w<grid_count_width; w++) {
 			for(var h=0; h<grid_count_height; h++) {
 				if(Math.random() < 0.75) {
-					add_element("000000", w * grid_size, h * grid_size, "square", "rando" + h*w, 1);
+					add_element("000000", w+1, h+1, "square", "rando" + h*w, 1);
 				}
 			}
 		}
@@ -218,15 +224,19 @@ function canvasApp() {
 }
 
 function incremental_move_element(direction) {
-	live_objects.find(function(el,ind,arr) {
-		if(el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
-			var move_to_x = el.x_coord;
-			var move_to_y = el.y_coord;
-			move_element_on_server(el.x_coord, el.y_coord, direction).done( function(data) { draw_cursor_at_position(data.position_x, data.position_y) });
-			return true;
-		}
+	if(typeof selected_grid_x == 'undefined' || typeof selected_grid_y == 'undefined')
+		return;
+
+	move_element_on_server(selected_grid_x, selected_grid_y, direction)
+		.done( function(data) {
+			clear_previous_cursor_position();
+			draw_cursor_at_position(data.position_x, data.position_y);
+	})
+		.fail( function(error) {
+			console.log(error);
 	});
 }
+
 
 /*
  * Function for drawing the grid board
@@ -308,6 +318,11 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 	}
 }
 
+function clear_grid_space(point_x, point_y) {
+	ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+	ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+}
+
 function clear_previous_cursor_position() {
 	
 	if(selected_grid_x === -1 || selected_grid_y == -1)
@@ -318,26 +333,15 @@ function clear_previous_cursor_position() {
 	
 	for(var i=0; i<=cursor_size-1; i++) {
 		for(var n=0; n<=cursor_size-1; n++) {
-			ctx.clearRect(selected_grid_x + grid_line_width + i * grid_size, selected_grid_y + grid_line_width + n * grid_size, grid_size, grid_size);
-			ctx.strokeRect(selected_grid_x + grid_line_width + i * grid_size, selected_grid_y + grid_line_width + n * grid_size, grid_size, grid_size);
+			clear_grid_space(selected_grid_x + i, selected_grid_y + n);
 		}
 	}
 	
 	// Clear the selected position
-	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width, grid_size, grid_size);
-	
-	// Clear the position to the top left of the selected position
-	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	
-	// Clear the position left of this the selected postion
-	ctx.clearRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width - grid_size, selected_grid_y + grid_line_width, grid_size, grid_size);
-	
-	// Clear the position above the current position
-	ctx.clearRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
-	ctx.strokeRect(selected_grid_x + grid_line_width, selected_grid_y + grid_line_width - grid_size, grid_size, grid_size);
+	clear_grid_space(selected_grid_x, selected_grid_y);
+	clear_grid_space(northwest()[0],northwest()[1]);
+	clear_grid_space(west()[0],west()[1]);
+	clear_grid_space(north()[0],north()[1]);
 	
 	live_objects.forEach(function(el) {
 		if(((el.x_coord <= selected_grid_x && el.x_coord * el.size >= selected_grid_x) && (el.y_coord <= selected_grid_y && el.y_coord * el.size >= selected_grid_y)) ||
@@ -367,49 +371,39 @@ function clear_previous_cursor_position() {
 	check_for_clipped_regions(northwest(), lines);
 }
 
-function north() { 		return [selected_grid_x, selected_grid_y - grid_size]; }
-function east() {			return [selected_grid_x + grid_size, selected_grid_y]; }
-function east2() {			return [selected_grid_x + grid_size * 2, selected_grid_y]; }
-function west() {			return [selected_grid_x - grid_size, selected_grid_y]; }
-function south() {			return [selected_grid_x, selected_grid_y + grid_size]; }
-function northeast() { return [selected_grid_x + grid_size, selected_grid_y - grid_size]; }
-function northwest() {	return [selected_grid_x - grid_size, selected_grid_y - grid_size]; }
-function southeast() {	return [selected_grid_x + grid_size, selected_grid_y + grid_size]; }
-function southwest() {	return [selected_grid_x - grid_size, selected_grid_y + grid_size]; }
+function north() { 		return [selected_grid_x, selected_grid_y - 1]; }
+function east() {			return [selected_grid_x + 1, selected_grid_y]; }
+function east2() {			return [selected_grid_x + 1 * 2, selected_grid_y]; }
+function west() {			return [selected_grid_x - 1, selected_grid_y]; }
+function south() {			return [selected_grid_x, selected_grid_y + 1]; }
+function northeast() { return [selected_grid_x + 1, selected_grid_y - 1]; }
+function northwest() {	return [selected_grid_x - 1, selected_grid_y - 1]; }
+function southeast() {	return [selected_grid_x + 1, selected_grid_y + 1]; }
+function southwest() {	return [selected_grid_x - 1, selected_grid_y + 1]; }
 function center() {		return [selected_grid_x, selected_grid_y]; }
 
 function draw_cursor_at_position(x, y) {
 
-	var temp = live_objects.find(function(el) { return ((el.x_coord <= x && el.x_coord + el.size * grid_size > x) && (el.y_coord <= y && el.y_coord + el.size * grid_size > y)); });
-	
+	selected_grid_x = x;
+	selected_grid_y = y;
+		
 	switch($('#selected_shape').val()) {
 		case "square":
 		case "circle":
 			ctx.lineWidth = grid_line_width;
 			ctx.strokeStyle = grid_highlight;
-			if(typeof(temp) !== 'undefined') {
-				ctx.strokeRect(temp.x_coord + grid_line_width, temp.y_coord + grid_line_width, temp.size * grid_size, temp.size * grid_size);
-				cursor_size = temp.size;
-				x = temp.x_coord;
-				y = temp.y_coord;
-			}
-			else {
-				ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size, grid_size);
-				cursor_size = 1;
-			}
+			ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size, grid_size);
+			cursor_size = 1;
 			break;
 		case "line":
 			ctx.fillStyle = grid_highlight;
 			ctx.beginPath();
-			ctx.arc(x + grid_line_width, y + grid_line_width, 5, 0, 2 * Math.PI);
+			ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
 			ctx.fill();
 	}
 	
-	selected_grid_x = x;
-	selected_grid_y = y;
-	
-	$("#move_to_x").val(x);
-	$("#move_to_y").val(y);
+	$("#move_to_x").val(selected_grid_x);
+	$("#move_to_y").val(selected_grid_y);
 }
 
 function canvas_mouse_down(evt) {
@@ -436,13 +430,10 @@ function canvas_mouse_down(evt) {
 		draw_item("line", x_vertices.slice(x_vertices.length-1).concat(x_snap_to_grid), y_vertices.slice(y_vertices.length-1).concat(y_snap_to_grid), temporary_line_color, null);
 	}
 
-	draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
+	draw_cursor_at_position(pixel2GridPoint(x_snap_to_grid), pixel2GridPoint(y_snap_to_grid));
 	
 	mouse_down_grid_x = x_snap_to_grid;
 	mouse_down_grid_y = y_snap_to_grid;
-	
-	$("#move_to_x").val(1+selected_grid_x/grid_size);
-	$("#move_to_y").val(1+selected_grid_y/grid_size);
 }
 
 function canvas_mouse_up(evt) {
@@ -473,15 +464,6 @@ function add_element(color, x, y, shape, name, size) {
 	add_element_to_server(color, x, y, shape, name, size);
 }
 
-function delete_element(x, y) {
-	delete_element_from_server(x, y);
-}
-
-function delete_element_with_id(id) {
-	var temp = live_objects.find(function(el) { return el.id === id; });
-	delete_element(temp.x_coord, temp.y_coord);
-}
-
 //SERVER COMMUNICATION FUNCTIONS
 //All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
@@ -503,6 +485,7 @@ function update() {
 				live_objects.forEach(function(element) {
 					draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
 				});
+				drawTopRuler();
 			}
 			if( server_grid_size.height != grid_count_height ) {
 				grid_count_height = server_grid_size.height;
@@ -538,7 +521,6 @@ function update() {
 						"name" : element.item.name,
 						"size" : element.item.size
 					});
-					console.log(live_objects);
 					live_objects.sort(function(pre, post) { 
 						return pre.id - post.id;
 					});
@@ -570,6 +552,7 @@ function update() {
 		},
 		error : function(status, error) {
 			console.log("Error: " + status.status + ", " + error);
+			setTimeout(update(), update_interval);
 		}
 	});
 }
@@ -596,13 +579,12 @@ function add_element_to_server(color, x, y, shape, name, size) {
 	});
 }
 
-function delete_element_from_server(x, y) {
+function delete_element_from_server(id) {
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "delete_element",
 		data : {
-						"x_coord" : JSON.stringify(x), 
-						"y_coord" : JSON.stringify(y), 
+						"id" : JSON.stringify(id)
 					},
 		dataType : 'json',
 		success : function(result) {
@@ -616,12 +598,11 @@ function delete_element_from_server(x, y) {
 	});
 }
 
-function rename_element(x, y, name) {
+function rename_element(id, name) {
 	$.ajax({
 		type : "POST",
 		url : window.location.href + "rename_element",
-		data : {"x_coord" : JSON.stringify(x),
-					 "y_coord" : JSON.stringify(y),
+		data : {"id" : JSON.stringify(id),
 					 "name" : name},
 		dataType : 'json',
 		success : function(result) {
@@ -642,12 +623,7 @@ function move_element_on_server(from_x, from_y, direction) {
 		data : {"from_x" : JSON.stringify(from_x),
 					 "from_y" : JSON.stringify(from_y),
 					 "direction" : direction},
-		dataType : 'json',
-		error : function(status, error) {
-			if(error == 'parsererror')
-				return
-			console.log("Error: " + status.status + ", " + error);
-		}
+		dataType : 'json'
 	});
 }
 
@@ -729,8 +705,8 @@ function refresh_elements_list() {
 	$("#element_list").empty();
 	live_objects.forEach( function(el,ind,arr) {
 		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event,[" + el.x_coord + "],[" + el.y_coord + "],this.value)\">" +
-															"<button onclick=\"delete_element_with_id(" + el.id + ")\" class=\"destructive\">&times</button><br>" + 
+															"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
+															"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" + 
 															"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
 															"</div>");
 	});
@@ -746,13 +722,25 @@ function clicked_element_list(id) {
 	}
 }
 
-function change_name_of_element(evt, x, y, name) {
+function change_name_of_element(evt, id, name) {
 		if(evt.which == 13) {
-			var temp = live_objects.find(function(el) { return coordinate_comparison(el, {"x_coord" : x, "y_coord" : y}); });
+			var temp = live_objects.find(function(el) { return el.id == id; });
 			if(typeof(temp) !== undefined) {
-				rename_element(x, y, name);
+				rename_element(id, name);
 			}
 		}
+}
+
+function drawTopRuler() {
+	var ruler_top = document.getElementById("ruler_top");
+	ruler_top.width = grid_size * grid_count_width + 2 * grid_line_width;
+	ruler_top.height = grid_size;
+	var ctx2 = ruler_top.getContext("2d");
+	ctx2.font = "12px Arial";
+	for(var i=0; i<grid_count_width; i++) {
+		var n = ctx2.measureText(i).width / 2;
+		ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size/1.5);
+	}
 }
 
 // /**
@@ -810,9 +798,9 @@ function coordinate_comparison(obj_1, obj_2) {
 }
 
 function pixel2GridPoint(raw_location) {
-	return (raw_location - (raw_location % grid_size))/grid_size;
+	return 1 + (raw_location - (raw_location % grid_size))/grid_size;
 }
 
 function gridPoint2Pixel(grid_point) {
-	return grid_point * grid_size;
+	return (grid_point - 1) * grid_size;
 }

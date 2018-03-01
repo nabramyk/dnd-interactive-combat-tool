@@ -1,10 +1,18 @@
 body {
 	width: 100%;
 	height: 100%;
+	user-select: none;
 }
 
 button {
 	-webkit-appearance: none;
+}
+
+i {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
 }
 
 .destructive {
@@ -30,6 +38,7 @@ button {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+	-webkit-user-select: none;
 }
 
 .menu_controls_button {
@@ -55,17 +64,17 @@ button {
 .incr_move_button {
 	width: 100%;
 	height: 100%;
-}
-
-i {
-    border: solid black;
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
+	touch-action: manipulation;
 }
 
 #incremental_movement_control_container {
+	width: 100%;
+}
 
+#header_row {
+	width: 100%;
+	height: 30px;
+	background: #003399;
 }
 
 #center_column {
@@ -82,7 +91,6 @@ i {
 	position: fixed;
 	height: 100%;
 	width: 25%;
-	top: 0;
 	left: 0;
 	background: #003399;
 }
@@ -101,6 +109,12 @@ i {
 
 #grid_size_vertical,#grid_size_horizontal {
 	width: 23%;
+}
+
+#ruler_top {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
 .right {

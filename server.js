@@ -37,6 +37,8 @@ app.use('/css', express.static(__dirname + '/www/css'))
 //Initialize the array for centralizing the model between multiple users
 var cells = [];
 
+var history = [];
+
 var grid_width = 30;
 var grid_height = 24;
 
@@ -89,22 +91,17 @@ app.post('/update', function (req,res) {
 //Function for modifying the servers internal model of the grid board
 app.post('/delete_element', function(req,res) {
 	
-	var input = {
-		"x_coord" : JSON.parse(req.body.x_coord),
-		"y_coord" : JSON.parse(req.body.y_coord)
-	};
-	
+	var id = JSON.parse(req.body.id);
+
 	//For each element in the internal state...
-	cells.find( function(el) { return function() {
-			if(coordinate_comparison(el,input)) {
+	cells.find( function(el,ind,arr) {
+			if(el.id == id) {
 				console.log("Deleted: " + JSON.stringify(req.body));	
-				cells.splice(i,1);
+				cells.splice(ind,1);
 				return true;
-			} else {
-				return false;
 			}
-		}
 	})
+	
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });
@@ -130,11 +127,8 @@ app.post('/add_element', function(req, res) {
 });
 
 app.post('/rename_element', function(req,res) {
-	var x = JSON.parse(req.body.x_coord);
-	var y = JSON.parse(req.body.y_coord);
-	x = x.length === 1 ? x[0] : x;
-	y = y.length === 1 ? y[0] : y;
-	var ob = cells.find( function(el) { return coordinate_comparison({ "x_coord" : el.x_coord, "y_coord" : el.y_coord},{ "x_coord" : x, "y_coord" : y}) });
+	var id = JSON.parse(req.body.id);
+	var ob = cells.find( function(el) { return el.id == id; });
 	ob.name = req.body.name;
 	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
@@ -142,22 +136,32 @@ app.post('/rename_element', function(req,res) {
 });
 
 app.post('/move_element', function(req,res) {
+	
 	var ob = cells.find(function(el) { return el.x_coord == req.body.from_x && el.y_coord == req.body.from_y });
+	
 	if(typeof ob === 'undefined') {
-		res.status(200).json({ "position_x" : undefined, "position_y" : undefined});
+		res.status(400).json({ "error" : req.body.from_x });
 		return;
 	}
+	
 	var direction = req.body.direction;
 	var move_to_x = ob.x_coord;
 	var move_to_y = ob.y_coord;
+	var id = ob.id;
+	
 	do {
 		if(direction=="right") move_to_x++;
 		else if(direction=="left") move_to_x--;
 		else if(direction=="up") move_to_y--;
 		else if(direction=="down") move_to_y++;
-	} while(live_objects.findIndex(function(element) { return coordinate_comparison(element, { "x_coord" : move_to_x, "y_coord" : move_to_y}) }) != -1);
+	} while(cells.findIndex(function(element) { return coordinate_comparison(element, { "x_coord" : move_to_x, "y_coord" : move_to_y}) }) != -1);
+	
+	ob.x_coord = move_to_x;
+	ob.y_coord = move_to_y;
+	
 	console.log("Moved: " + JSON.stringify(req.body));
-	res.status(200).json({ "position_x" : ob.x_coord, "position_y" : ob.y_coord});
+	
+	res.status(200).json({ "id" : id, "position_x" : ob.x_coord, "position_y" : ob.y_coord});
 });
 
 app.post('/resize_grid', function(req,res) {
