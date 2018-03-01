@@ -35,10 +35,10 @@ i {
 }
 
 #grid_canvas {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
 	-webkit-user-select: none;
+}
+
+#ruler_left {
 }
 
 .menu_controls_button {
@@ -82,8 +82,6 @@ i {
 	width: 50%;
 	margin-left: 25%;
 	position: fixed;
-	overflow-x: scroll;
-	overflow-y: scroll;
 	vertical-align: middle;
 }
 

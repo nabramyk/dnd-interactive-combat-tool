@@ -97,11 +97,12 @@ app.post('/delete_element', function(req,res) {
 	cells.find( function(el,ind,arr) {
 			if(el.id == id) {
 				console.log("Deleted: " + JSON.stringify(req.body));	
+				history.push({ "action" : "delete", "item" : cells[ind]});
 				cells.splice(ind,1);
 				return true;
 			}
-	})
-	
+	});
+		
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 });
@@ -119,7 +120,10 @@ app.post('/add_element', function(req, res) {
 	};
 	
 	console.log("Added: " + JSON.stringify(input));
+	
 	cells.push(input);
+	history.push({ "action" : "add", "item" : input});
+	
 	res.setHeader('Content-Type', 'application/json');
 	res.send("Done");
 	
@@ -168,8 +172,29 @@ app.post('/resize_grid', function(req,res) {
 	grid_width = JSON.parse(req.body.width);
 	grid_height = JSON.parse(req.body.height);
 	console.log("Resized: " + JSON.stringify(req.body));
-	res.setHeader('Content-Type', 'application/json');
-	res.send('Done');
+	
+	res.status(200).json({ "width" : grid_width, "height" : grid_height });
+});
+
+app.post('/undo_action', function(req, res) {
+	res.status(200);
+});
+
+app.post('/redo_action', function(req, res) {
+	res.status(200);
+});
+
+app.post('/draw_cursor_at_position', function(req, res) {
+	var x = req.body.x;
+	var y = req.body.y;
+	var size = 1;
+	cells.find( function(el) {
+		if(coordinate_comparison(el,{ "x_coord" : x, "y_coord" : y})) {
+			size = el.size;
+			return true;
+		}
+	})
+	res.status(200).json({ "x" : x, "y" : y, "size" : size});
 });
 
 //Main driver for booting up the server
