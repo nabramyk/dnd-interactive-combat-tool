@@ -20,11 +20,11 @@
 		<button id="redo_button">Redo Action</button>
 	</div>
 	<div id="left_column">
-		<div style="background: black; height: 30px; margin-top: -10px; text-align: center;">
-			<h4 style="color: white;">Controls</h4>
+		<div id="controls_title_div">
+			<h4 id="controls_title">Controls</h4>
 		</div>
 		<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
-		<div id="drawing_controls" style="display:none;">
+		<div id="drawing_controls">
 			<select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
@@ -37,10 +37,10 @@
 			<br>
 			Size:<input type="number" id="element_size" class="menu_item" value=1>
 			<br>
-			<button id="start_new_line_button" class="menu_item" style="display:none;">Start New Line</button>
+			<button id="start_new_line_button" class="menu_item">Start New Line</button>
 		</div>
 		<button id="movement_controls_button" class="menu_controls_button">Movement</button>
-		<div id="movement_controls" style="display:none;">
+		<div id="movement_controls">
 			X: <input type="number" id="move_to_x" class="menu_item" > Y: <input type="number" id="move_to_y" class="menu_item" >
 			<br>
 			<button id="move_button">Move</button>
@@ -78,7 +78,7 @@
 			</table>
 		</div>
 		<button id="settings_controls_button" class="menu_controls_button">Settings</button>
-		<div id="settings_controls" style="display:none;">
+		<div id="settings_controls">
 				Height Size:<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
 			<br>
 				Width Size:<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
@@ -87,14 +87,14 @@
 		</div>
 	</div>
 	<div id="center_column">
-		<canvas id="ruler_top"></canvas>
-		<div style="margin-left: auto; margin-right: auto;">
-			<div style="float: left;">
-				<canvas id="ruler_left"></canvas>
-			</div>
-			<div style="overflow-x: scroll; overflow-y: scroll;">
-				<canvas id="grid_canvas"></canvas>
-			</div>
+		<div id="ruler_left_scrolling_container">
+			<canvas id="ruler_left"></canvas>	
+		</div>
+		<div id="ruler_top_scrolling_container">
+			<canvas id="ruler_top"></canvas>
+		</div>
+		<div id="grid_canvas_scrolling_container" style="height: 100%; margin-left: auto; margin-right: auto; overflow-x: scroll; overflow-y: scroll;">
+			<canvas id="grid_canvas"></canvas>
 		</div>
 	</div>
 	<div id="right_column">

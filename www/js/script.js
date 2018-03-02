@@ -56,6 +56,11 @@ function canvasApp() {
 	drawTopRuler();
 	drawLeftRuler();
 
+	$("#grid_canvas_scrolling_container").scroll(function() { 
+		$("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
+		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
+	});
+	
 	$("#element_list").css("height", grid_canvas.height + "px");
 
 	$("#grid_size_vertical").val(grid_count_height);
@@ -558,6 +563,7 @@ function resizeGridHeight(height) {
 	live_objects.forEach(function(element) {
 		draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
 	});
+	drawLeftRuler();
 }
 
 //SERVER COMMUNICATION FUNCTIONS
@@ -872,17 +878,14 @@ function drawTopRuler() {
 }
 
 function drawLeftRuler() {
-	var rul = document.getElementById("ruler_left");
-	var ctx3 = rul.getContext("2d");
-	rul.width = grid_size;
-	rul.height = grid_size * grid_count_height + 2 * grid_line_width;
-// 	var rul = $("#ruler_left")[0].getContext("2d");
-// 	$("#ruler_left").width(grid_size);
-// 	$("#ruler_left").height(grid_size * grid_count_height + 2 * grid_line_width);
-	ctx3.font = "12px Arial";
+	var ruler_left = document.getElementById("ruler_left");
+	ruler_left.height = grid_size * grid_count_height + 2 * grid_line_width;
+	ruler_left.width = grid_size;
+	var ctx2 = ruler_left.getContext("2d");
+	ctx2.font = "12px Arial";
 	for (var i = 0; i < grid_count_height; i++) {
-		var n = ctx3.measureText(i).width / 2;
-		ctx3.fillText(i + 1, 0, grid_line_width + (grid_size * i) + (grid_size / 2) - n);
+		var n = ctx2.measureText(i).width / 2;
+		ctx2.fillText(i + 1, 0, grid_line_width + (grid_size * i) + (grid_size / 2) - n);
 	}
 }
 

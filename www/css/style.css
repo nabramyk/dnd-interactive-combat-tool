@@ -105,6 +105,20 @@ i {
 	background: #003399;
 }
 
+#ruler_left_scrolling_container {
+	float: left;
+	margin-top: 20px;
+	overflow-y: scroll;
+	height: 100%;
+	background: yellow;
+}
+
+#ruler_top_scrolling_container {
+	margin-left: auto;
+	margin-right: auto;
+	overflow-x: scroll;
+}
+
 #grid_size_vertical,#grid_size_horizontal {
 	width: 23%;
 }
@@ -137,4 +151,19 @@ i {
 
 .menu_item {
 	width: 100%;
+}
+
+#movement_controls, #start_new_line_button, #settings_controls, #drawing_controls {
+	display:none;
+}
+
+#controls_title_div {
+	background: black;
+	height: 30px;
+	margin-top: -10px;
+	text-align: center;
+}
+
+#controls_title {
+	color: white;
 }
