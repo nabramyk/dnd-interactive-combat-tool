@@ -39,6 +39,7 @@ i {
 }
 
 #ruler_left {
+	
 }
 
 .menu_controls_button {
@@ -72,6 +73,7 @@ i {
 }
 
 #header_row {
+	position: fixed;
 	width: 100%;
 	height: 30px;
 	background: #003399;
@@ -81,8 +83,11 @@ i {
 	height: 100%;
 	width: 50%;
 	margin-left: 25%;
+	margin-top: 30px;
 	position: fixed;
 	vertical-align: middle;
+	padding-bottom: 45px;
+	text-align: center;
 }
 
 #left_column {
@@ -91,6 +96,8 @@ i {
 	width: 25%;
 	left: 0;
 	background: #003399;
+	margin-top: 30px;
+	margin-left: 0px;
 }
 
 #left_column > div {
@@ -102,6 +109,7 @@ i {
 	height: 100%;
 	width: 25%;
 	margin-left: 75%;
+	margin-top: 30px;
 	background: #003399;
 }
 
@@ -111,6 +119,7 @@ i {
 	overflow-y: scroll;
 	overflow: hidden;
 	height: 100%;
+	padding-bottom: 60px;
 }
 
 #ruler_top_scrolling_container {
@@ -176,8 +185,10 @@ i {
 	height: 100%;
 }
 
-#grid_canvas_scrolling_containter::-webkit-scrollbar {
-	width: 0px;
-	height: 0px;
-	background: transparent;
+#center_column_resized_centering_container {
+	margin-left: auto; 
+	margin-right: auto; 
+	display: inline-block; 
+	overflow: hidden; 
+	max-width: 100%;
 }
