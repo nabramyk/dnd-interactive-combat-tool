@@ -285,7 +285,7 @@ function canvasApp() {
 	$("#randomize").click(function() {
 		for (var w = 0; w < grid_count_width; w++) {
 			for (var h = 0; h < grid_count_height; h++) {
-				if (Math.random() < 0.75) {
+				if (Math.random() < 0.5) {
 					add_element("000000", w + 1, h + 1, "square", "rando" + h * w, 1);
 				}
 			}
@@ -521,6 +521,17 @@ function draw_cursor_at_position(x, y) {
 	selected_grid_x = x;
 	selected_grid_y = y;
 
+	console.log($("#grid_canvas_scrolling_container").scrollLeft() + gridPoint2Pixel(grid_count_width));
+	console.log($("#grid_canvas_scrolling_container").width());
+	
+	if(gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop()) {
+		 $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
+		 $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
+	} else if(gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop + $("#grid_canvas_scrolling_container").height()) {
+	   $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(grid_count_width - x + 1));
+		 $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(grid_count_height - y + 1));
+	}
+	
 	switch ($('#selected_shape').val()) {
 		case "square":
 		case "circle":
