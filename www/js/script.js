@@ -870,7 +870,7 @@ function drawTopRuler() {
 	ruler_top.width = grid_size * grid_count_width + 2 * grid_line_width;
 	ruler_top.height = grid_size;
 	var ctx2 = ruler_top.getContext("2d");
-	ctx2.font = "12px Arial";
+	ctx2.font = "10px Arial";
 	for (var i = 0; i < grid_count_width; i++) {
 		var n = ctx2.measureText(i).width / 2;
 		ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size / 1.5);
@@ -882,10 +882,10 @@ function drawLeftRuler() {
 	ruler_left.height = grid_size * grid_count_height + 2 * grid_line_width;
 	ruler_left.width = grid_size;
 	var ctx2 = ruler_left.getContext("2d");
-	ctx2.font = "12px Arial";
+	ctx2.font = "10px Arial";
 	for (var i = 0; i < grid_count_height; i++) {
 		var n = ctx2.measureText(i).width / 2;
-		ctx2.fillText(i + 1, 0, grid_line_width + (grid_size * i) + (grid_size / 2) - n);
+		ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
 	}
 }
 

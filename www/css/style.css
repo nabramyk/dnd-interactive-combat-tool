@@ -109,14 +109,15 @@ i {
 	float: left;
 	margin-top: 20px;
 	overflow-y: scroll;
+	overflow: hidden;
 	height: 100%;
-	background: yellow;
 }
 
 #ruler_top_scrolling_container {
 	margin-left: auto;
 	margin-right: auto;
 	overflow-x: scroll;
+	overflow: hidden;
 }
 
 #grid_size_vertical,#grid_size_horizontal {
@@ -124,9 +125,8 @@ i {
 }
 
 #ruler_top {
-	margin-left: auto;
-	margin-right: auto;
 	display: block;
+	padding-right: 16px;
 }
 
 .right {
@@ -166,4 +166,18 @@ i {
 
 #controls_title {
 	color: white;
+}
+
+#grid_canvas_scrolling_container {
+	margin-left: auto; 
+	margin-right: auto; 
+	overflow-x: scroll; 
+	overflow-y: scroll;
+	height: 100%;
+}
+
+#grid_canvas_scrolling_containter::-webkit-scrollbar {
+	width: 0px;
+	height: 0px;
+	background: transparent;
 }
