@@ -133,7 +133,6 @@ i {
 
 #ruler_top {
 	display: block;
-	padding-right: 16px;
 }
 
 .right {
@@ -195,7 +194,7 @@ i {
 
 #element_list_header {
 	background: black; 
-	height: 30px; 
+	height: auto; 
 	margin-top: -10px; 
 	text-align: center;
 }

@@ -292,6 +292,11 @@ function canvasApp() {
 		}
 	});
 
+	$("#element_list_filter_checkbox").click(function() {
+		var t = $("#element_list").contents();
+		console.log(t[0].find());
+	});
+	
 	drawScreen();
 }
 
@@ -520,16 +525,13 @@ function draw_cursor_at_position(x, y) {
 
 	selected_grid_x = x;
 	selected_grid_y = y;
-
-	console.log($("#grid_canvas_scrolling_container").scrollLeft() + gridPoint2Pixel(grid_count_width));
-	console.log($("#grid_canvas_scrolling_container").width());
 	
-	if(gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop()) {
+	if(gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
 		 $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
+	}
+	
+	if(gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
 		 $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
-	} else if(gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop + $("#grid_canvas_scrolling_container").height()) {
-	   $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(grid_count_width - x + 1));
-		 $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(grid_count_height - y + 1));
 	}
 	
 	switch ($('#selected_shape').val()) {
@@ -849,6 +851,7 @@ function refresh_elements_list() {
 			"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
 			"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
 			"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
+			"<input type=\"checkbox\">" +
 			"</div>");
 	});
 }
