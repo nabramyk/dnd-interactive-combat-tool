@@ -56,11 +56,11 @@ function canvasApp() {
 	drawTopRuler();
 	drawLeftRuler();
 
-	$("#grid_canvas_scrolling_container").scroll(function() { 
+	$("#grid_canvas_scrolling_container").scroll(function() {
 		$("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
 		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
 	});
-	
+
 	$("#element_list").css("height", grid_canvas.height + "px");
 
 	$("#grid_size_vertical").val(grid_count_height);
@@ -89,8 +89,8 @@ function canvasApp() {
 	});
 
 	/**
-	*	MOUSE DOWN
-	*/
+	 *	MOUSE DOWN
+	 */
 	$("#grid_canvas").mousedown(function(evt) {
 		var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
 		var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
@@ -167,7 +167,7 @@ function canvasApp() {
 			switch ($("#selected_shape").val()) {
 				case "square":
 				case "circle":
-					add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val());
+					add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
 					break;
 				case "line":
 					x_vertices.push(selected_grid_x);
@@ -196,7 +196,7 @@ function canvasApp() {
 		}
 
 		if (x_vertices.length > 1 && y_vertices.length > 1)
-			add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val());
+			add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
@@ -286,17 +286,16 @@ function canvasApp() {
 		for (var w = 0; w < grid_count_width; w++) {
 			for (var h = 0; h < grid_count_height; h++) {
 				if (Math.random() < 0.5) {
-					add_element("000000", w + 1, h + 1, "square", "rando" + h * w, 1);
+					add_element("000000", w + 1, h + 1, "square", "rando" + h * w, 1, "environment");
 				}
 			}
 		}
 	});
 
-	$("#element_list_filter_checkbox").click(function() {
-		var t = $("#element_list").contents();
-		console.log(t[0].find());
+	$(".element_filter").click(function() {
+		refresh_elements_list();
 	});
-	
+
 	drawScreen();
 }
 
@@ -525,15 +524,15 @@ function draw_cursor_at_position(x, y) {
 
 	selected_grid_x = x;
 	selected_grid_y = y;
-	
-	if(gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
-		 $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
+
+	if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
+		$("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
 	}
-	
-	if(gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
-		 $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
+
+	if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
+		$("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
 	}
-	
+
 	switch ($('#selected_shape').val()) {
 		case "square":
 		case "circle":
@@ -553,8 +552,8 @@ function draw_cursor_at_position(x, y) {
 	$("#move_to_y").val(selected_grid_y);
 }
 
-function add_element(color, x, y, shape, name, size) {
-	add_element_to_server(color, x, y, shape, name, size);
+function add_element(color, x, y, shape, name, size, category) {
+	add_element_to_server(color, x, y, shape, name, size, category);
 }
 
 function resizeGridWidth(width) {
@@ -618,7 +617,8 @@ function update() {
 						"y_coord": y,
 						"color": element.item.color,
 						"name": element.item.name,
-						"size": element.item.size
+						"size": element.item.size,
+						"category": element.item.category
 					});
 					live_objects.sort(function(pre, post) {
 						return pre.id - post.id;
@@ -658,7 +658,7 @@ function update() {
 		});
 }
 
-function add_element_to_server(color, x, y, shape, name, size) {
+function add_element_to_server(color, x, y, shape, name, size, category) {
 	$.ajax({
 		type: "POST",
 		url: window.location.href + "add_element",
@@ -668,7 +668,8 @@ function add_element_to_server(color, x, y, shape, name, size) {
 			"y_coord": JSON.stringify(y),
 			"object_type": shape,
 			"name": name,
-			"size": size
+			"size": size,
+			"category": category
 		},
 		dataType: 'json',
 		success: function(result) {
@@ -845,15 +846,31 @@ function check_for_clipped_regions(grid_location, lines) {
 }
 
 function refresh_elements_list() {
+	var filters = $(".element_filter")
+		.filter(function(_, el) {
+			return el.checked
+		})
+		.map(function(_, el) {
+			return el.value
+		})
+		.toArray();
+
 	$("#element_list").empty();
-	live_objects.forEach(function(el, ind, arr) {
-		$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-			"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
-			"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
-			"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
-			"<input type=\"checkbox\">" +
-			"</div>");
-	});
+
+	live_objects
+		.filter(function(el) {
+			return filters.findIndex(
+				function(e) {
+					return e == el.category;
+				}) != -1;
+		})
+		.forEach(function(el, ind, arr) {
+			$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
+				"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
+				"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
+				"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
+				"</div>");
+		});
 }
 
 function clicked_element_list(id) {

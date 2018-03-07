@@ -24,67 +24,72 @@
 			<h4 id="controls_title">Controls</h4>
 		</div>
 		<div id="left_column_controls">
-		<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
-		<div id="drawing_controls">
-			<select id="selected_shape" class="menu_item">
+			<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
+			<div id="drawing_controls">
+				<select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
-			<input name="elementcolor" id="element_color" type="hidden" value="000000">
-			<button id="element_color_changer" class="jscolor {valueElement:'element_color'} menu_item">Element Color</button>
-			<br>
-			<button id="place_element_button" class="menu_item">Add Element</button>
-			<br> Size:
-			<input type="number" id="element_size" class="menu_item" value=1>
-			<br>
-			<button id="start_new_line_button" class="menu_item">Start New Line</button>
-		</div>
-		<button id="movement_controls_button" class="menu_controls_button">Movement</button>
-		<div id="movement_controls">
-			X: <input type="number" id="move_to_x" class="menu_item"> Y: <input type="number" id="move_to_y" class="menu_item">
-			<br>
-			<button id="move_button">Move</button>
-			<br>
-			<table id="incremental_movement_control_container">
-				<tr>
-					<td>
+				<input name="elementcolor" id="element_color" type="hidden" value="000000">
+				<button id="element_color_changer" class="jscolor {valueElement:'element_color'} menu_item">Element Color</button>
+				<br> Size: <input type="number" id="element_size" class="menu_item" value=1>
+				<br> Category <select id="element_category" class="menu_item">
+					<option value="environment">Environment</option>
+					<option value="player">Player</option>
+					<option value="enemy">Enemy</option>
+					<option value="npc">NPC</option>
+				</select>
+				<br>
+				<button id="place_element_button" class="menu_item">Add Element</button>
+				<br>
+				<button id="start_new_line_button" class="menu_item">Start New Line</button>
+			</div>
+			<button id="movement_controls_button" class="menu_controls_button">Movement</button>
+			<div id="movement_controls">
+				X: <input type="number" id="move_to_x" class="menu_item"> Y: <input type="number" id="move_to_y" class="menu_item">
+				<br>
+				<button id="move_button">Move</button>
+				<br>
+				<table id="incremental_movement_control_container">
+					<tr>
 						<td>
-							<button id="move_inc_up" class="incr_move_button">
+							<td>
+								<button id="move_inc_up" class="incr_move_button">
 									<i class="arrow up"></i>
 								</button>
-						</td>
-				</tr>
-				<tr>
-					<td>
-						<button id="move_inc_left" class="incr_move_button">
+							</td>
+					</tr>
+					<tr>
+						<td>
+							<button id="move_inc_left" class="incr_move_button">
 									<i class="arrow left"></i>
 								</button>
-					</td>
-					<td>
+						</td>
 						<td>
-							<button id="move_inc_right" class="incr_move_button">
+							<td>
+								<button id="move_inc_right" class="incr_move_button">
 									<i class="arrow right"></i>
 								</button>
-						</td>
-				</tr>
-				<tr>
-					<td>
+							</td>
+					</tr>
+					<tr>
 						<td>
-							<button id="move_inc_down" class="incr_move_button">
+							<td>
+								<button id="move_inc_down" class="incr_move_button">
 									<i class="arrow down"></i>
 								</button>
-						</td>
-				</tr>
-			</table>
-		</div>
-		<button id="settings_controls_button" class="menu_controls_button">Settings</button>
-		<div id="settings_controls">
-			Height Size:<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-			<br> Width Size:<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-			<br>
-			<button id="randomize" class="menu_item">Randomize</button>
-		</div>
+							</td>
+					</tr>
+				</table>
+			</div>
+			<button id="settings_controls_button" class="menu_controls_button">Settings</button>
+			<div id="settings_controls">
+				Height Size:<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+				<br> Width Size:<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+				<br>
+				<button id="randomize" class="menu_item">Randomize</button>
+			</div>
 		</div>
 	</div>
 	<div id="center_column">
@@ -103,7 +108,24 @@
 	<div id="right_column">
 		<div id="element_list_header">
 			<h4 style="color: white;">Element List</h4>
-			<div style="color: white">Filter by important</div><input type="checkbox" id="element_list_filter_checkbox">
+			<div style="display: inline;">
+				<div style="display: inline;">
+					<input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+					<label for="element_list_filter_checkbox" style="color: white;">NPC</label>
+				</div>
+				<div style="display: inline;">
+					<input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
+					<label for="element_list_filter_checkbox" style="color: white;">Environment</label>
+				</div>
+				<div style="display: inline;">
+					<input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+					<label for="element_list_filter_checkbox" style="color: white;">Enemy</label>
+				</div>
+				<div style="display: inline;">
+					<input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+					<label for="element_list_filter_checkbox" style="color: white;">Player</label>
+				</div>
+			</div>
 		</div>
 		<div id="element_list">
 		</div>

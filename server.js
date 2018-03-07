@@ -116,7 +116,8 @@ app.post('/add_element', function(req, res) {
 				"y_coord": JSON.parse(req.body.y_coord), 
 				"shape": req.body.object_type,
 				"name" : req.body.name!=="" ? req.body.name : "object",
-				"size" : req.body.size
+				"size" : req.body.size,
+				"category" : req.body.category
 	};
 	
 	console.log("Added: " + JSON.stringify(input));
