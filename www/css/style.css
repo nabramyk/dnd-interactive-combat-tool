@@ -1,3 +1,8 @@
+html {
+	height: 100%;
+	padding-bottom: 130px;
+}
+
 body {
 	width: 100%;
 	height: 100%;
@@ -93,13 +98,17 @@ i {
 	height: 100%;
 	width: 25%;
 	left: 0;
+	padding-bottom: 30px;
 	background: #003399;
-	margin-top: 30px;
 	margin-left: 0px;
+	margin-top: 30px;
+	margin-bottom: 30px;
 }
 
-#left_column > div {
+#left_column_controls {
 	background: white;
+	overflow-y: scroll;
+	max-height: 100%;
 }
 
 #right_column {
