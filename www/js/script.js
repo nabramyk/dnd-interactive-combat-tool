@@ -41,7 +41,7 @@ function canvasApp() {
 	start_new_line_button = document.getElementById('start_new_line_button');
 
 	$("#movement_controls").hide();
-	$("#reset_board_button").hide();
+	$("#reset_board_button").prop("disabled", true);
 	$("#start_new_line_button").hide();
 
 	ctx = grid_canvas.getContext('2d');
@@ -61,7 +61,7 @@ function canvasApp() {
 		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
 	});
 
-	$("#element_list").css("height", grid_canvas.height + "px");
+	//$("#element_list").css("height", grid_canvas.height + "px");
 
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
@@ -590,6 +590,7 @@ function update() {
 			dataType: 'json',
 		})
 		.done(function(result) {
+			$("#lost_connection_div").hide();
 			var data_updated = false;
 			var server_grid_size = result.shift();
 			if (server_grid_size.width != grid_count_width) resizeGridWidth(server_grid_size.width);
@@ -646,14 +647,15 @@ function update() {
 				refresh_elements_list();
 
 			if (live_objects.length === 0)
-				$('#reset_board_button').hide();
+				$('#reset_board_button').prop("disabled", true);
 			else
-				$('#reset_board_button').show();
+				$('#reset_board_button').prop("disabled", false);
 
 			setTimeout(update(), update_interval);
 		})
 		.fail(function(error) {
-			console.log(error);
+			$("#lost_connection_div").show();
+			$("#lost_connection_text").text("The server could not be reached :(");
 			setTimeout(update(), update_interval);
 		});
 }
@@ -869,6 +871,7 @@ function refresh_elements_list() {
 				"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
 				"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
 				"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
+				el.category +
 				"</div>");
 		});
 }
@@ -915,7 +918,7 @@ function drawLeftRuler() {
 	var ctx2 = ruler_left.getContext("2d");
 	ctx2.font = "10px Arial";
 	for (var i = 0; i < grid_count_height; i++) {
-		var n = ctx2.measureText(i).width / 2;
+		var n = ctx2.measureText(i).width;
 		ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
 	}
 }

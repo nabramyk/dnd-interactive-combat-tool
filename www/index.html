@@ -16,8 +16,9 @@
 <body>
 	<div id="header_row">
 		<input type="text" id="player_name" placeholder="Player Name">
-		<button id="undo_button">Undo Action</button>
-		<button id="redo_button">Redo Action</button>
+		<button id="reset_board_button" class="destructive">Reset Board</button>
+		<button id="redo_button">&#8618</button>
+		<button id="undo_button">&#8617</button>
 	</div>
 	<div id="left_column">
 		<div id="controls_title_div">
@@ -94,6 +95,7 @@
 	</div>
 	<div id="center_column">
 		<div id="center_column_resized_centering_container">
+			<div id="lost_connection_div" style="opacity: 0.6; width: 100%; height: 100%; background: black; position: absolute; z-index: 1; display: flex; align-items: center; justify-content: center;" hidden><h2 id="lost_connection_text" style="color: white;"></h2></div>
 			<div id="ruler_left_scrolling_container">
 				<canvas id="ruler_left"></canvas>
 			</div>
@@ -129,8 +131,6 @@
 		</div>
 		<div id="element_list">
 		</div>
-		<br>
-		<button id="reset_board_button" class="destructive">Reset Board</button>
 	</div>
 </body>
 
