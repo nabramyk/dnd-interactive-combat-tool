@@ -76,6 +76,7 @@ app.post('/update', function (req,res) {
 		if(live_objects.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//...push to the correction vector so that it is added to the user's grid
 			correction_vector.push({"action":"add","item":el});
+			console.log(el);
 		}
 		
 		if(live_objects.find(function (el2) { return el2.name !== el.name && coordinate_comparison(el,el2); })) {

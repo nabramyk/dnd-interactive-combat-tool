@@ -611,6 +611,7 @@ function update() {
 						}
 					});
 				} else if (element.action === "add") {
+					console.log(element.item);
 					live_objects.push({
 						"id": element.item.id,
 						"shape": element.item.shape,
@@ -655,7 +656,7 @@ function update() {
 		})
 		.fail(function(error) {
 			$("#lost_connection_div").show();
-			$("#lost_connection_text").text("The server could not be reached :(");
+			$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 			setTimeout(update(), update_interval);
 		});
 }
@@ -848,6 +849,7 @@ function check_for_clipped_regions(grid_location, lines) {
 }
 
 function refresh_elements_list() {
+	console.log(live_objects);
 	var filters = $(".element_filter")
 		.filter(function(_, el) {
 			return el.checked
