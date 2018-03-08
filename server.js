@@ -53,7 +53,7 @@ app.post('/update', function (req,res) {
 	
 	//Parse the user call and store the list of live objects from the user in an array
 	var live_objects = JSON.parse(req.body.live_objects);	
-	
+		
 	//Initialize the correction vector for returning the actions the webpage must take in
 	//order to be up to date with the server model
 	var correction_vector = [];
@@ -76,7 +76,6 @@ app.post('/update', function (req,res) {
 		if(live_objects.findIndex(function (el2) { return coordinate_comparison(el,el2); }) == -1) {
 			//...push to the correction vector so that it is added to the user's grid
 			correction_vector.push({"action":"add","item":el});
-			console.log(el);
 		}
 		
 		if(live_objects.find(function (el2) { return el2.name !== el.name && coordinate_comparison(el,el2); })) {

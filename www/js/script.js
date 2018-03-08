@@ -43,6 +43,7 @@ function canvasApp() {
 	$("#movement_controls").hide();
 	$("#reset_board_button").prop("disabled", true);
 	$("#start_new_line_button").hide();
+	$("#lost_connection_div").hide();
 
 	ctx = grid_canvas.getContext('2d');
 
@@ -196,7 +197,7 @@ function canvasApp() {
 		}
 
 		if (x_vertices.length > 1 && y_vertices.length > 1)
-			add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_category").val());
+			add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, null, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
