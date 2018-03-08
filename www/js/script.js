@@ -96,6 +96,8 @@ function canvasApp() {
 		var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
 		var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
 
+		if (isRegionOutOfBounds(x_snap_to_grid, y_snap_to_grid)) return;
+
 		if ((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1))
 			clear_previous_cursor_position();
 
@@ -164,9 +166,9 @@ function canvasApp() {
 	});
 
 	$('#place_element_button').click(function() {
-		if(selected_grid_x < 1 || selected_grid_x > grid_count_width || selected_grid_y < 0 || selected_grid_y > grid_count_height) 
+		if (selected_grid_x < 1 || selected_grid_x > grid_count_width || selected_grid_y < 0 || selected_grid_y > grid_count_height)
 			return
-		
+
 		if ($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "square":
@@ -393,19 +395,24 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 					"y": gridPoint2Pixel(y_coord[t])
 				});
 				grid_points
-					.map(function(element) { return { "x" : pixel2GridPoint(element.x), "y" : pixel2GridPoint(element.y) }; })
+					.map(function(element) {
+						return {
+							"x": pixel2GridPoint(element.x),
+							"y": pixel2GridPoint(element.y)
+						};
+					})
 					.forEach(function(element) {
-					clear_item("square", element.x, element.y, null, 1);
-					var temp = live_objects.find(function(el) {
-						return coordinate_comparison(el, {
-							"x_coord": element.x,
-							"y_coord": element.y
+						clear_item("square", element.x, element.y, null, 1);
+						var temp = live_objects.find(function(el) {
+							return coordinate_comparison(el, {
+								"x_coord": element.x,
+								"y_coord": element.y
+							});
 						});
+						if (typeof temp != 'undefined') {
+							draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color, temp.size);
+						}
 					});
-					if (typeof temp != 'undefined') {
-						draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color, temp.size);
-					}
-				});
 			}
 			break;
 	}
@@ -418,8 +425,10 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 }
 
 function clear_grid_space(point_x, point_y) {
-	ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+	if(!isRegionOutOfBounds(point_x, point_y)) {
+		ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+		ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+	}
 }
 
 function clear_previous_cursor_position() {
@@ -438,9 +447,12 @@ function clear_previous_cursor_position() {
 
 	// Clear the selected position
 	clear_grid_space(selected_grid_x, selected_grid_y);
-	clear_grid_space(northwest()[0], northwest()[1]);
-	clear_grid_space(west()[0], west()[1]);
-	clear_grid_space(north()[0], north()[1]);
+	if (!isRegionOutOfBounds(northwest()[0], northwest()[1]))
+		clear_grid_space(northwest()[0], northwest()[1]);
+	if (!isRegionOutOfBounds(west()[0], west()[1]))
+		clear_grid_space(west()[0], west()[1]);
+	if (!isRegionOutOfBounds(north()[0], north()[1]))
+		clear_grid_space(north()[0], north()[1]);
 
 	live_objects.forEach(function(el) {
 		if (((el.x_coord <= selected_grid_x && el.x_coord * el.size >= selected_grid_x) && (el.y_coord <= selected_grid_y && el.y_coord * el.size >= selected_grid_y)) ||
@@ -463,6 +475,7 @@ function clear_previous_cursor_position() {
 	var lines = live_objects.filter(function(element) {
 		return element.shape === "line";
 	});
+	
 	check_for_clipped_regions(center(), lines);
 	check_for_clipped_regions(north(), lines);
 	check_for_clipped_regions(northwest(), lines);
@@ -480,7 +493,7 @@ function clear_previous_cursor_position() {
 		"y_coord": y_vertices,
 		"color": temporary_line_color
 	}];
-	
+
 	check_for_clipped_regions(center(), lines);
 	check_for_clipped_regions(west(), lines);
 	check_for_clipped_regions(north(), lines);
@@ -844,15 +857,20 @@ function check_for_clipped_regions(grid_location, lines) {
 				"x": gridPoint2Pixel(vertices_x[i]),
 				"y": gridPoint2Pixel(vertices_y[i])
 			});
-						
+
 			grid_points
-				.map(function(el) { return { "x" : pixel2GridPoint(el.x), "y" : pixel2GridPoint(el.y) } })
+				.map(function(el) {
+					return {
+						"x": pixel2GridPoint(el.x),
+						"y": pixel2GridPoint(el.y)
+					}
+				})
 				.forEach(function(el, ind, arr) {
-				if (el.x == grid_x && el.y == grid_y) {
-					var line_segment = liangBarsky(vertices_x[i - 1], vertices_y[i - 1], vertices_x[i], vertices_y[i], [el.x, el.x + grid_size, el.y, el.y + grid_size]);
-					draw_item(element.shape, line_segment[0], line_segment[1], element.color);
-				}
-			});
+					if (el.x == grid_x && el.y == grid_y) {
+						var line_segment = liangBarsky(vertices_x[i - 1], vertices_y[i - 1], vertices_x[i], vertices_y[i], [el.x, el.x + grid_size, el.y, el.y + grid_size]);
+						draw_item(element.shape, line_segment[0], line_segment[1], element.color);
+					}
+				});
 		}
 	});
 }
@@ -1011,4 +1029,8 @@ function pixel2GridPoint(raw_location) {
 
 function gridPoint2Pixel(grid_point) {
 	return (grid_point - 1) * grid_size;
+}
+
+function isRegionOutOfBounds(x, y) {
+	return x < 0 || x > gridPoint2Pixel(grid_count_width) || y < 0 || y > gridPoint2Pixel(grid_count_height) || x === 'undefined' || y === 'undefined';
 }

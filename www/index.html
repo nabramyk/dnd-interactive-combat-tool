@@ -33,7 +33,8 @@
 					<option value="line">Line</option>
 				</select><br>
 				<input name="elementcolor" id="element_color" type="hidden" value="000000">
-				<button id="element_color_changer" class="jscolor {valueElement:'element_color'} menu_item">Element Color</button>
+				<button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+				<label for="element_size"
 				<br> Size: <input type="number" id="element_size" class="menu_item" value=1>
 				<br> Category <select id="element_category" class="menu_item">
 					<option value="environment">Environment</option>
@@ -85,16 +86,17 @@
 			</div>
 			<button id="settings_controls_button" class="menu_controls_button">Settings</button>
 			<div id="settings_controls">
-				Height Size:<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-				<br> Width Size:<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-				<br>
+				<label for="grid_size_vertical">Height Size:</label>
+				<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+				<label for="grid_size_horizontal">Width Size:</label>
+				<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
 				<button id="randomize" class="menu_item">Randomize</button>
 			</div>
 		</div>
 	</div>
 	<div id="center_column">
+		<div id="lost_connection_div"><h2 id="lost_connection_text"></h2></div>
 		<div id="center_column_resized_centering_container">
-			<div id="lost_connection_div"><h2 id="lost_connection_text"></h2></div>
 			<div id="ruler_left_scrolling_container">
 				<canvas id="ruler_left"></canvas>
 			</div>
@@ -112,19 +114,19 @@
 			<div style="display: inline;">
 				<div style="display: inline;">
 					<input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-					<label for="element_list_filter_checkbox" style="color: white;">NPC</label>
+					<label for="element_list_filter_npc">NPC</label>
 				</div>
 				<div style="display: inline;">
 					<input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
-					<label for="element_list_filter_checkbox" style="color: white;">Environment</label>
+					<label for="element_list_filter_environment">Environment</label>
 				</div>
 				<div style="display: inline;">
 					<input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-					<label for="element_list_filter_checkbox" style="color: white;">Enemy</label>
+					<label for="element_list_filter_enemy">Enemy</label>
 				</div>
 				<div style="display: inline;">
 					<input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-					<label for="element_list_filter_checkbox" style="color: white;">Player</label>
+					<label for="element_list_filter_player">Player</label>
 				</div>
 			</div>
 		</div>

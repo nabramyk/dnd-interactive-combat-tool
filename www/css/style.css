@@ -14,10 +14,14 @@ button {
 }
 
 i {
-    border: solid black;
+    border: solid white;
     border-width: 0 3px 3px 0;
     display: inline-block;
     padding: 3px;
+}
+
+label {
+	color: white;
 }
 
 .destructive:enabled {
@@ -86,6 +90,13 @@ i {
 	height: 0;
 	padding-bottom: 100%;
 	touch-action: manipulation;
+	background-color: #80bfff;
+	outline: none;
+}
+
+.incr_move_button:active {
+	background-color: yellow;
+	outline: none;
 }
 
 #incremental_movement_control_container {
@@ -244,14 +255,16 @@ i {
 }
 
 #place_element_button {
-	margin-top: 15px;
-	margin-bottom: 15px;
-	margin-left: auto;
-	margin-right: auto;
 	background-color: #80bfff;
 	border: none;
 	color: white;
-	width: 70%;
+	width: 50%;
 	height: 40px;
 	display: inline-block;
+	outline: none;
+}
+
+#place_element_button:active {
+	background-color: yellow;
+	outline: none;
 }
