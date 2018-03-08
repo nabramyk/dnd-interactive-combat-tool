@@ -164,6 +164,9 @@ function canvasApp() {
 	});
 
 	$('#place_element_button').click(function() {
+		if(selected_grid_x < 1 || selected_grid_x > grid_count_width || selected_grid_y < 0 || selected_grid_y > grid_count_height) 
+			return
+		
 		if ($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "square":
@@ -383,13 +386,15 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 		case "line":
 			for (var t = 1; t < x_coord.length; t++) {
 				var grid_points = calculate_grid_points_on_line({
-					"x": x_coord[t - 1],
-					"y": y_coord[t - 1]
+					"x": gridPoint2Pixel(x_coord[t - 1]),
+					"y": gridPoint2Pixel(y_coord[t - 1])
 				}, {
-					"x": x_coord[t],
-					"y": y_coord[t]
+					"x": gridPoint2Pixel(x_coord[t]),
+					"y": gridPoint2Pixel(y_coord[t])
 				});
-				grid_points.forEach(function(element) {
+				grid_points
+					.map(function(element) { return { "x" : pixel2GridPoint(element.x), "y" : pixel2GridPoint(element.y) }; })
+					.forEach(function(element) {
 					clear_item("square", element.x, element.y, null, 1);
 					var temp = live_objects.find(function(el) {
 						return coordinate_comparison(el, {
@@ -475,6 +480,7 @@ function clear_previous_cursor_position() {
 		"y_coord": y_vertices,
 		"color": temporary_line_color
 	}];
+	
 	check_for_clipped_regions(center(), lines);
 	check_for_clipped_regions(west(), lines);
 	check_for_clipped_regions(north(), lines);
@@ -612,7 +618,6 @@ function update() {
 						}
 					});
 				} else if (element.action === "add") {
-					console.log(element.item);
 					live_objects.push({
 						"id": element.item.id,
 						"shape": element.item.shape,
@@ -833,14 +838,17 @@ function check_for_clipped_regions(grid_location, lines) {
 		for (var i = 1; i < vertices_x.length; i++) {
 
 			var grid_points = calculate_grid_points_on_line({
-				"x": vertices_x[i - 1],
-				"y": vertices_y[i - 1]
+				"x": gridPoint2Pixel(vertices_x[i - 1]),
+				"y": gridPoint2Pixel(vertices_y[i - 1])
 			}, {
-				"x": vertices_x[i],
-				"y": vertices_y[i]
+				"x": gridPoint2Pixel(vertices_x[i]),
+				"y": gridPoint2Pixel(vertices_y[i])
 			});
-			grid_points.forEach(function(el, ind, arr) {
-				if ((el.x > grid_x - grid_size && el.x < grid_x + grid_size) && (el.y > grid_y - grid_size && el.y < grid_y + grid_size)) {
+						
+			grid_points
+				.map(function(el) { return { "x" : pixel2GridPoint(el.x), "y" : pixel2GridPoint(el.y) } })
+				.forEach(function(el, ind, arr) {
+				if (el.x == grid_x && el.y == grid_y) {
 					var line_segment = liangBarsky(vertices_x[i - 1], vertices_y[i - 1], vertices_x[i], vertices_y[i], [el.x, el.x + grid_size, el.y, el.y + grid_size]);
 					draw_item(element.shape, line_segment[0], line_segment[1], element.color);
 				}
@@ -850,7 +858,6 @@ function check_for_clipped_regions(grid_location, lines) {
 }
 
 function refresh_elements_list() {
-	console.log(live_objects);
 	var filters = $(".element_filter")
 		.filter(function(_, el) {
 			return el.checked
