@@ -20,9 +20,7 @@ i {
     padding: 3px;
 }
 
-label {
-	color: white;
-}
+
 
 .destructive:enabled {
 	background-color: #cc0000;
@@ -101,6 +99,7 @@ label {
 
 #incremental_movement_control_container {
 	width: 100%;
+	
 }
 
 #header_row {
@@ -163,7 +162,7 @@ label {
 }
 
 #grid_size_vertical,#grid_size_horizontal {
-	width: 23%;
+	width: 100%;
 }
 
 #ruler_top {
@@ -200,6 +199,10 @@ label {
 
 #movement_controls, #start_new_line_button, #settings_controls, #drawing_controls {
 	display: none;
+}
+
+#movement_controls {
+	max-width: 240px;
 }
 
 #controls_title_div {
@@ -267,4 +270,16 @@ label {
 #place_element_button:active {
 	background-color: yellow;
 	outline: none;
+}
+
+#element_size {
+	width: 60%;
+}
+
+#element_category {
+	width: 100%;
+}
+
+#grid_size_vertical {
+	width: 50%;
 }

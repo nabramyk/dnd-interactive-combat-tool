@@ -34,22 +34,36 @@
 				</select><br>
 				<input name="elementcolor" id="element_color" type="hidden" value="000000">
 				<button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
-				<label for="element_size"
-				<br> Size: <input type="number" id="element_size" class="menu_item" value=1>
-				<br> Category <select id="element_category" class="menu_item">
-					<option value="environment">Environment</option>
-					<option value="player">Player</option>
-					<option value="enemy">Enemy</option>
-					<option value="npc">NPC</option>
-				</select>
-				<br>
+				
+				<div style="display: inline-block;">
+					<label for="element_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
+					<br>
+					<input type="number" id="element_size" class="menu_item" value=1>
+				</div>
+				
+				<div style="display: inline-block;">
+					<label for="element_category">Category</label>
+					<br>
+					<select id="element_category" class="menu_item">
+						<option value="environment">Environment</option>
+						<option value="player">Player</option>
+						<option value="enemy">Enemy</option>
+						<option value="npc">NPC</option>
+					</select>
+				</div>
+				
 				<button id="place_element_button" class="menu_item">Add Element</button>
 				<br>
 				<button id="start_new_line_button" class="menu_item">Start New Line</button>
 			</div>
 			<button id="movement_controls_button" class="menu_controls_button">Movement</button>
 			<div id="movement_controls">
-				X: <input type="number" id="move_to_x" class="menu_item"> Y: <input type="number" id="move_to_y" class="menu_item">
+				<div>
+					<label for="move_to_x">X</label>
+					<input type="number" id="move_to_x" class="menu_item">
+				</div>
+				<label for="move_to_y">Y:</label>
+				<input type="number" id="move_to_y" class="menu_item">
 				<button id="move_button">Move</button>
 				<br>
 				<table id="incremental_movement_control_container">
@@ -86,10 +100,14 @@
 			</div>
 			<button id="settings_controls_button" class="menu_controls_button">Settings</button>
 			<div id="settings_controls">
-				<label for="grid_size_vertical">Height Size:</label>
-				<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-				<label for="grid_size_horizontal">Width Size:</label>
-				<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+				<div style="min-width: 30%; max-width: 45%; display: inline-block; background: red;">
+					<label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
+					<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+				</div>
+				<div style="min-width: 30%; max-width: 45%; display: inline-block;">
+					<label for="grid_size_horizontal">Width Size</label><br>
+					<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+				</div>
 				<button id="randomize" class="menu_item">Randomize</button>
 			</div>
 		</div>
@@ -112,7 +130,7 @@
 		<div id="element_list_header">
 			<h4 style="color: white;">Element List</h4>
 			<div style="display: inline;">
-				<div style="display: inline;">
+				<div style="display: inline-block;">
 					<input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
 					<label for="element_list_filter_npc">NPC</label>
 				</div>
