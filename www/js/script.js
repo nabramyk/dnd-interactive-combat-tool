@@ -15,7 +15,7 @@ var mouse_down_grid_x = -1;
 var mouse_down_grid_y = -1;
 var cursor_size = 1;
 
-var update_interval = 0;
+var update_interval = 250;
 
 var x_vertices = [];
 var y_vertices = [];
@@ -25,7 +25,6 @@ var live_objects = [];
 var temporary_changed_objects = [];
 
 window.addEventListener('load', eventWindowLoaded, false);
-console.log(window.location.href);
 
 function eventWindowLoaded() {
 	canvasApp();
@@ -674,6 +673,9 @@ function update() {
 			setTimeout(update(), update_interval);
 		})
 		.fail(function(error) {
+			console.log(error);
+			var deferred = new $.Deferred();
+			deferred.reject(error);
 			$("#lost_connection_div").show();
 			$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 			setTimeout(update(), update_interval);
@@ -895,13 +897,20 @@ function refresh_elements_list() {
 				}) != -1;
 		})
 		.forEach(function(el, ind, arr) {
-			$("#element_list").append("<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-				"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
-				"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
-				"<div contenteditable=false>Position<br>X: " + el.x_coord + "<br>Y: " + el.y_coord + "</div>" +
-				el.category +
-				"</div>");
+			$("#element_list").append(composeElementListRowElement(el));
 		});
+}
+
+function composeElementListRowElement(el) {
+	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
+						"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
+						"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
+						"<div contenteditable=false>" + 
+							"Position<br>X: " + el.x_coord + 
+							"<br>Y: " + el.y_coord + 
+							"</div>" +
+						el.category +
+					"</div>";
 }
 
 function clicked_element_list(id) {
