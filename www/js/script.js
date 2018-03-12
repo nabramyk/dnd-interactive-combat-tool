@@ -903,13 +903,18 @@ function refresh_elements_list() {
 
 function composeElementListRowElement(el) {
 	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-						"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
-						"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\">&times</button><br>" +
-						"<div contenteditable=false>" + 
-							"Position<br>X: " + el.x_coord + 
-							"<br>Y: " + el.y_coord + 
-							"</div>" +
-						el.category +
+						"<div style=\"width: 50%; display: inline-block;\">" +
+							"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
+							"<br>" +
+							"<div contenteditable=false>" + 
+									"Position<br>X: " + el.x_coord + 
+									"<br>Y: " + el.y_coord + 
+								"</div>" +
+						"</div>" +
+						"<div style=\"height: 100px; width: 15%; right: 15%; display: inline-block;\">" + 
+							"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\" style=\"width: 100%; height: 50%;\">&times</button><br>" + 
+							"<button style=\"height: 50%; background: #00b300; color: white; border: none; width: 100%;\">&#x270E;</button>" +
+						"</div>" + 
 					"</div>";
 }
 

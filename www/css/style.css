@@ -20,8 +20,6 @@ i {
     padding: 3px;
 }
 
-
-
 .destructive:enabled {
 	background-color: #cc0000;
 	border: none;
@@ -81,6 +79,9 @@ i {
 .element_list_row {
 	border-bottom: solid black 1px;
 	background: white;
+	height: 10%;
+	display: inline-block;
+	width: 100%;
 }
 
 .incr_move_button {
