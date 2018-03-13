@@ -902,20 +902,54 @@ function refresh_elements_list() {
 }
 
 function composeElementListRowElement(el) {
-	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\">" +
-						"<div style=\"width: 50%; display: inline-block;\">" +
-							"<input type=\"text\" value=\"" + el.name + "\" onkeypress=\"change_name_of_element(event," + el.id + ",this.value)\">" +
+	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
+						"<div style=\"width: 85%; display: inline-block;\">" +
+							el.name +
 							"<br>" +
 							"<div contenteditable=false>" + 
-									"Position<br>X: " + el.x_coord + 
+									"X: " + el.x_coord + 
 									"<br>Y: " + el.y_coord + 
 								"</div>" +
 						"</div>" +
-						"<div style=\"height: 100px; width: 15%; right: 15%; display: inline-block;\">" + 
-							"<button onclick=\"delete_element_from_server(" + el.id + ")\" class=\"destructive\" style=\"width: 100%; height: 50%;\">&times</button><br>" + 
-							"<button style=\"height: 50%; background: #00b300; color: white; border: none; width: 100%;\">&#x270E;</button>" +
+						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" + 
+							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button><br>" + 
+							"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
 						"</div>" + 
 					"</div>";
+}
+
+function edit_element_row(el) {
+	var ob = live_objects.find(function(e) { return e.id === el });
+	$(".element_list_row[id=" + el + "]").html(
+						"<div style=\"width: 85%; display: inline-block;\">" +
+							"<input type=\"text\" value=\"" + ob.name + "\">" +
+							"<br>" +
+							"<div contenteditable=false>" + 
+									"X: " + ob.x_coord + 
+									"<br>Y: " + ob.y_coord + 
+								"</div>" +
+						"</div>" +
+						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" +
+							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el + ")\">&not</button><br>" + 
+							"<button id=\"element_row_edit\" onclick=\"finish_editing_element(" + el + ")\">&#10004;</button>" +
+						"</div>");
+}
+
+function finish_editing_element(el) {
+	var ob = live_objects.find(function(e) { return e.id === el });
+	$(".element_list_row[id=" + el + "]").html(
+						"<div style=\"width: 85%; display: inline-block;\">" +
+							ob.name +
+							"<br>" +
+							"<div contenteditable=false>" + 
+									"X: " + ob.x_coord + 
+									"<br>Y: " + ob.y_coord + 
+								"</div>" +
+						"</div>" +
+						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" + 
+							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el + ")\">&times</button><br>" + 
+							"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el + ")\">&#x270E;</button>" +
+						"</div>");
 }
 
 function clicked_element_list(id) {
