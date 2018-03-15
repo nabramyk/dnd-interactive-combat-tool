@@ -132,6 +132,8 @@ function canvasApp() {
 			});
 			draw_item("line", x_vertices.slice(x_vertices.length - 1).concat(pixel2GridPoint(x_snap_to_grid)), y_vertices.slice(y_vertices.length - 1).concat(pixel2GridPoint(y_snap_to_grid)), temporary_line_color, null);
 		}
+		
+		$("#editing_controls").hide();
 
 		draw_cursor_at_position(pixel2GridPoint(x_snap_to_grid), pixel2GridPoint(y_snap_to_grid));
 
@@ -241,7 +243,7 @@ function canvasApp() {
 	$("#move_inc_right").click(function() {
 		incremental_move_element("right");
 	});
-
+	
 	$("#selected_shape").change(function(el) {
 		switch ($("#selected_shape").val()) {
 			case 'line':
@@ -273,18 +275,33 @@ function canvasApp() {
 		$("#drawing_controls").toggle();
 		$("#movement_controls").hide();
 		$("#settings_controls").hide();
-	});
+		$("#editing_controls").hide();
+});
 
 	$("#movement_controls_button").click(function() {
 		$("#movement_controls").toggle();
 		$("#drawing_controls").hide();
 		$("#settings_controls").hide();
+		$("#editing_controls").hide();
 	});
 
 	$("#settings_controls_button").click(function() {
 		$("#settings_controls").toggle();
 		$("#drawing_controls").hide();
 		$("#movement_controls").hide();
+		$("#editing_controls").hide();
+	});
+	
+	$("#editing_controls_done").click(function () {
+		edit_element_on_server(
+			$("#edit_element_id").val(),
+			$("#edit_name").val()
+		);
+		$("#editing_controls").hide();
+	});
+	
+	$("#editing_controls_cancel").click(function() {
+		$("#editing_controls").hide();
 	});
 
 	$("#randomize").click(function() {
@@ -726,10 +743,10 @@ function delete_element_from_server(id) {
 	});
 }
 
-function rename_element(id, name) {
+function edit_element_on_server(id, name) {
 	$.ajax({
 		type: "POST",
-		url: window.location.href + "rename_element",
+		url: window.location.href + "edit_element",
 		data: {
 			"id": JSON.stringify(id),
 			"name": name
@@ -920,36 +937,22 @@ function composeElementListRowElement(el) {
 
 function edit_element_row(el) {
 	var ob = live_objects.find(function(e) { return e.id === el });
-	$(".element_list_row[id=" + el + "]").html(
-						"<div style=\"width: 85%; display: inline-block;\">" +
-							"<input type=\"text\" value=\"" + ob.name + "\">" +
-							"<br>" +
-							"<div contenteditable=false>" + 
-									"X: " + ob.x_coord + 
-									"<br>Y: " + ob.y_coord + 
-								"</div>" +
-						"</div>" +
-						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" +
-							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el + ")\">&not</button><br>" + 
-							"<button id=\"element_row_edit\" onclick=\"finish_editing_element(" + el + ")\">&#10004;</button>" +
-						"</div>");
+
+	$("#movement_controls").hide();
+	$("#drawing_controls").hide();
+	$("#settings_controls").hide();
+	$("#editing_controls").show();
+	
+	$("#edit_element_id").val(ob.id);
+	$("#edit_shape").val(ob.shape);
+	$("#edit_color_changer").css("background","#" + ob.color);
+	$("#edit_size").val(ob.shape);
+	$("#edit_category").val(ob.category);
+	$("#edit_name").val(ob.name);
 }
 
-function finish_editing_element(el) {
-	var ob = live_objects.find(function(e) { return e.id === el });
-	$(".element_list_row[id=" + el + "]").html(
-						"<div style=\"width: 85%; display: inline-block;\">" +
-							ob.name +
-							"<br>" +
-							"<div contenteditable=false>" + 
-									"X: " + ob.x_coord + 
-									"<br>Y: " + ob.y_coord + 
-								"</div>" +
-						"</div>" +
-						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" + 
-							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el + ")\">&times</button><br>" + 
-							"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el + ")\">&#x270E;</button>" +
-						"</div>");
+function delete_element(el) {
+	
 }
 
 function clicked_element_list(id) {
@@ -964,15 +967,8 @@ function clicked_element_list(id) {
 	}
 }
 
-function change_name_of_element(evt, id, name) {
-	if (evt.which == 13) {
-		var temp = live_objects.find(function(el) {
-			return el.id == id;
-		});
-		if (typeof(temp) !== undefined) {
-			rename_element(id, name);
-		}
-	}
+function edit_properties_of_element(id, name) {
+	edit_element_on_server(id, name);
 }
 
 function drawTopRuler() {

@@ -32,7 +32,8 @@ i {
 	color: white;
 }
 
-#undo_button, #redo_button {
+#undo_button,
+#redo_button {
 	width: 4%;
 	float: right;
 	height: 100%;
@@ -196,7 +197,11 @@ i {
 	width: 100%;
 }
 
-#movement_controls, #start_new_line_button, #settings_controls, #drawing_controls {
+#movement_controls,
+#start_new_line_button,
+#settings_controls,
+#drawing_controls,
+#editing_controls {
 	display: none;
 }
 

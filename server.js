@@ -131,7 +131,7 @@ app.post('/add_element', function(req, res) {
 	element_id_counter++;
 });
 
-app.post('/rename_element', function(req,res) {
+app.post('/edit_element', function(req,res) {
 	var id = JSON.parse(req.body.id);
 	var ob = cells.find( function(el) { return el.id == id; });
 	ob.name = req.body.name;
