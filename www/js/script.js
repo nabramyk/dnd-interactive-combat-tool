@@ -15,7 +15,7 @@ var mouse_down_grid_x = -1;
 var mouse_down_grid_y = -1;
 var cursor_size = 1;
 
-var update_interval = 250;
+var update_interval = 150;
 
 var x_vertices = [];
 var y_vertices = [];
@@ -1013,21 +1013,21 @@ function drawLeftRuler() {
 	}
 }
 
-// /**
-//  * Liang-Barsky function by Daniel White 
-//  * 
-//  * Used for checking for lines clipped within grid spaces
-//  * NOTE: Slight modification to the return value
-//  * 
-//  * @link http://www.skytopia.com/project/articles/compsci/clipping.html
-//  *
-//  * @param  {number}        x0
-//  * @param  {number}        y0
-//  * @param  {number}        x1
-//  * @param  {number}        y1
-//  * @param  {array<number>} bbox
-//  * @return {array<array<number>>|null}
-//  */
+/**
+ * Liang-Barsky function by Daniel White 
+ * 
+ * Used for checking for lines clipped within grid spaces
+ * NOTE: Slight modification to the return value
+ * 
+ * @link http://www.skytopia.com/project/articles/compsci/clipping.html
+ *
+ * @param  {number}        x0
+ * @param  {number}        y0
+ * @param  {number}        x1
+ * @param  {number}        y1
+ * @param  {array<number>} bbox
+ * @return {array<array<number>>|null}
+ */
 function liangBarsky(x0, y0, x1, y1, bbox) {
 	var [xmin, xmax, ymin, ymax] = bbox;
 	var t0 = 0,
