@@ -132,7 +132,7 @@ function canvasApp() {
 			});
 			draw_item("line", x_vertices.slice(x_vertices.length - 1).concat(pixel2GridPoint(x_snap_to_grid)), y_vertices.slice(y_vertices.length - 1).concat(pixel2GridPoint(y_snap_to_grid)), temporary_line_color, null);
 		}
-		
+
 		$("#editing_controls").hide();
 
 		draw_cursor_at_position(pixel2GridPoint(x_snap_to_grid), pixel2GridPoint(y_snap_to_grid));
@@ -243,7 +243,7 @@ function canvasApp() {
 	$("#move_inc_right").click(function() {
 		incremental_move_element("right");
 	});
-	
+
 	$("#selected_shape").change(function(el) {
 		switch ($("#selected_shape").val()) {
 			case 'line':
@@ -276,7 +276,7 @@ function canvasApp() {
 		$("#movement_controls").hide();
 		$("#settings_controls").hide();
 		$("#editing_controls").hide();
-});
+	});
 
 	$("#movement_controls_button").click(function() {
 		$("#movement_controls").toggle();
@@ -291,8 +291,8 @@ function canvasApp() {
 		$("#movement_controls").hide();
 		$("#editing_controls").hide();
 	});
-	
-	$("#editing_controls_done").click(function () {
+
+	$("#editing_controls_done").click(function() {
 		edit_element_on_server(
 			$("#edit_element_id").val(),
 			$("#edit_name").val(),
@@ -303,7 +303,7 @@ function canvasApp() {
 		);
 		$("#editing_controls").hide();
 	});
-	
+
 	$("#editing_controls_cancel").click(function() {
 		$("#editing_controls").hide();
 	});
@@ -445,7 +445,7 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 }
 
 function clear_grid_space(point_x, point_y) {
-	if(!isRegionOutOfBounds(point_x, point_y)) {
+	if (!isRegionOutOfBounds(point_x, point_y)) {
 		ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
 		ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
 	}
@@ -495,7 +495,7 @@ function clear_previous_cursor_position() {
 	var lines = live_objects.filter(function(element) {
 		return element.shape === "line";
 	});
-	
+
 	check_for_clipped_regions(center(), lines);
 	check_for_clipped_regions(north(), lines);
 	check_for_clipped_regions(northwest(), lines);
@@ -678,24 +678,24 @@ function update() {
 						if (coordinate_comparison(el, element.item)) {
 							live_objects[ind].name = element.item.name;
 							live_objects[ind].category = element.item.category;
-							if(live_objects[ind].color !== element.item.color) {
+							if (live_objects[ind].color !== element.item.color) {
 								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].color = element.item.color;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								draw_cursor_at_position(selected_grid_x, selected_grid_y);
 							}
-							if(live_objects[ind].shape !== element.item.shape) {
+							if (live_objects[ind].shape !== element.item.shape) {
 								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].shape = element.item.shape;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								draw_cursor_at_position(selected_grid_x, selected_grid_y);						
+								draw_cursor_at_position(selected_grid_x, selected_grid_y);
 							}
-							if(live_objects[ind].size !== element.item.size) {
+							if (live_objects[ind].size !== element.item.size) {
 								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].size = element.item.size;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								draw_cursor_at_position(selected_grid_x, selected_grid_y);
-						}
+							}
 							data_updated = true;
 						}
 					});
@@ -944,39 +944,41 @@ function refresh_elements_list() {
 
 function composeElementListRowElement(el) {
 	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
-						"<div style=\"width: 85%; display: inline-block;\">" +
-							el.name +
-							"<br>" +
-							"<div contenteditable=false>" + 
-									"X: " + el.x_coord + 
-									"<br>Y: " + el.y_coord + 
-								"</div>" +
+						"<div style=\"width: 25%; display: inline-block;\">" +
+							"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
 						"</div>" +
-						"<div id=\"\" style=\"height: 100%; width: 15%; display: inline-block;\">" + 
-							"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button><br>" + 
-							"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
-						"</div>" + 
+						"<div style=\"width: 35%; display: inline-block;\">" + 
+							"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
+						"</div>" +
+						"<div style=\"width: 20%; display: inline-block;\">" +
+							"<p style=\"font-size: smaller;\">X: " + el.x_coord +
+							"\nY: " + el.y_coord + "</p>" +
+ 						"</div>" +
+						"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+						"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
 					"</div>";
 }
 
 function edit_element_row(el) {
-	var ob = live_objects.find(function(e) { return e.id === el });
+	var ob = live_objects.find(function(e) {
+		return e.id === el
+	});
 
 	$("#movement_controls").hide();
 	$("#drawing_controls").hide();
 	$("#settings_controls").hide();
 	$("#editing_controls").show();
-	
+
 	$("#edit_element_id").val(ob.id);
 	$("#edit_shape").val(ob.shape);
-	$("#edit_color_changer").css("background","#" + ob.color);
+	$("#edit_color_changer").css("background", "#" + ob.color);
 	$("#edit_size").val(ob.size);
 	$("#edit_category").val(ob.category);
 	$("#edit_name").val(ob.name);
 }
 
 function delete_element(el) {
-	
+
 }
 
 function clicked_element_list(id) {
