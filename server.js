@@ -45,8 +45,8 @@ var cells = [];
 
 var history = [];
 
-var grid_width = 30;
-var grid_height = 24;
+var grid_width = 1;
+var grid_height = 1;
 
 /* Function for updating the users view when called
  * 

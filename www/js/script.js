@@ -679,17 +679,23 @@ function update() {
 							live_objects[ind].name = element.item.name;
 							live_objects[ind].category = element.item.category;
 							if(live_objects[ind].color !== element.item.color) {
+								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].color = element.item.color;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
+								draw_cursor_at_position(selected_grid_x, selected_grid_y);
 							}
 							if(live_objects[ind].shape !== element.item.shape) {
+								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].shape = element.item.shape;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
+								draw_cursor_at_position(selected_grid_x, selected_grid_y);						
 							}
 							if(live_objects[ind].size !== element.item.size) {
+								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
 								live_objects[ind].size = element.item.size;
 								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-							}
+								draw_cursor_at_position(selected_grid_x, selected_grid_y);
+						}
 							data_updated = true;
 						}
 					});
