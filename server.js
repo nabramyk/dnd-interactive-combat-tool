@@ -78,8 +78,12 @@ app.post('/update', function (req,res) {
 			correction_vector.push({"action":"add","item":el});
 		}
 		
-		if(live_objects.find(function (el2) { return el2.name !== el.name && coordinate_comparison(el,el2); })) {
-			correction_vector.push({"action":"rename","item":el})
+		if(live_objects.find(function (el2) { return (el2.name !== el.name || 
+																									el2.category !== el.category ||
+																									el2.color !== el.color ||
+																									el2.size !== el.size ||
+																									el2.shape !== el.shape) && coordinate_comparison(el,el2); })) {
+			correction_vector.push({"action":"edit","item":el})
 		}
 	});
 	
@@ -135,6 +139,10 @@ app.post('/edit_element', function(req,res) {
 	var id = JSON.parse(req.body.id);
 	var ob = cells.find( function(el) { return el.id == id; });
 	ob.name = req.body.name;
+	ob.shape = req.body.shape;
+	ob.color = req.body.color;
+	ob.size = req.body.size;
+	ob.category = req.body.category;
 	console.log("Renamed: " + JSON.stringify(req.body));
 	res.setHeader('Content-Type', 'application/json');
 	res.send({message : "message"});

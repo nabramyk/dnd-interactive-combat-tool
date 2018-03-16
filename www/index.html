@@ -66,19 +66,19 @@
 			</div>
 			<button id="editing_controls_button" class="menu_controls_button">Editing</button>
 			<div id="editing_controls">
-				<input id="edit_element_id" type="hidden" value="">
+				<input id="edit_element_id" type="hidden" value="0">
 				<select id="edit_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
 				<input name="editcolor" id="edit_color" type="hidden" value="000000">
-				<input id="edit_color_changer" class="jscolor {valueElement:'edit_color', width: 500, height: 350} menu_item">
+				<input id="edit_color_changer" class="jscolor {valueElement:'edit_color', width: 500, height: 350, closable: true} menu_item">
 				
 				<div style="display: inline-block;">
 					<label for="edit_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
 					<br>
-					<input type="number" id="edit_size" class="menu_item" value=1>
+					<input type="number" id="edit_size" class="menu_item" value="1">
 				</div>
 				
 				<div style="display: inline-block;">

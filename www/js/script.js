@@ -295,7 +295,11 @@ function canvasApp() {
 	$("#editing_controls_done").click(function () {
 		edit_element_on_server(
 			$("#edit_element_id").val(),
-			$("#edit_name").val()
+			$("#edit_name").val(),
+			$("#edit_shape").val(),
+			$("#edit_color").val(),
+			$("#edit_size").val(),
+			$("#edit_category").val()
 		);
 		$("#editing_controls").hide();
 	});
@@ -669,23 +673,33 @@ function update() {
 					}
 					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
 					data_updated = true;
-				} else if (element.action === "rename") {
+				} else if (element.action === "edit") {
 					live_objects.find(function(el, ind, arr) {
 						if (coordinate_comparison(el, element.item)) {
 							live_objects[ind].name = element.item.name;
+							live_objects[ind].category = element.item.category;
+							if(live_objects[ind].color !== element.item.color) {
+								live_objects[ind].color = element.item.color;
+								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
+							}
+							if(live_objects[ind].shape !== element.item.shape) {
+								live_objects[ind].shape = element.item.shape;
+								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
+							}
+							if(live_objects[ind].size !== element.item.size) {
+								live_objects[ind].size = element.item.size;
+								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
+							}
 							data_updated = true;
 						}
 					});
 				}
 			});
 
-			if (data_updated)
-				refresh_elements_list();
+			if (data_updated) refresh_elements_list();
 
-			if (live_objects.length === 0)
-				$('#reset_board_button').prop("disabled", true);
-			else
-				$('#reset_board_button').prop("disabled", false);
+			if (live_objects.length === 0) $('#reset_board_button').prop("disabled", true);
+			else $('#reset_board_button').prop("disabled", false);
 
 			setTimeout(update(), update_interval);
 		})
@@ -743,13 +757,17 @@ function delete_element_from_server(id) {
 	});
 }
 
-function edit_element_on_server(id, name) {
+function edit_element_on_server(id, name, shape, color, size, category) {
 	$.ajax({
 		type: "POST",
 		url: window.location.href + "edit_element",
 		data: {
-			"id": JSON.stringify(id),
-			"name": name
+			"id": id,
+			"name": name,
+			"shape": shape,
+			"color": color,
+			"size": size,
+			"category": category
 		},
 		dataType: 'json',
 		success: function(result) {
@@ -946,7 +964,7 @@ function edit_element_row(el) {
 	$("#edit_element_id").val(ob.id);
 	$("#edit_shape").val(ob.shape);
 	$("#edit_color_changer").css("background","#" + ob.color);
-	$("#edit_size").val(ob.shape);
+	$("#edit_size").val(ob.size);
 	$("#edit_category").val(ob.category);
 	$("#edit_name").val(ob.name);
 }
