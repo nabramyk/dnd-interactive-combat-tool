@@ -190,9 +190,7 @@ function canvasApp() {
 
 	$('#reset_board_button').click(function() {
 		if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
-			live_objects.forEach(function(element) {
-				delete_element_from_server(element.id);
-			});
+			reset_grid_on_server();
 		}
 	});
 
@@ -309,13 +307,7 @@ function canvasApp() {
 	});
 
 	$("#randomize").click(function() {
-		for (var w = 0; w < grid_count_width; w++) {
-			for (var h = 0; h < grid_count_height; h++) {
-				if (Math.random() < 0.5) {
-					add_element("000000", w + 1, h + 1, "square", "rando" + h * w, 1, "environment");
-				}
-			}
-		}
+		randomize_grid_on_server();
 	});
 
 	$(".element_filter").click(function() {
@@ -811,6 +803,20 @@ function redo_action() {
 	return $.ajax({
 		type: "POST",
 		url: window.location.href + "redo_action"
+	});
+}
+
+function randomize_grid_on_server() {
+	return $.ajax({
+		type: "POST",
+		url: window.location.href + "randomize"
+	});
+}
+
+function reset_grid_on_server() {
+	return $.ajax({
+		type: "POST",
+		url: window.location.href + "reset"
 	});
 }
 

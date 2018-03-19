@@ -263,6 +263,32 @@ app.post('/draw_cursor_at_position', function(req, res) {
 	});
 });
 
+app.post('/randomize', function(req, res) {
+	for (var w = 0; w < grid_width; w++) {
+		for (var h = 0; h < grid_height; h++) {
+			if (Math.random() < 0.5) {
+					var input = {
+						"id": element_id_counter,
+						"color": "000000",
+						"x_coord": w + 1,
+						"y_coord": h + 1,
+						"shape": "square",
+						"name": "rando" + h * w,
+						"size": 1,
+						"category": "environment"
+					};
+				
+					cells.push(input);
+					element_id_counter++;
+			}
+		}
+	}
+});
+
+app.post('/reset', function(req, res) {
+	cells = [];
+});
+
 //Main driver for booting up the server
 var server = app.listen(8080, function() {
 	var host = server.address().address
