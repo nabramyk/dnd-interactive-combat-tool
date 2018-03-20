@@ -1,8 +1,7 @@
 //GRID VARS
 var grid_size = 20;
-var grid_count_width = 30;
-var grid_count_height = 24;
-var canvas_padding = 5;
+var grid_count_width = 0;
+var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,0,0,1)';
 var temporary_line_color = '8c8c8c';
@@ -15,7 +14,7 @@ var mouse_down_grid_x = -1;
 var mouse_down_grid_y = -1;
 var cursor_size = 1;
 
-var update_interval = 150;
+var update_interval = 0;
 
 var x_vertices = [];
 var y_vertices = [];
@@ -61,8 +60,6 @@ function canvasApp() {
 		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
 	});
 
-	//$("#element_list").css("height", grid_canvas.height + "px");
-
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
@@ -87,89 +84,25 @@ function canvasApp() {
 				console.log(error);
 			});
 	});
-
-	/**
-	 *	MOUSE DOWN
-	 */
-	$("#grid_canvas").mousedown(function(evt) {
-		var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
-		var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
-
-		if (isRegionOutOfBounds(x_snap_to_grid, y_snap_to_grid)) return;
-
-		if ((selected_grid_x != x_snap_to_grid || selected_grid_y != y_snap_to_grid) && (selected_grid_x != -1 && selected_grid_y != -1))
-			clear_previous_cursor_position();
-
-		//Drawing temporary lines before sending the line to the server
-		if ($("#selected_shape").val() == "line" && x_vertices.length > 0 && y_vertices.length > 0) {
-
-			var temp = calculate_grid_points_on_line({
-				"x": x_vertices.slice(x_vertices.length - 1),
-				"y": y_vertices.slice(y_vertices.length - 1)
-			}, {
-				"x": selected_grid_x,
-				"y": selected_grid_y
-			});
-
-			var x = x_vertices.slice(x_vertices.length - 1).concat(selected_grid_x);
-			var y = y_vertices.slice(y_vertices.length - 1).concat(selected_grid_y);
-			clear_item("line", x, y, $("#element_color").val(), 1);
-			temp.forEach(function(el, ind, arr) {
-				check_for_clipped_regions([el.x, el.y], [{
-					"x_coord": x_vertices,
-					"y_coord": y_vertices,
-					"shape": "line",
-					"color": temporary_line_color
-				}]);
-				var object_that_needs_to_be_redrawn = live_objects.find(function(e) {
-					return coordinate_comparison({
-						"x_coord": el.x,
-						"y_coord": el.y
-					}, e);
-				});
-				if (typeof object_that_needs_to_be_redrawn !== 'undefined')
-					draw_item(object_that_needs_to_be_redrawn.shape, object_that_needs_to_be_redrawn.x_coord, object_that_needs_to_be_redrawn.y_coord, object_that_needs_to_be_redrawn.color, object_that_needs_to_be_redrawn.size);
-			});
-			draw_item("line", x_vertices.slice(x_vertices.length - 1).concat(pixel2GridPoint(x_snap_to_grid)), y_vertices.slice(y_vertices.length - 1).concat(pixel2GridPoint(y_snap_to_grid)), temporary_line_color, null);
-		}
-
-		$("#editing_controls").hide();
-
-		draw_cursor_at_position(pixel2GridPoint(x_snap_to_grid), pixel2GridPoint(y_snap_to_grid));
-
-		mouse_down_grid_x = x_snap_to_grid;
-		mouse_down_grid_y = y_snap_to_grid;
-	});
-
-	//MOUSE UP
-	$("#grid_canvas").mouseup(function(evt) {
-
-		var x_snap_to_grid = evt.offsetX - (evt.offsetX % grid_size);
-		var y_snap_to_grid = evt.offsetY - (evt.offsetY % grid_size);
-
-		// Exit this function if the mouse is released within the same grid element
-		// it was activated in
-		if (x_snap_to_grid === mouse_down_grid_x && y_snap_to_grid === mouse_down_grid_y)
-			return;
-
-		$("#move_element_x").val(1 + x_snap_to_grid / grid_size);
-		$("#move_element_y").val(1 + y_snap_to_grid / grid_size);
-
-		// Clear the last grid space and redraw
-		clear_previous_cursor_position();
-
-		// Outline the selected grid space, depending on the style of element to be
-		// drawn
-		draw_cursor_at_position(x_snap_to_grid, y_snap_to_grid);
-
-		mouse_down_grid_x = -1;
-		mouse_down_grid_y = -1;
+	
+	//CLICK
+	$("#grid_canvas").click(function(evt) {
+		$.ajax({
+			type: "POST",
+			url: window.location.href + "canvas_clicked",
+			data: {
+				"x_coord" : selected_grid_x,
+				"y_coord" : selected_grid_y
+			},
+			dataType: "json"
+		})
+		.done(function(data) {
+			clear_prev_cursor_position(data.redraw_items);
+			draw_cursor_at_position(pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)), pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)));
+		});
 	});
 
 	$('#place_element_button').click(function() {
-		if (selected_grid_x < 1 || selected_grid_x > grid_count_width || selected_grid_y < 0 || selected_grid_y > grid_count_height)
-			return
-
 		if ($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "square":
@@ -183,8 +116,6 @@ function canvasApp() {
 						$("#start_new_line_button").toggle();
 					break;
 			}
-		} else if ($("#place_element_button").html() == "Delete Element") {
-			delete_element(selected_grid_x, selected_grid_y);
 		}
 	});
 
@@ -260,6 +191,7 @@ function canvasApp() {
 		for (var i = 1; i < x_vertices.length; i++) {
 			clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
 		}
+		
 		clear_item("line", [x_vertices[x_vertices.length - 1], selected_grid_x], [y_vertices[y_vertices.length - 1], selected_grid_y], {}, 0);
 
 		x_vertices.length = [];
@@ -443,6 +375,23 @@ function clear_grid_space(point_x, point_y) {
 	}
 }
 
+function clear_prev_cursor_position(elements_to_redraw) {
+	if (selected_grid_x === -1 || selected_grid_y == -1)
+		return;
+	
+	ctx.strokeStyle = grid_color;
+	ctx.lineWidth = grid_line_width;
+	
+	clear_grid_space(selected_grid_x, selected_grid_y);
+	clear_grid_space(selected_grid_x-1, selected_grid_y);
+	clear_grid_space(selected_grid_x, selected_grid_y-1);
+	clear_grid_space(selected_grid_x-1, selected_grid_y-1);
+	
+	elements_to_redraw.forEach(function(el) {
+		draw_item(el.shape, el.x_coord, el.y_coord, el.color, el.size);
+	});
+}
+
 function clear_previous_cursor_position() {
 
 	if (selected_grid_x === -1 || selected_grid_y == -1)
@@ -451,13 +400,6 @@ function clear_previous_cursor_position() {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 
-	for (var i = 0; i <= cursor_size - 1; i++) {
-		for (var n = 0; n <= cursor_size - 1; n++) {
-			clear_grid_space(selected_grid_x + i, selected_grid_y + n);
-		}
-	}
-
-	// Clear the selected position
 	clear_grid_space(selected_grid_x, selected_grid_y);
 	if (!isRegionOutOfBounds(northwest()[0], northwest()[1]))
 		clear_grid_space(northwest()[0], northwest()[1]);
@@ -465,24 +407,6 @@ function clear_previous_cursor_position() {
 		clear_grid_space(west()[0], west()[1]);
 	if (!isRegionOutOfBounds(north()[0], north()[1]))
 		clear_grid_space(north()[0], north()[1]);
-
-	live_objects.forEach(function(el) {
-		if (((el.x_coord <= selected_grid_x && el.x_coord * el.size >= selected_grid_x) && (el.y_coord <= selected_grid_y && el.y_coord * el.size >= selected_grid_y)) ||
-			coordinate_comparison(el, {
-				"x_coord": north()[0],
-				"y_coord": north()[1]
-			}) ||
-			coordinate_comparison(el, {
-				"x_coord": west()[0],
-				"y_coord": west()[1]
-			}) ||
-			coordinate_comparison(el, {
-				"x_coord": northwest()[0],
-				"y_coord": northwest()[1]
-			})) {
-			draw_item(el.shape, el.x_coord, el.y_coord, el.color, el.size);
-		}
-	});
 
 	var lines = live_objects.filter(function(element) {
 		return element.shape === "line";
@@ -981,10 +905,6 @@ function edit_element_row(el) {
 	$("#edit_size").val(ob.size);
 	$("#edit_category").val(ob.category);
 	$("#edit_name").val(ob.name);
-}
-
-function delete_element(el) {
-
 }
 
 function clicked_element_list(id) {

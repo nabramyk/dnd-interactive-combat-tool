@@ -243,26 +243,6 @@ app.post('/redo_action', function(req, res) {
 	res.status(200);
 });
 
-app.post('/draw_cursor_at_position', function(req, res) {
-	var x = req.body.x;
-	var y = req.body.y;
-	var size = 1;
-	cells.find(function(el) {
-		if (coordinate_comparison(el, {
-				"x_coord": x,
-				"y_coord": y
-			})) {
-			size = el.size;
-			return true;
-		}
-	})
-	res.status(200).json({
-		"x": x,
-		"y": y,
-		"size": size
-	});
-});
-
 app.post('/randomize', function(req, res) {
 	for (var w = 0; w < grid_width; w++) {
 		for (var h = 0; h < grid_height; h++) {
@@ -288,6 +268,157 @@ app.post('/randomize', function(req, res) {
 app.post('/reset', function(req, res) {
 	cells = [];
 });
+
+app.post('/canvas_clicked', function(req, res) {
+	
+	var temp = { "x_coord" : JSON.parse(req.body.x_coord),
+							 "y_coord" : JSON.parse(req.body.y_coord)
+						};
+		
+	var elements_to_redraw = cells.filter(function (el) {
+		return coordinate_comparison(el, center(temp)) ||
+					 coordinate_comparison(el, north(temp)) ||
+					 coordinate_comparison(el, northwest(temp)) ||
+					 coordinate_comparison(el, west(temp));
+	});
+	
+	var lines = live_objects.filter(function(element) {
+		return element.shape === "line";
+	});
+	
+	res.status(200).json({
+		"selected_grid" : req.body,
+		"redraw_items" : elements_to_redraw,
+	});
+
+});
+
+function north(point) {
+	return { "x_coord" : point.x_coord, "y_coord": point.y_coord - 1 };
+}
+
+function east(point) {
+	return { "x_coord" : point.x_coord + 1, "y_coord" : point.y_coord };
+}
+
+function east2(point) {
+	return { "x_coord" : point.x_coord + 1 * 2, "y_coord" : point.y_coord };
+}
+
+function west(point) {
+	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord};
+}
+
+function south() {
+	return [selected_grid_x, selected_grid_y + 1];
+}
+
+function northeast() {
+	return [selected_grid_x + 1, selected_grid_y - 1];
+}
+
+function northwest(point) {
+	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord - 1 };
+}
+
+function southeast() {
+	return [selected_grid_x + 1, selected_grid_y + 1];
+}
+
+function southwest() {
+	return [selected_grid_x - 1, selected_grid_y + 1];
+}
+
+function center(point) {
+	return { "x_coord" : point.x_coord, "y_coord" : point.y_coord };
+}
+
+function check_for_clipped_regions(grid_location, lines) {
+	[grid_x, grid_y] = grid_location;
+
+	//Execute function for each set of line segments
+	lines.forEach(function(element, ind, arr) {
+
+		var vertices_x = element.x_coord;
+		var vertices_y = element.y_coord;
+		for (var i = 1; i < vertices_x.length; i++) {
+
+			var grid_points = calculate_grid_points_on_line({
+				"x": gridPoint2Pixel(vertices_x[i - 1]),
+				"y": gridPoint2Pixel(vertices_y[i - 1])
+			}, {
+				"x": gridPoint2Pixel(vertices_x[i]),
+				"y": gridPoint2Pixel(vertices_y[i])
+			});
+
+			grid_points
+				.map(function(el) {
+					return {
+						"x": pixel2GridPoint(el.x),
+						"y": pixel2GridPoint(el.y)
+					}
+				})
+				.forEach(function(el, ind, arr) {
+					if (el.x == grid_x && el.y == grid_y) {
+						var line_segment = liangBarsky(vertices_x[i - 1], vertices_y[i - 1], vertices_x[i], vertices_y[i], [el.x, el.x + grid_size, el.y, el.y + grid_size]);
+						draw_item(element.shape, line_segment[0], line_segment[1], element.color);
+					}
+				});
+		}
+	});
+}
+
+function calculate_grid_points_on_line(starting_point, ending_point) {
+	var grid_points = [];
+	var m, b, y_val;
+
+	//Swap the points if the x value at the end is smaller than the starting x value
+	if (ending_point.x < starting_point.x) {
+		var temp = starting_point;
+		starting_point = ending_point;
+		ending_point = temp;
+	}
+
+	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
+	b = starting_point.y - m * starting_point.x;
+
+	if (!isFinite(m)) {
+		var _start, _end;
+		if (starting_point.y < ending_point.y) {
+			_start = starting_point.y;
+			_end = ending_point.y;
+		} else {
+			_start = ending_point.y;
+			_end = starting_point.y;
+		}
+		for (; _start < _end; _start = _start + grid_size) {
+			grid_points.push({
+				"x": starting_point.x,
+				"y": _start
+			});
+		}
+	} else
+		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
+			y_val = m * x_val + b;
+			var xy_pair = {
+				"x": (x_val - (x_val % grid_size)),
+				"y": (y_val - (y_val % grid_size))
+			};
+
+			if (grid_points.length === 0) {
+				grid_points.push(xy_pair);
+				continue;
+			}
+
+			for (var i = 0; i < grid_points.length; i++) {
+				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
+					break;
+				else if (i == grid_points.length - 1)
+					grid_points.push(xy_pair);
+			}
+		}
+	return grid_points;
+}
 
 //Main driver for booting up the server
 var server = app.listen(8080, function() {
