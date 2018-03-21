@@ -197,7 +197,7 @@ function canvasApp() {
 		x_vertices.length = [];
 		y_vertices.length = [];
 
-		clear_previous_cursor_position();
+		//clear_previous_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 
@@ -255,7 +255,7 @@ function incremental_move_element(direction) {
 
 	move_element_on_server(selected_grid_x, selected_grid_y, direction)
 		.done(function(data) {
-			clear_previous_cursor_position();
+			//clear_previous_cursor_position();
 			draw_cursor_at_position(data.position_x, data.position_y);
 		})
 		.fail(function(error) {
@@ -389,56 +389,12 @@ function clear_prev_cursor_position(elements_to_redraw) {
 		
 	elements_to_redraw.forEach(function(el) {
 		if(el.action === "erase") {
-			clear_grid_space(el.element.x, el.element.y);
+			clear_grid_space(el.coordinate.x, el.coordinate.y);
 		}
 		else if(el.action === "draw") {
 			draw_item(el.element.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
 		}
 	});
-}
-
-function clear_previous_cursor_position() {
-
-	if (selected_grid_x === -1 || selected_grid_y == -1)
-		return;
-
-	ctx.strokeStyle = grid_color;
-	ctx.lineWidth = grid_line_width;
-
-	clear_grid_space(selected_grid_x, selected_grid_y);
-	if (!isRegionOutOfBounds(northwest()[0], northwest()[1]))
-		clear_grid_space(northwest()[0], northwest()[1]);
-	if (!isRegionOutOfBounds(west()[0], west()[1]))
-		clear_grid_space(west()[0], west()[1]);
-	if (!isRegionOutOfBounds(north()[0], north()[1]))
-		clear_grid_space(north()[0], north()[1]);
-
-	var lines = live_objects.filter(function(element) {
-		return element.shape === "line";
-	});
-
-	check_for_clipped_regions(center(), lines);
-	check_for_clipped_regions(north(), lines);
-	check_for_clipped_regions(northwest(), lines);
-	check_for_clipped_regions(west(), lines);
-	check_for_clipped_regions(southwest(), lines);
-	check_for_clipped_regions(south(), lines);
-	check_for_clipped_regions(southeast(), lines);
-	check_for_clipped_regions(east(), lines);
-	check_for_clipped_regions(northeast(), lines);
-	check_for_clipped_regions(east2(), lines);
-
-	lines = [{
-		"shape": "line",
-		"x_coord": x_vertices,
-		"y_coord": y_vertices,
-		"color": temporary_line_color
-	}];
-
-	check_for_clipped_regions(center(), lines);
-	check_for_clipped_regions(west(), lines);
-	check_for_clipped_regions(north(), lines);
-	check_for_clipped_regions(northwest(), lines);
 }
 
 function north() {
@@ -565,7 +521,7 @@ function update() {
 							return;
 						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
-							clear_previous_cursor_position();
+							//clear_previous_cursor_position();
 							clear_item(el.shape, x, y, el.color, el.size);
 							data_updated = true;
 							draw_cursor_at_position(selected_grid_x, selected_grid_y);
@@ -589,7 +545,7 @@ function update() {
 							"x_coord": selected_grid_x,
 							"y_coord": selected_grid_y
 						})) {
-						clear_previous_cursor_position();
+						//clear_previous_cursor_position();
 						draw_cursor_at_position(selected_grid_x, selected_grid_y);
 					}
 					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
@@ -825,7 +781,7 @@ function edit_element_row(el) {
 }
 
 function clicked_element_list(id) {
-	clear_previous_cursor_position();
+	//clear_previous_cursor_position();
 	var temp = live_objects.find(function(el) {
 		return el.id === id;
 	});

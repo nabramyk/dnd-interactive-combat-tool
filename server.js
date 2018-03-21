@@ -280,6 +280,9 @@ app.post('/canvas_clicked', function(req, res) {
 					 coordinate_comparison(el, north(temp)) ||
 					 coordinate_comparison(el, northwest(temp)) ||
 					 coordinate_comparison(el, west(temp));
+	}).map(function (el) {
+		return { "action" : "draw", 
+						 "element" : el	};
 	});
 	
 	var lines = cells.filter(function(element) {
@@ -368,7 +371,7 @@ function check_for_clipped_regions(grid_location, lines) {
 			
 			if(grid_points.find( function(el) { return el.x === grid_x && el.y === grid_y; }) != 'undefined') {
 				grid_points.forEach(function(el) {
-					redraw_line.push({ "action" : "erase", "element" : el });
+					redraw_line.push({ "action" : "erase", "coordinate" : el });
 				})
 				redraw_line.push({ "action" : "draw", 
 													"element" : {
