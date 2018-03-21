@@ -282,9 +282,11 @@ app.post('/canvas_clicked', function(req, res) {
 					 coordinate_comparison(el, west(temp));
 	});
 	
-	var lines = live_objects.filter(function(element) {
+	var lines = cells.filter(function(element) {
 		return element.shape === "line";
 	});
+	
+	elements_to_redraw = elements_to_redraw.concat(check_for_clipped_regions(center(temp), lines));
 	
 	res.status(200).json({
 		"selected_grid" : req.body,
@@ -293,6 +295,10 @@ app.post('/canvas_clicked', function(req, res) {
 
 });
 
+
+
+
+//HELPERS
 function north(point) {
 	return { "x_coord" : point.x_coord, "y_coord": point.y_coord - 1 };
 }
@@ -332,40 +338,53 @@ function southwest() {
 function center(point) {
 	return { "x_coord" : point.x_coord, "y_coord" : point.y_coord };
 }
+//
+
+
+
+
 
 function check_for_clipped_regions(grid_location, lines) {
-	[grid_x, grid_y] = grid_location;
-
+	var grid_x = grid_location.x_coord,
+			grid_y = grid_location.y_coord;
+	
+	var grid_points = [];
+	var redraw_line = [];
+	
 	//Execute function for each set of line segments
 	lines.forEach(function(element, ind, arr) {
 
 		var vertices_x = element.x_coord;
 		var vertices_y = element.y_coord;
+		
 		for (var i = 1; i < vertices_x.length; i++) {
-
-			var grid_points = calculate_grid_points_on_line({
-				"x": gridPoint2Pixel(vertices_x[i - 1]),
-				"y": gridPoint2Pixel(vertices_y[i - 1])
+			grid_points = grid_points.concat(calculate_grid_points_on_line({
+				"x": vertices_x[i - 1],
+				"y": vertices_y[i - 1]
 			}, {
-				"x": gridPoint2Pixel(vertices_x[i]),
-				"y": gridPoint2Pixel(vertices_y[i])
-			});
-
-			grid_points
-				.map(function(el) {
-					return {
-						"x": pixel2GridPoint(el.x),
-						"y": pixel2GridPoint(el.y)
-					}
+				"x": vertices_x[i],
+				"y": vertices_y[i]
+			}));
+			
+			if(grid_points.find( function(el) { return el.x === grid_x && el.y === grid_y; }) != 'undefined') {
+				grid_points.forEach(function(el) {
+					redraw_line.push({ "action" : "erase", "element" : el });
 				})
-				.forEach(function(el, ind, arr) {
-					if (el.x == grid_x && el.y == grid_y) {
-						var line_segment = liangBarsky(vertices_x[i - 1], vertices_y[i - 1], vertices_x[i], vertices_y[i], [el.x, el.x + grid_size, el.y, el.y + grid_size]);
-						draw_item(element.shape, line_segment[0], line_segment[1], element.color);
-					}
-				});
+				redraw_line.push({ "action" : "draw", 
+													"element" : {
+															"shape" : "line",
+															"x_coord" : [vertices_x[i - 1],vertices_x[i]],
+															"y_coord" : [vertices_y[i - 1],vertices_y[i]],
+															"color" : element.color,
+															"size" : 0
+													}
+												 }
+												);
+			}
 		}
 	});
+	
+	return redraw_line;
 }
 
 function calculate_grid_points_on_line(starting_point, ending_point) {
@@ -391,7 +410,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			_start = ending_point.y;
 			_end = starting_point.y;
 		}
-		for (; _start < _end; _start = _start + grid_size) {
+		for (; _start < _end; _start++) {
 			grid_points.push({
 				"x": starting_point.x,
 				"y": _start
@@ -399,10 +418,10 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 		}
 	} else
 		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
-			y_val = m * x_val + b;
+			y_val = Math.floor(m * x_val + b);
 			var xy_pair = {
-				"x": (x_val - (x_val % grid_size)),
-				"y": (y_val - (y_val % grid_size))
+				"x": x_val,
+				"y": y_val
 			};
 
 			if (grid_points.length === 0) {
@@ -417,8 +436,15 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 					grid_points.push(xy_pair);
 			}
 		}
+	
 	return grid_points;
 }
+
+
+
+
+
+
 
 //Main driver for booting up the server
 var server = app.listen(8080, function() {
