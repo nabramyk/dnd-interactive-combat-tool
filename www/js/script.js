@@ -53,6 +53,19 @@ function canvasApp() {
 	
 	socket = io();
 	
+	socket.emit('init', function(msg) {});
+	socket.on('init', function(msg) {
+		console.log(msg);
+		grid_count_height = msg.grid_height;
+		resizeGridHeight(grid_count_height);
+		grid_count_width = msg.grid_width;
+		resizeGridWidth(grid_count_width);
+		
+		msg.elements.forEach( function(el) {
+			draw_item(el.shape, el.x_coord, el.y_coord, Number(el.size), el.color);
+		});
+	})
+	
 	socket.on('resize_height', function(msg) {
 		grid_count_height = msg.height;
 		resizeGridHeight(grid_count_height);

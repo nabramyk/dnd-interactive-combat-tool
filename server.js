@@ -454,6 +454,14 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 io.on('connection', function(socket) {
 	console.log("a user connected");
 
+	socket.on('init', function(msg) {
+		socket.emit('init', { 
+			"grid_width" : grid_width,
+			"grid_height" : grid_height,
+			"elements" : cells
+		});
+	});
+	
 	socket.on('resize_height', function(msg) {
 		grid_height = JSON.parse(msg.height);
 		io.emit('resize_height', msg);
