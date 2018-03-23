@@ -23,6 +23,8 @@ var grid_canvas, ctx;
 var live_objects = [];
 var temporary_changed_objects = [];
 
+var socket;
+
 window.addEventListener('load', eventWindowLoaded, false);
 
 function eventWindowLoaded() {
@@ -48,7 +50,36 @@ function canvasApp() {
 	if (!canvasSupport(grid_canvas)) {
 		return;
 	}
-
+	
+	socket = io();
+	
+	socket.on('resize_height', function(msg) {
+		grid_count_height = msg.height;
+		resizeGridHeight(grid_count_height);
+	});
+	
+	socket.on('resize_width', function(msg) {
+		grid_count_width = msg.width;
+		resizeGridWidth(grid_count_width);
+	});
+	
+	socket.on('added_element', function(msg) {
+		draw_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+	});
+	
+	socket.on('removed_element', function(msg) {
+		console.log(msg);
+		clear_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+	});
+	
+	socket.on('move_element', function(msg) {
+		console.log(msg);
+		clear_item(msg.element.shape, msg.x, msg.y, msg.element.color, msg.element.size);
+		clear_prev_cursor_position();
+		draw_cursor_at_position(msg.element.x_coord, msg.element.y_coord);
+		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
+	});
+	
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
@@ -65,28 +96,20 @@ function canvasApp() {
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
-		changeGridSize()
-			.done(function(data) {
-				resizeGridHeight(data.height);
-			})
-			.fail(function(error) {
-				console.log(error);
-			});
+		socket.emit('resize_height', { "height" : grid_count_height});
 	});
 
 	$("#grid_size_horizontal").change(function() {
 		grid_count_width = $("#grid_size_horizontal").val();
-		changeGridSize()
-			.done(function(data) {
-				resizeGridWidth(data.width);
-			})
-			.fail(function(error) {
-				console.log(error);
-			});
+		socket.emit('resize_width', { "width" : grid_count_width});
 	});
 	
 	//CLICK
 	$("#grid_canvas").click(function(evt) {
+		socket.emit('canvas_clicked', {
+				"x_coord" : selected_grid_x,
+				"y_coord" : selected_grid_y
+			});
 		$.ajax({
 			type: "POST",
 			url: window.location.href + "canvas_clicked",
@@ -250,19 +273,8 @@ function canvasApp() {
 }
 
 function incremental_move_element(direction) {
-	if (typeof selected_grid_x == 'undefined' || typeof selected_grid_y == 'undefined')
-		return;
-
-	move_element_on_server(selected_grid_x, selected_grid_y, direction)
-		.done(function(data) {
-			//clear_previous_cursor_position();
-			draw_cursor_at_position(data.position_x, data.position_y);
-		})
-		.fail(function(error) {
-			console.log(error);
-		});
+	socket.emit('move_element', { "x" : selected_grid_x, "y" : selected_grid_y, "direction" : direction});
 }
-
 
 /*
  * Function for drawing the grid board
@@ -323,9 +335,6 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 				for (var n = 0; n < size; n++) {
 					ctx.clearRect(x + i * grid_size, y + n * grid_size, grid_size, grid_size);
 					ctx.strokeRect(x + i * grid_size, y + n * grid_size, grid_size, grid_size);
-					check_for_clipped_regions([x_coord + i * grid_size, y_coord], live_objects.filter(function(element) {
-						return element.shape === "line";
-					}));
 				}
 			}
 			break;
@@ -375,7 +384,7 @@ function clear_grid_space(point_x, point_y) {
 	}
 }
 
-function clear_prev_cursor_position(elements_to_redraw) {
+function clear_prev_cursor_position() {
 	if (selected_grid_x === -1 || selected_grid_y == -1)
 		return;
 	
@@ -383,18 +392,6 @@ function clear_prev_cursor_position(elements_to_redraw) {
 	ctx.lineWidth = grid_line_width;
 	
 	clear_grid_space(selected_grid_x, selected_grid_y);
-	clear_grid_space(selected_grid_x-1, selected_grid_y);
-	clear_grid_space(selected_grid_x, selected_grid_y-1);
-	clear_grid_space(selected_grid_x-1, selected_grid_y-1);
-		
-	elements_to_redraw.forEach(function(el) {
-		if(el.action === "erase") {
-			clear_grid_space(el.coordinate.x, el.coordinate.y);
-		}
-		else if(el.action === "draw") {
-			draw_item(el.element.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
-		}
-	});
 }
 
 function north() {
@@ -509,9 +506,6 @@ function update() {
 		.done(function(result) {
 			$("#lost_connection_div").hide();
 			var data_updated = false;
-			var server_grid_size = result.shift();
-			if (server_grid_size.width != grid_count_width) resizeGridWidth(server_grid_size.width);
-			if (server_grid_size.height != grid_count_height) resizeGridHeight(server_grid_size.height);
 			result.forEach(function(element, ind, arr) {
 				var x = element.item.x_coord;
 				var y = element.item.y_coord;
@@ -527,29 +521,6 @@ function update() {
 							draw_cursor_at_position(selected_grid_x, selected_grid_y);
 						}
 					});
-				} else if (element.action === "add") {
-					live_objects.push({
-						"id": element.item.id,
-						"shape": element.item.shape,
-						"x_coord": x,
-						"y_coord": y,
-						"color": element.item.color,
-						"name": element.item.name,
-						"size": element.item.size,
-						"category": element.item.category
-					});
-					live_objects.sort(function(pre, post) {
-						return pre.id - post.id;
-					});
-					if (coordinate_comparison(element.item, {
-							"x_coord": selected_grid_x,
-							"y_coord": selected_grid_y
-						})) {
-						//clear_previous_cursor_position();
-						draw_cursor_at_position(selected_grid_x, selected_grid_y);
-					}
-					draw_item(element.item.shape, x, y, element.item.color, element.item.size);
-					data_updated = true;
 				} else if (element.action === "edit") {
 					live_objects.find(function(el, ind, arr) {
 						if (coordinate_comparison(el, element.item)) {
@@ -597,10 +568,8 @@ function update() {
 }
 
 function add_element_to_server(color, x, y, shape, name, size, category) {
-	$.ajax({
-		type: "POST",
-		url: window.location.href + "add_element",
-		data: {
+	socket.emit('add_element_to_server',
+						 {
 			"color": color,
 			"x_coord": JSON.stringify(x),
 			"y_coord": JSON.stringify(y),
@@ -608,17 +577,7 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 			"name": name,
 			"size": size,
 			"category": category
-		},
-		dataType: 'json',
-		success: function(result) {
-			return;
-		},
-		error: function(status, error) {
-			if (error == 'parsererror')
-				return
-			console.log("Error: " + status.status + ", " + error);
-		}
-	});
+		});
 }
 
 function delete_element_from_server(id) {
@@ -705,18 +664,6 @@ function reset_grid_on_server() {
 	});
 }
 
-function changeGridSize() {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "resize_grid",
-		data: {
-			"width": grid_count_width,
-			"height": grid_count_height
-		},
-		dataType: 'json',
-	});
-}
-
 function error_report(status, error) {
 	console.log("Error: " + status.status + ", " + error);
 }
@@ -781,7 +728,6 @@ function edit_element_row(el) {
 }
 
 function clicked_element_list(id) {
-	//clear_previous_cursor_position();
 	var temp = live_objects.find(function(el) {
 		return el.id === id;
 	});

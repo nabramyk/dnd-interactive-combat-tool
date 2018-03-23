@@ -1,6 +1,8 @@
 //This server requires the 'express' NodeJS server framework
+var app = require('express')();
 var express = require('express');
-var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var log4js = require('log4js');
 var log = log4js.getLogger();
 
@@ -63,11 +65,6 @@ app.post('/update', function(req, res) {
 	//Initialize the correction vector for returning the actions the webpage must take in
 	//order to be up to date with the server model
 	var correction_vector = [];
-
-	correction_vector.push({
-		"width": grid_width,
-		"height": grid_height
-	});
 
 	//For each live element in the user's model...
 	live_objects.forEach(function(el, ind, arr) {
@@ -224,17 +221,6 @@ app.post('/move_element', function(req, res) {
 	});
 });
 
-app.post('/resize_grid', function(req, res) {
-	grid_width = JSON.parse(req.body.width);
-	grid_height = JSON.parse(req.body.height);
-	console.log("Resized: " + JSON.stringify(req.body));
-
-	res.status(200).json({
-		"width": grid_width,
-		"height": grid_height
-	});
-});
-
 app.post('/undo_action', function(req, res) {
 	res.status(200);
 });
@@ -247,19 +233,19 @@ app.post('/randomize', function(req, res) {
 	for (var w = 0; w < grid_width; w++) {
 		for (var h = 0; h < grid_height; h++) {
 			if (Math.random() < 0.5) {
-					var input = {
-						"id": element_id_counter,
-						"color": "000000",
-						"x_coord": w + 1,
-						"y_coord": h + 1,
-						"shape": "square",
-						"name": "rando" + h * w,
-						"size": 1,
-						"category": "environment"
-					};
-				
-					cells.push(input);
-					element_id_counter++;
+				var input = {
+					"id": element_id_counter,
+					"color": "000000",
+					"x_coord": w + 1,
+					"y_coord": h + 1,
+					"shape": "square",
+					"name": "rando" + h * w,
+					"size": 1,
+					"category": "environment"
+				};
+
+				cells.push(input);
+				element_id_counter++;
 			}
 		}
 	}
@@ -270,30 +256,33 @@ app.post('/reset', function(req, res) {
 });
 
 app.post('/canvas_clicked', function(req, res) {
-	
-	var temp = { "x_coord" : JSON.parse(req.body.x_coord),
-							 "y_coord" : JSON.parse(req.body.y_coord)
-						};
-		
-	var elements_to_redraw = cells.filter(function (el) {
+
+	var temp = {
+		"x_coord": JSON.parse(req.body.x_coord),
+		"y_coord": JSON.parse(req.body.y_coord)
+	};
+
+	var elements_to_redraw = cells.filter(function(el) {
 		return coordinate_comparison(el, center(temp)) ||
-					 coordinate_comparison(el, north(temp)) ||
-					 coordinate_comparison(el, northwest(temp)) ||
-					 coordinate_comparison(el, west(temp));
-	}).map(function (el) {
-		return { "action" : "draw", 
-						 "element" : el	};
+			coordinate_comparison(el, north(temp)) ||
+			coordinate_comparison(el, northwest(temp)) ||
+			coordinate_comparison(el, west(temp));
+	}).map(function(el) {
+		return {
+			"action": "draw",
+			"element": el
+		};
 	});
-	
+
 	var lines = cells.filter(function(element) {
 		return element.shape === "line";
 	});
-	
+
 	elements_to_redraw = elements_to_redraw.concat(check_for_clipped_regions(center(temp), lines));
-	
+
 	res.status(200).json({
-		"selected_grid" : req.body,
-		"redraw_items" : elements_to_redraw,
+		"selected_grid": req.body,
+		"redraw_items": elements_to_redraw,
 	});
 
 });
@@ -303,19 +292,31 @@ app.post('/canvas_clicked', function(req, res) {
 
 //HELPERS
 function north(point) {
-	return { "x_coord" : point.x_coord, "y_coord": point.y_coord - 1 };
+	return {
+		"x_coord": point.x_coord,
+		"y_coord": point.y_coord - 1
+	};
 }
 
 function east(point) {
-	return { "x_coord" : point.x_coord + 1, "y_coord" : point.y_coord };
+	return {
+		"x_coord": point.x_coord + 1,
+		"y_coord": point.y_coord
+	};
 }
 
 function east2(point) {
-	return { "x_coord" : point.x_coord + 1 * 2, "y_coord" : point.y_coord };
+	return {
+		"x_coord": point.x_coord + 1 * 2,
+		"y_coord": point.y_coord
+	};
 }
 
 function west(point) {
-	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord};
+	return {
+		"x_coord": point.x_coord - 1,
+		"y_coord": point.y_coord
+	};
 }
 
 function south() {
@@ -327,7 +328,10 @@ function northeast() {
 }
 
 function northwest(point) {
-	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord - 1 };
+	return {
+		"x_coord": point.x_coord - 1,
+		"y_coord": point.y_coord - 1
+	};
 }
 
 function southeast() {
@@ -339,27 +343,26 @@ function southwest() {
 }
 
 function center(point) {
-	return { "x_coord" : point.x_coord, "y_coord" : point.y_coord };
+	return {
+		"x_coord": point.x_coord,
+		"y_coord": point.y_coord
+	};
 }
 //
 
-
-
-
-
 function check_for_clipped_regions(grid_location, lines) {
 	var grid_x = grid_location.x_coord,
-			grid_y = grid_location.y_coord;
-	
+		grid_y = grid_location.y_coord;
+
 	var grid_points = [];
 	var redraw_line = [];
-	
+
 	//Execute function for each set of line segments
 	lines.forEach(function(element, ind, arr) {
 
 		var vertices_x = element.x_coord;
 		var vertices_y = element.y_coord;
-		
+
 		for (var i = 1; i < vertices_x.length; i++) {
 			grid_points = grid_points.concat(calculate_grid_points_on_line({
 				"x": vertices_x[i - 1],
@@ -368,25 +371,30 @@ function check_for_clipped_regions(grid_location, lines) {
 				"x": vertices_x[i],
 				"y": vertices_y[i]
 			}));
-			
-			if(grid_points.find( function(el) { return el.x === grid_x && el.y === grid_y; }) != 'undefined') {
+
+			if (grid_points.find(function(el) {
+					return el.x === grid_x && el.y === grid_y;
+				}) != 'undefined') {
 				grid_points.forEach(function(el) {
-					redraw_line.push({ "action" : "erase", "coordinate" : el });
+					redraw_line.push({
+						"action": "erase",
+						"coordinate": el
+					});
 				})
-				redraw_line.push({ "action" : "draw", 
-													"element" : {
-															"shape" : "line",
-															"x_coord" : [vertices_x[i - 1],vertices_x[i]],
-															"y_coord" : [vertices_y[i - 1],vertices_y[i]],
-															"color" : element.color,
-															"size" : 0
-													}
-												 }
-												);
+				redraw_line.push({
+					"action": "draw",
+					"element": {
+						"shape": "line",
+						"x_coord": [vertices_x[i - 1], vertices_x[i]],
+						"y_coord": [vertices_y[i - 1], vertices_y[i]],
+						"color": element.color,
+						"size": 0
+					}
+				});
 			}
 		}
 	});
-	
+
 	return redraw_line;
 }
 
@@ -439,20 +447,91 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 					grid_points.push(xy_pair);
 			}
 		}
-	
+
 	return grid_points;
 }
 
+io.on('connection', function(socket) {
+	console.log("a user connected");
 
+	socket.on('resize_height', function(msg) {
+		grid_height = JSON.parse(msg.height);
+		io.emit('resize_height', msg);
+	});
 
+	socket.on('resize_width', function(msg) {
+		grid_width = JSON.parse(msg.width);
+		io.emit('resize_width', msg);
+	});
 
+	socket.on('canvas_clicked', function(msg) {
+		console.log("clicked" + msg);
+	});
 
+	socket.on('move_element', function(msg) {
+		console.log(msg);
 
+		var ob = cells.find(function(el) {
+			return el.x_coord == msg.x && el.y_coord == msg.y
+		});
+
+		if (typeof ob === 'undefined') return;
+
+		var direction = msg.direction;
+		var move_to_x = ob.x_coord;
+		var move_to_y = ob.y_coord;
+		var id = ob.id;
+
+		var from_x = ob.x_coord;
+		var from_y = ob.y_coord;
+		
+		do {
+			if (direction == "right") move_to_x++;
+			else if (direction == "left") move_to_x--;
+			else if (direction == "up") move_to_y--;
+			else if (direction == "down") move_to_y++;
+		} while (cells.findIndex(function(element) {
+				return coordinate_comparison(element, {
+					"x_coord": move_to_x,
+					"y_coord": move_to_y
+				})
+			}) != -1);
+
+		ob.x_coord = move_to_x;
+		ob.y_coord = move_to_y;
+
+		io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+	});
+
+	socket.on('add_element_to_server', function(msg) {
+		console.log(JSON.stringify(msg));
+
+		var input = {
+			"id": element_id_counter,
+			"color": msg.color,
+			"x_coord": JSON.parse(msg.x_coord),
+			"y_coord": JSON.parse(msg.y_coord),
+			"shape": msg.object_type,
+			"name": msg.name !== "" ? msg.name : "object",
+			"size": msg.size,
+			"category": msg.category
+		};
+
+		console.log("Added: " + JSON.stringify(input));
+
+		cells.push(input);
+		history.push({
+			"action": "add",
+			"item": input
+		});
+
+		element_id_counter++;
+
+		io.emit('added_element', input);
+	})
+});
 
 //Main driver for booting up the server
-var server = app.listen(8080, function() {
-	var host = server.address().address
-	var port = server.address().port
-
-	console.log("%s:%s", host, port)
+http.listen(8080, function() {
+	console.log("%s:%s", http.address().address, http.address().port)
 })
