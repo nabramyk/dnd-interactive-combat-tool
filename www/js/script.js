@@ -69,8 +69,16 @@ function canvasApp() {
 		msg.elements.forEach(function(el) {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color, Number(el.size));
 		});
+		
+		refresh_elements_list();
 	})
 
+	socket.on('retrieve_elements_list', function(msg) {
+		msg.forEach( function(el) {
+			$("#element_list").append(composeElementListRowElement(el));
+		});
+	})
+	
 	socket.on('resize_height', function(msg) {
 		grid_count_height = msg.height;
 		resizeGridHeight(grid_count_height);
@@ -84,6 +92,7 @@ function canvasApp() {
 	socket.on('added_element', function(msg) {
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+		$("#element_list").append(composeElementListRowElement(msg));
 	});
 
 	socket.on('removed_element', function(msg) {
@@ -500,24 +509,14 @@ function refresh_elements_list() {
 		.filter(function(_, el) {
 			return el.checked
 		})
-		.map(function(_, el) {
-			return el.value
-		})
-		.toArray();
+		.val
+		.get();
 
 	$("#element_list").empty();
-
-	/*
-	live_objects
-		.filter(function(el) {
-			return filters.findIndex(
-				function(e) {
-					return e == el.category;
-				}) != -1;
-		})
-		.forEach(function(el, ind, arr) {
-			$("#element_list").append(composeElementListRowElement(el));
-		}); */
+	
+	console.log(typeof filters);
+	if(filters.length !== 0)
+		socket.emit('get_elements_list', { "filters" : filters } );
 }
 
 function composeElementListRowElement(el) {

@@ -474,6 +474,12 @@ io.on('connection', function(socket) {
 		});
 		cells = [];
 	});
+	
+	socket.on('get_elements_list', function(msg) {
+		var temp = msg.filters;
+		console.log(temp);
+		socket.emit('retrieve_elements_list', cells.filter(function(el) { return temp.content; }));
+	});
 });
 
 //Main driver for booting up the server
