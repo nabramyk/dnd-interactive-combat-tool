@@ -27,7 +27,6 @@ window.addEventListener('load', eventWindowLoaded, false);
 
 function eventWindowLoaded() {
 	canvasApp();
-// update();
 }
 
 function canvasSupport(e) {
@@ -48,60 +47,93 @@ function canvasApp() {
 	if (!canvasSupport(grid_canvas)) {
 		return;
 	}
-	
+
 	socket = io();
-	
-	socket.emit('init', function(msg) {});
+
+	socket.on('disconnect', function() {
+		$("#lost_connection_div").show();
+		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
+	});
+
+	socket.on('connect', function(msg) {
+		$("#lost_connection_div").hide();
+		socket.emit('init', {});
+	});
+
 	socket.on('init', function(msg) {
 		grid_count_height = msg.grid_height;
 		resizeGridHeight(grid_count_height);
 		grid_count_width = msg.grid_width;
 		resizeGridWidth(grid_count_width);
-		
-		msg.elements.forEach( function(el) {
+
+		msg.elements.forEach(function(el) {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color, Number(el.size));
 		});
 	})
-	
+
 	socket.on('resize_height', function(msg) {
 		grid_count_height = msg.height;
 		resizeGridHeight(grid_count_height);
 	});
-	
+
 	socket.on('resize_width', function(msg) {
 		grid_count_width = msg.width;
 		resizeGridWidth(grid_count_width);
 	});
-	
+
 	socket.on('added_element', function(msg) {
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
 	});
-	
+
 	socket.on('removed_element', function(msg) {
 		clear_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
 	});
-	
+
 	socket.on('move_element', function(msg) {
 		clear_item(msg.element.shape, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
 		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
-		if(msg.element.x_coord === selected_grid_x && msg.element.y_coord === selected_grid_y) {
+		if (msg.element.x_coord === selected_grid_x && msg.element.y_coord === selected_grid_y) {
 			draw_cursor_at_position(selected_grid_x, selected_grid_y);
 		}
 	});
-	
+
 	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
 		draw_cursor_at_position(msg.x, msg.y);
 	});
-	
+
 	socket.on('canvas_clicked', function(msg) {
-		console.log(msg);
 		clear_prev_cursor_position();
+
+		if(selected_grid_x === -1 && selected_grid_y === -1) {
+			draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
+			return;
+		}
+		
+		msg.elements.forEach(function(el) {
+			if (el.element.shape === 'line') {
+				var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),
+					gridPoint2Pixel(el.bbox.y_coord), gridPoint2Pixel(el.bbox.y_coord + 1)
+				];
+				var temp = liangBarsky(gridPoint2Pixel(el.element.x_coord[0]),
+															 gridPoint2Pixel(el.element.y_coord[0]), 
+															 gridPoint2Pixel(el.element.x_coord[1]), 
+															 gridPoint2Pixel(el.element.y_coord[1]),
+															 bbox);
+				console.log(temp);
+				ctx.strokeStyle = "#" + el.element.color;
+				ctx.beginPath();
+				ctx.moveTo(temp[0][0] + grid_line_width, temp[1][0] + grid_line_width);
+				ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);
+				ctx.stroke();
+			} else
+				draw_item(el.elememt.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
+		});
+
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
-		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
 	});
-	
+
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
@@ -118,38 +150,40 @@ function canvasApp() {
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
-		socket.emit('resize_height', { "height" : grid_count_height});
+		socket.emit('resize_height', {
+			"height": grid_count_height
+		});
 	});
 
 	$("#grid_size_horizontal").change(function() {
 		grid_count_width = $("#grid_size_horizontal").val();
-		socket.emit('resize_width', { "width" : grid_count_width});
+		socket.emit('resize_width', {
+			"width": grid_count_width
+		});
 	});
-	
+
 	// CLICK
 	$("#grid_canvas").click(function(evt) {
 		socket.emit('canvas_clicked', {
-				"new_x" : pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
-				"new_y" : pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
-				"old_x" : selected_grid_x,
-				"old_y" : selected_grid_y
-			});
+			"new_x": pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
+			"new_y": pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
+			"old_x": selected_grid_x,
+			"old_y": selected_grid_y
+		});
 	});
 
 	$('#place_element_button').click(function() {
-		if ($("#place_element_button").html() == "Add Element" || $("#place_element_button").html() == "Add Vertex") {
-			switch ($("#selected_shape").val()) {
-				case "square":
-				case "circle":
-					add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
-					break;
-				case "line":
-					x_vertices.push(selected_grid_x);
-					y_vertices.push(selected_grid_y);
-					if (x_vertices.length === 1 && y_vertices.length === 1)
-						$("#start_new_line_button").toggle();
-					break;
-			}
+		switch ($("#selected_shape").val()) {
+			case "square":
+			case "circle":
+				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
+				break;
+			case "line":
+				x_vertices.push(selected_grid_x);
+				y_vertices.push(selected_grid_y);
+				if (x_vertices.length === 1 && y_vertices.length === 1)
+					$("#start_new_line_button").toggle();
+				break;
 		}
 	});
 
@@ -204,12 +238,13 @@ function canvasApp() {
 		for (var i = 1; i < x_vertices.length; i++) {
 			clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
 		}
-		
+
 		clear_item("line", [x_vertices[x_vertices.length - 1], selected_grid_x], [y_vertices[y_vertices.length - 1], selected_grid_y], {}, 0);
 
 		x_vertices.length = [];
 		y_vertices.length = [];
 
+		clear_prev_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 
@@ -262,7 +297,11 @@ function canvasApp() {
 }
 
 function incremental_move_element(direction) {
-	socket.emit('move_element', { "x" : selected_grid_x, "y" : selected_grid_y, "direction" : direction});
+	socket.emit('move_element', {
+		"x": selected_grid_x,
+		"y": selected_grid_y,
+		"direction": direction
+	});
 }
 
 /*
@@ -312,6 +351,9 @@ function draw_item(shape, x_coord, y_coord, color, size) {
 	}
 }
 
+/**
+ *	CLEAR ITEM
+ */
 function clear_item(shape, x_coord, y_coord, color, size) {
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
@@ -328,6 +370,7 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 			}
 			break;
 		case "line":
+			/*
 			for (var t = 1; t < x_coord.length; t++) {
 				var grid_points = calculate_grid_points_on_line({
 					"x": gridPoint2Pixel(x_coord[t - 1]),
@@ -355,7 +398,7 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 							draw_item(temp.shape, temp.x_coord, temp.y_coord, temp.color, temp.size);
 						}
 					});
-			}
+			}*/
 			break;
 	}
 
@@ -374,11 +417,14 @@ function clear_grid_space(point_x, point_y) {
 function clear_prev_cursor_position() {
 	if (selected_grid_x === -1 || selected_grid_y == -1)
 		return;
-	
+
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
-	
+
 	clear_grid_space(selected_grid_x, selected_grid_y);
+	clear_grid_space(selected_grid_x - 1, selected_grid_y);
+	clear_grid_space(selected_grid_x, selected_grid_y - 1);
+	clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
 }
 
 function draw_cursor_at_position(x, y) {
@@ -433,91 +479,16 @@ function resizeGridHeight(height) {
 	drawLeftRuler();
 }
 
-// SERVER COMMUNICATION FUNCTIONS
-// All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
-function update() {
-	$.ajax({
-			type: "POST",
-			url: window.location.href + "update",
-			data: {
-				'live_objects': JSON.stringify(live_objects)
-			},
-			dataType: 'json',
-		})
-		.done(function(result) {
-			$("#lost_connection_div").hide();
-			var data_updated = false;
-			result.forEach(function(element, ind, arr) {
-				var x = element.item.x_coord;
-				var y = element.item.y_coord;
-				if (element.action === "erase") {
-					live_objects.find(function(el, ind, arr) {
-						if (el === undefined)
-							return;
-						if (coordinate_comparison(el, element.item)) {
-							arr.splice(ind, 1);
-							clear_item(el.shape, x, y, el.color, el.size);
-							data_updated = true;
-							draw_cursor_at_position(selected_grid_x, selected_grid_y);
-						}
-					});
-				} else if (element.action === "edit") {
-					live_objects.find(function(el, ind, arr) {
-						if (coordinate_comparison(el, element.item)) {
-							live_objects[ind].name = element.item.name;
-							live_objects[ind].category = element.item.category;
-							if (live_objects[ind].color !== element.item.color) {
-								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								live_objects[ind].color = element.item.color;
-								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								draw_cursor_at_position(selected_grid_x, selected_grid_y);
-							}
-							if (live_objects[ind].shape !== element.item.shape) {
-								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								live_objects[ind].shape = element.item.shape;
-								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								draw_cursor_at_position(selected_grid_x, selected_grid_y);
-							}
-							if (live_objects[ind].size !== element.item.size) {
-								clear_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								live_objects[ind].size = element.item.size;
-								draw_item(live_objects[ind].shape, live_objects[ind].x_coord, live_objects[ind].y_coord, live_objects[ind].color, live_objects[ind].size);
-								draw_cursor_at_position(selected_grid_x, selected_grid_y);
-							}
-							data_updated = true;
-						}
-					});
-				}
-			});
-
-			if (data_updated) refresh_elements_list();
-
-			if (live_objects.length === 0) $('#reset_board_button').prop("disabled", true);
-			else $('#reset_board_button').prop("disabled", false);
-
-			setTimeout(update(), update_interval);
-		})
-		.fail(function(error) {
-			console.log(error);
-			var deferred = new $.Deferred();
-			deferred.reject(error);
-			$("#lost_connection_div").show();
-			$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
-			setTimeout(update(), update_interval);
-		});
-}
-
 function add_element_to_server(color, x, y, shape, name, size, category) {
-	socket.emit('add_element_to_server',
-						 {
-			"color": color,
-			"x_coord": JSON.stringify(x),
-			"y_coord": JSON.stringify(y),
-			"object_type": shape,
-			"name": name,
-			"size": size,
-			"category": category
-		});
+	socket.emit('add_element_to_server', {
+		"color": color,
+		"x_coord": JSON.stringify(x),
+		"y_coord": JSON.stringify(y),
+		"object_type": shape,
+		"name": name,
+		"size": size,
+		"category": category
+	});
 }
 
 function error_report(status, error) {
@@ -536,6 +507,7 @@ function refresh_elements_list() {
 
 	$("#element_list").empty();
 
+	/*
 	live_objects
 		.filter(function(el) {
 			return filters.findIndex(
@@ -545,24 +517,24 @@ function refresh_elements_list() {
 		})
 		.forEach(function(el, ind, arr) {
 			$("#element_list").append(composeElementListRowElement(el));
-		});
+		}); */
 }
 
 function composeElementListRowElement(el) {
-	return	"<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
-						"<div style=\"width: 25%; display: inline-block;\">" +
-							"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
-						"</div>" +
-						"<div style=\"width: 35%; display: inline-block;\">" + 
-							"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
-						"</div>" +
-						"<div style=\"width: 20%; display: inline-block;\">" +
-							"<p style=\"font-size: smaller;\">X: " + el.x_coord +
-							"\nY: " + el.y_coord + "</p>" +
- 						"</div>" +
-						"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
-						"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
-					"</div>";
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
+		"<div style=\"width: 25%; display: inline-block;\">" +
+		"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
+		"</div>" +
+		"<div style=\"width: 35%; display: inline-block;\">" +
+		"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
+		"</div>" +
+		"<div style=\"width: 20%; display: inline-block;\">" +
+		"<p style=\"font-size: smaller;\">X: " + el.x_coord +
+		"\nY: " + el.y_coord + "</p>" +
+		"</div>" +
+		"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
+		"</div>";
 }
 
 function edit_element_row(el) {
@@ -651,7 +623,7 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 	var p, q, r;
 
 	for (var edge = 0; edge < 4; edge++) { // Traverse through left, right,
-											// bottom, top edges.
+		// bottom, top edges.
 		if (edge === 0) {
 			p = -dx;
 			q = -(xmin - x0);
@@ -672,7 +644,7 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 		r = q / p;
 
 		if (p === 0 && q < 0) return null; // Don't draw line at all. (parallel
-											// line outside)
+		// line outside)
 
 		if (p < 0) {
 			if (r > t1) return null; // Don't draw line at all.
