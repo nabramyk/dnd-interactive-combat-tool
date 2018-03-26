@@ -472,8 +472,16 @@ io.on('connection', function(socket) {
 		io.emit('resize_width', msg);
 	});
 
-	socket.on('canvas_clicked', function(msg) {
-		console.log("clicked" + msg);
+	socket.on('canvas_clicked', function(msg) {		
+		var ob = cells.find(function(el) {
+			return coordinate_comparison(el, { "x_coord" : msg.old_x, "y_coord" : msg.old_y });
+		});
+				
+		socket.emit('canvas_clicked', {
+			"selected_grid_x" : msg.new_x,
+			"selected_grid_y" : msg.new_y,
+			"element" : ob
+		});
 	});
 
 	socket.on('move_element', function(msg) {
@@ -509,6 +517,7 @@ io.on('connection', function(socket) {
 		ob.y_coord = move_to_y;
 
 		io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+		socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y });
 	});
 
 	socket.on('add_element_to_server', function(msg) {
@@ -536,7 +545,38 @@ io.on('connection', function(socket) {
 		element_id_counter++;
 
 		io.emit('added_element', input);
-	})
+	});
+	
+	socket.on('randomize', function(msg) {
+		for (var w = 0; w < grid_width; w++) {
+			for (var h = 0; h < grid_height; h++) {
+				if (Math.random() < 0.5) {
+					var input = {
+						"id": element_id_counter,
+						"color": "000000",
+						"x_coord": w + 1,
+						"y_coord": h + 1,
+						"shape": "square",
+						"name": "rando" + h * w,
+						"size": 1,
+						"category": "environment"
+					};
+
+					cells.push(input);
+					element_id_counter++;
+					
+					io.emit('added_element', input);
+				}
+			}
+		}
+	});
+	
+	socket.on('reset_board', function(msg) {
+		cells.forEach( function(el) {
+			io.emit('removed_element', el);
+		});
+		cells = [];
+	});
 });
 
 //Main driver for booting up the server

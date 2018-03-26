@@ -20,8 +20,6 @@ var x_vertices = [];
 var y_vertices = [];
 
 var grid_canvas, ctx;
-var live_objects = [];
-var temporary_changed_objects = [];
 
 var socket;
 
@@ -29,7 +27,7 @@ window.addEventListener('load', eventWindowLoaded, false);
 
 function eventWindowLoaded() {
 	canvasApp();
-	update();
+// update();
 }
 
 function canvasSupport(e) {
@@ -55,14 +53,13 @@ function canvasApp() {
 	
 	socket.emit('init', function(msg) {});
 	socket.on('init', function(msg) {
-		console.log(msg);
 		grid_count_height = msg.grid_height;
 		resizeGridHeight(grid_count_height);
 		grid_count_width = msg.grid_width;
 		resizeGridWidth(grid_count_width);
 		
 		msg.elements.forEach( function(el) {
-			draw_item(el.shape, el.x_coord, el.y_coord, Number(el.size), el.color);
+			draw_item(el.shape, el.x_coord, el.y_coord, el.color, Number(el.size));
 		});
 	})
 	
@@ -77,19 +74,31 @@ function canvasApp() {
 	});
 	
 	socket.on('added_element', function(msg) {
+		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
 	});
 	
 	socket.on('removed_element', function(msg) {
-		console.log(msg);
 		clear_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
 	});
 	
 	socket.on('move_element', function(msg) {
-		console.log(msg);
-		clear_item(msg.element.shape, msg.x, msg.y, msg.element.color, msg.element.size);
+		clear_item(msg.element.shape, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
+		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
+		if(msg.element.x_coord === selected_grid_x && msg.element.y_coord === selected_grid_y) {
+			draw_cursor_at_position(selected_grid_x, selected_grid_y);
+		}
+	});
+	
+	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
-		draw_cursor_at_position(msg.element.x_coord, msg.element.y_coord);
+		draw_cursor_at_position(msg.x, msg.y);
+	});
+	
+	socket.on('canvas_clicked', function(msg) {
+		console.log(msg);
+		clear_prev_cursor_position();
+		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
 		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
 	});
 	
@@ -117,25 +126,14 @@ function canvasApp() {
 		socket.emit('resize_width', { "width" : grid_count_width});
 	});
 	
-	//CLICK
+	// CLICK
 	$("#grid_canvas").click(function(evt) {
 		socket.emit('canvas_clicked', {
-				"x_coord" : selected_grid_x,
-				"y_coord" : selected_grid_y
+				"new_x" : pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
+				"new_y" : pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
+				"old_x" : selected_grid_x,
+				"old_y" : selected_grid_y
 			});
-		$.ajax({
-			type: "POST",
-			url: window.location.href + "canvas_clicked",
-			data: {
-				"x_coord" : selected_grid_x,
-				"y_coord" : selected_grid_y
-			},
-			dataType: "json"
-		})
-		.done(function(data) {
-			clear_prev_cursor_position(data.redraw_items);
-			draw_cursor_at_position(pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)), pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)));
-		});
 	});
 
 	$('#place_element_button').click(function() {
@@ -157,7 +155,7 @@ function canvasApp() {
 
 	$('#reset_board_button').click(function() {
 		if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
-			reset_grid_on_server();
+			socket.emit('reset_board', {});
 		}
 	});
 
@@ -173,27 +171,6 @@ function canvasApp() {
 		x_vertices = [];
 		y_vertices = [];
 		$("#start_new_line_button").toggle();
-	});
-
-	$('#move_button').click(function() {
-		live_objects.find(function(el, ind, arr) {
-			if (el.x_coord == selected_grid_x && el.y_coord == selected_grid_y) {
-				var move_to_color = el.color;
-				var move_to_x = el.x_coord;
-				var move_to_y = el.y_coord;
-				var move_to_shape = el.shape;
-				selected_grid_x = ($("#move_to_x").val() - 1) * grid_size;
-				selected_grid_y = ($("#move_to_y").val() - 1) * grid_size;
-				move_element(move_to_color, {
-						"x": move_to_x,
-						"y": move_to_y
-					}, {
-						"x": selected_grid_x,
-						"y": selected_grid_y
-					},
-					move_to_shape);
-			}
-		});
 	});
 
 	$("#move_inc_up").click(function() {
@@ -233,7 +210,6 @@ function canvasApp() {
 		x_vertices.length = [];
 		y_vertices.length = [];
 
-		//clear_previous_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 
@@ -275,7 +251,7 @@ function canvasApp() {
 	});
 
 	$("#randomize").click(function() {
-		randomize_grid_on_server();
+		socket.emit('randomize', {});
 	});
 
 	$(".element_filter").click(function() {
@@ -391,10 +367,8 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 }
 
 function clear_grid_space(point_x, point_y) {
-	if (!isRegionOutOfBounds(point_x, point_y)) {
-		ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
-		ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
-	}
+	ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+	ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
 }
 
 function clear_prev_cursor_position() {
@@ -405,46 +379,6 @@ function clear_prev_cursor_position() {
 	ctx.lineWidth = grid_line_width;
 	
 	clear_grid_space(selected_grid_x, selected_grid_y);
-}
-
-function north() {
-	return [selected_grid_x, selected_grid_y - 1];
-}
-
-function east() {
-	return [selected_grid_x + 1, selected_grid_y];
-}
-
-function east2() {
-	return [selected_grid_x + 1 * 2, selected_grid_y];
-}
-
-function west() {
-	return [selected_grid_x - 1, selected_grid_y];
-}
-
-function south() {
-	return [selected_grid_x, selected_grid_y + 1];
-}
-
-function northeast() {
-	return [selected_grid_x + 1, selected_grid_y - 1];
-}
-
-function northwest() {
-	return [selected_grid_x - 1, selected_grid_y - 1];
-}
-
-function southeast() {
-	return [selected_grid_x + 1, selected_grid_y + 1];
-}
-
-function southwest() {
-	return [selected_grid_x - 1, selected_grid_y + 1];
-}
-
-function center() {
-	return [selected_grid_x, selected_grid_y];
 }
 
 function draw_cursor_at_position(x, y) {
@@ -488,9 +422,6 @@ function resizeGridWidth(width) {
 	$("#grid_size_horizontal").val(grid_count_width);
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	drawScreen();
-	live_objects.forEach(function(element) {
-		draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
-	});
 	drawTopRuler();
 }
 
@@ -499,14 +430,11 @@ function resizeGridHeight(height) {
 	$("#grid_size_vertical").val(grid_count_height);
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	drawScreen();
-	live_objects.forEach(function(element) {
-		draw_item(element.shape, element.x_coord, element.y_coord, element.color, element.size);
-	});
 	drawLeftRuler();
 }
 
-//SERVER COMMUNICATION FUNCTIONS
-//All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
+// SERVER COMMUNICATION FUNCTIONS
+// All AJAX and JSON bullshit goes here and NEVER LEAVES HERE!
 function update() {
 	$.ajax({
 			type: "POST",
@@ -528,7 +456,6 @@ function update() {
 							return;
 						if (coordinate_comparison(el, element.item)) {
 							arr.splice(ind, 1);
-							//clear_previous_cursor_position();
 							clear_item(el.shape, x, y, el.color, el.size);
 							data_updated = true;
 							draw_cursor_at_position(selected_grid_x, selected_grid_y);
@@ -591,90 +518,6 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 			"size": size,
 			"category": category
 		});
-}
-
-function delete_element_from_server(id) {
-	$.ajax({
-		type: "POST",
-		url: window.location.href + "delete_element",
-		data: {
-			"id": JSON.stringify(id)
-		},
-		dataType: 'json',
-		success: function(result) {
-			return;
-		},
-		error: function(status, error) {
-			if (error == 'parsererror')
-				return
-			console.log("Error: " + status.status + ", " + error);
-		}
-	});
-}
-
-function edit_element_on_server(id, name, shape, color, size, category) {
-	$.ajax({
-		type: "POST",
-		url: window.location.href + "edit_element",
-		data: {
-			"id": id,
-			"name": name,
-			"shape": shape,
-			"color": color,
-			"size": size,
-			"category": category
-		},
-		dataType: 'json',
-		success: function(result) {
-			return;
-		},
-		error: function(status, error) {
-			if (error == 'parsererror')
-				return
-			console.log("Error: " + status.status + ", " + error);
-		}
-	});
-}
-
-function move_element_on_server(from_x, from_y, direction) {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "move_element",
-		data: {
-			"from_x": JSON.stringify(from_x),
-			"from_y": JSON.stringify(from_y),
-			"direction": direction
-		},
-		dataType: 'json'
-	});
-}
-
-function undo_action() {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "undo_action"
-	});
-}
-
-function redo_action() {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "redo_action"
-	});
-}
-
-function randomize_grid_on_server() {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "randomize"
-	});
-}
-
-function reset_grid_on_server() {
-	return $.ajax({
-		type: "POST",
-		url: window.location.href + "reset"
-	});
 }
 
 function error_report(status, error) {
@@ -780,18 +623,23 @@ function drawLeftRuler() {
 }
 
 /**
- * Liang-Barsky function by Daniel White 
+ * Liang-Barsky function by Daniel White
  * 
- * Used for checking for lines clipped within grid spaces
- * NOTE: Slight modification to the return value
+ * Used for checking for lines clipped within grid spaces NOTE: Slight
+ * modification to the return value
  * 
  * @link http://www.skytopia.com/project/articles/compsci/clipping.html
- *
- * @param  {number}        x0
- * @param  {number}        y0
- * @param  {number}        x1
- * @param  {number}        y1
- * @param  {array<number>} bbox
+ * 
+ * @param {number}
+ *            x0
+ * @param {number}
+ *            y0
+ * @param {number}
+ *            x1
+ * @param {number}
+ *            y1
+ * @param {array
+ *            <number>} bbox
  * @return {array<array<number>>|null}
  */
 function liangBarsky(x0, y0, x1, y1, bbox) {
@@ -802,7 +650,8 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 		dy = y1 - y0;
 	var p, q, r;
 
-	for (var edge = 0; edge < 4; edge++) { // Traverse through left, right, bottom, top edges.
+	for (var edge = 0; edge < 4; edge++) { // Traverse through left, right,
+											// bottom, top edges.
 		if (edge === 0) {
 			p = -dx;
 			q = -(xmin - x0);
@@ -822,7 +671,8 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 
 		r = q / p;
 
-		if (p === 0 && q < 0) return null; // Don't draw line at all. (parallel line outside)
+		if (p === 0 && q < 0) return null; // Don't draw line at all. (parallel
+											// line outside)
 
 		if (p < 0) {
 			if (r > t1) return null; // Don't draw line at all.
@@ -839,26 +689,10 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 	];
 }
 
-function coordinate_comparison(obj_1, obj_2) {
-	if (obj_1.x_coord instanceof Array)
-		return obj_1.x_coord.every(function(u, i) {
-				return u === obj_2.x_coord[i];
-			}) &&
-			obj_1.y_coord.every(function(u, i) {
-				return u === obj_2.y_coord[i];
-			});
-	else
-		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
-}
-
 function pixel2GridPoint(raw_location) {
 	return 1 + (raw_location - (raw_location % grid_size)) / grid_size;
 }
 
 function gridPoint2Pixel(grid_point) {
 	return (grid_point - 1) * grid_size;
-}
-
-function isRegionOutOfBounds(x, y) {
-	return x < 0 || x > gridPoint2Pixel(grid_count_width) || y < 0 || y > gridPoint2Pixel(grid_count_height) || x === 'undefined' || y === 'undefined';
 }
