@@ -505,18 +505,13 @@ function error_report(status, error) {
 }
 
 function refresh_elements_list() {
-	var filters = $(".element_filter")
-		.filter(function(_, el) {
-			return el.checked
-		})
-		.val
-		.get();
-
-	$("#element_list").empty();
+	var filters = document.querySelectorAll(".element_filter:checked")
+	.map( function(el) {
+		return el.value;
+	});
 	
-	console.log(typeof filters);
-	if(filters.length !== 0)
-		socket.emit('get_elements_list', { "filters" : filters } );
+	//if(filters.length !== 0)
+	//	socket.emit('get_elements_list', { "filters" : filters } );
 }
 
 function composeElementListRowElement(el) {
