@@ -38,246 +38,6 @@ var history = [];
 var grid_width = 1;
 var grid_height = 1;
 
-/* Function for updating the users view when called
- * 
- * Recieves: a json array containing the list of elements which are currently displayed
- * on that individual page
- * 
- * Sends: a vector of actions which the page will use to correct itself to the servers model
- */
-app.post('/update', function(req, res) {
-
-	//Parse the user call and store the list of live objects from the user in an array
-	var live_objects = JSON.parse(req.body.live_objects);
-
-	//Initialize the correction vector for returning the actions the webpage must take in
-	//order to be up to date with the server model
-	var correction_vector = [];
-
-	//For each live element in the user's model...
-	live_objects.forEach(function(el, ind, arr) {
-		//...if this live element does not exist in the server's grid...
-		if (cells.findIndex(function(el2) {
-				return coordinate_comparison(el, el2);
-			}) == -1) {
-			//push to the correction vector so that it is removed from the user's grid
-			correction_vector.push({
-				"action": "erase",
-				"item": el
-			});
-		}
-
-	});
-
-	//For each live element in the server model...
-	cells.forEach(function(el, ind, arr) {
-		//...if this live element does not exist in the user's grid...
-		if (live_objects.findIndex(function(el2) {
-				return coordinate_comparison(el, el2);
-			}) == -1) {
-			//...push to the correction vector so that it is added to the user's grid
-			correction_vector.push({
-				"action": "add",
-				"item": el
-			});
-		}
-
-		if (live_objects.find(function(el2) {
-				return (el2.name !== el.name ||
-					el2.category !== el.category ||
-					el2.color !== el.color ||
-					el2.size !== el.size ||
-					el2.shape !== el.shape) && coordinate_comparison(el, el2);
-			})) {
-			correction_vector.push({
-				"action": "edit",
-				"item": el
-			})
-		}
-	});
-
-	//Return the correction vector as a json array
-	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(correction_vector));
-});
-
-//Function for modifying the servers internal model of the grid board
-app.post('/delete_element', function(req, res) {
-
-	var id = JSON.parse(req.body.id);
-
-	//For each element in the internal state...
-	cells.find(function(el, ind, arr) {
-		if (el.id == id) {
-			console.log("Deleted: " + JSON.stringify(req.body));
-			history.push({
-				"action": "delete",
-				"item": cells[ind]
-			});
-			cells.splice(ind, 1);
-			return true;
-		}
-	});
-
-	res.setHeader('Content-Type', 'application/json');
-	res.send("Done");
-});
-
-app.post('/add_element', function(req, res) {
-	//Parse the input request and store it as a JSON object
-	var input = {
-		"id": element_id_counter,
-		"color": req.body.color,
-		"x_coord": JSON.parse(req.body.x_coord),
-		"y_coord": JSON.parse(req.body.y_coord),
-		"shape": req.body.object_type,
-		"name": req.body.name !== "" ? req.body.name : "object",
-		"size": req.body.size,
-		"category": req.body.category
-	};
-
-	console.log("Added: " + JSON.stringify(input));
-
-	cells.push(input);
-	history.push({
-		"action": "add",
-		"item": input
-	});
-
-	res.setHeader('Content-Type', 'application/json');
-	res.send("Done");
-
-	element_id_counter++;
-});
-
-app.post('/edit_element', function(req, res) {
-	var id = JSON.parse(req.body.id);
-	var ob = cells.find(function(el) {
-		return el.id == id;
-	});
-	ob.name = req.body.name;
-	ob.shape = req.body.shape;
-	ob.color = req.body.color;
-	ob.size = req.body.size;
-	ob.category = req.body.category;
-	console.log("Renamed: " + JSON.stringify(req.body));
-	res.setHeader('Content-Type', 'application/json');
-	res.send({
-		message: "message"
-	});
-});
-
-app.post('/move_element', function(req, res) {
-
-	var ob = cells.find(function(el) {
-		return el.x_coord == req.body.from_x && el.y_coord == req.body.from_y
-	});
-
-	if (typeof ob === 'undefined') {
-		res.status(400).json({
-			"error": req.body.from_x
-		});
-		return;
-	}
-
-	var direction = req.body.direction;
-	var move_to_x = ob.x_coord;
-	var move_to_y = ob.y_coord;
-	var id = ob.id;
-
-	do {
-		if (direction == "right") move_to_x++;
-		else if (direction == "left") move_to_x--;
-		else if (direction == "up") move_to_y--;
-		else if (direction == "down") move_to_y++;
-	} while (cells.findIndex(function(element) {
-			return coordinate_comparison(element, {
-				"x_coord": move_to_x,
-				"y_coord": move_to_y
-			})
-		}) != -1);
-
-	ob.x_coord = move_to_x;
-	ob.y_coord = move_to_y;
-
-	console.log("Moved: " + JSON.stringify(req.body));
-
-	res.status(200).json({
-		"id": id,
-		"position_x": ob.x_coord,
-		"position_y": ob.y_coord
-	});
-});
-
-app.post('/undo_action', function(req, res) {
-	res.status(200);
-});
-
-app.post('/redo_action', function(req, res) {
-	res.status(200);
-});
-
-app.post('/randomize', function(req, res) {
-	for (var w = 0; w < grid_width; w++) {
-		for (var h = 0; h < grid_height; h++) {
-			if (Math.random() < 0.5) {
-				var input = {
-					"id": element_id_counter,
-					"color": "000000",
-					"x_coord": w + 1,
-					"y_coord": h + 1,
-					"shape": "square",
-					"name": "rando" + h * w,
-					"size": 1,
-					"category": "environment"
-				};
-
-				cells.push(input);
-				element_id_counter++;
-			}
-		}
-	}
-});
-
-app.post('/reset', function(req, res) {
-	cells = [];
-});
-
-app.post('/canvas_clicked', function(req, res) {
-
-	var temp = {
-		"x_coord": JSON.parse(req.body.x_coord),
-		"y_coord": JSON.parse(req.body.y_coord)
-	};
-
-	var elements_to_redraw = cells.filter(function(el) {
-		return coordinate_comparison(el, center(temp)) ||
-			coordinate_comparison(el, north(temp)) ||
-			coordinate_comparison(el, northwest(temp)) ||
-			coordinate_comparison(el, west(temp));
-	}).map(function(el) {
-		return {
-			"action": "draw",
-			"element": el
-		};
-	});
-
-	var lines = cells.filter(function(element) {
-		return element.shape === "line";
-	});
-
-	elements_to_redraw = elements_to_redraw.concat(check_for_clipped_regions(center(temp), lines));
-
-	res.status(200).json({
-		"selected_grid": req.body,
-		"redraw_items": elements_to_redraw,
-	});
-
-});
-
-
-
-
 //HELPERS
 function north(point) {
 	return {
@@ -362,34 +122,16 @@ io.on('connection', function(socket) {
 	*	ON CANVAS CLICKED
 	*/
 	socket.on('canvas_clicked', function(msg) {
-		var ob = [];
-		
-		[ { "x_coord" : msg.old_x, "y_coord" : msg.old_y },
-													{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y},
-													{ "x_coord" : msg.old_x, "y_coord" : msg.old_y-1},
-													{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y-1}]
-		.forEach(function(cursor_space) {
-			cells.forEach( function(el) {
-				if(el.shape === 'line') {
-					if(check_for_clipped_regions(cursor_space, [{ "x" : el.x_coord[0], "y" : el.y_coord[0] }, {	"x" : el.x_coord[1], "y" : el.y_coord[1] }])) {
-						ob.push({ "element" : el , "bbox" : cursor_space});
-					}
-				}
-			});
-		});
-				
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : msg.new_x,
 			"selected_grid_y" : msg.new_y,
-			"elements" : ob
+			"elements" : elementsToBeRedrawn(msg)
 		});
 	});
 
 	socket.on('move_element', function(msg) {
-		console.log(msg);
-
 		var ob = cells.find(function(el) {
-			return el.x_coord == msg.x && el.y_coord == msg.y
+			return coordinate_comparison(el, msg);
 		});
 
 		if (typeof ob === 'undefined') return;
@@ -417,11 +159,12 @@ io.on('connection', function(socket) {
 		ob.x_coord = move_to_x;
 		ob.y_coord = move_to_y;
 
-		socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y });
+		socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "elements" : elementsToBeRedrawn({ "old_x" : msg.x_coord, "old_y" : msg.y_coord }) });
 		
 		io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
 	});
 
+	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
 		var input = {
 			"id": element_id_counter,
@@ -446,8 +189,8 @@ io.on('connection', function(socket) {
 	
 	socket.on('delete_element_on_server', function(msg) {
 		var ind = cells.findIndex( function(el) { return el.id === msg; });
+		io.emit('removed_element', cells[ind]);
 		cells.splice(ind, 1);
-		console.log(ind);
 		io.emit('retrieve_elements_list', cells);
 	});
 	
@@ -504,13 +247,20 @@ function coordinate_comparison(obj_1, obj_2) {
 		return obj_1.x_coord == obj_2.x_coord && obj_1.y_coord == obj_2.y_coord;
 }
 
-/* Should take in a grid point and a line and return whether the grid point clips the line
+/* Should take in a grid point and a line and return whether the grid point clips the line 
+ * Returns either the line segment that is clipped, or undefined
 */
 function check_for_clipped_regions(grid_location, line) {
-	return typeof calculate_grid_points_on_line(line[0], line[1])
-	.find(function(el) {
-		return coordinate_comparison(grid_location, { "x_coord" : el.x, "y_coord" : el.y });
-	}) != 'undefined';
+	for(var i=1; i<line.x_coord.length; i++) {
+		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
+		if(typeof calculate_grid_points_on_line({ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]})
+			 .find(function(el) {
+					return coordinate_comparison(grid_location, { "x_coord" : el.x, "y_coord" : el.y });
+						}) !== 'undefined') {
+				return line_segment;
+		}
+	}
+	return undefined;
 }
 
 function calculate_grid_points_on_line(starting_point, ending_point) {
@@ -564,4 +314,29 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 		}
 
 	return grid_points;
+}
+
+//Determines the elements that need to be redrawn after the user has moved their cursor
+function elementsToBeRedrawn(msg) {
+	var ob = [];
+		
+		[ { "x_coord" : msg.old_x, "y_coord" : msg.old_y },
+			{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y},
+			{ "x_coord" : msg.old_x, "y_coord" : msg.old_y-1},
+			{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y-1}]
+		.forEach(function(cursor_space) {
+			cells.forEach( function(el) {
+				if(el.shape === 'line') {
+					var out = check_for_clipped_regions(cursor_space, el);
+					if(out !== undefined) {
+						ob.push({ "element" : { "shape" : "line-segment", "x_coord" : [out[0].x,out[1].x], "y_coord" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
+					}
+				} else {
+					if(coordinate_comparison(el,cursor_space))
+						ob.push({ "element" : el});
+				}
+			});
+		});
+	
+	return ob;
 }

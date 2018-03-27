@@ -69,26 +69,26 @@ function canvasApp() {
 		msg.elements.forEach(function(el) {
 			draw_item(el.shape, el.x_coord, el.y_coord, el.color, Number(el.size));
 		});
-		
+
 		refresh_elements_list();
 	})
 
 	socket.on('retrieve_elements_list', function(msg) {
 		var filters = document.querySelectorAll(".element_filter:checked");
 		var filter = [];
-		for(var i=0; i<=filters.length-1;i++) {
+		for (var i = 0; i <= filters.length - 1; i++) {
 			filter[i] = filters[i].value;
 		}
 
 		msg
-		.filter(function(el) {
-			return filter.includes(el.category);
-		})
-		.forEach( function(el) {
-			$("#element_list").append(composeElementListRowElement(el));
-		});
+			.filter(function(el) {
+				return filter.includes(el.category);
+			})
+			.forEach(function(el) {
+				$("#element_list").append(composeElementListRowElement(el));
+			});
 	})
-	
+
 	socket.on('resize_height', function(msg) {
 		grid_count_height = msg.height;
 		resizeGridHeight(grid_count_height);
@@ -107,6 +107,7 @@ function canvasApp() {
 
 	socket.on('removed_element', function(msg) {
 		clear_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+		$("#element_list>#" + msg.id).remove();
 	});
 
 	socket.on('move_element', function(msg) {
@@ -119,36 +120,19 @@ function canvasApp() {
 
 	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
+		redrawErasedElements(msg);
 		draw_cursor_at_position(msg.x, msg.y);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
 		clear_prev_cursor_position();
 
-		if(selected_grid_x === -1 && selected_grid_y === -1) {
+		if (selected_grid_x === -1 && selected_grid_y === -1) {
 			draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
 			return;
 		}
-		
-		msg.elements.forEach(function(el) {
-			if (el.element.shape === 'line') {
-				var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),
-					gridPoint2Pixel(el.bbox.y_coord), gridPoint2Pixel(el.bbox.y_coord + 1)
-				];
-				var temp = liangBarsky(gridPoint2Pixel(el.element.x_coord[0]),
-															 gridPoint2Pixel(el.element.y_coord[0]), 
-															 gridPoint2Pixel(el.element.x_coord[1]), 
-															 gridPoint2Pixel(el.element.y_coord[1]),
-															 bbox);
-				console.log(temp);
-				ctx.strokeStyle = "#" + el.element.color;
-				ctx.beginPath();
-				ctx.moveTo(temp[0][0] + grid_line_width, temp[1][0] + grid_line_width);
-				ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);
-				ctx.stroke();
-			} else
-				draw_item(el.elememt.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
-		});
+
+		redrawErasedElements(msg);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
 	});
@@ -317,8 +301,8 @@ function canvasApp() {
 
 function incremental_move_element(direction) {
 	socket.emit('move_element', {
-		"x": selected_grid_x,
-		"y": selected_grid_y,
+		"x_coord": selected_grid_x,
+		"y_coord": selected_grid_y,
 		"direction": direction
 	});
 }
@@ -517,18 +501,19 @@ function error_report(status, error) {
 function refresh_elements_list() {
 	var filters = document.querySelectorAll(".element_filter:checked");
 	var filter = [];
-	for(var i=0; i<=filters.length-1;i++) {
+	for (var i = 0; i <= filters.length - 1; i++) {
 		filter[i] = filters[i].value;
 	}
-		
+
 	$("#element_list").empty();
-	
-	if(filters.length !== 0)
-		socket.emit('get_elements_list', { "filter" : filter } );
+
+	if (filters.length !== 0)
+		socket.emit('get_elements_list', {
+			"filter": filter
+		});
 }
 
 function composeElementListRowElement(el) {
-	console.log(el.shape);
 	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\" id=" + el.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
 		"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
@@ -560,6 +545,7 @@ function edit_element_row(id, shape, color, size, category, name) {
 }
 
 function clicked_element_list(x, y) {
+	clear_prev_cursor_position();
 	draw_cursor_at_position(x, y);
 }
 
@@ -616,7 +602,10 @@ function drawLeftRuler() {
  * @return {array<array<number>>|null}
  */
 function liangBarsky(x0, y0, x1, y1, bbox) {
-	var xmin = bbox[0], xmax = bbox[1], ymin = bbox[2], ymax = bbox[3];
+	var xmin = bbox[0],
+		xmax = bbox[1],
+		ymin = bbox[2],
+		ymax = bbox[3];
 	var t0 = 0,
 		t1 = 1;
 	var dx = x1 - x0,
@@ -660,6 +649,27 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 		[x0 + t0 * dx, x0 + t1 * dx],
 		[y0 + t0 * dy, y0 + t1 * dy]
 	];
+}
+
+function redrawErasedElements(msg) {
+	msg.elements.forEach(function(el) {
+		if (el.element.shape === 'line-segment') {
+			var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),
+				gridPoint2Pixel(el.bbox.y_coord), gridPoint2Pixel(el.bbox.y_coord + 1)
+			];
+			var temp = liangBarsky(gridPoint2Pixel(el.element.x_coord[0]),
+				gridPoint2Pixel(el.element.y_coord[0]),
+				gridPoint2Pixel(el.element.x_coord[1]),
+				gridPoint2Pixel(el.element.y_coord[1]),
+				bbox);
+			ctx.strokeStyle = "#" + el.element.color;
+			ctx.beginPath();
+			ctx.moveTo(temp[0][0] + grid_line_width, temp[1][0] + grid_line_width);
+			ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);
+			ctx.stroke();
+		} else
+			draw_item(el.element.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
+	});
 }
 
 function pixel2GridPoint(raw_location) {
