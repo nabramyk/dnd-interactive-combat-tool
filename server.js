@@ -444,6 +444,13 @@ io.on('connection', function(socket) {
 		io.emit('added_element', input);
 	});
 	
+	socket.on('delete_element_on_server', function(msg) {
+		var ind = cells.findIndex( function(el) { return el.id === msg; });
+		cells.splice(ind, 1);
+		console.log(ind);
+		io.emit('retrieve_elements_list', cells);
+	});
+	
 	socket.on('randomize', function(msg) {
 		for (var w = 0; w < grid_width; w++) {
 			for (var h = 0; h < grid_height; h++) {
@@ -476,9 +483,7 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('get_elements_list', function(msg) {
-		var temp = msg.filters;
-		console.log(temp);
-		socket.emit('retrieve_elements_list', cells.filter(function(el) { return temp.content; }));
+		socket.emit('retrieve_elements_list', cells);
 	});
 });
 

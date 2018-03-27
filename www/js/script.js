@@ -74,7 +74,17 @@ function canvasApp() {
 	})
 
 	socket.on('retrieve_elements_list', function(msg) {
-		msg.forEach( function(el) {
+		var filters = document.querySelectorAll(".element_filter:checked");
+		var filter = [];
+		for(var i=0; i<=filters.length-1;i++) {
+			filter[i] = filters[i].value;
+		}
+
+		msg
+		.filter(function(el) {
+			return filter.includes(el.category);
+		})
+		.forEach( function(el) {
 			$("#element_list").append(composeElementListRowElement(el));
 		});
 	})
@@ -505,17 +515,21 @@ function error_report(status, error) {
 }
 
 function refresh_elements_list() {
-	var filters = document.querySelectorAll(".element_filter:checked")
-	.map( function(el) {
-		return el.value;
-	});
+	var filters = document.querySelectorAll(".element_filter:checked");
+	var filter = [];
+	for(var i=0; i<=filters.length-1;i++) {
+		filter[i] = filters[i].value;
+	}
+		
+	$("#element_list").empty();
 	
-	//if(filters.length !== 0)
-	//	socket.emit('get_elements_list', { "filters" : filters } );
+	if(filters.length !== 0)
+		socket.emit('get_elements_list', { "filter" : filter } );
 }
 
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
+	console.log(el.shape);
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\" id=" + el.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
 		"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
 		"</div>" +
@@ -526,42 +540,35 @@ function composeElementListRowElement(el) {
 		"<p style=\"font-size: smaller;\">X: " + el.x_coord +
 		"\nY: " + el.y_coord + "</p>" +
 		"</div>" +
-		"<button id=\"element_row_edit\" onclick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ",\'" + el.shape + "\'," + el.color + "," + el.size + ",\'" + el.category + "\',\'" + el.name + "\')\">&#x270E;</button>" +
 		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
 		"</div>";
 }
 
-function edit_element_row(el) {
-	var ob = live_objects.find(function(e) {
-		return e.id === el
-	});
-
+function edit_element_row(id, shape, color, size, category, name) {
 	$("#movement_controls").hide();
 	$("#drawing_controls").hide();
 	$("#settings_controls").hide();
 	$("#editing_controls").show();
 
-	$("#edit_element_id").val(ob.id);
-	$("#edit_shape").val(ob.shape);
-	$("#edit_color_changer").css("background", "#" + ob.color);
-	$("#edit_size").val(ob.size);
-	$("#edit_category").val(ob.category);
-	$("#edit_name").val(ob.name);
+	$("#edit_element_id").val(id);
+	$("#edit_shape").value = shape;
+	$("#edit_color_changer").css("background", "#" + color);
+	$("#edit_size").val(size);
+	$("#edit_category").val(category);
+	$("#edit_name").val(name);
 }
 
-function clicked_element_list(id) {
-	var temp = live_objects.find(function(el) {
-		return el.id === id;
-	});
-	if (temp.shape === "line") {
-
-	} else {
-		draw_cursor_at_position(temp.x_coord, temp.y_coord);
-	}
+function clicked_element_list(x, y) {
+	draw_cursor_at_position(x, y);
 }
 
 function edit_properties_of_element(id, name) {
 	edit_element_on_server(id, name);
+}
+
+function delete_element_from_server(id) {
+	socket.emit('delete_element_on_server', id);
 }
 
 function drawTopRuler() {
@@ -609,7 +616,7 @@ function drawLeftRuler() {
  * @return {array<array<number>>|null}
  */
 function liangBarsky(x0, y0, x1, y1, bbox) {
-	var [xmin, xmax, ymin, ymax] = bbox;
+	var xmin = bbox[0], xmax = bbox[1], ymin = bbox[2], ymax = bbox[3];
 	var t0 = 0,
 		t1 = 1;
 	var dx = x1 - x0,
