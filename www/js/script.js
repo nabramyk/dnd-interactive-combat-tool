@@ -652,6 +652,7 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 }
 
 function redrawErasedElements(msg) {
+	console.log(msg);
 	msg.elements.forEach(function(el) {
 		if (el.element.shape === 'line-segment') {
 			var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),

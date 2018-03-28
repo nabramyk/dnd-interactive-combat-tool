@@ -255,6 +255,7 @@ function check_for_clipped_regions(grid_location, line) {
 		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
 		if(typeof calculate_grid_points_on_line({ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]})
 			 .find(function(el) {
+					console.log(el);
 					return coordinate_comparison(grid_location, { "x_coord" : el.x, "y_coord" : el.y });
 						}) !== 'undefined') {
 				return line_segment;
@@ -266,6 +267,7 @@ function check_for_clipped_regions(grid_location, line) {
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var grid_points = [];
 	var m, b, y_val;
+	var step_size = 0.01;
 
 	//Swap the points if the x value at the end is smaller than the starting x value
 	if (ending_point.x < starting_point.x) {
@@ -293,10 +295,10 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			});
 		}
 	} else
-		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
+		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val = x_val + step_size) {
 			y_val = Math.floor(m * x_val + b);
 			var xy_pair = {
-				"x": x_val,
+				"x": Math.floor(x_val),
 				"y": y_val
 			};
 
@@ -306,7 +308,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			}
 
 			for (var i = 0; i < grid_points.length; i++) {
-				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
+				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y) //Do not push if this is the same as the last value
 					break;
 				else if (i == grid_points.length - 1)
 					grid_points.push(xy_pair);
