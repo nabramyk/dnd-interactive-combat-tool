@@ -255,7 +255,6 @@ function check_for_clipped_regions(grid_location, line) {
 		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
 		if(typeof calculate_grid_points_on_line({ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]})
 			 .find(function(el) {
-					console.log(el);
 					return coordinate_comparison(grid_location, { "x_coord" : el.x, "y_coord" : el.y });
 						}) !== 'undefined') {
 				return line_segment;
