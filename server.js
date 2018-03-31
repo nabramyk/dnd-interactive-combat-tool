@@ -122,9 +122,14 @@ io.on('connection', function(socket) {
 	*	ON CANVAS CLICKED
 	*/
 	socket.on('canvas_clicked', function(msg) {
+		var size = cells.find(function(el) {
+			return coordinate_comparison(el, { "x_coord" : msg.new_x, "y_coord" : msg.new_y });
+		});
+		console.log(msg);
 		socket.emit('canvas_clicked', {
-			"selected_grid_x" : msg.new_x,
-			"selected_grid_y" : msg.new_y,
+			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x_coord) : msg.new_x,
+			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y_coord) : msg.new_y,
+			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
 			"elements" : elementsToBeRedrawn(msg)
 		});
 	});
@@ -197,7 +202,7 @@ io.on('connection', function(socket) {
 	socket.on('randomize', function(msg) {
 		for (var w = 0; w < grid_width; w++) {
 			for (var h = 0; h < grid_height; h++) {
-				if (Math.random() < 0.5) {
+				if (Math.random() < 0.2) {
 					var input = {
 						"id": element_id_counter,
 						"color": "000000",
@@ -211,11 +216,10 @@ io.on('connection', function(socket) {
 
 					cells.push(input);
 					element_id_counter++;
-					
-					io.emit('added_element', input);
 				}
 			}
 		}
+		io.emit('added_element', cells);
 	});
 	
 	socket.on('reset_board', function(msg) {
@@ -235,6 +239,12 @@ http.listen(8080, function() {
 	console.log("%s:%s", http.address().address, http.address().port)
 });
 
+/**
+ * 
+ * @param obj_1
+ * @param obj_2
+ * @returns
+ */
 function coordinate_comparison(obj_1, obj_2) {
 	if (obj_1.x_coord instanceof Array)
 		return obj_1.x_coord.every(function(u, i) {
@@ -244,7 +254,8 @@ function coordinate_comparison(obj_1, obj_2) {
 				return u === obj_2.y_coord[i];
 			});
 	else
-		return obj_1.x_coord == obj_2.x_coord && obj_1.y_coord == obj_2.y_coord;
+		return obj_1.x_coord <= obj_2.x_coord && obj_1.x_coord + parseInt(obj_1.size) > obj_2.x_coord
+			&& obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + parseInt(obj_1.size) > obj_2.y_coord;
 }
 
 /* Should take in a grid point and a line and return whether the grid point clips the line 
@@ -263,6 +274,12 @@ function check_for_clipped_regions(grid_location, line) {
 	return undefined;
 }
 
+/**
+ * 
+ * @param starting_point
+ * @param ending_point
+ * @returns
+ */
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var grid_points = [];
 	var m, b, y_val;
@@ -340,4 +357,8 @@ function elementsToBeRedrawn(msg) {
 		});
 	
 	return ob;
+}
+
+function isUndefined(value) {
+	return value === undefined;
 }

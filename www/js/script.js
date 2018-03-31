@@ -34,32 +34,20 @@ function canvasSupport(e) {
 }
 
 function canvasApp() {
-	grid_canvas = document.getElementById('grid_canvas');
-	start_new_line_button = document.getElementById('start_new_line_button');
 
-	$("#movement_controls").hide();
-	$("#reset_board_button").prop("disabled", true);
-	$("#start_new_line_button").hide();
-	$("#lost_connection_div").hide();
-
-	ctx = grid_canvas.getContext('2d');
+	interfaceInitialization();
 
 	if (!canvasSupport(grid_canvas)) {
 		return;
 	}
 
 	socket = io();
+	bindSocketListeners();
+	bindEventHandlers();
+}
 
-	socket.on('disconnect', function() {
-		$("#lost_connection_div").show();
-		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
-	});
-
-	socket.on('connect', function(msg) {
-		$("#lost_connection_div").hide();
-		socket.emit('init', {});
-	});
-
+function bindSocketListeners() {
+	
 	socket.on('init', function(msg) {
 		grid_count_height = msg.grid_height;
 		resizeGridHeight(grid_count_height);
@@ -71,7 +59,17 @@ function canvasApp() {
 		});
 
 		refresh_elements_list();
-	})
+	});
+	
+	socket.on('connect', function(msg) {
+		$("#lost_connection_div").hide();
+		socket.emit('init', {});
+	});
+	
+	socket.on('disconnect', function() {
+		$("#lost_connection_div").show();
+		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
+	});
 
 	socket.on('retrieve_elements_list', function(msg) {
 		var filters = document.querySelectorAll(".element_filter:checked");
@@ -121,28 +119,29 @@ function canvasApp() {
 	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
 		redrawErasedElements(msg);
-		draw_cursor_at_position(msg.x, msg.y);
+		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
+		console.log(msg);
 		clear_prev_cursor_position();
 
 		if (selected_grid_x === -1 && selected_grid_y === -1) {
-			draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
+			draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 			return;
 		}
 
 		redrawErasedElements(msg);
 
-		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y);
+		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 	});
+}
 
-	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-
-	drawTopRuler();
-	drawLeftRuler();
-
+/**
+ * 
+ * @returns
+ */
+function bindEventHandlers() {
 	$("#grid_canvas_scrolling_container").scroll(function() {
 		$("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
 		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
@@ -295,6 +294,24 @@ function canvasApp() {
 	$(".element_filter").click(function() {
 		refresh_elements_list();
 	});
+}
+
+function interfaceInitialization() {
+	grid_canvas = document.getElementById('grid_canvas');
+	start_new_line_button = document.getElementById('start_new_line_button');
+
+	$("#movement_controls").hide();
+	$("#reset_board_button").prop("disabled", true);
+	$("#start_new_line_button").hide();
+	$("#lost_connection_div").hide();
+
+	ctx = grid_canvas.getContext('2d');
+	
+	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+
+	drawTopRuler();
+	drawLeftRuler();
 
 	drawScreen();
 }
@@ -320,6 +337,15 @@ function drawScreen() {
 	}
 }
 
+/**
+ * 
+ * @param shape
+ * @param x_coord
+ * @param y_coord
+ * @param color
+ * @param size
+ * @returns
+ */
 function draw_item(shape, x_coord, y_coord, color, size) {
 	switch (shape) {
 		case "square":
@@ -423,14 +449,19 @@ function clear_prev_cursor_position() {
 
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
+	
+	for(var i=0; i<cursor_size; i++) {
+		for(var j=0; j<cursor_size; j++) {
+			clear_grid_space(selected_grid_x + i, selected_grid_y + j);
+		}
+	}
 
-	clear_grid_space(selected_grid_x, selected_grid_y);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y);
 	clear_grid_space(selected_grid_x, selected_grid_y - 1);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
 }
 
-function draw_cursor_at_position(x, y) {
+function draw_cursor_at_position(x, y, size) {
 
 	selected_grid_x = x;
 	selected_grid_y = y;
@@ -448,8 +479,8 @@ function draw_cursor_at_position(x, y) {
 		case "circle":
 			ctx.lineWidth = grid_line_width;
 			ctx.strokeStyle = grid_highlight;
-			ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size, grid_size);
-			cursor_size = 1;
+			ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size, grid_size * size);
+			cursor_size = size;
 			break;
 		case "line":
 			ctx.fillStyle = grid_highlight;
