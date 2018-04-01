@@ -55,10 +55,8 @@ function bindSocketListeners() {
 		resizeGridWidth(grid_count_width);
 
 		msg.elements.forEach(function(el) {
-			draw_item(el.shape, el.x_coord, el.y_coord, el.color, Number(el.size));
+			draw_item(el.shape, el.x_coord, el.y_coord, el.color, parseInt(el.size));
 		});
-
-		refresh_elements_list();
 	});
 	
 	socket.on('connect', function(msg) {
@@ -80,11 +78,12 @@ function bindSocketListeners() {
 
 		msg
 			.filter(function(el) {
-				return filter.includes(el.category);
+				return filter.indexOf(el.category) != -1;
 			})
 			.forEach(function(el) {
 				$("#element_list").append(composeElementListRowElement(el));
 			});
+		
 	})
 
 	socket.on('resize_height', function(msg) {
@@ -123,7 +122,6 @@ function bindSocketListeners() {
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		console.log(msg);
 		clear_prev_cursor_position();
 
 		if (selected_grid_x === -1 && selected_grid_y === -1) {
@@ -537,11 +535,12 @@ function refresh_elements_list() {
 	}
 
 	$("#element_list").empty();
-
-	if (filters.length !== 0)
+	
+	if (filters.length !== 0) {
 		socket.emit('get_elements_list', {
 			"filter": filter
 		});
+	}
 }
 
 function composeElementListRowElement(el) {
@@ -683,7 +682,6 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 }
 
 function redrawErasedElements(msg) {
-	console.log(msg);
 	msg.elements.forEach(function(el) {
 		if (el.element.shape === 'line-segment') {
 			var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),

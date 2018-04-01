@@ -20,17 +20,20 @@ app.use(function(req, res, next) {
 	next();
 });
 
-//Define the main path to index.html, which will be automatically loaded when the user visits for the
-//first time
+// Define the main path to index.html, which will be automatically loaded when
+// the user visits for the
+// first time
 app.use(express.static('www'));
 
-//Define the path for where the javscript files are located for the users webpage
+// Define the path for where the javscript files are located for the users
+// webpage
 app.use('/js', express.static(__dirname + '/www/js'))
 
-//Define the path for where the css stylesheets are located for the users webpage
+// Define the path for where the css stylesheets are located for the users
+// webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-//Initialize the array for centralizing the model between multiple users
+// Initialize the array for centralizing the model between multiple users
 var cells = [];
 
 var history = [];
@@ -38,7 +41,7 @@ var history = [];
 var grid_width = 1;
 var grid_height = 1;
 
-//HELPERS
+// HELPERS
 function north(point) {
 	return {
 		"x_coord": point.x_coord,
@@ -118,9 +121,9 @@ io.on('connection', function(socket) {
 		io.emit('resize_width', msg);
 	});
 
-	/* 
-	*	ON CANVAS CLICKED
-	*/
+	/*
+	 * ON CANVAS CLICKED
+	 */
 	socket.on('canvas_clicked', function(msg) {
 		var size = cells.find(function(el) {
 			return coordinate_comparison(el, { "x_coord" : msg.new_x, "y_coord" : msg.new_y });
@@ -144,29 +147,42 @@ io.on('connection', function(socket) {
 		var direction = msg.direction;
 		var move_to_x = ob.x_coord;
 		var move_to_y = ob.y_coord;
+		var size = ob.size;
 		var id = ob.id;
 
 		var from_x = ob.x_coord;
 		var from_y = ob.y_coord;
-		
-		do {
-			if (direction == "right") move_to_x++;
-			else if (direction == "left") move_to_x--;
-			else if (direction == "up") move_to_y--;
-			else if (direction == "down") move_to_y++;
-		} while (cells.findIndex(function(element) {
-				return coordinate_comparison(element, {
-					"x_coord": move_to_x,
-					"y_coord": move_to_y
-				})
-			}) != -1);
 
-		ob.x_coord = move_to_x;
-		ob.y_coord = move_to_y;
-
-		socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "elements" : elementsToBeRedrawn({ "old_x" : msg.x_coord, "old_y" : msg.y_coord }) });
+		if (direction == "right") move_to_x++;
+		else if (direction == "left") move_to_x--;
+		else if (direction == "up") move_to_y--;
+		else if (direction == "down") move_to_y++;
 		
-		io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+		/*
+		while(true) {
+			var temp = cells.find(function(el) {
+				return id === el.id ? false : coordinate_comparison(el, { "x_coord" : move_to_x, "y_coord" : move_to_y });
+			});
+			
+			if(isUndefined(temp)) break;
+			else {
+				if (direction == "right") move_to_x = move_to_x + temp.size - 1;
+				else if (direction == "left") move_to_x = move_to_x - temp.size - 1;
+				else if (direction == "up") move_to_y = move_to_y - temp.size - 1;
+				else if (direction == "down") move_to_y = move_to_y + temp.size - 1;
+			}
+		}
+		*/
+		
+		if(!cells.find(function(el) {
+			return id === el.id ? false : (coordinate_comparison(el, { "x_coord" : move_to_x, "y_coord" : move_to_y}) ||
+										   coordinate_comparison({ "x_coord" : move_to_x, "y_coord" : move_to_y, "size" : size}, el));
+			})) {
+			ob.x_coord = move_to_x;
+			ob.y_coord = move_to_y;
+			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "elements" : elementsToBeRedrawn({ "old_x" : msg.x_coord, "old_y" : msg.y_coord }) });
+			io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+		}
 	});
 
 	/* ADD ELEMENT TO SERVER */
@@ -178,7 +194,7 @@ io.on('connection', function(socket) {
 			"y_coord": JSON.parse(msg.y_coord),
 			"shape": msg.object_type,
 			"name": msg.name !== "" ? msg.name : "object",
-			"size": msg.size,
+			"size": JSON.parse(msg.size),
 			"category": msg.category
 		};
 		cells.push(input);
@@ -234,7 +250,7 @@ io.on('connection', function(socket) {
 	});
 });
 
-//Main driver for booting up the server
+// Main driver for booting up the server
 http.listen(8080, function() {
 	console.log("%s:%s", http.address().address, http.address().port)
 });
@@ -254,13 +270,14 @@ function coordinate_comparison(obj_1, obj_2) {
 				return u === obj_2.y_coord[i];
 			});
 	else
-		return obj_1.x_coord <= obj_2.x_coord && obj_1.x_coord + parseInt(obj_1.size) > obj_2.x_coord
-			&& obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + parseInt(obj_1.size) > obj_2.y_coord;
+		return obj_1.x_coord <= obj_2.x_coord && obj_1.x_coord + obj_1.size > obj_2.x_coord
+			&& obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + obj_1.size > obj_2.y_coord;
 }
 
-/* Should take in a grid point and a line and return whether the grid point clips the line 
- * Returns either the line segment that is clipped, or undefined
-*/
+/*
+ * Should take in a grid point and a line and return whether the grid point
+ * clips the line Returns either the line segment that is clipped, or undefined
+ */
 function check_for_clipped_regions(grid_location, line) {
 	for(var i=1; i<line.x_coord.length; i++) {
 		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
@@ -285,7 +302,8 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	var m, b, y_val;
 	var step_size = 0.01;
 
-	//Swap the points if the x value at the end is smaller than the starting x value
+	// Swap the points if the x value at the end is smaller than the starting x
+	// value
 	if (ending_point.x < starting_point.x) {
 		var temp = starting_point;
 		starting_point = ending_point;
@@ -324,7 +342,18 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			}
 
 			for (var i = 0; i < grid_points.length; i++) {
-				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y) //Do not push if this is the same as the last value
+				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y) // Do
+																						// not
+																						// push
+																						// if
+																						// this
+																						// is
+																						// the
+																						// same
+																						// as
+																						// the
+																						// last
+																						// value
 					break;
 				else if (i == grid_points.length - 1)
 					grid_points.push(xy_pair);
@@ -334,7 +363,8 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	return grid_points;
 }
 
-//Determines the elements that need to be redrawn after the user has moved their cursor
+// Determines the elements that need to be redrawn after the user has moved
+// their cursor
 function elementsToBeRedrawn(msg) {
 	var ob = [];
 		
