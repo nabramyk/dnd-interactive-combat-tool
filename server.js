@@ -248,6 +248,12 @@ io.on('connection', function(socket) {
 	socket.on('get_elements_list', function(msg) {
 		socket.emit('retrieve_elements_list', cells);
 	});
+	
+	socket.on('select_element_from_list', function(msg) {
+		var element = cells.find( function(el) { return el.id === msg.id } );
+		var element_to_redraw = cells.find( function(el) { return coordinate_comparison(el, { "x_coord" : msg.selected_grid_x, "y_coord" : msg.selected_grid_y } ) } );
+		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x_coord" : -1, "y_coord" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
+	});
 });
 
 // Main driver for booting up the server

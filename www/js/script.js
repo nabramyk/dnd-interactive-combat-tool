@@ -133,6 +133,15 @@ function bindSocketListeners() {
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 	});
+	
+	socket.on('selected_element_from_list', function(msg) {
+		clear_prev_cursor_position();
+		if(msg.selected_element.x_coord === -1 && msg.selected_element.y_coord === -1)
+			return
+		if(!isUndefined(msg.redraw_element))
+			draw_item(msg.redraw_element.shape, msg.redraw_element.x_coord, msg.redraw_element.y_coord, msg.redraw_element.color, msg.redraw_element.size);
+		draw_cursor_at_position(msg.selected_element.x_coord, msg.selected_element.y_coord, msg.selected_element.size);
+	});
 }
 
 /**
@@ -544,7 +553,7 @@ function refresh_elements_list() {
 }
 
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.x_coord + "," + el.y_coord + ")\" id=" + el.id + ">" +
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
 		"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
 		"</div>" +
@@ -574,9 +583,8 @@ function edit_element_row(id, shape, color, size, category, name) {
 	$("#edit_name").val(name);
 }
 
-function clicked_element_list(x, y) {
-	clear_prev_cursor_position();
-	draw_cursor_at_position(x, y);
+function clicked_element_list(id) {
+	socket.emit('select_element_from_list', { "id" : id, "selected_grid_x" : selected_grid_x, "selected_grid_y" : selected_grid_y });
 }
 
 function edit_properties_of_element(id, name) {
@@ -708,4 +716,13 @@ function pixel2GridPoint(raw_location) {
 
 function gridPoint2Pixel(grid_point) {
 	return (grid_point - 1) * grid_size;
+}
+
+/**
+ * 
+ * @param value
+ * @returns
+ */
+function isUndefined(value) {
+	return value === undefined;
 }
