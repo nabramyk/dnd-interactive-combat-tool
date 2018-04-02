@@ -33,7 +33,7 @@ app.use('/js', express.static(__dirname + '/www/js'))
 // webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-// Initialize the array for centralizing the model between multiple users
+/** @global [{obj}]  */
 var cells = [];
 
 var history = [];
@@ -180,8 +180,8 @@ io.on('connection', function(socket) {
 			})) {
 			ob.x_coord = move_to_x;
 			ob.y_coord = move_to_y;
-			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "elements" : elementsToBeRedrawn({ "old_x" : msg.x_coord, "old_y" : msg.y_coord }) });
 			io.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "size" : ob.size, "elements" : elementsToBeRedrawn({ "old_x" : msg.x_coord, "old_y" : msg.y_coord }) });
 		}
 	});
 
@@ -256,6 +256,7 @@ http.listen(8080, function() {
 });
 
 /**
+ * Determine if two objects are lines with matching vertices, or if two objects have overlapping coordinates
  * 
  * @param obj_1
  * @param obj_2
@@ -274,9 +275,12 @@ function coordinate_comparison(obj_1, obj_2) {
 			&& obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + obj_1.size > obj_2.y_coord;
 }
 
-/*
- * Should take in a grid point and a line and return whether the grid point
- * clips the line Returns either the line segment that is clipped, or undefined
+/**
+ * Determine if the grid coordinate lies on an aliased vector path
+ * 
+ * @param {obj} grid_location - xy coordinate of a grid point to find
+ * @param {obj} line - vector of grid points to search from
+ * @returns {obj|undefined} 
  */
 function check_for_clipped_regions(grid_location, line) {
 	for(var i=1; i<line.x_coord.length; i++) {
@@ -292,10 +296,11 @@ function check_for_clipped_regions(grid_location, line) {
 }
 
 /**
+ * Compute an array of xy pairs which are the grid squares that the line crosses 
  * 
- * @param starting_point
- * @param ending_point
- * @returns
+ * @param {obj} starting_point - coordinate of the starting vertex
+ * @param {obj} ending_point - coordinate of the ending vertex
+ * @returns [{obj}]
  */
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var grid_points = [];
@@ -342,18 +347,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			}
 
 			for (var i = 0; i < grid_points.length; i++) {
-				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y) // Do
-																						// not
-																						// push
-																						// if
-																						// this
-																						// is
-																						// the
-																						// same
-																						// as
-																						// the
-																						// last
-																						// value
+				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
 					break;
 				else if (i == grid_points.length - 1)
 					grid_points.push(xy_pair);
@@ -363,8 +357,11 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 	return grid_points;
 }
 
-// Determines the elements that need to be redrawn after the user has moved
-// their cursor
+/**
+ * 
+ * @param msg
+ * @returns
+ */
 function elementsToBeRedrawn(msg) {
 	var ob = [];
 		
@@ -389,6 +386,11 @@ function elementsToBeRedrawn(msg) {
 	return ob;
 }
 
+/**
+ * 
+ * @param value
+ * @returns
+ */
 function isUndefined(value) {
 	return value === undefined;
 }
