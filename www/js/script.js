@@ -7,14 +7,9 @@ var grid_highlight = 'rgba(0,0,0,1)';
 var temporary_line_color = '8c8c8c';
 var grid_line_width = 2;
 
-var selected_grid_x = -1
-var selected_grid_y = -1;
-
-var mouse_down_grid_x = -1;
-var mouse_down_grid_y = -1;
-var cursor_size = 1;
-
-var update_interval = 0;
+var selected_grid_x = -1; /** @global selected_grid_x {int} x coordinate of the selected cursor position */
+var selected_grid_y = -1; /** @global selected_grid_y {int} y coordinate of the selected cursor position */
+var cursor_size = 1; /** @global cursor_size {int} the span of grid spaces the cursor overlays */
 
 var x_vertices = [];
 var y_vertices = [];
@@ -97,8 +92,9 @@ function bindSocketListeners() {
 	});
 
 	socket.on('added_element', function(msg) {
+		console.log(msg.type);
 		$("#reset_board_button").prop("disabled", false);
-		draw_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+		draw_item(msg.type, msg.x, msg.y, msg.color, msg.size);
 		$("#element_list").append(composeElementListRowElement(msg));
 	});
 
@@ -109,15 +105,17 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function(msg) {
 		clear_item(msg.element.shape, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
-		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
-		if (msg.element.x_coord === selected_grid_x && msg.element.y_coord === selected_grid_y) {
-			draw_cursor_at_position(selected_grid_x, selected_grid_y);
+		if (cursorRegionClipped(msg.element.x_coord, msg.element.y_coord)) {
+			draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
 		}
+		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
 	});
 
 	socket.on('moving_element', function(msg) {
+		console.log(msg);
 		clear_prev_cursor_position();
-		redrawErasedElements(msg);
+		//redrawErasedElements([msg.element]);
+		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
 		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
 
@@ -725,4 +723,11 @@ function gridPoint2Pixel(grid_point) {
  */
 function isUndefined(value) {
 	return value === undefined;
+}
+
+/**
+*/
+function cursorRegionClipped(x, y) {
+	return selected_grid_x-1 <= x && selected_grid_x+cursor_size+1 >= x &&
+					selected_grid_y-1 <= y && selected_grid_y+cursor_size+1 >= y;
 }

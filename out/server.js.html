@@ -1,3 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//This server requires the 'express' NodeJS server framework
 var app = require('express')();
 var express = require('express');
 var http = require('http').Server(app);
@@ -32,28 +61,6 @@ app.use('/js', express.static(__dirname + '/www/js'))
 // webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-/**
- * An item currently in the grid space
- * @constructor
- * @param {int} x - horizontal grid coordinate of the element
- * @param {int} y - vertical grid coordinate of the element
- * @param {string} type - the geometric shape this element represents
- * @param {string} color - the hexadecimal value of the element color
- * @param {int} size - the amount of grid spaces this elements spans across
- * @param {string} category - the meta group this element belongs to
- * @param {string} name - the unique name of this element
- */
-function Element(x, y, type, color, size, category, name) {
-	this.id = element_id_counter++;
-	this.x = x;
-	this.y = y;
-	this.type = type;
-	this.color = color;
-	this.size = size;
-	this.category = category;
-	this.name = name;
-}
- 
 /** @global [{obj}]  */
 var cells = [];
 
@@ -144,7 +151,6 @@ io.on('connection', function(socket) {
 
 	/*
 	 * ON CANVAS CLICKED
-	 * @param msg {new_x, new_y}
 	 */
 	socket.on('canvas_clicked', function(msg) {
 		var size = cells.find(function(el) {
@@ -186,7 +192,6 @@ io.on('connection', function(socket) {
 										   coordinate_comparison({ "x_coord" : move_to_x, "y_coord" : move_to_y, "size" : size}, el));
 			})) 
 		{
-			//todo Find the surrounding elements
 			ob.x_coord = move_to_x;
 			ob.y_coord = move_to_y;
 			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
@@ -196,7 +201,7 @@ io.on('connection', function(socket) {
 
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
-		/* var input = {
+		var input = {
 			"id": element_id_counter,
 			"color": msg.color,
 			"x_coord": JSON.parse(msg.x_coord),
@@ -205,20 +210,14 @@ io.on('connection', function(socket) {
 			"name": msg.name !== "" ? msg.name : "object",
 			"size": JSON.parse(msg.size),
 			"category": msg.category
-		}; */
-		var input = new Element(JSON.parse(msg.x_coord), 
-														JSON.parse(msg.y_coord), 
-														msg.object_type, 
-														msg.color, 
-														JSON.parse(msg.size), 
-														msg.category,
-														msg.name !== "" ? msg.name : "object");
-		console.log(input);
+		};
 		cells.push(input);
 		history.push({
 			"action": "add",
 			"item": input
 		});
+
+		element_id_counter++;
 
 		io.emit('added_element', input);
 	});
@@ -231,9 +230,9 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('randomize', function(msg) {
-		for (var w = 0; w < grid_width; w++) {
-			for (var h = 0; h < grid_height; h++) {
-				if (Math.random() < 0.2) {
+		for (var w = 0; w &lt; grid_width; w++) {
+			for (var h = 0; h &lt; grid_height; h++) {
+				if (Math.random() &lt; 0.2) {
 					
 					var category = Math.random() * 4;
 							
@@ -290,13 +289,13 @@ function coordinate_comparison(obj_1, obj_2) {
 	if (obj_1.x_coord instanceof Array)
 		return obj_1.x_coord.every(function(u, i) {
 				return u === obj_2.x_coord[i];
-			}) &&
+			}) &amp;&amp;
 			obj_1.y_coord.every(function(u, i) {
 				return u === obj_2.y_coord[i];
 			});
 	else
-		return obj_1.x_coord <= obj_2.x_coord && obj_1.x_coord + obj_1.size > obj_2.x_coord && 
-			obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + obj_1.size > obj_2.y_coord;
+		return obj_1.x_coord &lt;= obj_2.x_coord &amp;&amp; obj_1.x_coord + obj_1.size > obj_2.x_coord &amp;&amp; 
+			obj_1.y_coord &lt;= obj_2.y_coord &amp;&amp; obj_1.y_coord + obj_1.size > obj_2.y_coord;
 }
 
 /**
@@ -307,7 +306,7 @@ function coordinate_comparison(obj_1, obj_2) {
  * @returns {obj|undefined} 
  */
 function check_for_clipped_regions(grid_location, line) {
-	for(var i=1; i<line.x_coord.length; i++) {
+	for(var i=1; i&lt;line.x_coord.length; i++) {
 		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
 		if(typeof calculate_grid_points_on_line({ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]})
 			 .find(function(el) {
@@ -320,7 +319,7 @@ function check_for_clipped_regions(grid_location, line) {
 }
 
 /**
- * Compute an array of XY pairs which are the grid squares that the line crosses 
+ * Compute an array of xy pairs which are the grid squares that the line crosses 
  * 
  * @param {obj} starting_point - coordinate of the starting vertex
  * @param {obj} ending_point - coordinate of the ending vertex
@@ -333,7 +332,7 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 
 	// Swap the points if the x value at the end is smaller than the starting x
 	// value
-	if (ending_point.x < starting_point.x) {
+	if (ending_point.x &lt; starting_point.x) {
 		var temp = starting_point;
 		starting_point = ending_point;
 		ending_point = temp;
@@ -344,21 +343,21 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 
 	if (!isFinite(m)) {
 		var _start, _end;
-		if (starting_point.y < ending_point.y) {
+		if (starting_point.y &lt; ending_point.y) {
 			_start = starting_point.y;
 			_end = ending_point.y;
 		} else {
 			_start = ending_point.y;
 			_end = starting_point.y;
 		}
-		for (; _start < _end; _start++) {
+		for (; _start &lt; _end; _start++) {
 			grid_points.push({
 				"x": starting_point.x,
 				"y": _start
 			});
 		}
 	} else
-		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val = x_val + step_size) {
+		for (var x_val = starting_point.x; x_val &lt;= ending_point.x; x_val = x_val + step_size) {
 			y_val = Math.floor(m * x_val + b);
 			var xy_pair = {
 				"x": Math.floor(x_val),
@@ -370,8 +369,8 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 				continue;
 			}
 
-			for (var i = 0; i < grid_points.length; i++) {
-				if (xy_pair.x === grid_points[i].x && xy_pair.y === grid_points[i].y)
+			for (var i = 0; i &lt; grid_points.length; i++) {
+				if (xy_pair.x === grid_points[i].x &amp;&amp; xy_pair.y === grid_points[i].y)
 					break;
 				else if (i == grid_points.length - 1)
 					grid_points.push(xy_pair);
@@ -417,4 +416,26 @@ function elementsToBeRedrawn(msg) {
  */
 function isUndefined(value) {
 	return value === undefined;
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#calculate_grid_points_on_line">calculate_grid_points_on_line</a></li><li><a href="global.html#cells">cells</a></li><li><a href="global.html#check_for_clipped_regions">check_for_clipped_regions</a></li><li><a href="global.html#coordinate_comparison">coordinate_comparison</a></li><li><a href="global.html#elementsToBeRedrawn">elementsToBeRedrawn</a></li><li><a href="global.html#isUndefined">isUndefined</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Apr 03 2018 17:11:26 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
