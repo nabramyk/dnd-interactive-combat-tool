@@ -354,7 +354,8 @@ function drawScreen() {
 }
 
 /**
- * 
+ * Draws the input element to the canvas 
+ *
  * @param {Element} element
  * @returns
  */
@@ -393,7 +394,7 @@ function draw_item(element) {
 }
 
 /**
- *	CLEAR ITEM
+ *	Clears the input element from the canvas
  */
 function clear_item(shape, x_coord, y_coord, color, size) {
 	ctx.strokeStyle = grid_color;
@@ -450,11 +451,20 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 	}
 }
 
+/**
+ * Clears the grid space
+ *
+ * @param
+ * @param
+ */
 function clear_grid_space(point_x, point_y) {
 	ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
 	ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
 }
 
+/**
+ * Clears the previous cursor position
+ */
 function clear_prev_cursor_position() {
 	if (selected_grid_x === -1 || selected_grid_y == -1)
 		return;
@@ -472,7 +482,13 @@ function clear_prev_cursor_position() {
 	clear_grid_space(selected_grid_x, selected_grid_y - 1);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
 }
-
+/**
+ * Draws the cursor at the position and sets the global trackers
+ *
+ * @param {int} x
+ * @param {int} y
+ * @param {int} size
+ */
 function draw_cursor_at_position(x, y, size) {
 
 	selected_grid_x = x;
