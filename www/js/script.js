@@ -1,5 +1,7 @@
-//GRID VARS
+/** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
 var grid_size = 20;
+
+/** @global {int} grid_count_width */
 var grid_count_width = 0;
 var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
@@ -7,9 +9,14 @@ var grid_highlight = 'rgba(0,0,0,1)';
 var temporary_line_color = '8c8c8c';
 var grid_line_width = 2;
 
-var selected_grid_x = -1; /** @global selected_grid_x {int} x coordinate of the selected cursor position */
-var selected_grid_y = -1; /** @global selected_grid_y {int} y coordinate of the selected cursor position */
-var cursor_size = 1; /** @global cursor_size {int} the span of grid spaces the cursor overlays */
+/** @global {int} selected_grid_x - x coordinate of the selected cursor position */
+var selected_grid_x = -1;
+
+/** @global {int} selected_grid_y - y coordinate of the selected cursor position */
+var selected_grid_y = -1;
+
+/** @global {int} cursor_size - the span of grid spaces the cursor overlays */
+var cursor_size = 1;
 
 var x_vertices = [];
 var y_vertices = [];
@@ -50,7 +57,7 @@ function bindSocketListeners() {
 		resizeGridWidth(grid_count_width);
 
 		msg.elements.forEach(function(el) {
-			draw_item(el.shape, el.x_coord, el.y_coord, el.color, parseInt(el.size));
+			draw_item(el);
 		});
 	});
 	
@@ -94,7 +101,7 @@ function bindSocketListeners() {
 	socket.on('added_element', function(msg) {
 		console.log(msg.type);
 		$("#reset_board_button").prop("disabled", false);
-		draw_item(msg.type, msg.x, msg.y, msg.color, msg.size);
+		draw_item(msg);
 		$("#element_list").append(composeElementListRowElement(msg));
 	});
 
@@ -105,21 +112,22 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function(msg) {
 		clear_item(msg.element.shape, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
-		if (cursorRegionClipped(msg.element.x_coord, msg.element.y_coord)) {
+		if (cursorRegionClipped(msg.element.x, msg.element.y)) {
 			draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
 		}
-		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
+		draw_item(msg.element);
 	});
 
 	socket.on('moving_element', function(msg) {
 		console.log(msg);
 		clear_prev_cursor_position();
 		//redrawErasedElements([msg.element]);
-		draw_item(msg.element.shape, msg.element.x_coord, msg.element.y_coord, msg.element.color, msg.element.size);
+		draw_item(msg.element);
 		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
+		
 		clear_prev_cursor_position();
 
 		if (selected_grid_x === -1 && selected_grid_y === -1) {
@@ -137,7 +145,7 @@ function bindSocketListeners() {
 		if(msg.selected_element.x_coord === -1 && msg.selected_element.y_coord === -1)
 			return
 		if(!isUndefined(msg.redraw_element))
-			draw_item(msg.redraw_element.shape, msg.redraw_element.x_coord, msg.redraw_element.y_coord, msg.redraw_element.color, msg.redraw_element.size);
+			draw_item(msg.redraw_element);
 		draw_cursor_at_position(msg.selected_element.x_coord, msg.selected_element.y_coord, msg.selected_element.size);
 	});
 }
@@ -207,7 +215,7 @@ function bindEventHandlers() {
 		}
 
 		if (x_vertices.length > 1 && y_vertices.length > 1)
-			add_element($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, null, $("#element_category").val());
+			add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, null, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
@@ -321,15 +329,18 @@ function interfaceInitialization() {
 	drawScreen();
 }
 
+/**
+ *
+ */
 function incremental_move_element(direction) {
 	socket.emit('move_element', {
-		"x_coord": selected_grid_x,
-		"y_coord": selected_grid_y,
+		"x": selected_grid_x,
+		"y": selected_grid_y,
 		"direction": direction
 	});
 }
 
-/*
+/**
  * Function for drawing the grid board
  */
 function drawScreen() {
@@ -344,36 +355,32 @@ function drawScreen() {
 
 /**
  * 
- * @param shape
- * @param x_coord
- * @param y_coord
- * @param color
- * @param size
+ * @param {Element} element
  * @returns
  */
-function draw_item(shape, x_coord, y_coord, color, size) {
-	switch (shape) {
+function draw_item(element) {
+	switch (element.type) {
 		case "square":
-			ctx.fillStyle = "#" + color;
-			x = gridPoint2Pixel(x_coord) + grid_line_width * 2;
-			y = gridPoint2Pixel(y_coord) + grid_line_width * 2;
-			ctx.fillRect(x, y, size * grid_size - grid_line_width * 2, size * grid_size - grid_line_width * 2);
+			ctx.fillStyle = "#" + element.color;
+			x = gridPoint2Pixel(element.x) + grid_line_width * 2;
+			y = gridPoint2Pixel(element.y) + grid_line_width * 2;
+			ctx.fillRect(x, y, element.size * grid_size - grid_line_width * 2, element.size * grid_size - grid_line_width * 2);
 			break;
 		case "circle":
-			ctx.fillStyle = "#" + color;
-			x = gridPoint2Pixel(x_coord) + grid_line_width;
-			y = gridPoint2Pixel(y_coord) + grid_line_width;
+			ctx.fillStyle = "#" + element.color;
+			x = gridPoint2Pixel(element.x) + grid_line_width;
+			y = gridPoint2Pixel(element.y) + grid_line_width;
 			ctx.beginPath();
-			ctx.arc(x + (grid_size / 2) * size, y + (grid_size / 2) * size, size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+			ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size, element.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 			ctx.fill();
 			break;
 		case "line":
-			ctx.strokeStyle = "#" + color;
+			ctx.strokeStyle = "#" + element.color;
 			ctx.beginPath();
-			x = x_coord.map(function(e) {
+			x = element.x.map(function(e) {
 				return gridPoint2Pixel(e)
 			});
-			y = y_coord.map(function(e) {
+			y = element.y.map(function(e) {
 				return gridPoint2Pixel(e)
 			});
 			ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
@@ -498,10 +505,6 @@ function draw_cursor_at_position(x, y, size) {
 	$("#move_to_y").val(selected_grid_y);
 }
 
-function add_element(color, x, y, shape, name, size, category) {
-	add_element_to_server(color, x, y, shape, name, size, category);
-}
-
 function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
@@ -550,6 +553,12 @@ function refresh_elements_list() {
 	}
 }
 
+/**
+ * Create an HTML DOM element
+ *
+ * @param {Element} el -
+ * @return {string} An html element to display 
+ */
 function composeElementListRowElement(el) {
 	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
@@ -559,8 +568,8 @@ function composeElementListRowElement(el) {
 		"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 20%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">X: " + el.x_coord +
-		"\nY: " + el.y_coord + "</p>" +
+		"<p style=\"font-size: smaller;\">X: " + el.x +
+		"\nY: " + el.y + "</p>" +
 		"</div>" +
 		"<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ",\'" + el.shape + "\'," + el.color + "," + el.size + ",\'" + el.category + "\',\'" + el.name + "\')\">&#x270E;</button>" +
 		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
@@ -581,10 +590,21 @@ function edit_element_row(id, shape, color, size, category, name) {
 	$("#edit_name").val(name);
 }
 
+/**
+ * Move the cursor to the element that was selected from the list of elements
+ *
+ * @param {int} id - the unique ID of the selected element
+ */
 function clicked_element_list(id) {
 	socket.emit('select_element_from_list', { "id" : id, "selected_grid_x" : selected_grid_x, "selected_grid_y" : selected_grid_y });
 }
 
+/**
+ * Modify the properties of an element (only renaming an element is supported)
+ *
+ * @param {int} id - the unique ID of the selected element
+ * @param {string} name - the new name of the element
+ */
 function edit_properties_of_element(id, name) {
 	edit_element_on_server(id, name);
 }
@@ -704,7 +724,7 @@ function redrawErasedElements(msg) {
 			ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);
 			ctx.stroke();
 		} else
-			draw_item(el.element.shape, el.element.x_coord, el.element.y_coord, el.element.color, el.element.size);
+			draw_item(el.element);
 	});
 }
 

@@ -33,7 +33,8 @@ app.use('/js', express.static(__dirname + '/www/js'))
 app.use('/css', express.static(__dirname + '/www/css'))
 
 /**
- * An item currently in the grid space
+ * Objects which are representable in the grid space
+ *
  * @constructor
  * @param {int} x - horizontal grid coordinate of the element
  * @param {int} y - vertical grid coordinate of the element
@@ -142,18 +143,14 @@ io.on('connection', function(socket) {
 		io.emit('resize_width', msg);
 	});
 
-	/*
-	 * ON CANVAS CLICKED
-	 * @param msg {new_x, new_y}
-	 */
 	socket.on('canvas_clicked', function(msg) {
 		var size = cells.find(function(el) {
-			return coordinate_comparison(el, { "x_coord" : msg.new_x, "y_coord" : msg.new_y });
+			return coordinate_comparison(el, { "x" : msg.new_x, "y" : msg.new_y });
 		});
 		console.log(msg);
 		socket.emit('canvas_clicked', {
-			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x_coord) : msg.new_x,
-			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y_coord) : msg.new_y,
+			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
+			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
 			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
 			"elements" : elementsToBeRedrawn(msg)
 		});
@@ -167,13 +164,13 @@ io.on('connection', function(socket) {
 		if (typeof ob === 'undefined') return;
 
 		var direction = msg.direction;
-		var move_to_x = ob.x_coord;
-		var move_to_y = ob.y_coord;
+		var move_to_x = ob.x;
+		var move_to_y = ob.y;
 		var size = ob.size;
 		var id = ob.id;
 
-		var from_x = ob.x_coord;
-		var from_y = ob.y_coord;
+		var from_x = ob.x;
+		var from_y = ob.y;
 
 		if (direction == "right") move_to_x++;
 		else if (direction == "left") move_to_x--;
@@ -182,13 +179,13 @@ io.on('connection', function(socket) {
 		
 		//If there is NOT an element already where we are trying to move this element to...
 		if(!cells.find(function(el) {
-			return id === el.id ? false : (coordinate_comparison(el, { "x_coord" : move_to_x, "y_coord" : move_to_y}) ||
-										   coordinate_comparison({ "x_coord" : move_to_x, "y_coord" : move_to_y, "size" : size}, el));
+			return id === el.id ? false : (coordinate_comparison(el, { "x" : move_to_x, "y" : move_to_y}) ||
+										   coordinate_comparison({ "x" : move_to_x, "y" : move_to_y, "size" : size}, el));
 			})) 
 		{
 			//todo Find the surrounding elements
-			ob.x_coord = move_to_x;
-			ob.y_coord = move_to_y;
+			ob.x = move_to_x;
+			ob.y = move_to_y;
 			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
 			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "size" : ob.size, "element" : ob });
 		}
@@ -287,16 +284,16 @@ http.listen(8080, function() {
  * @returns
  */
 function coordinate_comparison(obj_1, obj_2) {
-	if (obj_1.x_coord instanceof Array)
-		return obj_1.x_coord.every(function(u, i) {
-				return u === obj_2.x_coord[i];
+	if (obj_1.x instanceof Array)
+		return obj_1.x.every(function(u, i) {
+				return u === obj_2.x[i];
 			}) &&
-			obj_1.y_coord.every(function(u, i) {
-				return u === obj_2.y_coord[i];
+			obj_1.y.every(function(u, i) {
+				return u === obj_2.y[i];
 			});
 	else
-		return obj_1.x_coord <= obj_2.x_coord && obj_1.x_coord + obj_1.size > obj_2.x_coord && 
-			obj_1.y_coord <= obj_2.y_coord && obj_1.y_coord + obj_1.size > obj_2.y_coord;
+		return obj_1.x <= obj_2.x && obj_1.x + obj_1.size > obj_2.x && 
+			obj_1.y <= obj_2.y && obj_1.y + obj_1.size > obj_2.y;
 }
 
 /**
@@ -382,23 +379,24 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 }
 
 /**
- * 
+ * Compile a list of all elements that would have erroneously erased within a given grid area
+ *
  * @param msg
  * @returns
  */
 function elementsToBeRedrawn(msg) {
 	var ob = [];
 		
-		[ { "x_coord" : msg.old_x, "y_coord" : msg.old_y },
-			{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y},
-			{ "x_coord" : msg.old_x, "y_coord" : msg.old_y-1},
-			{ "x_coord" : msg.old_x-1, "y_coord" : msg.old_y-1}]
+		[ { "x" : msg.old_x, "y" : msg.old_y },
+			{ "x" : msg.old_x-1, "y" : msg.old_y},
+			{ "x" : msg.old_x, "y" : msg.old_y-1},
+			{ "x" : msg.old_x-1, "y" : msg.old_y-1}]
 		.forEach(function(cursor_space) {
 			cells.forEach( function(el) {
 				if(el.shape === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
 					if(out !== undefined) {
-						ob.push({ "element" : { "shape" : "line-segment", "x_coord" : [out[0].x,out[1].x], "y_coord" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
+						ob.push({ "element" : { "shape" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
 					}
 				} else {
 					if(coordinate_comparison(el,cursor_space))
