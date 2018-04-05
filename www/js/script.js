@@ -110,10 +110,11 @@ function bindSocketListeners() {
 	});
 
 	socket.on('move_element', function(msg) {
-		clear_item(msg.element.shape, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
+		clear_item(msg.element.type, msg.from_x, msg.from_y, msg.element.color, msg.element.size);
 		if (cursorRegionClipped(msg.element.x, msg.element.y)) {
 			draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
 		}
+		redrawErasedElements(msg.elements);
 		draw_item(msg.element);
 	});
 
@@ -133,6 +134,7 @@ function bindSocketListeners() {
 			return;
 		}
 
+		console.log(msg);
 		redrawErasedElements(msg.elements);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
@@ -721,16 +723,21 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 	];
 }
 
+/**
+ *
+ * @param {[Element]} elements
+ */
 function redrawErasedElements(elements) {
+	console.log(elements);
 	elements.forEach(function(el) {
-		if (el.element.shape === 'line-segment') {
-			var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),
-				gridPoint2Pixel(el.bbox.y_coord), gridPoint2Pixel(el.bbox.y_coord + 1)
+		if (el.element.type === 'line-segment') {
+			var bbox = [gridPoint2Pixel(el.bbox.x), gridPoint2Pixel(el.bbox.x + 1),
+				gridPoint2Pixel(el.bbox.y), gridPoint2Pixel(el.bbox.y + 1)
 			];
-			var temp = liangBarsky(gridPoint2Pixel(el.element.x_coord[0]),
-				gridPoint2Pixel(el.element.y_coord[0]),
-				gridPoint2Pixel(el.element.x_coord[1]),
-				gridPoint2Pixel(el.element.y_coord[1]),
+			var temp = liangBarsky(gridPoint2Pixel(el.element.x[0]),
+				gridPoint2Pixel(el.element.y[0]),
+				gridPoint2Pixel(el.element.x[1]),
+				gridPoint2Pixel(el.element.y[1]),
 				bbox);
 			ctx.strokeStyle = "#" + el.element.color;
 			ctx.beginPath();

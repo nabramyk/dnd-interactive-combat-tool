@@ -88,6 +88,7 @@ io.on('connection', function(socket) {
 		var size = cells.find(function(el) {
 			return coordinate_comparison(el, { "x" : msg.new_x, "y" : msg.new_y });
 		});
+		console.log(elementsToBeRedrawn(msg));
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -124,7 +125,9 @@ io.on('connection', function(socket) {
 		{
 			ob.x = move_to_x;
 			ob.y = move_to_y;
-			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
+			//Notify everyone EXCEPT this socket
+			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob, "elements" : elementsToBeRedrawn({"old_x" : from_x, "old_y" : from_y})});
+			//Notify ONLY this socket
 			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "size" : ob.size, "element" : ob, "elements" : elementsToBeRedrawn({"old_x" : from_x, "old_y" : from_y}) });
 		}
 	});
@@ -232,12 +235,12 @@ function coordinate_comparison(obj_1, obj_2) {
  * @returns {obj|undefined} 
  */
 function check_for_clipped_regions(grid_location, line) {
-	for(var i=1; i<line.x_coord.length; i++) {
-		var line_segment = [{ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]}];
-		if(typeof calculate_grid_points_on_line({ "x" : line.x_coord[i-1], "y" : line.y_coord[i-1]}, {"x" : line.x_coord[i], "y" : line.y_coord[i]})
+	for(var i=1; i<line.x.length; i++) {
+		var line_segment = [{ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]}];
+		if(typeof calculate_grid_points_on_line({ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]})
 			 .find(function(el) {
-					return coordinate_comparison(grid_location, { "x_coord" : el.x, "y_coord" : el.y });
-						}) !== 'undefined') {
+					return grid_location.x === el.x && grid_location.y === el.y ? true : undefined;
+				}) !== 'undefined') {
 				return line_segment;
 		}
 	}
@@ -321,10 +324,10 @@ function elementsToBeRedrawn(msg) {
 			{ "x" : msg.old_x-1, "y" : msg.old_y-1}]
 		.forEach(function(cursor_space) {
 			cells.forEach( function(el) {
-				if(el.shape === 'line') {
+				if(el.type === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
 					if(out !== undefined) {
-						ob.push({ "element" : { "shape" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
+						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
 					}
 				} else {
 					if(coordinate_comparison(el,cursor_space))
@@ -336,6 +339,13 @@ function elementsToBeRedrawn(msg) {
 	return ob;
 }
 
+/**
+ * Detect it two elements are colliding
+ *
+ * @param {Element} obj_1 -
+ * @param {Element} obj_2 -
+ * @returns {Boolean} True if the objects are colliding; False otherwise 
+ */
 function collision_detection(obj_1, obj_2) {
 	return obj_1.x < obj_2.x + obj_2.size &&
 					obj_1.x + obj_1.size > obj_2.x &&
