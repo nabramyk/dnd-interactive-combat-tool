@@ -99,7 +99,6 @@ function bindSocketListeners() {
 	});
 
 	socket.on('added_element', function(msg) {
-		console.log(msg.type);
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg);
 		$("#element_list").append(composeElementListRowElement(msg));
@@ -119,9 +118,8 @@ function bindSocketListeners() {
 	});
 
 	socket.on('moving_element', function(msg) {
-		console.log(msg);
 		clear_prev_cursor_position();
-		//redrawErasedElements([msg.element]);
+		redrawErasedElements(msg.elements);
 		draw_item(msg.element);
 		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
@@ -135,7 +133,7 @@ function bindSocketListeners() {
 			return;
 		}
 
-		redrawErasedElements(msg);
+		redrawErasedElements(msg.elements);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 	});
@@ -723,8 +721,8 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 	];
 }
 
-function redrawErasedElements(msg) {
-	msg.elements.forEach(function(el) {
+function redrawErasedElements(elements) {
+	elements.forEach(function(el) {
 		if (el.element.shape === 'line-segment') {
 			var bbox = [gridPoint2Pixel(el.bbox.x_coord), gridPoint2Pixel(el.bbox.x_coord + 1),
 				gridPoint2Pixel(el.bbox.y_coord), gridPoint2Pixel(el.bbox.y_coord + 1)

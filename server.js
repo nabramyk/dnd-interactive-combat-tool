@@ -63,65 +63,6 @@ var history = [];
 var grid_width = 1;
 var grid_height = 1;
 
-// HELPERS
-function north(point) {
-	return {
-		"x_coord": point.x_coord,
-		"y_coord": point.y_coord - 1
-	};
-}
-
-function east(point) {
-	return {
-		"x_coord": point.x_coord + 1,
-		"y_coord": point.y_coord
-	};
-}
-
-function east2(point) {
-	return {
-		"x_coord": point.x_coord + 1 * 2,
-		"y_coord": point.y_coord
-	};
-}
-
-function west(point) {
-	return {
-		"x_coord": point.x_coord - 1,
-		"y_coord": point.y_coord
-	};
-}
-
-function south() {
-	return [selected_grid_x, selected_grid_y + 1];
-}
-
-function northeast() {
-	return [selected_grid_x + 1, selected_grid_y - 1];
-}
-
-function northwest(point) {
-	return {
-		"x_coord": point.x_coord - 1,
-		"y_coord": point.y_coord - 1
-	};
-}
-
-function southeast() {
-	return [selected_grid_x + 1, selected_grid_y + 1];
-}
-
-function southwest() {
-	return [selected_grid_x - 1, selected_grid_y + 1];
-}
-
-function center(point) {
-	return {
-		"x_coord": point.x_coord,
-		"y_coord": point.y_coord
-	};
-}
-
 io.on('connection', function(socket) {
 	console.log("a user connected");
 
@@ -187,29 +128,19 @@ io.on('connection', function(socket) {
 			ob.x = move_to_x;
 			ob.y = move_to_y;
 			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
-			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "size" : ob.size, "element" : ob });
+			socket.emit('moving_element', { "x" : move_to_x, "y" : move_to_y, "size" : ob.size, "element" : ob, "elements" : elementsToBeRedrawn({"old_x" : from_x, "old_y" : from_y}) });
 		}
 	});
 
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
-		/* var input = {
-			"id": element_id_counter,
-			"color": msg.color,
-			"x_coord": JSON.parse(msg.x_coord),
-			"y_coord": JSON.parse(msg.y_coord),
-			"shape": msg.object_type,
-			"name": msg.name !== "" ? msg.name : "object",
-			"size": JSON.parse(msg.size),
-			"category": msg.category
-		}; */
 		var input = new Element(JSON.parse(msg.x_coord), 
-														JSON.parse(msg.y_coord), 
-														msg.object_type, 
-														msg.color, 
-														JSON.parse(msg.size), 
-														msg.category,
-														msg.name !== "" ? msg.name : "object");
+								JSON.parse(msg.y_coord), 
+								msg.object_type, 
+								msg.color, 
+								JSON.parse(msg.size), 
+								msg.category,
+								msg.name !== "" ? msg.name : "object");
 		console.log(input);
 		cells.push(input);
 		history.push({
@@ -284,6 +215,7 @@ http.listen(8080, function() {
  * @returns
  */
 function coordinate_comparison(obj_1, obj_2) {
+	console.log("1: " + JSON.stringify(obj_1), "2" + JSON.stringify(obj_2))
 	if (obj_1.x instanceof Array)
 		return obj_1.x.every(function(u, i) {
 				return u === obj_2.x[i];
