@@ -460,12 +460,12 @@ function clear_item(shape, x_coord, y_coord, color, size) {
 /**
  * Clears the grid space
  *
- * @param
- * @param
+ * @param {int} x
+ * @param {int} y
  */
-function clear_grid_space(point_x, point_y) {
-	ctx.clearRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(gridPoint2Pixel(point_x) + grid_line_width, gridPoint2Pixel(point_y) + grid_line_width, grid_size, grid_size);
+function clear_grid_space(x, y) {
+	ctx.clearRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size, grid_size);
+	ctx.strokeRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size, grid_size);
 }
 
 /**
@@ -631,6 +631,11 @@ function edit_properties_of_element(id, name) {
 	edit_element_on_server(id, name);
 }
 
+/**
+ * Delete's a specific element from the server
+ *
+ * @param {int} id - the unique ID of the element to delete
+ */
 function delete_element_from_server(id) {
 	socket.emit('delete_element_on_server', id);
 }
@@ -660,13 +665,12 @@ function drawLeftRuler() {
 }
 
 /**
- * Liang-Barsky function by Daniel White
- * 
  * Used for checking for lines clipped within grid spaces NOTE: Slight
  * modification to the return value
  * 
  * @link http://www.skytopia.com/project/articles/compsci/clipping.html
- * 
+ * @author Daniel White
+ *
  * @param {number}
  *            x0
  * @param {number}
@@ -730,8 +734,9 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
 }
 
 /**
+ * Redraws each element in the array
  *
- * @param {[Element]} elements
+ * @param {[Element]} elements - an array of elements of type 'Element'
  */
 function redrawErasedElements(elements) {
 	console.log(elements);
@@ -755,25 +760,43 @@ function redrawErasedElements(elements) {
 	});
 }
 
+/**
+ * Converts a pixel value to a quantized grid location
+ * 
+ * @param {int} raw_location - a pixel location
+ * @returns {int} a quantized grid point
+ */
 function pixel2GridPoint(raw_location) {
 	return 1 + (raw_location - (raw_location % grid_size)) / grid_size;
 }
 
+/**
+ * Converts a grid location to a quantized pixel value
+ *
+ * @param {int} grid_point - quantized grid point
+ * @returns {int} a pixel location
+ */
 function gridPoint2Pixel(grid_point) {
 	return (grid_point - 1) * grid_size;
 }
 
 /**
- * 
- * @param value
- * @returns
+ * Determine if the value is undefined 
+ *
+ * @param value - input which may be undefined
+ * @returns {boolean} Tru if undefined, false otherwise
  */
 function isUndefined(value) {
 	return value === undefined;
 }
 
 /**
-*/
+ * Find if this location clips the cursor bound box
+ *
+ * @param {int} x - horizontal grid location
+ * @param {int} y - vertical grid location
+ * @returns {boolean} True if cursor bounding box in is clipped, false otherwise
+ */
 function cursorRegionClipped(x, y) {
 	return selected_grid_x-1 <= x && selected_grid_x+cursor_size+1 >= x &&
 					selected_grid_y-1 <= y && selected_grid_y+cursor_size+1 >= y;
