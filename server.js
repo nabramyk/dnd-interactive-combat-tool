@@ -88,7 +88,6 @@ io.on('connection', function(socket) {
 		var size = cells.find(function(el) {
 			return coordinate_comparison(el, { "x" : msg.new_x, "y" : msg.new_y });
 		});
-		console.log(msg);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -103,7 +102,7 @@ io.on('connection', function(socket) {
 		});
 
 		if (typeof ob === 'undefined') return;
-
+		
 		var direction = msg.direction;
 		var move_to_x = ob.x;
 		var move_to_y = ob.y;
@@ -141,7 +140,6 @@ io.on('connection', function(socket) {
 								JSON.parse(msg.size), 
 								msg.category,
 								msg.name !== "" ? msg.name : "object");
-		console.log(input);
 		cells.push(input);
 		history.push({
 			"action": "add",
