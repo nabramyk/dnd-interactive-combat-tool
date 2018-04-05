@@ -1,3 +1,6 @@
+/** @author Nathan Abramyk */
+/** @version 1.0.0
+
 /** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
 var grid_size = 20;
 
@@ -55,6 +58,7 @@ function bindSocketListeners() {
 		resizeGridHeight(grid_count_height);
 		grid_count_width = msg.grid_width;
 		resizeGridWidth(grid_count_width);
+		$("#element_list").empty();
 
 		msg.elements.forEach(function(el) {
 			draw_item(el);
@@ -134,7 +138,6 @@ function bindSocketListeners() {
 			return;
 		}
 
-		console.log(msg);
 		redrawErasedElements(msg.elements);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
@@ -142,11 +145,14 @@ function bindSocketListeners() {
 	
 	socket.on('selected_element_from_list', function(msg) {
 		clear_prev_cursor_position();
-		if(msg.selected_element.x_coord === -1 && msg.selected_element.y_coord === -1)
+		if(msg.selected_element.x === -1 && msg.selected_element.y === -1)
 			return
 		if(!isUndefined(msg.redraw_element))
-			draw_item(msg.redraw_element);
-		draw_cursor_at_position(msg.selected_element.x_coord, msg.selected_element.y_coord, msg.selected_element.size);
+			console.log(msg.redraw_element);
+			msg.redraw_element.forEach(function(el) {
+				draw_item(el);
+			});
+		draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
 	});
 }
 

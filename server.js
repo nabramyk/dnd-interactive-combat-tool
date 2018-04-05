@@ -63,6 +63,8 @@ var history = [];
 var grid_width = 1;
 var grid_height = 1;
 
+const categories = ["npc","environment","enemy","player"]; 
+
 io.on('connection', function(socket) {
 	console.log("a user connected");
 
@@ -88,7 +90,6 @@ io.on('connection', function(socket) {
 		var size = cells.find(function(el) {
 			return coordinate_comparison(el, { "x" : msg.new_x, "y" : msg.new_y });
 		});
-		console.log(elementsToBeRedrawn(msg));
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -140,7 +141,7 @@ io.on('connection', function(socket) {
 								msg.color, 
 								JSON.parse(msg.size), 
 								msg.category,
-								msg.name !== "" ? msg.name : "object");
+								msg.name !== null ? msg.name : "object");
 		cells.push(input);
 		history.push({
 			"action": "add",
@@ -160,27 +161,28 @@ io.on('connection', function(socket) {
 	socket.on('randomize', function(msg) {
 		for (var w = 0; w < grid_width; w++) {
 			for (var h = 0; h < grid_height; h++) {
-				if (Math.random() < 0.2) {
+				if (Math.random() < 0.4) {
+										
+					var input = new Element(
+									w + 1, //x
+									h + 1, //y
+							Math.random() < 0.5 ? "square" : "circle", //shape
+							Math.floor(Math.random()*16777215).toString(16), //color
+							Math.round(Math.random() * 3) + 1, //size
+							categories[Math.floor(Math.random() * categories.length)],
+							("rando" + h * w));
 					
-					var category = Math.random() * 4;
-							
-					var input = {
-						"id": element_id_counter,
-						"color": "000000",
-						"x_coord": w + 1,
-						"y_coord": h + 1,
-						"shape": "square",
-						"name": "rando" + h * w,
-						"size": 1,
-						"category": "environment"
-					};
-
-					cells.push(input);
-					element_id_counter++;
+					if(isUndefined(cells.find(function(el) {
+							return collision_detection(el, input); 
+					} ))) {
+						cells.push(input);
+						element_id_counter++;
+					
+						io.emit('added_element', input);
+					}
 				}
 			}
 		}
-		io.emit('added_element', cells);
 	});
 	
 	socket.on('reset_board', function(msg) {
@@ -195,9 +197,11 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('select_element_from_list', function(msg) {
+		console.log(msg);
 		var element = cells.find( function(el) { return el.id === msg.id } );
-		var element_to_redraw = cells.find( function(el) { return coordinate_comparison(el, { "x_coord" : msg.selected_grid_x, "y_coord" : msg.selected_grid_y } ) } );
-		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x_coord" : -1, "y_coord" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
+		var element_to_redraw = elementsToBeRedrawn({ "old_x" : msg.selected_grid_x, "old_y" : msg.selected_grid_y });
+		element_to_redraw.push(cells.find( function(el) { return coordinate_comparison(el, { "x" : msg.selected_grid_x, "y" : msg.selected_grid_y } ) } ));
+		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
 
