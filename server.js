@@ -119,11 +119,9 @@ io.on('connection', function(socket) {
 		
 		//If there is NOT an element already where we are trying to move this element to...
 		if(!cells.find(function(el) {
-			return id === el.id ? false : (coordinate_comparison(el, { "x" : move_to_x, "y" : move_to_y}) ||
-										   coordinate_comparison({ "x" : move_to_x, "y" : move_to_y, "size" : size}, el));
+			return id === el.id ? false : collision_detection(el, {"x" : move_to_x, "y" : move_to_y, "size" : size});
 			})) 
 		{
-			//todo Find the surrounding elements
 			ob.x = move_to_x;
 			ob.y = move_to_y;
 			socket.broadcast.emit('move_element', { "from_x" : from_x, "from_y" : from_y, "element" : ob });
@@ -207,13 +205,13 @@ http.listen(8080, function() {
 
 /**
  * Determine if two objects are lines with matching vertices, or if two objects have overlapping coordinates
- * 
+ * Need to fix by incorporating both elements sizes instead of just one 
+ *
  * @param obj_1
  * @param obj_2
  * @returns
  */
 function coordinate_comparison(obj_1, obj_2) {
-	console.log("1: " + JSON.stringify(obj_1), "2" + JSON.stringify(obj_2))
 	if (obj_1.x instanceof Array)
 		return obj_1.x.every(function(u, i) {
 				return u === obj_2.x[i];
@@ -336,6 +334,13 @@ function elementsToBeRedrawn(msg) {
 		});
 	
 	return ob;
+}
+
+function collision_detection(obj_1, obj_2) {
+	return obj_1.x < obj_2.x + obj_2.size &&
+					obj_1.x + obj_1.size > obj_2.x &&
+					obj_1.y < obj_2.y + obj_2.size &&
+					obj_1.y + obj_1.size > obj_2.y;
 }
 
 /**
