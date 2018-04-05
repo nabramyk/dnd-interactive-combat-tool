@@ -7,8 +7,6 @@ var log = log4js.getLogger();
 
 var bodyParser = require('body-parser')
 
-var element_id_counter = 1;
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: false
@@ -32,8 +30,13 @@ app.use('/js', express.static(__dirname + '/www/js'))
 // webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
+var element_id_counter = 1;
+var grid_id_counter = 1;
+
+const categories = ["npc","environment","enemy","player"]; 
+
 /**
- * Objects which are representable in the grid space
+ * @class Objects which are representable in the grid space
  *
  * @constructor
  * @param {int} x - horizontal grid coordinate of the element
@@ -53,6 +56,132 @@ function Element(x, y, type, color, size, category, name) {
 	this.size = size;
 	this.category = category;
 	this.name = name;
+	
+	this.nudge = function(direction) {
+		switch(direction) {
+			case 0: break;
+			case 1: break;
+			case 2: break;
+			case 3: break;
+			case 4: break;
+			case 5: break;
+			case 6: break;
+			case 7: break;
+		}
+	}
+}
+
+/**
+ * @class Objects which are representable in the grid space
+ *
+ * @constructor
+ * @param {int} x - horizontal grid coordinate of the element
+ * @param {int} y - vertical grid coordinate of the element
+ * @param {string} type - the geometric shape this element represents
+ * @param {string} color - the hexadecimal value of the element color
+ * @param {int} size - the amount of grid spaces this elements spans across
+ * @param {string} category - the meta group this element belongs to
+ * @param {string} name - the unique name of this element
+ */
+function Element(id, x, y, type, color, size, category, name) {
+	this.id = id;
+	this.x = x;
+	this.y = y;
+	this.type = type;
+	this.color = color;
+	this.size = size;
+	this.category = category;
+	this.name = name;
+	
+	this.nudge = function(direction) {
+		switch(direction) {
+			case 0: break;
+			case 1: break;
+			case 2: break;
+			case 3: break;
+			case 4: break;
+			case 5: break;
+			case 6: break;
+			case 7: break;
+		}
+	}
+}
+
+/**
+ * @class
+ */
+function GridSpace(width, height) {
+	
+	this.elementIdCounter = 1;
+	
+	
+	this.id = grid_id_counter++;
+	this.history = [];
+	this.elements = [];
+	this.width = width;
+	this.height = height;
+	
+	this.resizeWidth = function(newWidth) {
+		this.width = newWidth;
+	};
+	
+	this.resizeHeight = function(newHeight) {
+		this.height = newHeight;
+	};
+	
+	this.findElementById = function(id) {
+		return null;
+	};
+	
+	this.findElementByPosition = function(x, y) {
+		return null;
+	};
+	
+	this.generateRandomBoardElements = function() {
+		for (var w = 0; w < this.width; w++) {
+			for (var h = 0; h < this.height; h++) {
+				if (Math.random() < 0.4) {
+					var input = new Element(
+									elementIdCounter++,
+									w + 1, //x
+									h + 1, //y
+							Math.random() < 0.5 ? "square" : "circle", //shape
+							Math.floor(Math.random()*16777215).toString(16), //color
+							Math.round(Math.random() * 3) + 1, //size
+							categories[Math.floor(Math.random() * categories.length)],
+							("rando" + h * w));
+					
+					if(isUndefined(this.elements.find(function(el) {
+							return collision_detection(el, input); 
+					} ))) {
+						this.elements.push(input);
+						this.element_id_counter++;
+					
+						io.emit('added_element', input);
+					}
+				}
+			}
+		}
+	};
+	
+	this.addElementToGridSpace = function(obj) {
+		this.elements.push(
+			new Element(
+				this.elementIdCounter++,
+				obj.x,
+				obj.y,
+				obj.type,
+				obj.color,
+				obj.size,
+				obj,category,
+				obj.name
+			)
+		);
+	};
+	
+	this.removeElementGromGridSpace - function(id) {
+		
+	}
 }
  
 /** @global [{obj}]  */
@@ -63,7 +192,7 @@ var history = [];
 var grid_width = 1;
 var grid_height = 1;
 
-const categories = ["npc","environment","enemy","player"]; 
+var grid_space = new GridSpace(grid_width, grid_height);
 
 io.on('connection', function(socket) {
 	console.log("a user connected");
@@ -84,6 +213,8 @@ io.on('connection', function(socket) {
 	socket.on('resize_width', function(msg) {
 		grid_width = JSON.parse(msg.width);
 		io.emit('resize_width', msg);
+		grid_space.resizeWidth(msg.width);
+		console.log(grid_space.width);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
@@ -148,6 +279,8 @@ io.on('connection', function(socket) {
 			"item": input
 		});
 
+		grid_space.addElement(input);
+		
 		io.emit('added_element', input);
 	});
 	
