@@ -40,13 +40,13 @@ const categories = ["npc","environment","enemy","player"];
  * @class Objects which are representable in the grid space
  *
  * @constructor
- * @param {int} x - horizontal grid coordinate of the element
- * @param {int} y - vertical grid coordinate of the element
- * @param {string} type - the geometric shape this element represents
- * @param {string} color - the hexadecimal value of the element color
- * @param {int} size - the amount of grid spaces this elements spans across
- * @param {string} category - the meta group this element belongs to
- * @param {string} name - the unique name of this element
+ * @property {int} x - horizontal grid coordinate of the element
+ * @property {int} y - vertical grid coordinate of the element
+ * @property {string} type - the geometric shape this element represents
+ * @property {string} color - the hexadecimal value of the element color
+ * @property {int} size - the amount of grid spaces this elements spans across
+ * @property {string} category - the meta group this element belongs to
+ * @property {string} name - the unique name of this element
  */
 function Element(id, x, y, type, color, size, category, name) {
 	this.id = id;
@@ -219,6 +219,14 @@ function GridSpace(width, height) {
 	this.clickInGridSpace = function(x, y) {
 		
 	}
+	
+	this.gatherElementsFromCategories = function(filters) {
+		return this
+						.elements
+						.filter( function(el) { 
+							return filters.indexOf(el.category) != -1 
+					});
+	}
 }
 
 var grid_space = new GridSpace(1, 1);
@@ -307,7 +315,7 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('get_elements_list', function(msg) {
-		socket.emit('retrieve_elements_list', cells);
+		socket.emit('retrieve_elements_list', grid_space.gatherElementsFromCategories(msg.filter));
 	});
 	
 	socket.on('select_element_from_list', function(msg) {

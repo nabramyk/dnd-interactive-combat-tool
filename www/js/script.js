@@ -76,20 +76,11 @@ function bindSocketListeners() {
 	});
 
 	socket.on('retrieve_elements_list', function(msg) {
-		var filters = document.querySelectorAll(".element_filter:checked");
-		var filter = [];
-		for (var i = 0; i <= filters.length - 1; i++) {
-			filter[i] = filters[i].value;
-		}
+		$("#element_list").empty();
 
-		msg
-			.filter(function(el) {
-				return filter.indexOf(el.category) != -1;
-			})
-			.forEach(function(el) {
-				$("#element_list").append(composeElementListRowElement(el));
-			});
-		
+		msg.forEach(function(el) {
+			$("#element_list").append(composeElementListRowElement(el));
+		});
 	})
 
 	socket.on('resize_height', function(msg) {
@@ -567,8 +558,6 @@ function refresh_elements_list() {
 	for (var i = 0; i <= filters.length - 1; i++) {
 		filter[i] = filters[i].value;
 	}
-
-	$("#element_list").empty();
 	
 	if (filters.length !== 0) {
 		socket.emit('get_elements_list', {
