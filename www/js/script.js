@@ -138,7 +138,7 @@ function bindSocketListeners() {
 			return;
 		}
 
-		redrawErasedElements(msg.elements);
+		//redrawErasedElements(msg.elements);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 	});
