@@ -125,14 +125,14 @@ function bindSocketListeners() {
 
 	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
-		//redrawErasedElements(msg.elements);
+		redrawErasedElements(msg.elements);
 		draw_item(msg.element);
 		console.log(msg.element);
 		draw_cursor_at_position(msg.element.x, msg.element.y, msg.element.size);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		
+		console.log(msg);
 		clear_prev_cursor_position();
 
 		if (selected_grid_x === -1 && selected_grid_y === -1) {
@@ -140,7 +140,7 @@ function bindSocketListeners() {
 			return;
 		}
 
-		//redrawErasedElements(msg.elements);
+		redrawErasedElements(msg.elements);
 
 		draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 	});

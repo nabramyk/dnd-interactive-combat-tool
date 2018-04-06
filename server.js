@@ -33,6 +33,7 @@ app.use('/css', express.static(__dirname + '/www/css'))
 var element_id_counter = 1;
 var grid_id_counter = 1;
 
+const shapes = ["square","circle","line"];
 const categories = ["npc","environment","enemy","player"]; 
 
 /**
@@ -140,27 +141,44 @@ function GridSpace(width, height) {
 	this.generateRandomBoardElements = function() {
 		for (var w = 0; w < this.width; w++) {
 			for (var h = 0; h < this.height; h++) {
-				if (Math.random() < 0.4) {
+				if (Math.random() < 0.1) {
+					
+					Math.floor(Math.random() * shapes.length);
+					var type = shapes[0];
+					
+					var y = [];
+					var x = [];
+					
+					if(type === "line") {
+						while(Math.random() < 0.5) {
+							x.push(Math.floor(Math.random() * this.width));
+							y.push(Math.floor(Math.random() * this.height));
+						}
+					} else {
+						x = w + 1;
+						y = h + 1;
+					}
+					
 					var input = new Element(
-												elementIdCounter++,
-												w + 1, //x
-												h + 1, //y
-												Math.random() < 0.5 ? "square" : "circle", //shape
+												this.elementIdCounter++,
+												x, //x
+												y, //y
+												type, //shape
 												Math.floor(Math.random()*16777215).toString(16), //color
 												Math.round(Math.random() * 3) + 1, //size
 												categories[Math.floor(Math.random() * categories.length)],
 												("rando" + h * w)
 					);
 					
-					if(isUndefined(this.elements.find(function(el) {
+					if(this.elements.find(function(el) {
 							return collision_detection(el, input); 
-					} ))) {
+						}) === undefined ) {
 						this.elements.push(input);
 					}
 				}
 			}
 		}
-		
+
 		return this.elements;
 	};
 	
@@ -203,12 +221,7 @@ function GridSpace(width, height) {
 	}
 }
 
-var history = [];
-
-var grid_width = 1;
-var grid_height = 1;
-
-var grid_space = new GridSpace(grid_width, grid_height);
+var grid_space = new GridSpace(1, 1);
 
 io.on('connection', function(socket) {
 	console.log("a user connected");
@@ -233,50 +246,25 @@ io.on('connection', function(socket) {
 
 	socket.on('canvas_clicked', function(msg) {
 		console.log(msg);
-		var size = grid_space.findElementByPosition(function(el) { msg.new_x, msg.new_y });
+		var size = grid_space.findElementByPosition(msg.new_x, msg.new_y);
+		console.log(elementsToBeRedrawn(msg.old_x, msg.old_y));
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
-			"size" : !isUndefined(size) ? parseInt(size.size) : 1
+			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
+			"elements" : elementsToBeRedrawn(msg.old_x, msg.old_y)
 		});
 	});
 
 	socket.on('move_element', function(msg) {
-		//var ob = cells.find(function(el) {
-		//	return coordinate_comparison(el, msg);
-		//});
 
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
 		console.log(movedElement);
 		
 		if (typeof movedElement === 'undefined') return;
 		
-		//var direction = msg.direction;
-		//var move_to_x = ob.x;
-		//var move_to_y = ob.y;
-		//var size = ob.size;
-		//var id = ob.id;
-
-		//var from_x = ob.x;
-		//var from_y = ob.y;
-
-		//if (direction == "right") move_to_x++;
-		//else if (direction == "left") move_to_x--;
-		//else if (direction == "up") move_to_y--;
-		//else if (direction == "down") move_to_y++;
-		
-		//If there is NOT an element already where we are trying to move this element to...
-		//if(!cells.find(function(el) {
-		//	return id === el.id ? false : collision_detection(el, {"x" : move_to_x, "y" : move_to_y, "size" : size});
-		//	})) 
-		//{
-		//	ob.x = move_to_x;
-		//	ob.y = move_to_y;
-			//Notify everyone EXCEPT this socket
 		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
-			//Notify ONLY this socket
 		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : {}});
-		//}
 	});
 
 	/* ADD ELEMENT TO SERVER */
@@ -302,32 +290,11 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('randomize', function(msg) {
-		/*
-		for (var w = 0; w < grid_width; w++) {
-			for (var h = 0; h < grid_height; h++) {
-				if (Math.random() < 0.4) {
-										
-					var input = new Element(
-									w + 1, //x
-									h + 1, //y
-							Math.random() < 0.5 ? "square" : "circle", //shape
-							Math.floor(Math.random()*16777215).toString(16), //color
-							Math.round(Math.random() * 3) + 1, //size
-							categories[Math.floor(Math.random() * categories.length)],
-							("rando" + h * w));
-					
-					if(isUndefined(cells.find(function(el) {
-							return collision_detection(el, input); 
-					} ))) {
-						cells.push(input);
-						element_id_counter++;
-					
-						io.emit('added_element', input);
-					}
-				}
-			}
-		}
-		*/
+		grid_space
+			.generateRandomBoardElements()
+			.forEach(function(el) {
+				io.emit('added_element', el);
+		});
 	});
 	
 	socket.on('reset_board', function(msg) {
@@ -466,15 +433,15 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
  * @param msg
  * @returns
  */
-function elementsToBeRedrawn(msg) {
+function elementsToBeRedrawn(old_x, old_y) {
 	var ob = [];
 		
-		[ { "x" : msg.old_x, "y" : msg.old_y },
-			{ "x" : msg.old_x-1, "y" : msg.old_y},
-			{ "x" : msg.old_x, "y" : msg.old_y-1},
-			{ "x" : msg.old_x-1, "y" : msg.old_y-1}]
+		[ { "x" : old_x, "y" : old_y },
+			{ "x" : old_x-1, "y" : old_y},
+			{ "x" : old_x, "y" : old_y-1},
+			{ "x" : old_x-1, "y" : old_y-1}]
 		.forEach(function(cursor_space) {
-			cells.forEach( function(el) {
+			grid_space.elements.forEach( function(el) {
 				if(el.type === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
 					if(out !== undefined) {
@@ -482,7 +449,7 @@ function elementsToBeRedrawn(msg) {
 					}
 				} else {
 					if(coordinate_comparison(el,cursor_space))
-						ob.push({ "element" : el});
+						ob.push({ "element" : el });
 				}
 			});
 		});
