@@ -109,7 +109,8 @@ function bindSocketListeners() {
 	});
 
 	socket.on('removed_element', function(msg) {
-		clear_item(msg.shape, msg.x_coord, msg.y_coord, msg.color, msg.size);
+		console.log(msg);
+		clear_item(msg.type, msg.x, msg.y, msg.color, msg.size);
 		$("#element_list>#" + msg.id).remove();
 	});
 
@@ -124,9 +125,10 @@ function bindSocketListeners() {
 
 	socket.on('moving_element', function(msg) {
 		clear_prev_cursor_position();
-		redrawErasedElements(msg.elements);
+		//redrawErasedElements(msg.elements);
 		draw_item(msg.element);
-		draw_cursor_at_position(msg.x, msg.y, msg.size);
+		console.log(msg.element);
+		draw_cursor_at_position(msg.element.x, msg.element.y, msg.element.size);
 	});
 
 	socket.on('canvas_clicked', function(msg) {

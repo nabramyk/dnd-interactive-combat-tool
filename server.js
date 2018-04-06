@@ -63,19 +63,19 @@ function Element(id, x, y, type, color, size, category, name) {
 	this.nudge = function(direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y;
 		switch(direction) {
-			case 0: //right
+			case "right": //right
 				moveToX++;
 				break;
-			case 1: //up
+			case "up": //up
 				moveToY--;
 				break;
-			case 2: //left
+			case "left": //left
 				moveToX--;
 				break;
-			case 3: //down
+			case "down": //down
 				moveToY++;
 				break;
-		};
+		}
 		
 		if(gridSpace.findElementByPosition(moveToX, moveToY) === undefined) {
 			this.x = moveToX;
@@ -142,26 +142,26 @@ function GridSpace(width, height) {
 			for (var h = 0; h < this.height; h++) {
 				if (Math.random() < 0.4) {
 					var input = new Element(
-										elementIdCounter++,
-										w + 1, //x
-										h + 1, //y
-										Math.random() < 0.5 ? "square" : "circle", //shape
-										Math.floor(Math.random()*16777215).toString(16), //color
-										Math.round(Math.random() * 3) + 1, //size
-										categories[Math.floor(Math.random() * categories.length)],
-										("rando" + h * w));
+												elementIdCounter++,
+												w + 1, //x
+												h + 1, //y
+												Math.random() < 0.5 ? "square" : "circle", //shape
+												Math.floor(Math.random()*16777215).toString(16), //color
+												Math.round(Math.random() * 3) + 1, //size
+												categories[Math.floor(Math.random() * categories.length)],
+												("rando" + h * w)
+					);
 					
 					if(isUndefined(this.elements.find(function(el) {
 							return collision_detection(el, input); 
 					} ))) {
 						this.elements.push(input);
-						this.element_id_counter++;
-					
-						io.emit('added_element', input);
 					}
 				}
 			}
 		}
+		
+		return this.elements;
 	};
 	
 	this.addElementToGridSpace = function(obj) {
@@ -182,10 +182,20 @@ function GridSpace(width, height) {
 	this.removeElementFromGridSpace = function(id) {
 		var ind = this.elements.findIndex( function(el) { return el.id === id; });
 		this.elements.splice(ind, 1);
+	};
+	
+	this.removeAllElementsFromGridSpace = function() {
+		var returnGridSpace = this.elements.slice();
+		this.elements = [];
+		return returnGridSpace;
 	}
 	
 	this.nudgeElement = function(x, y, direction) {
-		return this.findElementByPosition(x, y).nudge(direction, this);
+			try { 
+				return this.findElementByPosition(x, y).nudge(direction, this);
+			} catch(e) {
+				return undefined; 
+			}
 	}
 	
 	this.clickInGridSpace = function(x, y) {
@@ -239,7 +249,7 @@ io.on('connection', function(socket) {
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
 		console.log(movedElement);
 		
-		//if (typeof ob === 'undefined') return;
+		if (typeof movedElement === 'undefined') return;
 		
 		//var direction = msg.direction;
 		//var move_to_x = ob.x;
@@ -281,6 +291,7 @@ io.on('connection', function(socket) {
 								msg.name !== null ? msg.name : "object");
 		
 		io.emit('added_element', grid_space.addElementToGridSpace(input));
+		console.log(grid_space);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
@@ -291,6 +302,7 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('randomize', function(msg) {
+		/*
 		for (var w = 0; w < grid_width; w++) {
 			for (var h = 0; h < grid_height; h++) {
 				if (Math.random() < 0.4) {
@@ -315,13 +327,16 @@ io.on('connection', function(socket) {
 				}
 			}
 		}
+		*/
 	});
 	
 	socket.on('reset_board', function(msg) {
-		cells.forEach( function(el) {
-			io.emit('removed_element', el);
-		});
-		cells = [];
+		grid_space
+			.removeAllElementsFromGridSpace()
+			.forEach(function(el) {
+				console.log(el);
+				io.emit('removed_element', el);
+		})
 	});
 	
 	socket.on('get_elements_list', function(msg) {
