@@ -59,14 +59,14 @@ function Element(x, y, type, color, size, category, name) {
 	
 	this.nudge = function(direction) {
 		switch(direction) {
-			case 0: break;
-			case 1: break;
-			case 2: break;
-			case 3: break;
-			case 4: break;
-			case 5: break;
-			case 6: break;
-			case 7: break;
+			case 0: //right
+				break;
+			case 1: //up
+				break;
+			case 2: //left
+				break;
+			case 3: //down
+				break;
 		}
 	}
 }
@@ -95,14 +95,14 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	this.nudge = function(direction) {
 		switch(direction) {
-			case 0: break;
-			case 1: break;
-			case 2: break;
-			case 3: break;
-			case 4: break;
-			case 5: break;
-			case 6: break;
-			case 7: break;
+			case 0: //right
+				break;
+			case 1: //up
+				break;
+			case 2: //left
+				break;
+			case 3: //down
+				break;
 		}
 	}
 }
@@ -113,8 +113,6 @@ function Element(id, x, y, type, color, size, category, name) {
 function GridSpace(width, height) {
 	
 	this.elementIdCounter = 1;
-	
-	
 	this.id = grid_id_counter++;
 	this.history = [];
 	this.elements = [];
@@ -173,13 +171,13 @@ function GridSpace(width, height) {
 				obj.type,
 				obj.color,
 				obj.size,
-				obj,category,
+				obj.category,
 				obj.name
 			)
 		);
 	};
 	
-	this.removeElementGromGridSpace - function(id) {
+	this.removeElementGromGridSpace = function(id) {
 		
 	}
 }
@@ -274,12 +272,10 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		cells.push(input);
-		history.push({
-			"action": "add",
-			"item": input
-		});
 
-		grid_space.addElement(input);
+		grid_space.addElementToGridSpace(input);
+		
+		console.log(grid_space.elements);
 		
 		io.emit('added_element', input);
 	});
