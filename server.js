@@ -88,7 +88,8 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 		
-		if(gridSpace.findElementByPosition(moveToX, moveToY) === undefined) {
+		console.log('here');
+		if(gridSpace.elements.find( function(el) { el.collide(this) } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 			
@@ -127,6 +128,11 @@ function Element(id, x, y, type, color, size, category, name) {
 				element.x + element.size > this.x &&
 				element.y < this.y + this.size &&
 				element.y + element.size > this.y;
+	}
+	
+	this.within = function(x, y) {
+		return this.x <= x && this.x + this.size > x && 
+				this.y <= y && this.y + this.size > y;
 	}
 }
 
@@ -186,7 +192,7 @@ function GridSpace(width, height) {
 	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
 	 */
 	this.findElementByPosition = function(x, y) {
-		return this.elements.find(function (el) { return el.x === x && el.y === y; })
+		return this.elements.find(function (el) { return el.within(x, y); });
 	};
 	
 	/**
@@ -284,6 +290,7 @@ function GridSpace(width, height) {
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
 	this.nudgeElement = function(x, y, direction) {
+		console.log(this.findElementByPosition(x, y));
 			try { 
 				return this.findElementByPosition(x, y).nudge(direction, this);
 			} catch(e) {
@@ -293,17 +300,16 @@ function GridSpace(width, height) {
 	
 	/***/
 	this.clickInGridSpace = function(x, y) {
-		
+		return this.elements.find( function(el) { return el.within(x, y) });
 	}
 	
 	/**
 	 *
 	 */
 	this.gatherElementsFromCategories = function(filters) {
-		return this
-						.elements
-						.filter( function(el) { 
-							return filters.indexOf(el.category) != -1 
+		return this.elements
+					.filter( function(el) { 
+						return filters.indexOf(el.category) != -1 
 					});
 	}
 }
@@ -332,9 +338,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		console.log(msg);
-		var size = grid_space.findElementByPosition(msg.new_x, msg.new_y);
-		console.log(elementsToBeRedrawn(msg.old_x, msg.old_y));
+		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -346,7 +350,6 @@ io.on('connection', function(socket) {
 	socket.on('move_element', function(msg) {
 
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
-		console.log(movedElement);
 		
 		if (typeof movedElement === 'undefined') return;
 		
@@ -366,7 +369,6 @@ io.on('connection', function(socket) {
 								msg.name !== null ? msg.name : "object");
 		
 		io.emit('added_element', grid_space.addElementToGridSpace(input));
-		console.log(grid_space);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
