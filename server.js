@@ -1,3 +1,10 @@
+/**
+ * @fileOverview A server for handling objects which are drawable on a canvas
+ * @author Nathan Abramyk
+ * @copyright Nathan Abramyk 2018
+ * @version 1.0.0
+ */
+
 var app = require('express')();
 var express = require('express');
 var http = require('http').Server(app);
@@ -40,6 +47,7 @@ const categories = ["npc","environment","enemy","player"];
  * @class Objects which are representable in the grid space
  *
  * @constructor
+ * @property {int} id - unique numerical identifier of this element
  * @property {int} x - horizontal grid coordinate of the element
  * @property {int} y - vertical grid coordinate of the element
  * @property {string} type - the geometric shape this element represents
@@ -60,6 +68,8 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Move the element 1 unit in a specific direction
+	 * @param {String} direction - the direction to move this element
+	 * @return {Element|undefine} This element at its new position, or undefined if it cannot move
 	 */
 	this.nudge = function(direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y;
@@ -95,21 +105,41 @@ function Element(id, x, y, type, color, size, category, name) {
 		
 	};
 	
-	this.mutate = function() {
-		
-	}
-	
-	this.rename = function() {
+	/**
+	 * Modify this elements properties
+	 * 
+	 */
+	this.mutate = function(modifiedElement) {
 		
 	}
 	
 	this.output = function() {
 		
 	}
+	
+	/**
+	 * Determine if this element is colliding with another
+	 * @param {Element} element - another element in the grid space
+	 * @return {boolean} True if both elements collide, false otherwise
+	 */
+	this.collide = function(element) {
+		return element.x < this.x + this.size &&
+				element.x + element.size > this.x &&
+				element.y < this.y + this.size &&
+				element.y + element.size > this.y;
+	}
 }
 
 /**
  * @class
+ *
+ * @constructor
+ * @property {int} elementIdCounter 
+ * @property {int} id - unique numerical identifier for this grid space
+ * @property {int} history - 
+ * @property [Element] - collection of displayable elements in this grid space
+ * @property {int} width - amount of horizontal grid points in this space
+ * @property {int} height - amount of vertical grid points in this space
  */
 function GridSpace(width, height) {
 	
@@ -120,31 +150,55 @@ function GridSpace(width, height) {
 	this.width = width;
 	this.height = height;
 	
+	/**
+	 * Set the grid space width
+	 * @param {int} newWidth - the new width of the grid space
+	 * @return {int} The new width of the grid space
+	 */
 	this.resizeWidth = function(newWidth) {
 		this.width = newWidth;
 		return this.width;
 	};
 	
+	/**
+	 * Set the grid space height
+	 * @param {int} newHeight - the new height of the grid space
+	 * @return {int} The new height of the grid space
+	 */
 	this.resizeHeight = function(newHeight) {
 		this.height = newHeight;
 		return this.height;
 	};
 	
+	/**
+	 * Find the element with the corresponding ID
+	 * @param {int} id - the unique numerical identifier to search for
+	 * @return {(Element|undefined)} The element with the matching id, or undefined if no element with that id exists
+	 */
 	this.findElementById = function(id) {
 		return this.elements.find(function (el) { return el.id === id; })
 	};
 	
+	/**
+	 * Find the element at the specified position
+	 * @param {int} x - x grid point 
+	 * @param {int} y - y grid point
+	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
+	 */
 	this.findElementByPosition = function(x, y) {
 		return this.elements.find(function (el) { return el.x === x && el.y === y; })
 	};
 	
+	/**
+	 * Generate a grid space of random elements
+	 * @return [Element] An array of drawables elements
+	 */
 	this.generateRandomBoardElements = function() {
 		for (var w = 0; w < this.width; w++) {
 			for (var h = 0; h < this.height; h++) {
 				if (Math.random() < 0.1) {
 					
-					Math.floor(Math.random() * shapes.length);
-					var type = shapes[0];
+					var type = shapes[Math.floor(Math.random() * shapes.length)];
 					
 					var y = [];
 					var x = [];
@@ -182,6 +236,11 @@ function GridSpace(width, height) {
 		return this.elements;
 	};
 	
+	/**
+	 * Add an element to the grid space
+	 * @param {Element} obj - the element to add to the grid space
+	 * @return {Element} the newly added element
+	 */
 	this.addElementToGridSpace = function(obj) {
 		var newElement = new Element(
 				this.elementIdCounter++,
@@ -197,17 +256,33 @@ function GridSpace(width, height) {
 		return newElement;
 	};
 	
+	/**
+	 * Delete an element from the grid space
+	 * @param {int} id - the unique numerical id of an element
+	 * @return nothing
+	 */
 	this.removeElementFromGridSpace = function(id) {
 		var ind = this.elements.findIndex( function(el) { return el.id === id; });
 		this.elements.splice(ind, 1);
 	};
 	
+	/**
+	 * Deletes all elements from the grid space
+	 * @return the newly emptied list
+	 */
 	this.removeAllElementsFromGridSpace = function() {
 		var returnGridSpace = this.elements.slice();
 		this.elements = [];
 		return returnGridSpace;
 	}
 	
+	/**
+	 * Moves an element 1 grid unit
+	 * @param {int} x - horizontal grid position
+	 * @param {int} y - vertical grid position
+	 * @param {String} direction - the direction to move the element
+	 * @return {Element|undefined} The element at its new position, or undefined
+	 */
 	this.nudgeElement = function(x, y, direction) {
 			try { 
 				return this.findElementByPosition(x, y).nudge(direction, this);
@@ -216,10 +291,14 @@ function GridSpace(width, height) {
 			}
 	}
 	
+	/***/
 	this.clickInGridSpace = function(x, y) {
 		
 	}
 	
+	/**
+	 *
+	 */
 	this.gatherElementsFromCategories = function(filters) {
 		return this
 						.elements
