@@ -130,6 +130,12 @@ function Element(id, x, y, type, color, size, category, name) {
 				element.y + element.size > this.y;
 	}
 	
+	/**
+	 * Determine if a sinlge point is contained within this element
+	 * @param {int} x - horizontal grid position
+	 * @param {int} y - vertical grid position
+	 * @return {boolean} True if this point is is within this element, false otherwise
+	 */
 	this.within = function(x, y) {
 		return this.x <= x && this.x + this.size > x && 
 				this.y <= y && this.y + this.size > y;
@@ -401,9 +407,9 @@ io.on('connection', function(socket) {
 	
 	socket.on('select_element_from_list', function(msg) {
 		console.log(msg);
-		var element = cells.find( function(el) { return el.id === msg.id } );
+		var element = grid_space.findElementById(msg.id);
 		var element_to_redraw = elementsToBeRedrawn({ "old_x" : msg.selected_grid_x, "old_y" : msg.selected_grid_y });
-		element_to_redraw.push(cells.find( function(el) { return coordinate_comparison(el, { "x" : msg.selected_grid_x, "y" : msg.selected_grid_y } ) } ));
+		element_to_redraw.push(grid_space.findElementByPosition(msg.selected_grid_x, msg.selected_grid_y));
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
