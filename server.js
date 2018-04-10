@@ -207,6 +207,12 @@ function GridSpace(width, height) {
 		return this.elements.find(function (el) { return el.within(x, y); });
 	};
 	
+	/***/
+	this.hasElementAtPosition = function(x, y) {
+		console.log(this.elements.find(function (el) { return el.within(x, y); }));
+		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
+	}
+	
 	/**
 	 * Generate a grid space of random elements
 	 * @return [Element] An array of drawables elements
@@ -261,6 +267,9 @@ function GridSpace(width, height) {
 	 * @return {Element} the newly added element
 	 */
 	this.addElementToGridSpace = function(obj) {
+		if(this.hasElementAtPosition(obj.x, obj.y))
+			return undefined;
+			
 		var newElement = new Element(
 				this.elementIdCounter++,
 				obj.x,
@@ -271,6 +280,7 @@ function GridSpace(width, height) {
 				obj.category,
 				obj.name
 			);
+		
 		this.elements.push(newElement);
 		return newElement;
 	};

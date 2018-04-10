@@ -104,6 +104,8 @@ function bindSocketListeners() {
 	});
 
 	socket.on('added_element', function(msg) {
+		if(msg === null)
+			return alert("Cannot place an element where one already exists");
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg);
 		$("#element_list").append(composeElementListRowElement(msg));
