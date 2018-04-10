@@ -21,6 +21,10 @@ var selected_grid_y = -1;
 /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
 var cursor_size = 1;
 
+var index_id = 0,
+		index_x = 1,
+		index_y = 2;
+
 var x_vertices = [];
 var y_vertices = [];
 
@@ -58,8 +62,14 @@ function bindSocketListeners() {
 		resizeGridHeight(grid_count_height);
 		grid_count_width = msg.grid_width;
 		resizeGridWidth(grid_count_width);
+		
+		clear_prev_cursor_position();
+		selected_grid_x = -1;
+		selected_grid_y = -1;
+		
 		$("#element_list").empty();
-
+		refresh_elements_list();
+		
 		msg.elements.forEach(function(el) {
 			draw_item(el);
 		});
@@ -563,6 +573,8 @@ function refresh_elements_list() {
 		socket.emit('get_elements_list', {
 			"filter": filter
 		});
+	} else {
+			$("#element_list").empty();
 	}
 }
 

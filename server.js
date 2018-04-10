@@ -88,7 +88,6 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 		
-		console.log('here');
 		if(gridSpace.elements.find( function(el) { el.collide(this) } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
@@ -114,8 +113,15 @@ function Element(id, x, y, type, color, size, category, name) {
 		
 	}
 	
-	this.output = function() {
-		
+	/**
+	 * Return this elements properties and stripped of its methods
+	 * @return {JSON} The properties of this element
+	 */
+	this.condense = function() {
+		return { "id" : this.id,
+					   "x" : this.x,
+					   "y" : this.y,
+					   };
 	}
 	
 	/**
@@ -210,20 +216,21 @@ function GridSpace(width, height) {
 			for (var h = 0; h < this.height; h++) {
 				if (Math.random() < 0.1) {
 					
-					var type = shapes[Math.floor(Math.random() * shapes.length)];
+					var type = shapes[Math.floor(Math.random() * (shapes.length-1))];
 					
 					var y = [];
 					var x = [];
 					
-					if(type === "line") {
-						while(Math.random() < 0.5) {
-							x.push(Math.floor(Math.random() * this.width));
-							y.push(Math.floor(Math.random() * this.height));
-						}
-					} else {
+					//todo uncomment in order to insert randomized lines
+					//if(type === "line") {
+						//while(Math.random() < 0.5) {
+							//x.push(Math.floor(Math.random() * this.width));
+							//y.push(Math.floor(Math.random() * this.height));
+						//}
+					//} else {
 						x = w + 1;
 						y = h + 1;
-					}
+					//}
 					
 					var input = new Element(
 												this.elementIdCounter++,
@@ -345,6 +352,7 @@ io.on('connection', function(socket) {
 
 	socket.on('canvas_clicked', function(msg) {
 		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
+		console.log(msg, size);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -406,10 +414,10 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('select_element_from_list', function(msg) {
-		console.log(msg);
 		var element = grid_space.findElementById(msg.id);
 		var element_to_redraw = elementsToBeRedrawn({ "old_x" : msg.selected_grid_x, "old_y" : msg.selected_grid_y });
-		element_to_redraw.push(grid_space.findElementByPosition(msg.selected_grid_x, msg.selected_grid_y));
+		element_to_redraw.push(element);
+		console.log(element_to_redraw.length);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
