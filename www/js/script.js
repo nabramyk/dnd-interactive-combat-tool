@@ -318,6 +318,17 @@ function bindEventHandlers() {
 	$(".element_filter").click(function() {
 		refresh_elements_list();
 	});
+	
+	$("#grid_canvas").attr('tabindex','0');
+	$("#grid_canvas").focus();
+	$("#grid_canvas").keydown(function(e) {
+		switch(e.which) {
+			case 37: incremental_move_element('left'); break;
+			case 38: incremental_move_element('up'); break;
+			case 39: incremental_move_element('right'); break;
+			case 40: incremental_move_element('down'); break;
+		}
+	});
 }
 
 function interfaceInitialization() {
