@@ -209,7 +209,6 @@ function GridSpace(width, height) {
 	
 	/***/
 	this.hasElementAtPosition = function(x, y) {
-		console.log(this.elements.find(function (el) { return el.within(x, y); }));
 		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
 	}
 	
