@@ -1,5 +1,7 @@
-/** @author Nathan Abramyk */
-/** @version 1.0.0
+/** 
+ * @author Nathan Abramyk 
+ * @version 1.0.0 
+ */
 
 /** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
 var grid_size = 20;
@@ -155,7 +157,7 @@ function bindSocketListeners() {
 		if(!isUndefined(msg.redraw_element))
 			console.log(msg.redraw_element);
 			msg.redraw_element.forEach(function(el) {
-				draw_item(el);
+				draw_item(el.element);
 			});
 		draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
 	});
