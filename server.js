@@ -377,7 +377,7 @@ io.on('connection', function(socket) {
 		if (typeof movedElement === 'undefined') return;
 		
 		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
-		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : {}});
+		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
 	});
 
 	/* ADD ELEMENT TO SERVER */
@@ -424,9 +424,9 @@ io.on('connection', function(socket) {
 	
 	socket.on('select_element_from_list', function(msg) {
 		var element = grid_space.findElementById(msg.id);
-		var element_to_redraw = elementsToBeRedrawn({ "old_x" : msg.selected_grid_x, "old_y" : msg.selected_grid_y });
-		element_to_redraw.push(element);
-		console.log(element_to_redraw.length);
+		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
+		//console.log(elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y));
+		//element_to_redraw.element.push(element);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
