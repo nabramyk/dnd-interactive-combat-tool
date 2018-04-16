@@ -88,11 +88,10 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 		
-		if(gridSpace.elements.find( function(el) { el.within(moveToX, moveToY) } ) === undefined) {
-			console.log(this, el);
+		if(gridSpace.elements.find( function(el) { return el.within(moveToX, moveToY); } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
-			
+
 			return this;
 		} else {
 			return undefined;
@@ -128,7 +127,9 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
 	this.collide = function(element) {
-		return element.x < this.x + this.size &&
+		return
+				element.id !== this.id &&
+				element.x < this.x + this.size &&
 				element.x + element.size > this.x &&
 				element.y < this.y + this.size &&
 				element.y + element.size > this.y;
