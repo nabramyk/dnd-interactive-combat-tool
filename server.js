@@ -88,7 +88,8 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 		
-		if(gridSpace.elements.find( function(el) { el.collide(this) } ) === undefined) {
+		if(gridSpace.elements.find( function(el) { el.within(moveToX, moveToY) } ) === undefined) {
+			console.log(this, el);
 			this.x = moveToX;
 			this.y = moveToY;
 			
@@ -118,10 +119,7 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * @return {JSON} The properties of this element
 	 */
 	this.condense = function() {
-		return { "id" : this.id,
-					   "x" : this.x,
-					   "y" : this.y,
-					   };
+		return {};
 	}
 	
 	/**
@@ -312,7 +310,6 @@ function GridSpace(width, height) {
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
 	this.nudgeElement = function(x, y, direction) {
-		console.log(this.findElementByPosition(x, y));
 			try { 
 				return this.findElementByPosition(x, y).nudge(direction, this);
 			} catch(e) {
@@ -361,7 +358,6 @@ io.on('connection', function(socket) {
 
 	socket.on('canvas_clicked', function(msg) {
 		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
-		console.log(msg, size);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -373,7 +369,6 @@ io.on('connection', function(socket) {
 	socket.on('move_element', function(msg) {
 
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
-		
 		if (typeof movedElement === 'undefined') return;
 		
 		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
