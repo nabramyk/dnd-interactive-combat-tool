@@ -87,8 +87,8 @@ function Element(id, x, y, type, color, size, category, name) {
 				moveToY++;
 				break;
 		}
-		
-		if(gridSpace.elements.find( function(el) { return el.within(moveToX, moveToY); } ) === undefined) {
+
+		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, this.size, this.id); } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 
@@ -123,16 +123,14 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Determine if this element is colliding with another
-	 * @param {Element} element - another element in the grid space
+	 * @param {int} x - another element in the grid space
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
-	this.collide = function(element) {
-		return
-				element.id !== this.id &&
-				element.x < this.x + this.size &&
-				element.x + element.size > this.x &&
-				element.y < this.y + this.size &&
-				element.y + element.size > this.y;
+	this.collide = function(el_x, el_y, el_size, el_id) {
+		return el_x < this.x + this.size &&
+				el_x + el_size > this.x &&
+				el_y < this.y + this.size &&
+				el_y + el_size > this.y;
 	}
 	
 	/**
