@@ -558,7 +558,7 @@ function elementsToBeRedrawn(old_x, old_y) {
 						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
 					}
 				} else {
-					if(coordinate_comparison(el,cursor_space))
+					if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
 						ob.push({ "element" : el });
 				}
 			});
