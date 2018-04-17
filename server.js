@@ -130,7 +130,6 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
 	this.collide = function(x, y, size, id) {
-		console.log(x, y, size, id, this.x, this.y, this.size, this.id);
 		return id != this.id &&
 				x < this.x + this.size &&
 				x + size > this.x &&
@@ -289,11 +288,13 @@ function GridSpace(width, height) {
 	/**
 	 * Delete an element from the grid space
 	 * @param {int} id - the unique numerical id of an element
-	 * @return nothing
+	 * @return {Element} The removed element
 	 */
 	this.removeElementFromGridSpace = function(id) {
 		var ind = this.elements.findIndex( function(el) { return el.id === id; });
+		var return_element = this.elements[ind];
 		this.elements.splice(ind, 1);
+		return return_element;
 	};
 	
 	/**
@@ -394,10 +395,10 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
-		var ind = cells.findIndex( function(el) { return el.id === msg; });
-		io.emit('removed_element', cells[ind]);
-		cells.splice(ind, 1);
-		io.emit('retrieve_elements_list', cells);
+		//var ind = cells.findIndex( function(el) { return el.id === msg; });
+		var temp = grid_space.removeElementFromGridSpace(msg);
+		io.emit('removed_element', temp);
+		io.emit('retrieve_elements_list', grid_space.elements);
 	});
 	
 	socket.on('randomize', function(msg) {
@@ -424,8 +425,6 @@ io.on('connection', function(socket) {
 	socket.on('select_element_from_list', function(msg) {
 		var element = grid_space.findElementById(msg.id);
 		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
-		//console.log(elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y));
-		//element_to_redraw.element.push(element);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
