@@ -88,7 +88,7 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 
-		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, this.size, this.id); } ) === undefined) {
+		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, size, id); } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 
@@ -127,7 +127,9 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
 	this.collide = function(el_x, el_y, el_size, el_id) {
-		return el_x < this.x + this.size &&
+		console.log(el_x, el_y, el_size, el_id, this.x, this.y, this.size, this.id);
+		return el_id != this.id &&
+				el_x < this.x + this.size &&
 				el_x + el_size > this.x &&
 				el_y < this.y + this.size &&
 				el_y + el_size > this.y;
