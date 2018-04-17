@@ -123,16 +123,19 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Determine if this element is colliding with another
-	 * @param {int} x - another element in the grid space
+	 * @param {int} x - horizontal coordinate of comparing element
+	 * @param {int} y - vertical coordinate of comparing element
+	 * @param {int} size - numerical span of comparing element
+	 * @param {int} id - unique identifier of comparing element
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
-	this.collide = function(el_x, el_y, el_size, el_id) {
-		console.log(el_x, el_y, el_size, el_id, this.x, this.y, this.size, this.id);
-		return el_id != this.id &&
-				el_x < this.x + this.size &&
-				el_x + el_size > this.x &&
-				el_y < this.y + this.size &&
-				el_y + el_size > this.y;
+	this.collide = function(x, y, size, id) {
+		console.log(x, y, size, id, this.x, this.y, this.size, this.id);
+		return id != this.id &&
+				x < this.x + this.size &&
+				x + size > this.x &&
+				y < this.y + this.size &&
+				y + size > this.y;
 	}
 	
 	/**
