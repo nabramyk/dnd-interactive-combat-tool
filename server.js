@@ -336,6 +336,20 @@ function GridSpace(width, height) {
 						return filters.indexOf(el.category) != -1 
 					});
 	}
+	
+	/**
+	 *
+	 */
+	this.historyUndo = function() {
+		
+	}
+	
+	/**
+	 *
+	 */
+	this.historyRedo = function() {
+		
+	}
 }
 
 var grid_space = new GridSpace(1, 1);
