@@ -26,7 +26,14 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>var app = require('express')();
+            <pre class="prettyprint source linenums"><code>/**
+ * @fileOverview A server for handling objects which are drawable on a canvas
+ * @author Nathan Abramyk
+ * @copyright Nathan Abramyk 2018
+ * @version 1.0.0
+ */
+
+var app = require('express')();
 var express = require('express');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -89,6 +96,8 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Move the element 1 unit in a specific direction
+	 * @param {String} direction - the direction to move this element
+	 * @return {Element|undefine} This element at its new position, or undefined if it cannot move
 	 */
 	this.nudge = function(direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y;
@@ -106,11 +115,11 @@ function Element(id, x, y, type, color, size, category, name) {
 				moveToY++;
 				break;
 		}
-		
-		if(gridSpace.findElementByPosition(moveToX, moveToY) === undefined) {
+
+		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, size, id); } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
-			
+
 			return this;
 		} else {
 			return undefined;
@@ -124,22 +133,55 @@ function Element(id, x, y, type, color, size, category, name) {
 		
 	};
 	
-	this.mutate = function() {
+	/**
+	 * Modify this elements properties
+	 * 
+	 */
+	this.mutate = function(modifiedElement) {
 		
 	}
 	
-	this.rename = function() {
-		
+	/**
+	 * Return this elements properties and stripped of its methods
+	 * @return {JSON} The properties of this element
+	 */
+	this.condense = function() {
+		return {};
 	}
 	
-	this.output = function() {
-		
+	/**
+	 * Determine if this element is colliding with another
+	 * @param {int} x - horizontal coordinate of comparing element
+	 * @param {int} y - vertical coordinate of comparing element
+	 * @param {int} size - numerical span of comparing element
+	 * @param {int} id - unique identifier of comparing element
+	 * @return {boolean} True if both elements collide, false otherwise
+	 */
+	this.collide = function(x, y, size, id) {
+		console.log(x, y, size, id, this.x, this.y, this.size, this.id);
+		return id != this.id &amp;&amp;
+				x &lt; this.x + this.size &amp;&amp;
+				x + size > this.x &amp;&amp;
+				y &lt; this.y + this.size &amp;&amp;
+				y + size > this.y;
+	}
+	
+	/**
+	 * Determine if a sinlge point is contained within this element
+	 * @param {int} x - horizontal grid position
+	 * @param {int} y - vertical grid position
+	 * @return {boolean} True if this point is is within this element, false otherwise
+	 */
+	this.within = function(x, y) {
+		return this.x &lt;= x &amp;&amp; this.x + this.size > x &amp;&amp; 
+				this.y &lt;= y &amp;&amp; this.y + this.size > y;
 	}
 }
 
 /**
  * @class
  *
+ * @constructor
  * @property {int} elementIdCounter 
  * @property {int} id - unique numerical identifier for this grid space
  * @property {int} history - 
@@ -192,8 +234,13 @@ function GridSpace(width, height) {
 	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
 	 */
 	this.findElementByPosition = function(x, y) {
-		return this.elements.find(function (el) { return el.x === x &amp;&amp; el.y === y; })
+		return this.elements.find(function (el) { return el.within(x, y); });
 	};
+	
+	/***/
+	this.hasElementAtPosition = function(x, y) {
+		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
+	}
 	
 	/**
 	 * Generate a grid space of random elements
@@ -204,20 +251,21 @@ function GridSpace(width, height) {
 			for (var h = 0; h &lt; this.height; h++) {
 				if (Math.random() &lt; 0.1) {
 					
-					var type = shapes[Math.floor(Math.random() * shapes.length)];
+					var type = shapes[Math.floor(Math.random() * (shapes.length-1))];
 					
 					var y = [];
 					var x = [];
 					
-					if(type === "line") {
-						while(Math.random() &lt; 0.5) {
-							x.push(Math.floor(Math.random() * this.width));
-							y.push(Math.floor(Math.random() * this.height));
-						}
-					} else {
+					//todo uncomment in order to insert randomized lines
+					//if(type === "line") {
+						//while(Math.random() &lt; 0.5) {
+							//x.push(Math.floor(Math.random() * this.width));
+							//y.push(Math.floor(Math.random() * this.height));
+						//}
+					//} else {
 						x = w + 1;
 						y = h + 1;
-					}
+					//}
 					
 					var input = new Element(
 												this.elementIdCounter++,
@@ -248,6 +296,9 @@ function GridSpace(width, height) {
 	 * @return {Element} the newly added element
 	 */
 	this.addElementToGridSpace = function(obj) {
+		if(this.hasElementAtPosition(obj.x, obj.y))
+			return undefined;
+			
 		var newElement = new Element(
 				this.elementIdCounter++,
 				obj.x,
@@ -258,6 +309,7 @@ function GridSpace(width, height) {
 				obj.category,
 				obj.name
 			);
+		
 		this.elements.push(newElement);
 		return newElement;
 	};
@@ -299,17 +351,16 @@ function GridSpace(width, height) {
 	
 	/***/
 	this.clickInGridSpace = function(x, y) {
-		
+		return this.elements.find( function(el) { return el.within(x, y) });
 	}
 	
 	/**
 	 *
 	 */
 	this.gatherElementsFromCategories = function(filters) {
-		return this
-						.elements
-						.filter( function(el) { 
-							return filters.indexOf(el.category) != -1 
+		return this.elements
+					.filter( function(el) { 
+						return filters.indexOf(el.category) != -1 
 					});
 	}
 }
@@ -338,9 +389,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		console.log(msg);
-		var size = grid_space.findElementByPosition(msg.new_x, msg.new_y);
-		console.log(elementsToBeRedrawn(msg.old_x, msg.old_y));
+		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
@@ -352,12 +401,10 @@ io.on('connection', function(socket) {
 	socket.on('move_element', function(msg) {
 
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
-		console.log(movedElement);
-		
 		if (typeof movedElement === 'undefined') return;
 		
 		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
-		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : {}});
+		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
 	});
 
 	/* ADD ELEMENT TO SERVER */
@@ -372,7 +419,6 @@ io.on('connection', function(socket) {
 								msg.name !== null ? msg.name : "object");
 		
 		io.emit('added_element', grid_space.addElementToGridSpace(input));
-		console.log(grid_space);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
@@ -404,10 +450,10 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('select_element_from_list', function(msg) {
-		console.log(msg);
-		var element = cells.find( function(el) { return el.id === msg.id } );
-		var element_to_redraw = elementsToBeRedrawn({ "old_x" : msg.selected_grid_x, "old_y" : msg.selected_grid_y });
-		element_to_redraw.push(cells.find( function(el) { return coordinate_comparison(el, { "x" : msg.selected_grid_x, "y" : msg.selected_grid_y } ) } ));
+		var element = grid_space.findElementById(msg.id);
+		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
+		//console.log(elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y));
+		//element_to_redraw.element.push(element);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
 });
@@ -587,7 +633,7 @@ function isUndefined(value) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 07 2018 10:18:57 GMT-0600 (CST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 16 2018 23:38:09 GMT-0600 (CST)
 </footer>
 
 <script> prettyPrint(); </script>
