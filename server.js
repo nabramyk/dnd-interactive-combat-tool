@@ -409,7 +409,6 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
-		//var ind = cells.findIndex( function(el) { return el.id === msg; });
 		var temp = grid_space.removeElementFromGridSpace(msg);
 		io.emit('removed_element', temp);
 		io.emit('retrieve_elements_list', grid_space.elements);
