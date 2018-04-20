@@ -12,7 +12,7 @@ var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,0,0,1)';
 var temporary_line_color = '8c8c8c';
-var grid_line_width = 2;
+var grid_line_width = 0.5;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
@@ -30,7 +30,7 @@ var index_id = 0,
 var x_vertices = [];
 var y_vertices = [];
 
-var grid_canvas, ctx;
+var grid_canvas, ctx, underlay_canvas, ctx2;
 
 var socket;
 
@@ -336,6 +336,8 @@ function bindEventHandlers() {
 function interfaceInitialization() {
 	grid_canvas = document.getElementById('grid_canvas');
 	start_new_line_button = document.getElementById('start_new_line_button');
+	
+	underlay_canvas = document.getElementById('underlay_canvas');
 
 	$("#movement_controls").hide();
 	$("#reset_board_button").prop("disabled", true);
@@ -343,10 +345,16 @@ function interfaceInitialization() {
 	$("#lost_connection_div").hide();
 
 	ctx = grid_canvas.getContext('2d');
+	ctx2 = underlay_canvas.getContext('2d');
 	
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
+	console.log(grid_canvas.width);
+	console.log(underlay_canvas.width);
+	
 	drawTopRuler();
 	drawLeftRuler();
 
@@ -368,11 +376,11 @@ function incremental_move_element(direction) {
  * Function for drawing the grid board
  */
 function drawScreen() {
-	ctx.lineWidth = grid_line_width;
-	ctx.strokeStyle = grid_color;
+	ctx2.lineWidth = grid_line_width;
+	ctx2.strokeStyle = grid_color;
 	for (var i = 0; i < grid_count_height; i++) {
 		for (var j = 0; j < grid_count_width; j++) {
-			ctx.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+			ctx2.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		}
 	}
 }
@@ -482,8 +490,8 @@ function clear_item(shape, x_coord, y_coord, color, size) {
  * @param {int} y
  */
 function clear_grid_space(x, y) {
-	ctx.clearRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size, grid_size);
-	ctx.strokeRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size, grid_size);
+	ctx.clearRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size + 1, grid_size + 1);
+	//ctx.strokeRect(gridPoint2Pixel(x) + grid_line_width, gridPoint2Pixel(y) + grid_line_width, grid_size, grid_size);
 }
 
 /**
@@ -549,6 +557,7 @@ function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
 	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	drawScreen();
 	drawTopRuler();
 }
@@ -557,6 +566,7 @@ function resizeGridHeight(height) {
 	grid_count_height = height;
 	$("#grid_size_vertical").val(grid_count_height);
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	drawScreen();
 	drawLeftRuler();
 }

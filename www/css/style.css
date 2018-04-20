@@ -58,6 +58,18 @@ i {
 
 #grid_canvas {
 	-webkit-user-select: none;
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	z-index: 100;
+}
+
+#underlay_canvas {
+	background: yellow;
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	z-index: 99;
 }
 
 #ruler_left {
