@@ -22,6 +22,7 @@ var selected_grid_y = -1;
 
 /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
 var cursor_size = 1;
+var cursor_line_width = 1;
 
 var index_id = 0,
 		index_x = 1,
@@ -535,7 +536,7 @@ function draw_cursor_at_position(x, y, size) {
 	switch ($('#selected_shape').val()) {
 		case "square":
 		case "circle":
-			ctx.lineWidth = grid_line_width;
+			ctx.lineWidth = cursor_line_width;
 			ctx.strokeStyle = grid_highlight;
 			ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size, grid_size * size);
 			cursor_size = size;
