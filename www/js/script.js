@@ -114,7 +114,6 @@ function bindSocketListeners() {
 	});
 
 	socket.on('removed_element', function(msg) {
-		console.log(msg);
 		clear_item(msg.type, msg.x, msg.y, msg.color, msg.size);
 		$("#element_list>#" + msg.id).remove();
 	});
@@ -132,12 +131,10 @@ function bindSocketListeners() {
 		clear_prev_cursor_position();
 		redrawErasedElements(msg.elements);
 		draw_item(msg.element);
-		console.log(msg.element);
 		draw_cursor_at_position(msg.element.x, msg.element.y, msg.element.size);
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		console.log(msg);
 		clear_prev_cursor_position();
 
 		if (selected_grid_x === -1 && selected_grid_y === -1) {
@@ -155,12 +152,15 @@ function bindSocketListeners() {
 		if(msg.selected_element.x === -1 && msg.selected_element.y === -1)
 			return
 		if(!isUndefined(msg.redraw_element))
-			console.log(msg.redraw_element);
 			msg.redraw_element.forEach(function(el) {
 				draw_item(el.element);
 			});
 		draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
 	});
+  
+  socket.on('error', function(msg) {
+    
+  });
 }
 
 /**
@@ -351,9 +351,6 @@ function interfaceInitialization() {
 	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-
-	console.log(grid_canvas.width);
-	console.log(underlay_canvas.width);
 	
 	drawTopRuler();
 	drawLeftRuler();
@@ -498,18 +495,19 @@ function clear_grid_space(x, y) {
  * Clears the previous cursor position
  */
 function clear_prev_cursor_position() {
-	if (selected_grid_x === -1 || selected_grid_y == -1)
+	if (selected_grid_x === -1 || selected_grid_y === -1)
 		return;
 
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
 	
-	for(var i=0; i<cursor_size; i++) {
-		for(var j=0; j<cursor_size; j++) {
-			clear_grid_space(selected_grid_x + i, selected_grid_y + j);
-		}
-	}
+	//for(var i=0; i<cursor_size; i++) {
+	//	for(var j=0; j<cursor_size; j++) {
+	//		clear_grid_space(selected_grid_x + i, selected_grid_y + j);
+	//	}
+	//}
 
+  ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + grid_line_width + 1, cursor_size * grid_size + grid_line_width);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y);
 	clear_grid_space(selected_grid_x, selected_grid_y - 1);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
@@ -767,7 +765,6 @@ function liangBarsky(x0, y0, x1, y1, bbox) {
  * @param {[Element]} elements - an array of elements of type 'Element'
  */
 function redrawErasedElements(elements) {
-	console.log(elements);
 	elements.forEach(function(el) {
 		if (el.element.type === 'line-segment') {
 			var bbox = [gridPoint2Pixel(el.bbox.x), gridPoint2Pixel(el.bbox.x + 1),

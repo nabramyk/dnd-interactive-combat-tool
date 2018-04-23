@@ -405,7 +405,9 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		
-		io.emit('added_element', grid_space.addElementToGridSpace(input));
+    var output = grid_space.addElementToGridSpace(input);
+    console.log(output);
+    isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', output);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
