@@ -158,6 +158,8 @@ function bindSocketListeners() {
 			});
 		draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
 	});
+	
+	socket.on('get_every_element', func)
   
   socket.on('error', function(msg) {
     
@@ -501,14 +503,8 @@ function clear_prev_cursor_position() {
 
 	ctx.strokeStyle = grid_color;
 	ctx.lineWidth = grid_line_width;
-	
-	//for(var i=0; i<cursor_size; i++) {
-	//	for(var j=0; j<cursor_size; j++) {
-	//		clear_grid_space(selected_grid_x + i, selected_grid_y + j);
-	//	}
-	//}
 
-  ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + grid_line_width + 1, cursor_size * grid_size + grid_line_width);
+  ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + cursor_line_width, cursor_size * grid_size + cursor_line_width);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y);
 	clear_grid_space(selected_grid_x, selected_grid_y - 1);
 	clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
