@@ -110,7 +110,13 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * 
 	 */
 	this.mutate = function(modifiedElement) {
-		
+		this.type = modifiedElement.type;
+    this.name = modifiedElement.name;
+    this.category = modifiedElement.category;
+    this.color = modifiedElement.color;
+    this.size = modifiedElement.size;
+    
+    return this;
 	}
 	
 	/**
@@ -195,7 +201,7 @@ function GridSpace(width, height) {
 	 * @return {(Element|undefined)} The element with the matching id, or undefined if no element with that id exists
 	 */
 	this.findElementById = function(id) {
-		return this.elements.find(function (el) { return el.id === id; })
+		return this.elements.find(function (el) { return el.id == id; })
 	};
 	
 	/**
@@ -420,6 +426,10 @@ io.on('connection', function(socket) {
 		io.emit('removed_element', temp);
 		io.emit('retrieve_elements_list', grid_space.elements);
 	});
+  
+  socket.on('edit_element_on_server', function(msg) {
+    io.emit("edited_element", grid_space.findElementById(msg.id).mutate(msg));
+  });
 	
 	socket.on('randomize', function(msg) {
 		grid_space
@@ -447,6 +457,10 @@ io.on('connection', function(socket) {
 		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
+  
+  socket.on('find_element_by_id', function(msg) {
+    socket.emit('element_by_id', grid_space.findElementById(msg));
+  });
 });
 
 // Main driver for booting up the server
