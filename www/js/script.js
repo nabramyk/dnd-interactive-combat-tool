@@ -99,11 +99,19 @@ function bindSocketListeners() {
 	socket.on('resize_height', function(msg) {
 		grid_count_height = msg.height;
 		resizeGridHeight(grid_count_height);
+		
+		msg.elements.forEach(function(el) {
+			draw_item(el);
+		});
 	});
 
 	socket.on('resize_width', function(msg) {
 		grid_count_width = msg.width;
 		resizeGridWidth(grid_count_width);
+		
+		msg.elements.forEach(function(el) {
+			draw_item(el);
+		});
 	});
 
 	socket.on('added_element', function(msg) {
@@ -158,9 +166,7 @@ function bindSocketListeners() {
 			});
 		draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
 	});
-	
-	socket.on('get_every_element', func)
-  
+	  
   socket.on('error', function(msg) {
     
   });

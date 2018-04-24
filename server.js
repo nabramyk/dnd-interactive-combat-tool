@@ -367,12 +367,18 @@ io.on('connection', function(socket) {
 	
 	socket.on('resize_height', function(msg) {
 		grid_space.resizeHeight(msg.height);
-		io.emit('resize_height', msg);
+		io.emit('resize_height', {
+			"height" : msg.height,
+			"elements" : grid_space.elements
+		});
 	});
 
 	socket.on('resize_width', function(msg) {
 		grid_space.resizeWidth(msg.width);
-		io.emit('resize_width', msg);
+		io.emit('resize_width', {
+			"width" : msg.width,
+			"elements" : grid_space.elements
+		});
 	});
 
 	socket.on('canvas_clicked', function(msg) {
