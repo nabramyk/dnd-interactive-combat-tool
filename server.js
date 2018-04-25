@@ -428,7 +428,7 @@ io.on('connection', function(socket) {
 	});
   
   socket.on('edit_element_on_server', function(msg) {
-    io.emit("edited_element", grid_space.findElementById(msg.id).mutate(msg));
+    io.emit('edited_element', grid_space.findElementById(msg.id).mutate(msg));
   });
 	
 	socket.on('randomize', function(msg) {

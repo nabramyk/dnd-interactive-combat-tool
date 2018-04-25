@@ -166,6 +166,11 @@ function bindSocketListeners() {
       });
     draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
   });
+  
+  socket.on('edited_element', function(msg) {
+    var temp = $("#element_list #" + msg.id).replaceWith(composeElementListRowElement(msg));
+    console.log(temp);
+  });
 
   socket.on('error', function(msg) {
 
