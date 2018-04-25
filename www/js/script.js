@@ -134,6 +134,7 @@ function bindSocketListeners() {
     }
     //redrawErasedElements(msg.elements);
     draw_item(msg.element);
+    $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
 
   socket.on('moving_element', function(msg) {
@@ -141,6 +142,7 @@ function bindSocketListeners() {
     redrawErasedElements(msg.elements);
     draw_item(msg.element);
     draw_cursor_at_position(msg.element.x, msg.element.y, msg.element.size);
+    $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
 
   socket.on('canvas_clicked', function(msg) {
@@ -168,7 +170,7 @@ function bindSocketListeners() {
   });
   
   socket.on('edited_element', function(msg) {
-    var temp = $("#element_list #" + msg.id).replaceWith(composeElementListRowElement(msg));
+    $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
     console.log(temp);
   });
 
