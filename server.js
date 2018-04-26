@@ -1,24 +1,18 @@
-//This server requires the 'express' NodeJS server framework
+/**
+ * @fileOverview A server for handling objects which are drawable on a canvas
+ * @author Nathan Abramyk
+ * @copyright Nathan Abramyk 2018
+ * @version 1.0.0
+ */
+
+var app = require('express')();
 var express = require('express');
-var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var log4js = require('log4js');
 var log = log4js.getLogger();
 
 var bodyParser = require('body-parser')
-
-var element_id_counter = 1;
-
-function coordinate_comparison(obj_1, obj_2) {
-	if (obj_1.x_coord instanceof Array)
-		return obj_1.x_coord.every(function(u, i) {
-				return u === obj_2.x_coord[i];
-			}) &&
-			obj_1.y_coord.every(function(u, i) {
-				return u === obj_2.y_coord[i];
-			});
-	else
-		return obj_1.x_coord === obj_2.x_coord && obj_1.y_coord === obj_2.y_coord;
-}
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -30,371 +24,511 @@ app.use(function(req, res, next) {
 	next();
 });
 
-//Define the main path to index.html, which will be automatically loaded when the user visits for the
-//first time
+// Define the main path to index.html, which will be automatically loaded when
+// the user visits for the
+// first time
 app.use(express.static('www'));
 
-//Define the path for where the javscript files are located for the users webpage
+// Define the path for where the javscript files are located for the users
+// webpage
 app.use('/js', express.static(__dirname + '/www/js'))
 
-//Define the path for where the css stylesheets are located for the users webpage
+// Define the path for where the css stylesheets are located for the users
+// webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-//Initialize the array for centralizing the model between multiple users
-var cells = [];
+var element_id_counter = 1;
+var grid_id_counter = 1;
 
-var history = [];
+const shapes = ["square","circle","line"];
+const categories = ["npc","environment","enemy","player"]; 
 
-var grid_width = 1;
-var grid_height = 1;
-
-/* Function for updating the users view when called
- * 
- * Recieves: a json array containing the list of elements which are currently displayed
- * on that individual page
- * 
- * Sends: a vector of actions which the page will use to correct itself to the servers model
+/**
+ * @class Objects which are representable in the grid space
+ *
+ * @constructor
+ * @property {int} id - unique numerical identifier of this element
+ * @property {int} x - horizontal grid coordinate of the element
+ * @property {int} y - vertical grid coordinate of the element
+ * @property {string} type - the geometric shape this element represents
+ * @property {string} color - the hexadecimal value of the element color
+ * @property {int} size - the amount of grid spaces this elements spans across
+ * @property {string} category - the meta group this element belongs to
+ * @property {string} name - the unique name of this element
  */
-app.post('/update', function(req, res) {
-
-	//Parse the user call and store the list of live objects from the user in an array
-	var live_objects = JSON.parse(req.body.live_objects);
-
-	//Initialize the correction vector for returning the actions the webpage must take in
-	//order to be up to date with the server model
-	var correction_vector = [];
-
-	correction_vector.push({
-		"width": grid_width,
-		"height": grid_height
-	});
-
-	//For each live element in the user's model...
-	live_objects.forEach(function(el, ind, arr) {
-		//...if this live element does not exist in the server's grid...
-		if (cells.findIndex(function(el2) {
-				return coordinate_comparison(el, el2);
-			}) == -1) {
-			//push to the correction vector so that it is removed from the user's grid
-			correction_vector.push({
-				"action": "erase",
-				"item": el
-			});
+function Element(id, x, y, type, color, size, category, name) {
+	this.id = id;
+	this.x = x;
+	this.y = y;
+	this.type = type;
+	this.color = color;
+	this.size = size;
+	this.category = category;
+	this.name = name;
+	
+	/**
+	 * Move the element 1 unit in a specific direction
+	 * @param {String} direction - the direction to move this element
+	 * @return {Element|undefine} This element at its new position, or undefined if it cannot move
+	 */
+	this.nudge = function(direction, gridSpace) {
+		var moveToX = this.x, moveToY = this.y;
+		switch(direction) {
+			case "right": //right
+				moveToX++;
+				break;
+			case "up": //up
+				moveToY--;
+				break;
+			case "left": //left
+				moveToX--;
+				break;
+			case "down": //down
+				moveToY++;
+				break;
 		}
 
-	});
+		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, size, id); } ) === undefined) {
+			this.x = moveToX;
+			this.y = moveToY;
 
-	//For each live element in the server model...
-	cells.forEach(function(el, ind, arr) {
-		//...if this live element does not exist in the user's grid...
-		if (live_objects.findIndex(function(el2) {
-				return coordinate_comparison(el, el2);
-			}) == -1) {
-			//...push to the correction vector so that it is added to the user's grid
-			correction_vector.push({
-				"action": "add",
-				"item": el
-			});
+			return this;
+		} else {
+      console.log("BONK!");
+			return undefined;
 		}
-
-		if (live_objects.find(function(el2) {
-				return (el2.name !== el.name ||
-					el2.category !== el.category ||
-					el2.color !== el.color ||
-					el2.size !== el.size ||
-					el2.shape !== el.shape) && coordinate_comparison(el, el2);
-			})) {
-			correction_vector.push({
-				"action": "edit",
-				"item": el
-			})
-		}
-	});
-
-	//Return the correction vector as a json array
-	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify(correction_vector));
-});
-
-//Function for modifying the servers internal model of the grid board
-app.post('/delete_element', function(req, res) {
-
-	var id = JSON.parse(req.body.id);
-
-	//For each element in the internal state...
-	cells.find(function(el, ind, arr) {
-		if (el.id == id) {
-			console.log("Deleted: " + JSON.stringify(req.body));
-			history.push({
-				"action": "delete",
-				"item": cells[ind]
-			});
-			cells.splice(ind, 1);
-			return true;
-		}
-	});
-
-	res.setHeader('Content-Type', 'application/json');
-	res.send("Done");
-});
-
-app.post('/add_element', function(req, res) {
-	//Parse the input request and store it as a JSON object
-	var input = {
-		"id": element_id_counter,
-		"color": req.body.color,
-		"x_coord": JSON.parse(req.body.x_coord),
-		"y_coord": JSON.parse(req.body.y_coord),
-		"shape": req.body.object_type,
-		"name": req.body.name !== "" ? req.body.name : "object",
-		"size": req.body.size,
-		"category": req.body.category
 	};
-
-	console.log("Added: " + JSON.stringify(input));
-
-	cells.push(input);
-	history.push({
-		"action": "add",
-		"item": input
-	});
-
-	res.setHeader('Content-Type', 'application/json');
-	res.send("Done");
-
-	element_id_counter++;
-});
-
-app.post('/edit_element', function(req, res) {
-	var id = JSON.parse(req.body.id);
-	var ob = cells.find(function(el) {
-		return el.id == id;
-	});
-	ob.name = req.body.name;
-	ob.shape = req.body.shape;
-	ob.color = req.body.color;
-	ob.size = req.body.size;
-	ob.category = req.body.category;
-	console.log("Renamed: " + JSON.stringify(req.body));
-	res.setHeader('Content-Type', 'application/json');
-	res.send({
-		message: "message"
-	});
-});
-
-app.post('/move_element', function(req, res) {
-
-	var ob = cells.find(function(el) {
-		return el.x_coord == req.body.from_x && el.y_coord == req.body.from_y
-	});
-
-	if (typeof ob === 'undefined') {
-		res.status(400).json({
-			"error": req.body.from_x
-		});
-		return;
+	
+	/**
+	 * Move the element to a new grid location
+	 */
+	this.warp = function(x, y) {
+		
+	};
+	
+	/**
+	 * Modify this elements properties
+	 * 
+	 */
+	this.mutate = function(modifiedElement) {
+    console.log("before: " + this.toString());
+		this.type = modifiedElement.type;
+    this.name = modifiedElement.name;
+    this.category = modifiedElement.category;
+    this.color = modifiedElement.color;
+    this.size = parseInt(modifiedElement.size);
+    console.log("after: " + this.toString());
+    return this;
 	}
+	
+	/**
+	 * Return this elements properties and stripped of its methods
+	 * @return {JSON} The properties of this element
+	 */
+	this.condense = function() {
+		return {};
+	}
+	
+	/**
+	 * Determine if this element is colliding with another
+	 * @param {int} x - horizontal coordinate of comparing element
+	 * @param {int} y - vertical coordinate of comparing element
+	 * @param {int} size - numerical span of comparing element
+	 * @param {int} id - unique identifier of comparing element
+	 * @return {boolean} True if both elements collide, false otherwise
+	 */
+	this.collide = function(x, y, size, id) {
+		return id != this.id &&
+				x < this.x + this.size &&
+				x + size > this.x &&
+				y < this.y + this.size &&
+				y + size > this.y;
+	}
+	
+	/**
+	 * Determine if a sinlge point is contained within this element
+	 * @param {int} x - horizontal grid position
+	 * @param {int} y - vertical grid position
+	 * @return {boolean} True if this point is is within this element, false otherwise
+	 */
+	this.within = function(x, y) {
+		return this.x <= x && this.x + this.size > x && 
+				this.y <= y && this.y + this.size > y;
+	}
+  
+  this.toString = function() {
+    return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", type: " + this.type + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
+  }
+}
 
-	var direction = req.body.direction;
-	var move_to_x = ob.x_coord;
-	var move_to_y = ob.y_coord;
-	var id = ob.id;
-
-	do {
-		if (direction == "right") move_to_x++;
-		else if (direction == "left") move_to_x--;
-		else if (direction == "up") move_to_y--;
-		else if (direction == "down") move_to_y++;
-	} while (cells.findIndex(function(element) {
-			return coordinate_comparison(element, {
-				"x_coord": move_to_x,
-				"y_coord": move_to_y
-			})
-		}) != -1);
-
-	ob.x_coord = move_to_x;
-	ob.y_coord = move_to_y;
-
-	console.log("Moved: " + JSON.stringify(req.body));
-
-	res.status(200).json({
-		"id": id,
-		"position_x": ob.x_coord,
-		"position_y": ob.y_coord
-	});
-});
-
-app.post('/resize_grid', function(req, res) {
-	grid_width = JSON.parse(req.body.width);
-	grid_height = JSON.parse(req.body.height);
-	console.log("Resized: " + JSON.stringify(req.body));
-
-	res.status(200).json({
-		"width": grid_width,
-		"height": grid_height
-	});
-});
-
-app.post('/undo_action', function(req, res) {
-	res.status(200);
-});
-
-app.post('/redo_action', function(req, res) {
-	res.status(200);
-});
-
-app.post('/randomize', function(req, res) {
-	for (var w = 0; w < grid_width; w++) {
-		for (var h = 0; h < grid_height; h++) {
-			if (Math.random() < 0.5) {
-					var input = {
-						"id": element_id_counter,
-						"color": "000000",
-						"x_coord": w + 1,
-						"y_coord": h + 1,
-						"shape": "square",
-						"name": "rando" + h * w,
-						"size": 1,
-						"category": "environment"
-					};
-				
-					cells.push(input);
-					element_id_counter++;
+/**
+ * @class
+ *
+ * @constructor
+ * @property {int} elementIdCounter 
+ * @property {int} id - unique numerical identifier for this grid space
+ * @property {int} history - 
+ * @property [Element] - collection of displayable elements in this grid space
+ * @property {int} width - amount of horizontal grid points in this space
+ * @property {int} height - amount of vertical grid points in this space
+ */
+function GridSpace(width, height) {
+	
+	this.elementIdCounter = 1;
+	this.id = grid_id_counter++;
+	this.history = [];
+	this.elements = [];
+	this.width = width;
+	this.height = height;
+	
+	/**
+	 * Set the grid space width
+	 * @param {int} newWidth - the new width of the grid space
+	 * @return {int} The new width of the grid space
+	 */
+	this.resizeWidth = function(newWidth) {
+		this.width = newWidth;
+		return this.width;
+	};
+	
+	/**
+	 * Set the grid space height
+	 * @param {int} newHeight - the new height of the grid space
+	 * @return {int} The new height of the grid space
+	 */
+	this.resizeHeight = function(newHeight) {
+		this.height = newHeight;
+		return this.height;
+	};
+	
+	/**
+	 * Find the element with the corresponding ID
+	 * @param {int} id - the unique numerical identifier to search for
+	 * @return {(Element|undefined)} The element with the matching id, or undefined if no element with that id exists
+	 */
+	this.findElementById = function(id) {
+		return this.elements.find(function (el) { return el.id == id; })
+	};
+	
+	/**
+	 * Find the element at the specified position
+	 * @param {int} x - x grid point 
+	 * @param {int} y - y grid point
+	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
+	 */
+	this.findElementByPosition = function(x, y) {
+		return this.elements.find(function (el) { return el.within(x, y); });
+	};
+	
+	/***/
+	this.hasElementAtPosition = function(x, y) {
+		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
+	}
+	
+	/**
+	 * Generate a grid space of random elements
+	 * @return [Element] An array of drawables elements
+	 */
+	this.generateRandomBoardElements = function() {
+		for (var w = 0; w < this.width; w++) {
+			for (var h = 0; h < this.height; h++) {
+				if (Math.random() < 0.1) {
+					
+					var type = shapes[Math.floor(Math.random() * (shapes.length-1))];
+					
+					var y = [];
+					var x = [];
+					
+					//todo uncomment in order to insert randomized lines
+					//if(type === "line") {
+						//while(Math.random() < 0.5) {
+							//x.push(Math.floor(Math.random() * this.width));
+							//y.push(Math.floor(Math.random() * this.height));
+						//}
+					//} else {
+						x = w + 1;
+						y = h + 1;
+					//}
+					
+					var input = new Element(
+												this.elementIdCounter++,
+												x, //x
+												y, //y
+												type, //shape
+												Math.floor(Math.random()*16777215).toString(16), //color
+												Math.round(Math.random() * 3) + 1, //size
+												categories[Math.floor(Math.random() * categories.length)],
+												("rando" + h * w)
+					);
+					
+					if(this.elements.find(function(el) {
+							return collision_detection(el, input); 
+						}) === undefined ) {
+						this.elements.push(input);
+					}
+				}
 			}
 		}
-	}
-});
 
-app.post('/reset', function(req, res) {
-	cells = [];
-});
-
-app.post('/canvas_clicked', function(req, res) {
+		return this.elements;
+	};
 	
-	var temp = { "x_coord" : JSON.parse(req.body.x_coord),
-							 "y_coord" : JSON.parse(req.body.y_coord)
-						};
-		
-	var elements_to_redraw = cells.filter(function (el) {
-		return coordinate_comparison(el, center(temp)) ||
-					 coordinate_comparison(el, north(temp)) ||
-					 coordinate_comparison(el, northwest(temp)) ||
-					 coordinate_comparison(el, west(temp));
-	}).map(function (el) {
-		return { "action" : "draw", 
-						 "element" : el	};
-	});
-	
-	var lines = cells.filter(function(element) {
-		return element.shape === "line";
-	});
-	
-	elements_to_redraw = elements_to_redraw.concat(check_for_clipped_regions(center(temp), lines));
-	
-	res.status(200).json({
-		"selected_grid" : req.body,
-		"redraw_items" : elements_to_redraw,
-	});
-
-});
-
-
-
-
-//HELPERS
-function north(point) {
-	return { "x_coord" : point.x_coord, "y_coord": point.y_coord - 1 };
-}
-
-function east(point) {
-	return { "x_coord" : point.x_coord + 1, "y_coord" : point.y_coord };
-}
-
-function east2(point) {
-	return { "x_coord" : point.x_coord + 1 * 2, "y_coord" : point.y_coord };
-}
-
-function west(point) {
-	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord};
-}
-
-function south() {
-	return [selected_grid_x, selected_grid_y + 1];
-}
-
-function northeast() {
-	return [selected_grid_x + 1, selected_grid_y - 1];
-}
-
-function northwest(point) {
-	return { "x_coord" : point.x_coord - 1, "y_coord" : point.y_coord - 1 };
-}
-
-function southeast() {
-	return [selected_grid_x + 1, selected_grid_y + 1];
-}
-
-function southwest() {
-	return [selected_grid_x - 1, selected_grid_y + 1];
-}
-
-function center(point) {
-	return { "x_coord" : point.x_coord, "y_coord" : point.y_coord };
-}
-//
-
-
-
-
-
-function check_for_clipped_regions(grid_location, lines) {
-	var grid_x = grid_location.x_coord,
-			grid_y = grid_location.y_coord;
-	
-	var grid_points = [];
-	var redraw_line = [];
-	
-	//Execute function for each set of line segments
-	lines.forEach(function(element, ind, arr) {
-
-		var vertices_x = element.x_coord;
-		var vertices_y = element.y_coord;
-		
-		for (var i = 1; i < vertices_x.length; i++) {
-			grid_points = grid_points.concat(calculate_grid_points_on_line({
-				"x": vertices_x[i - 1],
-				"y": vertices_y[i - 1]
-			}, {
-				"x": vertices_x[i],
-				"y": vertices_y[i]
-			}));
+	/**
+	 * Add an element to the grid space
+	 * @param {Element} obj - the element to add to the grid space
+	 * @return {Element} the newly added element
+	 */
+	this.addElementToGridSpace = function(obj) {
+		if(this.hasElementAtPosition(obj.x, obj.y))
+			return undefined;
 			
-			if(grid_points.find( function(el) { return el.x === grid_x && el.y === grid_y; }) != 'undefined') {
-				grid_points.forEach(function(el) {
-					redraw_line.push({ "action" : "erase", "coordinate" : el });
-				})
-				redraw_line.push({ "action" : "draw", 
-													"element" : {
-															"shape" : "line",
-															"x_coord" : [vertices_x[i - 1],vertices_x[i]],
-															"y_coord" : [vertices_y[i - 1],vertices_y[i]],
-															"color" : element.color,
-															"size" : 0
-													}
-												 }
-												);
-			}
-		}
-	});
+		var newElement = new Element(
+				this.elementIdCounter++,
+				obj.x,
+				obj.y,
+				obj.type,
+				obj.color,
+				obj.size,
+				obj.category,
+				obj.name
+			);
+		
+		this.elements.push(newElement);
+		return newElement;
+	};
 	
-	return redraw_line;
+	/**
+	 * Delete an element from the grid space
+	 * @param {int} id - the unique numerical id of an element
+	 * @return {Element} The removed element
+	 */
+	this.removeElementFromGridSpace = function(id) {
+		var ind = this.elements.findIndex( function(el) { return el.id === id; });
+		var return_element = this.elements[ind];
+		this.elements.splice(ind, 1);
+		return return_element;
+	};
+	
+	/**
+	 * Deletes all elements from the grid space
+	 * @return the newly emptied list
+	 */
+	this.removeAllElementsFromGridSpace = function() {
+		var returnGridSpace = this.elements.slice();
+		this.elements = [];
+		return returnGridSpace;
+	}
+	
+	/**
+	 * Moves an element 1 grid unit
+	 * @param {int} x - horizontal grid position
+	 * @param {int} y - vertical grid position
+	 * @param {String} direction - the direction to move the element
+	 * @return {Element|undefined} The element at its new position, or undefined
+	 */
+	this.nudgeElement = function(x, y, direction) {
+			try { 
+				return this.findElementByPosition(x, y).nudge(direction, this);
+			} catch(e) {
+				return undefined; 
+			}
+	}
+	
+	/***/
+	this.clickInGridSpace = function(x, y) {
+		return this.elements.find( function(el) { return el.within(x, y) });
+	}
+	
+	/**
+	 *
+	 */
+	this.gatherElementsFromCategories = function(filters) {
+		return this.elements
+					.filter( function(el) { 
+						return filters.indexOf(el.category) != -1 
+					});
+	}
+	
+	/**
+	 *
+	 */
+	this.historyUndo = function() {
+		
+	}
+	
+	/**
+	 *
+	 */
+	this.historyRedo = function() {
+		
+	}
 }
 
+var grid_space = new GridSpace(1, 1);
+
+io.on('connection', function(socket) {
+	console.log("a user connected");
+
+	socket.on('init', function(msg) {
+		socket.emit('init', { 
+			"grid_width" : grid_space.width,
+			"grid_height" : grid_space.height,
+			"elements" : grid_space.elements
+		});
+	});
+	
+	socket.on('resize_height', function(msg) {
+		grid_space.resizeHeight(msg.height);
+		io.emit('resize_height', {
+			"height" : msg.height,
+			"elements" : grid_space.elements
+		});
+	});
+
+	socket.on('resize_width', function(msg) {
+		grid_space.resizeWidth(msg.width);
+		io.emit('resize_width', {
+			"width" : msg.width,
+			"elements" : grid_space.elements
+		});
+	});
+
+	socket.on('canvas_clicked', function(msg) {
+		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
+		socket.emit('canvas_clicked', {
+			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
+			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
+			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
+			"elements" : elementsToBeRedrawn(msg.old_x, msg.old_y)
+		});
+	});
+
+	socket.on('move_element', function(msg) {
+
+		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
+		if (typeof movedElement === 'undefined') return;
+		
+		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
+		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
+	});
+
+	/* ADD ELEMENT TO SERVER */
+	socket.on('add_element_to_server', function(msg) {
+		var input = new Element(element_id_counter++,
+								JSON.parse(msg.x_coord), 
+								JSON.parse(msg.y_coord), 
+								msg.object_type, 
+								msg.color, 
+								JSON.parse(msg.size), 
+								msg.category,
+								msg.name !== null ? msg.name : "object");
+		
+    var output = grid_space.addElementToGridSpace(input);
+    isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', output);
+	});
+	
+	socket.on('delete_element_on_server', function(msg) {
+		var temp = grid_space.removeElementFromGridSpace(msg);
+		io.emit('removed_element', temp);
+		io.emit('retrieve_elements_list', grid_space.elements);
+	});
+  
+  socket.on('edit_element_on_server', function(msg) {
+    io.emit('edited_element', grid_space.findElementById(msg.id).mutate(msg));
+  });
+	
+	socket.on('randomize', function(msg) {
+		grid_space
+			.generateRandomBoardElements()
+			.forEach(function(el) {
+				io.emit('added_element', el);
+		});
+	});
+	
+	socket.on('reset_board', function(msg) {
+		grid_space
+			.removeAllElementsFromGridSpace()
+			.forEach(function(el) {
+				console.log(el);
+				io.emit('removed_element', el);
+		})
+	});
+	
+	socket.on('get_elements_list', function(msg) {
+		socket.emit('retrieve_elements_list', grid_space.gatherElementsFromCategories(msg.filter));
+	});
+	
+	socket.on('select_element_from_list', function(msg) {
+		var element = grid_space.findElementById(msg.id);
+		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
+		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
+	});
+  
+  socket.on('find_element_by_id', function(msg) {
+    socket.emit('element_by_id', grid_space.findElementById(msg));
+  });
+});
+
+// Main driver for booting up the server
+http.listen(8080, function() {
+	console.log("%s:%s", http.address().address, http.address().port)
+});
+
+/**
+ * Determine if two objects are lines with matching vertices, or if two objects have overlapping coordinates
+ * Need to fix by incorporating both elements sizes instead of just one 
+ *
+ * @param obj_1
+ * @param obj_2
+ * @returns
+ */
+function coordinate_comparison(obj_1, obj_2) {
+	if (obj_1.x instanceof Array)
+		return obj_1.x.every(function(u, i) {
+				return u === obj_2.x[i];
+			}) &&
+			obj_1.y.every(function(u, i) {
+				return u === obj_2.y[i];
+			});
+	else
+		return obj_1.x <= obj_2.x && obj_1.x + obj_1.size > obj_2.x && 
+			obj_1.y <= obj_2.y && obj_1.y + obj_1.size > obj_2.y;
+}
+
+/**
+ * Determine if the grid coordinate lies on an aliased vector path
+ * 
+ * @param {obj} grid_location - xy coordinate of a grid point to find
+ * @param {obj} line - vector of grid points to search from
+ * @returns {obj|undefined} 
+ */
+function check_for_clipped_regions(grid_location, line) {
+	for(var i=1; i<line.x.length; i++) {
+		var line_segment = [{ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]}];
+		if(typeof calculate_grid_points_on_line({ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]})
+			 .find(function(el) {
+					return grid_location.x === el.x && grid_location.y === el.y ? true : undefined;
+				}) !== 'undefined') {
+				return line_segment;
+		}
+	}
+	return undefined;
+}
+
+/**
+ * Compute an array of XY pairs which are the grid squares that the line crosses 
+ * 
+ * @param {obj} starting_point - coordinate of the starting vertex
+ * @param {obj} ending_point - coordinate of the ending vertex
+ * @returns [{obj}]
+ */
 function calculate_grid_points_on_line(starting_point, ending_point) {
 	var grid_points = [];
 	var m, b, y_val;
+	var step_size = 0.01;
 
-	//Swap the points if the x value at the end is smaller than the starting x value
+	// Swap the points if the x value at the end is smaller than the starting x
+	// value
 	if (ending_point.x < starting_point.x) {
 		var temp = starting_point;
 		starting_point = ending_point;
@@ -420,10 +554,10 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 			});
 		}
 	} else
-		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val++) {
+		for (var x_val = starting_point.x; x_val <= ending_point.x; x_val = x_val + step_size) {
 			y_val = Math.floor(m * x_val + b);
 			var xy_pair = {
-				"x": x_val,
+				"x": Math.floor(x_val),
 				"y": y_val
 			};
 
@@ -439,20 +573,59 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 					grid_points.push(xy_pair);
 			}
 		}
-	
+
 	return grid_points;
 }
 
+/**
+ * Compile a list of all elements that would have erroneously erased within a given grid area
+ *
+ * @param msg
+ * @returns
+ */
+function elementsToBeRedrawn(old_x, old_y) {
+	var ob = [];
+		
+		[ { "x" : old_x, "y" : old_y },
+			{ "x" : old_x-1, "y" : old_y},
+			{ "x" : old_x, "y" : old_y-1},
+			{ "x" : old_x-1, "y" : old_y-1}]
+		.forEach(function(cursor_space) {
+			grid_space.elements.forEach( function(el) {
+				if(el.type === 'line') {
+					var out = check_for_clipped_regions(cursor_space, el);
+					if(out !== undefined) {
+						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
+					}
+				} else {
+					if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
+						ob.push({ "element" : el });
+				}
+			});
+		});
+	
+	return ob;
+}
 
+/**
+ * Detect it two elements are colliding
+ *
+ * @param {Element} obj_1 -
+ * @param {Element} obj_2 -
+ * @returns {Boolean} True if the objects are colliding; False otherwise 
+ */
+function collision_detection(obj_1, obj_2) {
+	return obj_1.x < obj_2.x + obj_2.size &&
+					obj_1.x + obj_1.size > obj_2.x &&
+					obj_1.y < obj_2.y + obj_2.size &&
+					obj_1.y + obj_1.size > obj_2.y;
+}
 
-
-
-
-
-//Main driver for booting up the server
-var server = app.listen(8080, function() {
-	var host = server.address().address
-	var port = server.address().port
-
-	console.log("%s:%s", host, port)
-})
+/**
+ * 
+ * @param value
+ * @returns
+ */
+function isUndefined(value) {
+	return value === undefined;
+}
