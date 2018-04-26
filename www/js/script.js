@@ -10,7 +10,7 @@ var grid_size = 20;
 var grid_count_width = 0;
 var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
-var grid_highlight = 'rgba(0,0,0,1)';
+var grid_highlight = 'rgba(0,153,0,1)';
 var temporary_line_color = '8c8c8c';
 var grid_line_width = 0.5;
 
@@ -170,8 +170,8 @@ function bindSocketListeners() {
   });
   
   socket.on('edited_element', function(msg) {
-    $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
-    console.log(temp);
+    console.log(msg);
+    $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
   });
 
   socket.on('error', function(msg) {
@@ -420,7 +420,7 @@ function draw_item(element) {
       ctx.fillStyle = "#" + element.color;
       x = gridPoint2Pixel(element.x) + grid_line_width * 2;
       y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-      ctx.fillRect(x, y, element.size * grid_size - grid_line_width * 2, element.size * grid_size - grid_line_width * 2);
+      ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size * grid_size - cursor_line_width * 2, element.size * grid_size - cursor_line_width * 2);
       break;
     case "circle":
       ctx.fillStyle = "#" + element.color;
@@ -532,6 +532,7 @@ function clear_prev_cursor_position() {
   clear_grid_space(selected_grid_x, selected_grid_y - 1);
   clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
 }
+
 /**
  * Draws the cursor at the position and sets the global trackers
  *

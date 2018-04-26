@@ -94,6 +94,7 @@ function Element(id, x, y, type, color, size, category, name) {
 
 			return this;
 		} else {
+      console.log("BONK!");
 			return undefined;
 		}
 	};
@@ -110,12 +111,13 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * 
 	 */
 	this.mutate = function(modifiedElement) {
+    console.log("before: " + this.toString());
 		this.type = modifiedElement.type;
     this.name = modifiedElement.name;
     this.category = modifiedElement.category;
     this.color = modifiedElement.color;
-    this.size = modifiedElement.size;
-    
+    this.size = parseInt(modifiedElement.size);
+    console.log("after: " + this.toString());
     return this;
 	}
 	
@@ -153,6 +155,10 @@ function Element(id, x, y, type, color, size, category, name) {
 		return this.x <= x && this.x + this.size > x && 
 				this.y <= y && this.y + this.size > y;
 	}
+  
+  this.toString = function() {
+    return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", type: " + this.type + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
+  }
 }
 
 /**
