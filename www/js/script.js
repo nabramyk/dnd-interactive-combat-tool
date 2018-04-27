@@ -344,15 +344,19 @@ function bindEventHandlers() {
   $(document).keydown(function(e) {
     switch (e.which) {
       case 37:
+        e.preventDefault();
         $("#move_inc_left").click();
         break;
       case 38:
+        e.preventDefault();
         $("#move_inc_up").click();
         break;
       case 39:
+        e.preventDefault();
         $("#move_inc_right").click();
         break;
       case 40:
+        e.preventDefault();
         $("#move_inc_down").click();
         break;
     }
