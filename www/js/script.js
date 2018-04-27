@@ -244,7 +244,7 @@ function bindEventHandlers() {
     }
 
     if (x_vertices.length > 1 && y_vertices.length > 1)
-      add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, null, $("#element_category").val());
+      add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
 
     x_vertices = [];
     y_vertices = [];
@@ -341,19 +341,19 @@ function bindEventHandlers() {
 
   $("#grid_canvas").attr('tabindex', '0');
   $("#grid_canvas").focus();
-  $("#grid_canvas").keydown(function(e) {
+  $(document).keydown(function(e) {
     switch (e.which) {
       case 37:
-        incremental_move_element('left');
+        $("#move_inc_left").click();
         break;
       case 38:
-        incremental_move_element('up');
+        $("#move_inc_up").click();
         break;
       case 39:
-        incremental_move_element('right');
+        $("#move_inc_right").click();
         break;
       case 40:
-        incremental_move_element('down');
+        $("#move_inc_down").click();
         break;
     }
   });
@@ -432,6 +432,7 @@ function draw_item(element) {
       break;
     case "line":
       ctx.strokeStyle = "#" + element.color;
+      ctx.lineWidth = element.size;
       ctx.beginPath();
       x = element.x.map(function(e) {
         return gridPoint2Pixel(e)
@@ -796,6 +797,8 @@ function redrawErasedElements(elements) {
         gridPoint2Pixel(el.element.y[1]),
         bbox);
       ctx.strokeStyle = "#" + el.element.color;
+      ctx.lineWidth = el.element.size;
+      console.log(el.element);
       ctx.beginPath();
       ctx.moveTo(temp[0][0] + grid_line_width, temp[1][0] + grid_line_width);
       ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);

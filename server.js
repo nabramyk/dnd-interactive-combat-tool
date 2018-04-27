@@ -595,7 +595,7 @@ function elementsToBeRedrawn(old_x, old_y) {
 				if(el.type === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
 					if(out !== undefined) {
-						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
+						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color , "size" : el.size} , "bbox" : cursor_space});
 					}
 				} else {
 					if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
