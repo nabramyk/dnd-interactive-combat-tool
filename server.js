@@ -234,21 +234,26 @@ function GridSpace(width, height) {
 			for (var h = 0; h < this.height; h++) {
 				if (Math.random() < 0.1) {
 					
-					var type = shapes[Math.floor(Math.random() * (shapes.length-1))];
+					var type = shapes[Math.floor(Math.random() * shapes.length)];
 					
 					var y = [];
 					var x = [];
 					
 					//todo uncomment in order to insert randomized lines
-					//if(type === "line") {
-						//while(Math.random() < 0.5) {
-							//x.push(Math.floor(Math.random() * this.width));
-							//y.push(Math.floor(Math.random() * this.height));
-						//}
-					//} else {
+					if(type == "line") {
+						while(Math.random() < 0.5) {
+							x.push(Math.ceil(Math.random() * this.width));
+							y.push(Math.ceil(Math.random() * this.height));
+						}
+            
+            while(x.length < 2) {
+              x.push(Math.ceil(Math.random() * this.width));
+              y.push(Math.ceil(Math.random() * this.height));
+            }
+ 					} else {
 						x = w + 1;
 						y = h + 1;
-					//}
+				  }
 					
 					var input = new Element(
 												this.elementIdCounter++,
@@ -261,6 +266,8 @@ function GridSpace(width, height) {
 												("rando" + h * w)
 					);
 					
+          if(type == "line") console.log(input.toString());
+          
 					if(this.elements.find(function(el) {
 							return collision_detection(el, input); 
 						}) === undefined ) {
@@ -395,6 +402,7 @@ io.on('connection', function(socket) {
 
 	socket.on('canvas_clicked', function(msg) {
 		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
+    console.log(size);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
