@@ -132,7 +132,7 @@ function bindSocketListeners() {
     if (cursorRegionClipped(msg.element.x, msg.element.y)) {
       draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
     }
-    //redrawErasedElements(msg.elements);
+    redrawErasedElements(msg.elements);
     draw_item(msg.element);
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
