@@ -59,15 +59,14 @@ i {
 #grid_canvas {
 	-webkit-user-select: none;
 	position: absolute;
-	top: 20px;
-	left: 20px;
+  top: 0px;
+  left: 0px;
 	z-index: 100;
 }
 
 #underlay_canvas {
-	position: absolute;
-	top: 20px;
-	left: 20px;
+  -webkit-user-select: none;
+	position: relative;
 	z-index: 99;
 }
 
@@ -233,6 +232,7 @@ i {
 }
 
 #grid_canvas_scrolling_container {
+  position: relative;
 	margin-left: auto; 
 	margin-right: auto; 
 	overflow-x: scroll; 
