@@ -212,7 +212,8 @@ function bindEventHandlers() {
       "new_x": pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
       "new_y": pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
       "old_x": selected_grid_x,
-      "old_y": selected_grid_y
+      "old_y": selected_grid_y,
+      "old_size" : cursor_size
     });
   });
 
@@ -533,9 +534,6 @@ function clear_prev_cursor_position() {
   ctx.lineWidth = grid_line_width;
 
   ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + cursor_line_width, cursor_size * grid_size + cursor_line_width);
-  clear_grid_space(selected_grid_x - 1, selected_grid_y);
-  clear_grid_space(selected_grid_x, selected_grid_y - 1);
-  clear_grid_space(selected_grid_x - 1, selected_grid_y - 1);
 }
 
 /**
@@ -678,7 +676,8 @@ function clicked_element_list(id) {
   socket.emit('select_element_from_list', {
     "id": id,
     "selected_grid_x": selected_grid_x,
-    "selected_grid_y": selected_grid_y
+    "selected_grid_y": selected_grid_y,
+    "size" : cursor_size
   });
 }
 
@@ -802,7 +801,6 @@ function redrawErasedElements(elements) {
         bbox);
       ctx.strokeStyle = "#" + el.element.color;
       ctx.lineWidth = el.element.size;
-      console.log(el.element);
       ctx.beginPath();
       ctx.moveTo(temp[0][0] + grid_line_width, temp[1][0] + grid_line_width);
       ctx.lineTo(temp[0][1] + grid_line_width, temp[1][1] + grid_line_width);

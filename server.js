@@ -401,13 +401,13 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('canvas_clicked', function(msg) {
+		console.log(elementsToBeRedrawn(msg.old_x, msg.old_y, msg.old_size));
 		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
-    console.log(size);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
 			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
 			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
-			"elements" : elementsToBeRedrawn(msg.old_x, msg.old_y)
+			"elements" : elementsToBeRedrawn(msg.old_x, msg.old_y, msg.old_size)
 		});
 	});
 
@@ -416,8 +416,8 @@ io.on('connection', function(socket) {
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 		
-		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
-		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
+		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y, msg.size)});
+		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y, msg.size)});
 	});
 
 	/* ADD ELEMENT TO SERVER */
@@ -468,7 +468,7 @@ io.on('connection', function(socket) {
 	
 	socket.on('select_element_from_list', function(msg) {
 		var element = grid_space.findElementById(msg.id);
-		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
+		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y, msg.size);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
 	});
   
@@ -506,7 +506,7 @@ function coordinate_comparison(obj_1, obj_2) {
 /**
  * Determine if the grid coordinate lies on an aliased vector path
  * 
- * @param {obj} grid_location - xy coordinate of a grid point to find
+ * @param {obj} grid_location - xy coordinate and size of a grid point to find
  * @param {obj} line - vector of grid points to search from
  * @returns {obj|undefined} 
  */
@@ -515,7 +515,9 @@ function check_for_clipped_regions(grid_location, line) {
 		var line_segment = [{ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]}];
 		if(typeof calculate_grid_points_on_line({ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]})
 			 .find(function(el) {
-					return grid_location.x === el.x && grid_location.y === el.y ? true : undefined;
+				 console.log(grid_location.x + grid_location.size);
+					return grid_location.x <= el.x && grid_location.x + grid_location.size > el.x &&
+							grid_location.y <= el.y && grid_location.y + grid_location.size > el.y ? true : undefined;
 				}) !== 'undefined') {
 				return line_segment;
 		}
@@ -591,14 +593,16 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
  * @param msg
  * @returns
  */
-function elementsToBeRedrawn(old_x, old_y) {
+function elementsToBeRedrawn(old_x, old_y, size) {
 	var ob = [];
+	
+	var cursor_space = { "x" : old_x, "y" : old_y, "size" : size };
 		
-		[ { "x" : old_x, "y" : old_y },
-			{ "x" : old_x-1, "y" : old_y},
-			{ "x" : old_x, "y" : old_y-1},
-			{ "x" : old_x-1, "y" : old_y-1}]
-		.forEach(function(cursor_space) {
+	//	[ { "x" : old_x, "y" : old_y },
+	//		{ "x" : old_x-1, "y" : old_y},
+	//		{ "x" : old_x, "y" : old_y-1},
+	//		{ "x" : old_x-1, "y" : old_y-1}]
+	//	.forEach(function(cursor_space) {
 			grid_space.elements.forEach( function(el) {
 				if(el.type === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
@@ -610,7 +614,7 @@ function elementsToBeRedrawn(old_x, old_y) {
 						ob.push({ "element" : el });
 				}
 			});
-		});
+	//	});
 	
 	return ob;
 }
