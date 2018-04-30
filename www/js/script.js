@@ -73,9 +73,13 @@ function bindSocketListeners() {
     $("#element_list").empty();
     refresh_elements_list();
 
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    console.log(msg.elements.length);
+    if(msg.elements.length !== 0) {
+      $("#reset_board_button").prop("disabled", false);
+      msg.elements.forEach(function(el) {
+        draw_item(el);
+      });
+    }
   });
 
   socket.on('connect', function(msg) {
@@ -125,6 +129,7 @@ function bindSocketListeners() {
   socket.on('removed_element', function(msg) {
     clear_item(msg.type, msg.x, msg.y, msg.color, msg.size);
     $("#element_list>#" + msg.id).remove();
+    $("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
   });
 
   socket.on('move_element', function(msg) {
@@ -234,6 +239,7 @@ function bindEventHandlers() {
   $('#reset_board_button').click(function() {
     if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
       socket.emit('reset_board', {});
+      $("#reset_board_button").prop("disabled", true);
     }
   });
 

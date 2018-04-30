@@ -292,7 +292,7 @@ function GridSpace(width, height) {
 					);
 					          
 					if(this.elements.find(function(el) {
-							return collision_detection(el, input); 
+              return el.collide(input.x, input.y, input.size, input.id);
 						}) === undefined ) {
 						this.elements.push(input);
 					}
@@ -388,6 +388,10 @@ function GridSpace(width, height) {
 					});
 	}
 	
+  this.gatherElementsWithinRegion = function(region) {
+    
+  }
+  
 	/**
 	 * 
 	 */
@@ -467,6 +471,7 @@ io.on('connection', function(socket) {
 	
 	socket.on('delete_element_on_server', function(msg) {
 		var temp = grid_space.removeElementFromGridSpace(msg);
+    temp.gridSpaceEmpty = grid_space.elements.length === 0;
 		io.emit('removed_element', temp);
 		io.emit('retrieve_elements_list', grid_space.elements);
 	});
@@ -487,7 +492,6 @@ io.on('connection', function(socket) {
 		grid_space
 			.removeAllElementsFromGridSpace()
 			.forEach(function(el) {
-				console.log(el);
 				io.emit('removed_element', el);
 		})
 	});
