@@ -265,9 +265,7 @@ function GridSpace(width, height) {
 												categories[Math.floor(Math.random() * categories.length)],
 												("rando" + h * w)
 					);
-					
-          if(type == "line") console.log(input.toString());
-          
+					          
 					if(this.elements.find(function(el) {
 							return collision_detection(el, input); 
 						}) === undefined ) {
@@ -401,7 +399,6 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('canvas_clicked', function(msg) {
-		console.log(elementsToBeRedrawn(msg.old_x, msg.old_y, msg.old_size));
 		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
 		socket.emit('canvas_clicked', {
 			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
@@ -412,7 +409,6 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('move_element', function(msg) {
-
 		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 		
@@ -431,8 +427,8 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		
-    var output = grid_space.addElementToGridSpace(input);
-    isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', output);
+		var output = grid_space.addElementToGridSpace(input);
+		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', output);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
@@ -515,7 +511,6 @@ function check_for_clipped_regions(grid_location, line) {
 		var line_segment = [{ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]}];
 		if(typeof calculate_grid_points_on_line({ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]})
 			 .find(function(el) {
-				 console.log(grid_location.x + grid_location.size);
 					return grid_location.x <= el.x && grid_location.x + grid_location.size > el.x &&
 							grid_location.y <= el.y && grid_location.y + grid_location.size > el.y ? true : undefined;
 				}) !== 'undefined') {
