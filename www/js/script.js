@@ -147,7 +147,6 @@ function bindSocketListeners() {
 
   socket.on('canvas_clicked', function(msg) {
     clear_prev_cursor_position();
-    console.log(msg);
     if (selected_grid_x === -1 && selected_grid_y === -1) {
       draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
       return;
@@ -800,7 +799,6 @@ function redrawErasedElements(elements) {
         gridPoint2Pixel(el.element.x[1]),
         gridPoint2Pixel(el.element.y[1]),
         bbox);
-      console.log(temp);
       ctx.strokeStyle = "#" + el.element.color;
       ctx.lineWidth = el.element.size;
       ctx.beginPath();

@@ -45,7 +45,7 @@ const categories = ["npc","environment","enemy","player"];
 
 /**
  * @class Objects which are representable in the grid space
- *
+ * 
  * @constructor
  * @property {int} id - unique numerical identifier of this element
  * @property {int} x - horizontal grid coordinate of the element
@@ -68,22 +68,25 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Move the element 1 unit in a specific direction
-	 * @param {String} direction - the direction to move this element
-	 * @return {Element|undefine} This element at its new position, or undefined if it cannot move
+	 * 
+	 * @param {String}
+	 *            direction - the direction to move this element
+	 * @return {Element|undefine} This element at its new position, or undefined
+	 *         if it cannot move
 	 */
 	this.nudge = function(direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y;
 		switch(direction) {
-			case "right": //right
+			case "right": // right
 				moveToX++;
 				break;
-			case "up": //up
+			case "up": // up
 				moveToY--;
 				break;
-			case "left": //left
+			case "left": // left
 				moveToX--;
 				break;
-			case "down": //down
+			case "down": // down
 				moveToY++;
 				break;
 		}
@@ -123,6 +126,7 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Return this elements properties and stripped of its methods
+	 * 
 	 * @return {JSON} The properties of this element
 	 */
 	this.condense = function() {
@@ -131,10 +135,15 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Determine if this element is colliding with another
-	 * @param {int} x - horizontal coordinate of comparing element
-	 * @param {int} y - vertical coordinate of comparing element
-	 * @param {int} size - numerical span of comparing element
-	 * @param {int} id - unique identifier of comparing element
+	 * 
+	 * @param {int}
+	 *            x - horizontal coordinate of comparing element
+	 * @param {int}
+	 *            y - vertical coordinate of comparing element
+	 * @param {int}
+	 *            size - numerical span of comparing element
+	 * @param {int}
+	 *            id - unique identifier of comparing element
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
 	this.collide = function(x, y, size, id) {
@@ -147,9 +156,13 @@ function Element(id, x, y, type, color, size, category, name) {
 	
 	/**
 	 * Determine if a sinlge point is contained within this element
-	 * @param {int} x - horizontal grid position
-	 * @param {int} y - vertical grid position
-	 * @return {boolean} True if this point is is within this element, false otherwise
+	 * 
+	 * @param {int}
+	 *            x - horizontal grid position
+	 * @param {int}
+	 *            y - vertical grid position
+	 * @return {boolean} True if this point is is within this element, false
+	 *         otherwise
 	 */
 	this.within = function(x, y) {
 		return this.x <= x && this.x + this.size > x && 
@@ -163,11 +176,11 @@ function Element(id, x, y, type, color, size, category, name) {
 
 /**
  * @class
- *
+ * 
  * @constructor
- * @property {int} elementIdCounter 
+ * @property {int} elementIdCounter
  * @property {int} id - unique numerical identifier for this grid space
- * @property {int} history - 
+ * @property {int} history -
  * @property [Element] - collection of displayable elements in this grid space
  * @property {int} width - amount of horizontal grid points in this space
  * @property {int} height - amount of vertical grid points in this space
@@ -183,7 +196,9 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Set the grid space width
-	 * @param {int} newWidth - the new width of the grid space
+	 * 
+	 * @param {int}
+	 *            newWidth - the new width of the grid space
 	 * @return {int} The new width of the grid space
 	 */
 	this.resizeWidth = function(newWidth) {
@@ -193,7 +208,9 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Set the grid space height
-	 * @param {int} newHeight - the new height of the grid space
+	 * 
+	 * @param {int}
+	 *            newHeight - the new height of the grid space
 	 * @return {int} The new height of the grid space
 	 */
 	this.resizeHeight = function(newHeight) {
@@ -203,8 +220,11 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Find the element with the corresponding ID
-	 * @param {int} id - the unique numerical identifier to search for
-	 * @return {(Element|undefined)} The element with the matching id, or undefined if no element with that id exists
+	 * 
+	 * @param {int}
+	 *            id - the unique numerical identifier to search for
+	 * @return {(Element|undefined)} The element with the matching id, or
+	 *         undefined if no element with that id exists
 	 */
 	this.findElementById = function(id) {
 		return this.elements.find(function (el) { return el.id == id; })
@@ -212,9 +232,13 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Find the element at the specified position
-	 * @param {int} x - x grid point 
-	 * @param {int} y - y grid point
-	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
+	 * 
+	 * @param {int}
+	 *            x - x grid point
+	 * @param {int}
+	 *            y - y grid point
+	 * @return {(Element|undefined)} The element at this position, or undefined
+	 *         if no element is there
 	 */
 	this.findElementByPosition = function(x, y) {
 		return this.elements.find(function (el) { return el.within(x, y); });
@@ -227,6 +251,7 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Generate a grid space of random elements
+	 * 
 	 * @return [Element] An array of drawables elements
 	 */
 	this.generateRandomBoardElements = function() {
@@ -239,7 +264,7 @@ function GridSpace(width, height) {
 					var y = [];
 					var x = [];
 					
-					//todo uncomment in order to insert randomized lines
+					// todo uncomment in order to insert randomized lines
 					if(type == "line") {
 						while(Math.random() < 0.5) {
 							x.push(Math.ceil(Math.random() * this.width));
@@ -257,11 +282,11 @@ function GridSpace(width, height) {
 					
 					var input = new Element(
 												this.elementIdCounter++,
-												x, //x
-												y, //y
-												type, //shape
-												Math.floor(Math.random()*16777215).toString(16), //color
-												Math.round(Math.random() * 3) + 1, //size
+												x, // x
+												y, // y
+												type, // shape
+												Math.floor(Math.random()*16777215).toString(16), // color
+												Math.round(Math.random() * 3) + 1, // size
 												categories[Math.floor(Math.random() * categories.length)],
 												("rando" + h * w)
 					);
@@ -280,7 +305,9 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Add an element to the grid space
-	 * @param {Element} obj - the element to add to the grid space
+	 * 
+	 * @param {Element}
+	 *            obj - the element to add to the grid space
 	 * @return {Element} the newly added element
 	 */
 	this.addElementToGridSpace = function(obj) {
@@ -304,7 +331,9 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Delete an element from the grid space
-	 * @param {int} id - the unique numerical id of an element
+	 * 
+	 * @param {int}
+	 *            id - the unique numerical id of an element
 	 * @return {Element} The removed element
 	 */
 	this.removeElementFromGridSpace = function(id) {
@@ -316,6 +345,7 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Deletes all elements from the grid space
+	 * 
 	 * @return the newly emptied list
 	 */
 	this.removeAllElementsFromGridSpace = function() {
@@ -326,9 +356,13 @@ function GridSpace(width, height) {
 	
 	/**
 	 * Moves an element 1 grid unit
-	 * @param {int} x - horizontal grid position
-	 * @param {int} y - vertical grid position
-	 * @param {String} direction - the direction to move the element
+	 * 
+	 * @param {int}
+	 *            x - horizontal grid position
+	 * @param {int}
+	 *            y - vertical grid position
+	 * @param {String}
+	 *            direction - the direction to move the element
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
 	this.nudgeElement = function(x, y, direction) {
@@ -345,7 +379,7 @@ function GridSpace(width, height) {
 	}
 	
 	/**
-	 *
+	 * 
 	 */
 	this.gatherElementsFromCategories = function(filters) {
 		return this.elements
@@ -355,14 +389,14 @@ function GridSpace(width, height) {
 	}
 	
 	/**
-	 *
+	 * 
 	 */
 	this.historyUndo = function() {
 		
 	}
 	
 	/**
-	 *
+	 * 
 	 */
 	this.historyRedo = function() {
 		
@@ -479,9 +513,10 @@ http.listen(8080, function() {
 });
 
 /**
- * Determine if two objects are lines with matching vertices, or if two objects have overlapping coordinates
- * Need to fix by incorporating both elements sizes instead of just one 
- *
+ * Determine if two objects are lines with matching vertices, or if two objects
+ * have overlapping coordinates Need to fix by incorporating both elements sizes
+ * instead of just one
+ * 
  * @param obj_1
  * @param obj_2
  * @returns
@@ -502,9 +537,11 @@ function coordinate_comparison(obj_1, obj_2) {
 /**
  * Determine if the grid coordinate lies on an aliased vector path
  * 
- * @param {obj} grid_location - xy coordinate and size of a grid point to find
- * @param {obj} line - vector of grid points to search from
- * @returns {obj|undefined} 
+ * @param {obj}
+ *            grid_location - xy coordinate and size of a grid point to find
+ * @param {obj}
+ *            line - vector of grid points to search from
+ * @returns {obj|undefined}
  */
 function check_for_clipped_regions(grid_location, line) {
 	for(var i=1; i<line.x.length; i++) {
@@ -521,10 +558,12 @@ function check_for_clipped_regions(grid_location, line) {
 }
 
 /**
- * Compute an array of XY pairs which are the grid squares that the line crosses 
+ * Compute an array of XY pairs which are the grid squares that the line crosses
  * 
- * @param {obj} starting_point - coordinate of the starting vertex
- * @param {obj} ending_point - coordinate of the ending vertex
+ * @param {obj}
+ *            starting_point - coordinate of the starting vertex
+ * @param {obj}
+ *            ending_point - coordinate of the ending vertex
  * @returns [{obj}]
  */
 function calculate_grid_points_on_line(starting_point, ending_point) {
@@ -583,8 +622,9 @@ function calculate_grid_points_on_line(starting_point, ending_point) {
 }
 
 /**
- * Compile a list of all elements that would have erroneously erased within a given grid area
- *
+ * Compile a list of all elements that would have erroneously erased within a
+ * given grid area
+ * 
  * @param msg
  * @returns
  */
@@ -593,11 +633,11 @@ function elementsToBeRedrawn(old_x, old_y, size) {
 	
 	var cursor_space = { "x" : old_x, "y" : old_y, "size" : size };
 		
-	//	[ { "x" : old_x, "y" : old_y },
-	//		{ "x" : old_x-1, "y" : old_y},
-	//		{ "x" : old_x, "y" : old_y-1},
-	//		{ "x" : old_x-1, "y" : old_y-1}]
-	//	.forEach(function(cursor_space) {
+	// [ { "x" : old_x, "y" : old_y },
+	// { "x" : old_x-1, "y" : old_y},
+	// { "x" : old_x, "y" : old_y-1},
+	// { "x" : old_x-1, "y" : old_y-1}]
+	// .forEach(function(cursor_space) {
 			grid_space.elements.forEach( function(el) {
 				if(el.type === 'line') {
 					var out = check_for_clipped_regions(cursor_space, el);
@@ -606,20 +646,22 @@ function elementsToBeRedrawn(old_x, old_y, size) {
 					}
 				} else {
 					if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
-						ob.push({ "element" : el });
+						ob.unshift({ "element" : el });
 				}
 			});
-	//	});
+	// });
 	
 	return ob;
 }
 
 /**
  * Detect it two elements are colliding
- *
- * @param {Element} obj_1 -
- * @param {Element} obj_2 -
- * @returns {Boolean} True if the objects are colliding; False otherwise 
+ * 
+ * @param {Element}
+ *            obj_1 -
+ * @param {Element}
+ *            obj_2 -
+ * @returns {Boolean} True if the objects are colliding; False otherwise
  */
 function collision_detection(obj_1, obj_2) {
 	return obj_1.x < obj_2.x + obj_2.size &&
