@@ -633,23 +633,17 @@ function elementsToBeRedrawn(old_x, old_y, size) {
 	
 	var cursor_space = { "x" : old_x, "y" : old_y, "size" : size };
 		
-	// [ { "x" : old_x, "y" : old_y },
-	// { "x" : old_x-1, "y" : old_y},
-	// { "x" : old_x, "y" : old_y-1},
-	// { "x" : old_x-1, "y" : old_y-1}]
-	// .forEach(function(cursor_space) {
-			grid_space.elements.forEach( function(el) {
-				if(el.type === 'line') {
-					var out = check_for_clipped_regions(cursor_space, el);
-					if(out !== undefined) {
-						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color , "size" : el.size} , "bbox" : cursor_space});
-					}
-				} else {
-					if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
-						ob.unshift({ "element" : el });
-				}
-			});
-	// });
+	grid_space.elements.forEach( function(el) {
+		if(el.type === 'line') {
+			var out = check_for_clipped_regions(cursor_space, el);
+			if(out !== undefined) {
+				ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color , "size" : el.size} , "bbox" : cursor_space});
+			}
+		} else {
+			if(coordinate_comparison(el,cursor_space) && ob.every(function(e) { return e.element.id !== el.id; }))
+				ob.unshift({ "element" : el });
+		}
+	});
 	
 	return ob;
 }
@@ -665,9 +659,9 @@ function elementsToBeRedrawn(old_x, old_y, size) {
  */
 function collision_detection(obj_1, obj_2) {
 	return obj_1.x < obj_2.x + obj_2.size &&
-					obj_1.x + obj_1.size > obj_2.x &&
-					obj_1.y < obj_2.y + obj_2.size &&
-					obj_1.y + obj_1.size > obj_2.y;
+			obj_1.x + obj_1.size > obj_2.x &&
+			obj_1.y < obj_2.y + obj_2.size &&
+			obj_1.y + obj_1.size > obj_2.y;
 }
 
 /**
