@@ -470,7 +470,7 @@ io.on('connection', function(socket) {
 	
 	socket.on('delete_element_on_server', function(msg) {
 		var temp = grid_space.removeElementFromGridSpace(msg);
-		temp.gridSpaceEmpty = grid_space.elements.length === 0;
+		temp["gridSpaceEmpty"] = grid_space.elements.length === 0;
 		io.emit('removed_element', grid_space.elements);
 		io.emit('retrieve_elements_list', grid_space.elements);
 	});

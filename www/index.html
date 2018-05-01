@@ -2,205 +2,213 @@
 <html>
 
 <head>
-	<title>DND Interactive Combat Tool</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="/js/script.js" type="text/javascript"></script>
-	<script src="/js/jscolor.min.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="stylesheet" type="text/css" href="/css/style.css">
-	
-	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <title>DND Interactive Combat Tool</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/script.js" type="text/javascript"></script>
+  <script src="/js/jscolor.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 </head>
 
 <body>
-	<div id="header_row">
-		<input type="text" id="player_name" placeholder="Player Name">
-		<button id="reset_board_button" class="destructive">Reset Board</button>
-		<button id="redo_button">&#8618</button>
-		<button id="undo_button">&#8617</button>
-	</div>
-	<div id="left_column">
-		<div id="controls_title_div">
-			<h4 id="controls_title">Controls</h4>
-		</div>
-		<div id="left_column_controls">
-			<button id="drawing_controls_button" class="menu_controls_button">Drawing</button>
-			<div id="drawing_controls">
-				<select id="selected_shape" class="menu_item">
+  <div id="header_row">
+    <div class="dropdown">
+      <button class="dropbtn" id="grid_down">Grid Space</button>
+      <div id="grid_space_dropdown" class="dropdown_content">
+        <button>Randomize</button>
+        <button>Reset Board</button>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn" id="drawing_controls_btn">Drawing</button>
+      <div id="drawing_controls" class="dropdown_content">
+        <select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
-				<input name="elementcolor" id="element_color" type="hidden" value="000000">
-				<button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
-				
-				<div style="display: inline-block;">
-					<label for="element_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
-					<br>
-					<input type="number" id="element_size" class="menu_item" value=1>
-				</div>
-				
-				<div style="display: inline-block;">
-					<label for="element_category">Category</label>
-					<br>
-					<select id="element_category" class="menu_item">
+        <input name="elementcolor" id="element_color" type="hidden" value="000000">
+        <button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+
+        <div style="display: inline-block;">
+          <label for="element_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
+          <br>
+          <input type="number" id="element_size" class="menu_item" value=1>
+        </div>
+
+        <div style="display: inline-block;">
+          <label for="element_category">Category</label>
+          <br>
+          <select id="element_category" class="menu_item">
 						<option value="environment">Environment</option>
 						<option value="player">Player</option>
 						<option value="enemy">Enemy</option>
 						<option value="npc">NPC</option>
 					</select>
-				</div>
-				
-				<div style="display: inline-block;">
-					<label for="element_name">Name</label>
-					<br>
-					<input type="text" id="element_name" class="menu_item">
-				</div>
-				<br>
-				
-				<button id="place_element_button" class="menu_item">Add Element</button>
-				<br>
-				<button id="start_new_line_button" class="menu_item">Start New Line</button>
-			</div>
-			<div id="editing_controls">
-				<button id="editing_controls_button" class="menu_controls_button">Editing</button>
-				<input id="edit_element_id" type="hidden" value="0">
-				<select id="edit_shape" class="menu_item">
+        </div>
+
+        <div style="display: inline-block;">
+          <label for="element_name">Name</label>
+          <br>
+          <input type="text" id="element_name" class="menu_item">
+        </div>
+        <br>
+
+        <button id="place_element_button" class="menu_item">Add Element</button>
+        <br>
+        <button id="start_new_line_button" class="menu_item">Start New Line</button>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn" id="editing_controls_btn">Editing</button>
+      <div id="editing_controls" class="dropdown_content">
+        <button id="editing_controls_button" class="menu_controls_button">Editing</button>
+        <input id="edit_element_id" type="hidden" value="0">
+        <select id="edit_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
 				</select><br>
-				<input name="editcolor" id="edit_color" type="hidden" value="000000">
-				<input id="edit_color_changer" class="jscolor {valueElement:'edit_color', width: 500, height: 350, closable: true} menu_item">
-				
-				<div style="display: inline-block;">
-					<label for="edit_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
-					<br>
-					<input type="number" id="edit_size" class="menu_item" value="1">
-				</div>
-				
-				<div style="display: inline-block;">
-					<label for="edit_category">Category</label>
-					<br>
-					<select id="edit_category" class="menu_item">
+        <input name="editcolor" id="edit_color" type="hidden" value="000000">
+        <input id="edit_color_changer" class="jscolor {valueElement:'edit_color', width: 500, height: 350, closable: true} menu_item">
+
+        <div style="display: inline-block;">
+          <label for="edit_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
+          <br>
+          <input type="number" id="edit_size" class="menu_item" value="1">
+        </div>
+
+        <div style="display: inline-block;">
+          <label for="edit_category">Category</label>
+          <br>
+          <select id="edit_category" class="menu_item">
 						<option value="environment">Environment</option>
 						<option value="player">Player</option>
 						<option value="enemy">Enemy</option>
 						<option value="npc">NPC</option>
 					</select>
-				</div>
-				
-				<div style="display: inline-block;">
-					<label for="edit_name">Name</label>
-					<br>
-					<input type="text" id="edit_name" class="menu_item">
-				</div>
-				<br>
-				
-				<button id="editing_controls_done" class="menu_item">Done</button><br>
-				<button id="editing_controls_cancel" class="menu_item">Cancel</button>
-			</div>
-			<button id="movement_controls_button" class="menu_controls_button">Movement</button>
-			<div id="movement_controls">
-				<div>
-					<label for="move_to_x">X</label>
-					<input type="number" id="move_to_x" class="menu_item">
-				</div>
-				<label for="move_to_y">Y:</label>
-				<input type="number" id="move_to_y" class="menu_item">
-				<button id="move_button">Move</button>
-				<br>
-				<table id="incremental_movement_control_container">
-					<tr>
-						<td>
-							<td>
-								<button id="move_inc_up" class="incr_move_button">
+        </div>
+
+        <div style="display: inline-block;">
+          <label for="edit_name">Name</label>
+          <br>
+          <input type="text" id="edit_name" class="menu_item">
+        </div>
+        <br>
+
+        <button id="editing_controls_done" class="menu_item">Done</button><br>
+        <button id="editing_controls_cancel" class="menu_item">Cancel</button>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn" id="movement_controls_btn">Movement</button>
+      <div id="movement_controls" class="dropdown_content">
+        <div>
+          <label for="move_to_x">X</label>
+          <input type="number" id="move_to_x" class="menu_item">
+        </div>
+        <label for="move_to_y">Y:</label>
+        <input type="number" id="move_to_y" class="menu_item">
+        <button id="move_button">Move</button>
+        <br>
+        <table id="incremental_movement_control_container">
+          <tr>
+            <td>
+              <td>
+                <button id="move_inc_up" class="incr_move_button">
 									<i class="arrow up"></i>
 								</button>
-							</td>
-					</tr>
-					<tr>
-						<td>
-							<button id="move_inc_left" class="incr_move_button">
+              </td>
+          </tr>
+          <tr>
+            <td>
+              <button id="move_inc_left" class="incr_move_button">
 									<i class="arrow left"></i>
 								</button>
-						</td>
-						<td>
-							<td>
-								<button id="move_inc_right" class="incr_move_button">
+            </td>
+            <td>
+              <td>
+                <button id="move_inc_right" class="incr_move_button">
 									<i class="arrow right"></i>
 								</button>
-							</td>
-					</tr>
-					<tr>
-						<td>
-							<td>
-								<button id="move_inc_down" class="incr_move_button">
+              </td>
+          </tr>
+          <tr>
+            <td>
+              <td>
+                <button id="move_inc_down" class="incr_move_button">
 									<i class="arrow down"></i>
 								</button>
-							</td>
-					</tr>
-				</table>
-			</div>
-			<button id="settings_controls_button" class="menu_controls_button">Settings</button>
-			<div id="settings_controls">
-				<div style="min-width: 30%; max-width: 45%; display: inline-block;">
-					<label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
-					<input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-				</div>
-				<div style="min-width: 30%; max-width: 45%; display: inline-block;">
-					<label for="grid_size_horizontal">Width Size</label><br>
-					<input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-				</div>
-				<button id="randomize" class="menu_item">Randomize</button>
-			</div>
-		</div>
-	</div>
-	<div id="center_column">
-		<div id="lost_connection_div"><h2 id="lost_connection_text"></h2></div>
-		<div id="center_column_resized_centering_container">
-			<div id="ruler_left_scrolling_container">
-				<canvas id="ruler_left"></canvas>
-			</div>
-			<div id="ruler_top_scrolling_container">
-				<canvas id="ruler_top"></canvas>
-			</div>
-			<div id="grid_canvas_scrolling_container">
-				<canvas id="underlay_canvas"></canvas>
-				<canvas id="grid_canvas"></canvas>
-				<canvas id="overlay_canvas"></canvas>
-			</div>
-		</div>
-	</div>
-	<div id="right_column">
-		<div id="element_list_header">
-			<h4 style="color: white;">Element List</h4>
-			<div style="display: inline;">
-				<div style="display: inline-block;">
-					<input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-					<label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-				</div>
-				<div style="display: inline;">
-					<input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
-					<label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-				</div>
-				<div style="display: inline;">
-					<input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-					<label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-				</div>
-				<div style="display: inline;">
-					<input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-					<label for="element_list_filter_player" class="element_filter_label">Player</label>
-				</div>
-			</div>
-		</div>
-		<div id="element_list">
-		</div>
-	</div>
+              </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn" id="settings_controls_btn">Movement</button>
+      <div id="settings_controls" class="dropdown_content">
+        <div style="min-width: 30%; max-width: 45%; display: inline-block;">
+          <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
+          <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+        </div>
+        <div style="min-width: 30%; max-width: 45%; display: inline-block;">
+          <label for="grid_size_horizontal">Width Size</label><br>
+          <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+        </div>
+        <button id="randomize" class="menu_item">Randomize</button>
+      </div>
+    </div>
+  </div>
+  <div id="center_column">
+    <div id="lost_connection_div">
+      <h2 id="lost_connection_text"></h2>
+    </div>
+    <div id="center_column_resized_centering_container">
+      <div id="ruler_left_scrolling_container">
+        <canvas id="ruler_left"></canvas>
+      </div>
+      <div id="ruler_top_scrolling_container">
+        <canvas id="ruler_top"></canvas>
+      </div>
+      <div id="grid_canvas_scrolling_container">
+        <canvas id="underlay_canvas"></canvas>
+        <canvas id="grid_canvas"></canvas>
+        <canvas id="temporary_drawing_canvas"></canvas>
+        <canvas id="overlay_canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  <div id="right_column">
+    <div id="element_list_header">
+      <h4 style="color: white;">Element List</h4>
+      <div style="display: inline;">
+        <div style="display: inline-block;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+          <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+        </div>
+        <div style="display: inline;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
+          <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+        </div>
+        <div style="display: inline;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+          <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+        </div>
+        <div style="display: inline;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+          <label for="element_list_filter_player" class="element_filter_label">Player</label>
+        </div>
+      </div>
+    </div>
+    <div id="element_list">
+    </div>
+  </div>
 </body>
 
 </html>

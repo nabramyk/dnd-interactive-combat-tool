@@ -11,7 +11,6 @@ var grid_count_width = 0;
 var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
-var temporary_line_color = '8c8c8c';
 var grid_line_width = 0.5;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
@@ -36,7 +35,9 @@ var grid_canvas,
 	underlay_canvas, 
 	ctx2,
 	overlay_canvas,
-	overlay_ctx;
+	overlay_ctx,
+  temporary_drawing_canvas,
+  temporary_drawing_ctx;
 
 var socket;
 
@@ -123,12 +124,11 @@ function bindSocketListeners() {
   });
 
   socket.on('added_element', function(msg) {
-	  console.log(msg);
     if (msg === null)
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	msg.forEach( function(el) { draw_item(el); } );
+	  ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+	  msg.forEach( function(el) { draw_item(el); } );
     refresh_elements_list();
   });
 
@@ -152,18 +152,41 @@ function bindSocketListeners() {
 
   socket.on('canvas_clicked', function(msg) {
     clear_prev_cursor_position();
+    
     if (selected_grid_x === -1 && selected_grid_y === -1) {
       draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
       return;
     }
+    
+    if (x_vertices.length > 0 && y_vertices.length) {
+      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+      var temp_x = x_vertices.slice(0);
+      var temp_y = y_vertices.slice(0);
+      temp_x.push(msg.selected_grid_x);
+      temp_y.push(msg.selected_grid_y);
+      draw_temporary_item({ "type" : "line", "x" : temp_x, "y" : temp_y, "color" : $("#element_color").val, "size" : 3});
+    }
+    
     draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
   });
 
   socket.on('selected_element_from_list', function(msg) {
     clear_prev_cursor_position();
+    console.log(msg);
     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
       return
-    draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
+    
+    if(msg.selected_element.type === "line") {
+      for(var i=0; i < msg.selected_element.x.length; i++) {
+        overlay_ctx.fillStyle = "#" + grid_highlight;
+        overlay_ctx.beginPath();
+        overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
+        overlay_ctx.fill();
+      }
+    }
+    else {
+      draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
+    }
   });
   
   socket.on('edited_element', function(msg) {
@@ -233,6 +256,8 @@ function bindEventHandlers() {
   });
 
   $("#start_new_line_button").click(function() {
+    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+    
     if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
       x_vertices.push(selected_grid_x);
       y_vertices.push(selected_grid_y);
@@ -305,6 +330,14 @@ function bindEventHandlers() {
     $("#movement_controls").hide();
     $("#editing_controls").hide();
   });
+  
+  $("#grid_down").click(function() {
+    $("#grid_space_dropdown").toggle();
+  });
+  
+  $("#drawing_controls_btn").click(function() {
+    $("drawing_controls").toggle();
+  });
 
   $("#editing_controls_done").click(function() {
 
@@ -359,6 +392,7 @@ function interfaceInitialization() {
   grid_canvas = document.getElementById('grid_canvas');
   underlay_canvas = document.getElementById('underlay_canvas');
   overlay_canvas = document.getElementById('overlay_canvas');
+  temporary_drawing_canvas = document.getElementById('temporary_drawing_canvas');
   
   start_new_line_button = document.getElementById('start_new_line_button');
   
@@ -370,6 +404,7 @@ function interfaceInitialization() {
   ctx = grid_canvas.getContext('2d');
   ctx2 = underlay_canvas.getContext('2d');
   overlay_ctx = overlay_canvas.getContext('2d');
+  temporary_drawing_ctx = temporary_drawing_canvas.getContext('2d');
 
   grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
@@ -377,6 +412,8 @@ function interfaceInitialization() {
   underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+  temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+  temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   
   drawTopRuler();
   drawLeftRuler();
@@ -450,10 +487,47 @@ function draw_item(element) {
   }
 }
 
+function draw_temporary_item(element) {
+    switch (element.type) {
+    case "square":
+      temporary_drawing_ctx.fillStyle = "#" + element.color;
+      x = gridPoint2Pixel(element.x) + grid_line_width * 2;
+      y = gridPoint2Pixel(element.y) + grid_line_width * 2;
+      temporary_drawing_ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size * grid_size - cursor_line_width * 2, element.size * grid_size - cursor_line_width * 2);
+      break;
+    case "circle":
+      temporary_drawing_ctx.fillStyle = "#" + element.color;
+      x = gridPoint2Pixel(element.x) + grid_line_width;
+      y = gridPoint2Pixel(element.y) + grid_line_width;
+      temporary_drawing_ctx.beginPath();
+      temporary_drawing_ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size, element.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+      temporary_drawing_ctx.fill();
+      break;
+    case "line":
+      temporary_drawing_ctx.strokeStyle = "#" + element.color;
+      temporary_drawing_ctx.lineWidth = element.size;
+      temporary_drawing_ctx.beginPath();
+      x = element.x.map(function(e) {
+        return gridPoint2Pixel(e)
+      });
+      y = element.y.map(function(e) {
+        return gridPoint2Pixel(e)
+      });
+      temporary_drawing_ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
+      for (var i = 1; i < x.length; i++) {
+        temporary_drawing_ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
+      }
+      temporary_drawing_ctx.stroke();
+      break;
+  }
+}
+
 /**
  * Clears the previous cursor position
  */
 function clear_prev_cursor_position() {
+  overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
+  
   if (selected_grid_x === -1 || selected_grid_y === -1)
     return;
 
@@ -508,6 +582,7 @@ function resizeGridWidth(width) {
   grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+  temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   drawScreen();
   drawTopRuler();
 }
@@ -518,6 +593,7 @@ function resizeGridHeight(height) {
   grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+  temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   drawScreen();
   drawLeftRuler();
 }
