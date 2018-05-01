@@ -21,6 +21,10 @@
     <div class="dropdown">
       <button class="dropbtn" id="grid_down">Grid Space</button>
       <div id="grid_space_dropdown" class="dropdown_content">
+        <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
+        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+        <label for="grid_size_horizontal">Width Size</label><br>
+        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
         <button>Randomize</button>
         <button>Reset Board</button>
       </div>
@@ -68,7 +72,6 @@
     <div class="dropdown">
       <button class="dropbtn" id="editing_controls_btn">Editing</button>
       <div id="editing_controls" class="dropdown_content">
-        <button id="editing_controls_button" class="menu_controls_button">Editing</button>
         <input id="edit_element_id" type="hidden" value="0">
         <select id="edit_shape" class="menu_item">
 					<option value="square">Square</option>
@@ -106,8 +109,7 @@
         <button id="editing_controls_cancel" class="menu_item">Cancel</button>
       </div>
     </div>
-    <div class="dropdown">
-      <button class="dropbtn" id="movement_controls_btn">Movement</button>
+    <div class="dropdown"> <button class="dropbtn" id="movement_controls_btn">Movement</button>
       <div id="movement_controls" class="dropdown_content">
         <div>
           <label for="move_to_x">X</label>
@@ -151,19 +153,30 @@
       </div>
     </div>
     <div class="dropdown">
-      <button class="dropbtn" id="settings_controls_btn">Movement</button>
-      <div id="settings_controls" class="dropdown_content">
-        <div style="min-width: 30%; max-width: 45%; display: inline-block;">
-          <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
-          <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+      <button class="dropbtn" id="element_list_btn">Element List</button>
+      <div id="element_list_dropdown" class="dropdown_content">
+        <div style="display: inline;">
+          <div style="display: inline-block;">
+            <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+            <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+          </div>
+          <div style="display: inline;">
+            <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
+            <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+          </div>
+          <div style="display: inline;">
+            <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+            <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+          </div>
+          <div style="display: inline;">
+            <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+            <label for="element_list_filter_player" class="element_filter_label">Player</label>
+          </div>
         </div>
-        <div style="min-width: 30%; max-width: 45%; display: inline-block;">
-          <label for="grid_size_horizontal">Width Size</label><br>
-          <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-        </div>
-        <button id="randomize" class="menu_item">Randomize</button>
-      </div>
+      <div id="element_list" />
+              </div>
     </div>
+  </div>
   </div>
   <div id="center_column">
     <div id="lost_connection_div">
@@ -182,31 +195,6 @@
         <canvas id="temporary_drawing_canvas"></canvas>
         <canvas id="overlay_canvas"></canvas>
       </div>
-    </div>
-  </div>
-  <div id="right_column">
-    <div id="element_list_header">
-      <h4 style="color: white;">Element List</h4>
-      <div style="display: inline;">
-        <div style="display: inline-block;">
-          <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-          <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-        </div>
-        <div style="display: inline;">
-          <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
-          <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-        </div>
-        <div style="display: inline;">
-          <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-          <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-        </div>
-        <div style="display: inline;">
-          <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-          <label for="element_list_filter_player" class="element_filter_label">Player</label>
-        </div>
-      </div>
-    </div>
-    <div id="element_list">
     </div>
   </div>
 </body>

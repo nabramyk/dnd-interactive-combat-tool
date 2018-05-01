@@ -336,7 +336,23 @@ function bindEventHandlers() {
   });
   
   $("#drawing_controls_btn").click(function() {
-    $("drawing_controls").toggle();
+    $("#drawing_controls").toggle();
+  });
+  
+  $("#editing_controls_btn").click(function() {
+    $("#editing_controls").toggle();
+  });
+  
+  $("#movement_controls_btn").click(function() {
+    $("#movement_controls").toggle();
+  });
+  
+  $("#settings_controls_btn").click(function() {
+    $("#settings_controls").toggle();
+  });
+  
+  $("#element_list_btn").click(function() {
+    $("#element_list_dropdown").toggle();
   });
 
   $("#editing_controls_done").click(function() {
