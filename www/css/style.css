@@ -57,21 +57,28 @@ i {
 }
 
 #grid_canvas {
-	-webkit-user-select: none;
-	position: absolute;
+  -webkit-user-select: none;
+  position: absolute;
   top: 0px;
   left: 0px;
-	z-index: 100;
+  z-index: 101;
 }
 
 #underlay_canvas {
   -webkit-user-select: none;
-	position: relative;
-	z-index: 99;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background-color: rgba(0,0,0,0);
+  z-index: 100;
 }
 
-#ruler_left {
-	
+#overlay_canvas {
+   -webkit-user-select: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 102;
 }
 
 .menu_controls_button {
