@@ -11,9 +11,8 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
-
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 </head>
 
 <body>
@@ -25,7 +24,7 @@
         <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
         <label for="grid_size_horizontal">Width Size</label><br>
         <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-        <button>Randomize</button>
+        <button id="randomize">Randomize</button>
         <button>Reset Board</button>
       </div>
     </div>
@@ -188,7 +187,7 @@
       <div id="ruler_top_scrolling_container">
         <canvas id="ruler_top"></canvas>
       </div>
-           <div id="grid_canvas_scrolling_container">
+      <div id="grid_canvas_scrolling_container">
         <canvas id="underlay_canvas"></canvas>
         <canvas id="grid_canvas"></canvas>
         <canvas id="temporary_drawing_canvas"></canvas>
