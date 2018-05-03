@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" type="text/css" href="/css/style.css">
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 </head>
 
@@ -172,7 +172,7 @@
             <label for="element_list_filter_player" class="element_filter_label">Player</label>
           </div>
         </div>
-      <div id="element_list" />
+        <div id="element_list" />
       </div>
     </div>
   </div>
@@ -180,21 +180,19 @@
     <div id="lost_connection_div">
       <h2 id="lost_connection_text"></h2>
     </div>
-    <div id="center_column_resized_centering_container">
-      <div id="ruler_left_scrolling_container">
-        <canvas id="ruler_left"></canvas>
-      </div>
-      <div id="ruler_top_scrolling_container">
-        <canvas id="ruler_top"></canvas>
-      </div>
-      <div id="grid_canvas_scrolling_container">
-        <canvas id="underlay_canvas"></canvas>
-        <canvas id="grid_canvas"></canvas>
-        <canvas id="temporary_drawing_canvas"></canvas>
-        <canvas id="overlay_canvas"></canvas>
-      </div>
+    <div id="ruler_left_scrolling_container">
+      <canvas id="ruler_left"></canvas>
+    </div>
+    <div id="ruler_top_scrolling_container">
+      <canvas id="ruler_top"></canvas>
     </div>
   </div>
+    <div id="grid_canvas_scrolling_container">
+      <canvas id="underlay_canvas" class="drawing_canvas"></canvas>
+      <canvas id="grid_canvas" class="drawing_canvas"></canvas>
+      <canvas id="temporary_drawing_canvas" class="drawing_canvas"></canvas>
+      <canvas id="overlay_canvas" class="drawing_canvas"></canvas>
+    </div>
 </body>
 
 </html>

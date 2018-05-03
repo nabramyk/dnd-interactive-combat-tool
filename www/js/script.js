@@ -78,7 +78,7 @@ function bindSocketListeners() {
 
     $("#element_list").empty();
     refresh_elements_list();
-
+        
     if(msg.elements.length !== 0) {
       $("#reset_board_button").prop("disabled", false);
       msg.elements.forEach(function(el) {

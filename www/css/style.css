@@ -1,11 +1,8 @@
-html {
-	height: 100%;
-}
-
 body {
 	width: 100%;
   height: 100%;
 	user-select: none;
+  overflow: auto;
 }
 
 button {
@@ -55,36 +52,27 @@ i {
 	width: 23%;
 }
 
-#grid_canvas {
-  -webkit-user-select: none;
+.drawing_canvas {
+    -webkit-user-select: none;
   position: absolute;
   top: 0px;
   left: 0px;
+  margin: 100px;
+}
+
+#grid_canvas {
   z-index: 2;
 }
 
 #underlay_canvas {
-  -webkit-user-select: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  background-color: rgba(0,0,0,0);
   z-index: 1;
 }
 
 #temporary_drawing_canvas {
-  -webkit-user-select: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
   z-index: 3;
 }
 
 #overlay_canvas {
-   -webkit-user-select: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
   z-index: 4;
 }
 
@@ -128,20 +116,21 @@ i {
 }
 
 #header_row {
-	position: fixed;
+	position: absolute;
   top: 0;
-  left: 0;
 	width: 100%;
 	background: #003399;
-  z-index: 11;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
 #center_column {
-  min-height: 100%;
-	height: 300px;
 	width: 100%;
-	position: absolute;
+	position: fixed;
+  top: 0;
+  left: 0;
 	text-align: center;
+  overflow-y: scroll;
+  display: none;
 }
 
 #ruler_left_scrolling_container {
@@ -150,6 +139,7 @@ i {
 	overflow-y: scroll;
 	overflow: hidden;
 	height: 100%;
+  display: none;
 }
 
 #ruler_top_scrolling_container {
@@ -157,6 +147,7 @@ i {
 	margin-right: auto;
 	overflow-x: scroll;
 	overflow: hidden;
+  display: none;
 }
 
 #grid_size_vertical,#grid_size_horizontal {
@@ -218,21 +209,14 @@ i {
 }
 
 #grid_canvas_scrolling_container {
-  position: relative;
-	margin-left: auto; 
-	margin-right: auto; 
-	overflow-x: scroll; 
-	overflow-y: scroll;
-	height: 100%;
-}
-
-#center_column_resized_centering_container {
-	margin-left: auto; 
-	margin-right: auto;
-	max-width: 100%;
-	height: 100%;
-	display: inline-block;
-	position: relative;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 
 #lost_connection_div {
@@ -249,6 +233,7 @@ i {
 
 #lost_connection_text {
 	color: white;
+  z-index: 50;
 }
 
 #place_element_button {
@@ -264,18 +249,6 @@ i {
 #place_element_button:active {
 	background-color: yellow;
 	outline: none;
-}
-
-#element_size {
-	width: 60%;
-}
-
-#element_category {
-	width: 100%;
-}
-
-#grid_size_vertical {
-	width: 50%;
 }
 
 #element_row_edit {
@@ -330,4 +303,5 @@ i {
     padding: 16px;
     font-size: 16px;
     border: none;
+    height: 100%;
 }
