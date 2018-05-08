@@ -186,8 +186,7 @@ i {
 
 #movement_controls,
 #start_new_line_button,
-#settings_controls,
-#editing_controls {
+#settings_controls {
   display: none;
 }
 
@@ -271,11 +270,4 @@ i {
   font-size: 16px;
   border: none;
   height: 100%;
-}
-
-#spacer {
-  position: relative;
-  display: inline;
-  width: 1000px;
-  height: 1000px;
 }
