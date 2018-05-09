@@ -160,7 +160,6 @@ function bindSocketListeners() {
 
   socket.on('canvas_clicked', function(msg) {
     clear_prev_cursor_position();
-    console.log(msg);
     if (selected_grid_x === -1 && selected_grid_y === -1) {
       draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
       return;
@@ -213,6 +212,11 @@ function bindSocketListeners() {
  * @returns
  */
 function bindEventHandlers() {
+  $("#overlay_canvas").contextmenu(function(evt) {
+    evt.preventDefault();
+    showLongHoldMenu(evt.clientX, evt.clientY);
+  });
+
   $("#grid_canvas_scrolling_container").scroll(function() {
     $("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
     $("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
@@ -244,6 +248,8 @@ function bindEventHandlers() {
         "old_y": selected_grid_y,
         "old_size": cursor_size
       });
+      $("#editing_controls").remove();
+
     })
     .bind('touchstart', function(evt) {
       var touch_x = evt.originalEvent.touches[0].pageX - $("#overlay_canvas").offset().left;
@@ -255,7 +261,9 @@ function bindEventHandlers() {
         "old_y": selected_grid_y,
         "old_size": cursor_size
       });
-      holdTimer = window.setTimeout(function() { showLongHoldMenu(touch_x, touch_y) }, 1000);
+      holdTimer = window.setTimeout(function() {
+        showLongHoldMenu(touch_x, touch_y)
+      }, 1000);
       return true;
     })
     .bind('touchend', function(evt) {
@@ -396,11 +404,11 @@ function bindEventHandlers() {
       "category": $("#edit_category").val()
     });
 
-    $("#editing_controls").hide();
+    removeEditMenu();
   });
 
   $("#editing_controls_cancel").click(function() {
-    $("#editing_controls").hide();
+    removeEditMenu();
   });
 
   $("#randomize").click(function() {
@@ -700,44 +708,47 @@ function composeElementListRowElement(el) {
 }
 
 function showLongHoldMenu(x, y) {
-    $("#grid_canvas_scrolling_container").append(getEditMenu(x, y));
+  $("#grid_canvas_scrolling_container").append(getEditMenu(x, y));
 }
 
 function getEditMenu(x, y) {
-  return  "<div id=\"editing_controls\" style=\"width:160px;display:inline;position:absolute;top:" + y + "px;left:" + x + "px;\">" +
-          "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
-          "<select id=\"edit_shape\" class=\"menu_item\">" +
-					"<option value=\"square\">Square</option>" +
-					"<option value=\"circle\">Circle</option>" +
-					"<option value=\"line\">Line</option>" +
-				  "</select><br>" +
-          "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" + 
-          "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
-          "<div style=\"display: inline-block;\">" +
-          "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
-          "<br>" +
-          "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
-          "</div>" +
-          "<div style=\"display: inline-block;\">" +
-          "<label for=\"edit_category\">Category</label>" +
-          "<br>" +
-          "<select id=\"edit_category\" class=\"menu_item\">" +
-					"<option value=\"environment\">Environment</option>" +
-					"<option value=\"player\">Player</option>" +
-					"<option value=\"enemy\">Enemy</option>" +
-					"<option value=\"npc\">NPC</option>" +
-					"</select>" +
-          "</div>" +
-          "<div style=\"display: inline-block;\">" +
-          "<label for=\"edit_name\">Name</label>" +
-          "<br>" +
-          "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
-          "</div>" +
-          "<br>" +
-          "<button id=\"editing_controls_done\" class=\"menu_item\">Done</button><br>" +
-          "<button id=\"editing_controls_cancel\" class=\"menu_item\">Cancel</button>" +
-          "</div>"
-  ;
+  return "<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+    "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
+    "<select id=\"edit_shape\" class=\"menu_item\">" +
+    "<option value=\"square\">Square</option>" +
+    "<option value=\"circle\">Circle</option>" +
+    "<option value=\"line\">Line</option>" +
+    "</select><br>" +
+    "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" +
+    "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
+    "<br>" +
+    "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_category\">Category</label>" +
+    "<br>" +
+    "<select id=\"edit_category\" class=\"menu_item\">" +
+    "<option value=\"environment\">Environment</option>" +
+    "<option value=\"player\">Player</option>" +
+    "<option value=\"enemy\">Enemy</option>" +
+    "<option value=\"npc\">NPC</option>" +
+    "</select>" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_name\">Name</label>" +
+    "<br>" +
+    "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
+    "</div>" +
+    "<br>" +
+    "<button id=\"editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "</div>";
+}
+
+function removeEditMenu() {
+    $("#editing_controls").remove();
 }
 
 function edit_element_row(id) {

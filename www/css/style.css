@@ -271,3 +271,10 @@ i {
   border: none;
   height: 100%;
 }
+
+#editing_controls {
+  width:160px;
+  display:inline;
+  position:absolute;
+  z-index: 100;
+}
