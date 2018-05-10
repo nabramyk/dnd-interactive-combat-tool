@@ -277,4 +277,6 @@ i {
   display:inline;
   position:absolute;
   z-index: 100;
+  background: white;
+  border: 1px solid #262626;
 }
