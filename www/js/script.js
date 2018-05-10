@@ -212,11 +212,6 @@ function bindSocketListeners() {
  * @returns
  */
 function bindEventHandlers() {
-  $("#overlay_canvas").contextmenu(function(evt) {
-    evt.preventDefault();
-    showLongHoldMenu(evt.clientX, evt.clientY);
-  });
-
   $("#grid_canvas_scrolling_container").scroll(function() {
     $("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
     $("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
@@ -250,6 +245,11 @@ function bindEventHandlers() {
       });
       $("#editing_controls").remove();
 
+    })
+    .contextmenu(function(evt) {
+      evt.preventDefault();
+      console.log(evt);
+      showLongHoldMenu(evt.pageX + $("#overlay_canvas").offset().left, evt.pageY);
     })
     .bind('touchstart', function(evt) {
       var touch_x = evt.originalEvent.touches[0].pageX - $("#overlay_canvas").offset().left;
@@ -708,7 +708,7 @@ function composeElementListRowElement(el) {
 }
 
 function showLongHoldMenu(x, y) {
-  $("#grid_canvas_scrolling_container").append(getEditMenu(x, y));
+  $("body").append(getEditMenu(x, y));
 }
 
 function getEditMenu(x, y) {
@@ -748,7 +748,7 @@ function getEditMenu(x, y) {
 }
 
 function removeEditMenu() {
-    $("#editing_controls").remove();
+  $("#editing_controls").remove();
 }
 
 function edit_element_row(id) {
