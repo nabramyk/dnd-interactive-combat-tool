@@ -280,3 +280,10 @@ i {
   background: white;
   border: 1px solid #262626;
 }
+
+.popup_items {
+  position: absolute;
+  display: inline;
+  background: white;
+  border: 1px solid #262626;
+}

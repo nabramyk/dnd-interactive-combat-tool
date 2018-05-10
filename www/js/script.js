@@ -27,8 +27,9 @@ var index_id = 0,
   index_x = 1,
   index_y = 2;
 
-var holdTimer;
+var holdTimer, hoverTimer;
 
+var local_stored_grid_space = [];
 var x_vertices = [];
 var y_vertices = [];
 
@@ -82,8 +83,9 @@ function bindSocketListeners() {
     refresh_elements_list();
 
     if (msg.elements.length !== 0) {
+      local_stored_grid_space = msg.elements;
       $("#reset_board_button").prop("disabled", false);
-      msg.elements.forEach(function(el) {
+      local_stored_grid_space.forEach(function(el) {
         draw_item(el);
       });
     }
@@ -137,7 +139,6 @@ function bindSocketListeners() {
   });
 
   socket.on('removed_element', function(msg) {
-    console.log(msg);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     msg.forEach(function(el) {
       draw_item(el);
@@ -185,7 +186,6 @@ function bindSocketListeners() {
 
   socket.on('selected_element_from_list', function(msg) {
     clear_prev_cursor_position();
-    console.log(msg);
     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
       return
 
@@ -202,7 +202,6 @@ function bindSocketListeners() {
   });
 
   socket.on('edited_element', function(msg) {
-    console.log(msg);
     $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
   });
 }
@@ -244,11 +243,24 @@ function bindEventHandlers() {
         "old_size": cursor_size
       });
       $("#editing_controls").remove();
-
+    })
+    .mousemove(function(evt) {
+      $("#popup_name").remove();
+      clearTimeout(hoverTimer);
+      hoverTimer = window.setTimeout(function() {
+        local_stored_grid_space.forEach(function(el) {
+          if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
+            gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
+              showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
+          }
+        });
+      }, 1000);
+    })
+    .mouseleave(function(evt) {
+      clearTimeout(hoverTimer);
     })
     .contextmenu(function(evt) {
       evt.preventDefault();
-      console.log(evt);
       showLongHoldMenu(evt.pageX + $("#overlay_canvas").offset().left, evt.pageY);
     })
     .bind('touchstart', function(evt) {
@@ -269,6 +281,10 @@ function bindEventHandlers() {
     .bind('touchend', function(evt) {
       clearTimeout(holdTimer);
       return false;
+    })
+    .bind('touchmove', function(evt) {
+      clearTimeout(holdTimer);
+      return true;
     });
 
   $('#place_element_button').click(function() {
@@ -711,8 +727,13 @@ function showLongHoldMenu(x, y) {
   $("body").append(getEditMenu(x, y));
 }
 
+function getContextMenu() {
+  $("body").append(getEditMenu(x, y));
+}
+
 function getEditMenu(x, y) {
-  return "<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+  var pair = calculateMenuCoordinates(x, y);
+  return "<div id=\"editing_controls\" style=\"top:" + pair[1] + "px;left:" + pair[0] + "px;\">" +
     "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
     "<select id=\"edit_shape\" class=\"menu_item\">" +
     "<option value=\"square\">Square</option>" +
@@ -752,8 +773,6 @@ function removeEditMenu() {
 }
 
 function edit_element_row(id) {
-  console.log(id);
-
   socket.emit('find_element_by_id', id);
   socket.on('element_by_id', function(msg) {
     $("#movement_controls").hide();
@@ -768,6 +787,14 @@ function edit_element_row(id) {
     $("#edit_category").val(msg.category);
     $("#edit_name").val(msg.name);
   });
+}
+
+function calculateMenuCoordinates(x, y) {
+  return [x, y];
+}
+
+function showPlayerName(x, y, name) {
+  $("body").append("<div id=\"popup_name\" class=\"popup_items\" style=\"top:" + y + "px; left:" + x + "px\"><p>" + name + "</p></div>");
 }
 
 /**
