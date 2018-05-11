@@ -85,9 +85,7 @@ function bindSocketListeners() {
     if (msg.elements.length !== 0) {
       local_stored_grid_space = msg.elements;
       $("#reset_board_button").prop("disabled", false);
-      local_stored_grid_space.forEach(function(el) {
-        draw_item(el);
-      });
+      drawElements();
     }
   });
 
@@ -112,19 +110,15 @@ function bindSocketListeners() {
   socket.on('resize_height', function(msg) {
     grid_count_height = msg.height;
     resizeGridHeight(grid_count_height);
-
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg.elements;
+    drawElements();
   });
 
   socket.on('resize_width', function(msg) {
     grid_count_width = msg.width;
     resizeGridWidth(grid_count_width);
-
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg.elements;
+    drawElements();
   });
 
   socket.on('added_element', function(msg) {
@@ -132,25 +126,22 @@ function bindSocketListeners() {
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    msg.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg;
+    drawElements();
     refresh_elements_list();
   });
 
   socket.on('removed_element', function(msg) {
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    msg.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg;
+    drawElements();
     $("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
   });
 
   socket.on('move_element', function(msg) {
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg.elements;
+    drawElements();
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
 
@@ -247,21 +238,19 @@ function bindEventHandlers() {
     .mousemove(function(evt) {
       $("#popup_name").remove();
       clearTimeout(hoverTimer);
-      hoverTimer = window.setTimeout(function() {
         local_stored_grid_space.forEach(function(el) {
           if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
             gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
               showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
           }
         });
-      }, 1000);
     })
     .mouseleave(function(evt) {
       clearTimeout(hoverTimer);
     })
     .contextmenu(function(evt) {
       evt.preventDefault();
-      showLongHoldMenu(evt.pageX + $("#overlay_canvas").offset().left, evt.pageY);
+      showLongHoldMenu(evt.pageX, evt.pageY);
     })
     .bind('touchstart', function(evt) {
       var touch_x = evt.originalEvent.touches[0].pageX - $("#overlay_canvas").offset().left;
@@ -274,7 +263,7 @@ function bindEventHandlers() {
         "old_size": cursor_size
       });
       holdTimer = window.setTimeout(function() {
-        showLongHoldMenu(touch_x, touch_y)
+    	  showLongHoldMenu(evt.pageX, evt.pageY);
       }, 1000);
       return true;
     })
@@ -732,8 +721,7 @@ function getContextMenu() {
 }
 
 function getEditMenu(x, y) {
-  var pair = calculateMenuCoordinates(x, y);
-  return "<div id=\"editing_controls\" style=\"top:" + pair[1] + "px;left:" + pair[0] + "px;\">" +
+  return "<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
     "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
     "<select id=\"edit_shape\" class=\"menu_item\">" +
     "<option value=\"square\">Square</option>" +
@@ -842,6 +830,10 @@ function drawLeftRuler() {
     var n = ctx2.measureText(i).width;
     ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
   }
+}
+
+function drawElements() {
+    local_stored_grid_space.forEach(function(el) { draw_item(el) });
 }
 
 /**
