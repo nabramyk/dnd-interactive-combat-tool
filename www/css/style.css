@@ -210,6 +210,8 @@ i {
   height: 100%;
   background: black;
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -272,7 +274,7 @@ i {
   height: 100%;
 }
 
-#editing_controls {
+#editing_controls,#options_controls {
   width:160px;
   display:inline;
   position:absolute;
