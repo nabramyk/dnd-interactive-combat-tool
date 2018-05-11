@@ -4,7 +4,7 @@
 <head>
   <title>DND Interactive Combat Tool</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/script.js" type="text/javascript"></script>
   <script src="/js/jscolor.min.js" type="text/javascript"></script>
@@ -66,46 +66,6 @@
         <button id="place_element_button" class="menu_item">Add Element</button>
         <br>
         <button id="start_new_line_button" class="menu_item">Start New Line</button>
-      </div>
-    </div>
-    <div class="dropdown">
-      <button class="dropbtn" id="editing_controls_btn">Editing</button>
-      <div id="editing_controls" class="dropdown_content">
-        <input id="edit_element_id" type="hidden" value="0">
-        <select id="edit_shape" class="menu_item">
-					<option value="square">Square</option>
-					<option value="circle">Circle</option>
-					<option value="line">Line</option>
-				</select><br>
-        <input name="editcolor" id="edit_color" type="hidden" value="000000">
-        <input id="edit_color_changer" class="jscolor {valueElement:'edit_color', width: 500, height: 350, closable: true} menu_item">
-
-        <div style="display: inline-block;">
-          <label for="edit_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
-          <br>
-          <input type="number" id="edit_size" class="menu_item" value="1">
-        </div>
-
-        <div style="display: inline-block;">
-          <label for="edit_category">Category</label>
-          <br>
-          <select id="edit_category" class="menu_item">
-						<option value="environment">Environment</option>
-						<option value="player">Player</option>
-						<option value="enemy">Enemy</option>
-						<option value="npc">NPC</option>
-					</select>
-        </div>
-
-        <div style="display: inline-block;">
-          <label for="edit_name">Name</label>
-          <br>
-          <input type="text" id="edit_name" class="menu_item">
-        </div>
-        <br>
-
-        <button id="editing_controls_done" class="menu_item">Done</button><br>
-        <button id="editing_controls_cancel" class="menu_item">Cancel</button>
       </div>
     </div>
     <div class="dropdown"> <button class="dropbtn" id="movement_controls_btn">Movement</button>
@@ -172,7 +132,7 @@
             <label for="element_list_filter_player" class="element_filter_label">Player</label>
           </div>
         </div>
-        <div id="element_list" />
+        <div id="element_list"></div>
       </div>
     </div>
   </div>

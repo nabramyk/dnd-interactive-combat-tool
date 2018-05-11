@@ -27,15 +27,18 @@ var index_id = 0,
   index_x = 1,
   index_y = 2;
 
+var holdTimer, hoverTimer;
+
+var local_stored_grid_space = [];
 var x_vertices = [];
 var y_vertices = [];
 
-var grid_canvas, 
-	ctx, 
-	underlay_canvas, 
-	ctx2,
-	overlay_canvas,
-	overlay_ctx,
+var grid_canvas,
+  ctx,
+  underlay_canvas,
+  ctx2,
+  overlay_canvas,
+  overlay_ctx,
   temporary_drawing_canvas,
   temporary_drawing_ctx;
 
@@ -78,12 +81,11 @@ function bindSocketListeners() {
 
     $("#element_list").empty();
     refresh_elements_list();
-        
-    if(msg.elements.length !== 0) {
+
+    if (msg.elements.length !== 0) {
+      local_stored_grid_space = msg.elements;
       $("#reset_board_button").prop("disabled", false);
-      msg.elements.forEach(function(el) {
-        draw_item(el);
-      });
+      drawElements();
     }
   });
 
@@ -108,40 +110,38 @@ function bindSocketListeners() {
   socket.on('resize_height', function(msg) {
     grid_count_height = msg.height;
     resizeGridHeight(grid_count_height);
-
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg.elements;
+    drawElements();
   });
 
   socket.on('resize_width', function(msg) {
     grid_count_width = msg.width;
     resizeGridWidth(grid_count_width);
-
-    msg.elements.forEach(function(el) {
-      draw_item(el);
-    });
+    local_stored_grid_space = msg.elements;
+    drawElements();
   });
 
   socket.on('added_element', function(msg) {
     if (msg === null)
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
-	  ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	  msg.forEach( function(el) { draw_item(el); } );
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space = msg;
+    drawElements();
     refresh_elements_list();
   });
 
   socket.on('removed_element', function(msg) {
-	  console.log(msg);
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	msg.forEach( function(el) { draw_item(el); } );
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space = msg;
+    drawElements();
     $("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
   });
 
   socket.on('move_element', function(msg) {
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    msg.elements.forEach(function(el) { draw_item(el); });
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space = msg.elements;
+    drawElements();
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
 
@@ -152,45 +152,47 @@ function bindSocketListeners() {
 
   socket.on('canvas_clicked', function(msg) {
     clear_prev_cursor_position();
-    
     if (selected_grid_x === -1 && selected_grid_y === -1) {
       draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
       return;
     }
-    
+
     if (x_vertices.length > 0 && y_vertices.length) {
       temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
       var temp_x = x_vertices.slice(0);
       var temp_y = y_vertices.slice(0);
       temp_x.push(msg.selected_grid_x);
       temp_y.push(msg.selected_grid_y);
-      draw_temporary_item({ "type" : "line", "x" : temp_x, "y" : temp_y, "color" : $("#element_color").val, "size" : 3});
+      draw_temporary_item({
+        "type": "line",
+        "x": temp_x,
+        "y": temp_y,
+        "color": $("#element_color").val,
+        "size": 3
+      });
     }
-    
+
     draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
   });
 
   socket.on('selected_element_from_list', function(msg) {
     clear_prev_cursor_position();
-    console.log(msg);
     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
       return
-    
-    if(msg.selected_element.type === "line") {
-      for(var i=0; i < msg.selected_element.x.length; i++) {
+
+    if (msg.selected_element.type === "line") {
+      for (var i = 0; i < msg.selected_element.x.length; i++) {
         overlay_ctx.fillStyle = "#" + grid_highlight;
         overlay_ctx.beginPath();
         overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
         overlay_ctx.fill();
       }
-    }
-    else {
+    } else {
       draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
     }
   });
-  
+
   socket.on('edited_element', function(msg) {
-    console.log(msg);
     $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
   });
 }
@@ -222,16 +224,57 @@ function bindEventHandlers() {
     });
   });
 
-  // CLICK
-  $("#overlay_canvas").click(function(evt) {
-	  socket.emit('canvas_clicked', {
-      "new_x": pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
-      "new_y": pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
-      "old_x": selected_grid_x,
-      "old_y": selected_grid_y,
-      "old_size" : cursor_size
+  $("#overlay_canvas")
+    .mousedown(function(evt) {
+      socket.emit('canvas_clicked', {
+        "new_x": pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
+        "new_y": pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
+        "old_x": selected_grid_x,
+        "old_y": selected_grid_y,
+        "old_size": cursor_size
+      });
+      $("#editing_controls").remove();
+    })
+    .mousemove(function(evt) {
+      $("#popup_name").remove();
+      clearTimeout(hoverTimer);
+        local_stored_grid_space.forEach(function(el) {
+          if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
+            gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
+              showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
+          }
+        });
+    })
+    .mouseleave(function(evt) {
+      clearTimeout(hoverTimer);
+    })
+    .contextmenu(function(evt) {
+      evt.preventDefault();
+      showLongHoldMenu(evt.pageX, evt.pageY);
+    })
+    .bind('touchstart', function(evt) {
+      var touch_x = evt.originalEvent.touches[0].pageX - $("#overlay_canvas").offset().left;
+      var touch_y = evt.originalEvent.touches[0].pageY - $("#overlay_canvas").offset().top;
+      socket.emit('canvas_clicked', {
+        "new_x": pixel2GridPoint(touch_x - (touch_x % grid_size)),
+        "new_y": pixel2GridPoint(touch_y - (touch_y % grid_size)),
+        "old_x": selected_grid_x,
+        "old_y": selected_grid_y,
+        "old_size": cursor_size
+      });
+      holdTimer = window.setTimeout(function() {
+    	  showLongHoldMenu(evt.pageX, evt.pageY);
+      }, 1000);
+      return true;
+    })
+    .bind('touchend', function(evt) {
+      clearTimeout(holdTimer);
+      return false;
+    })
+    .bind('touchmove', function(evt) {
+      clearTimeout(holdTimer);
+      return true;
     });
-  });
 
   $('#place_element_button').click(function() {
     switch ($("#selected_shape").val()) {
@@ -257,7 +300,7 @@ function bindEventHandlers() {
 
   $("#start_new_line_button").click(function() {
     temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-    
+
     if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
       x_vertices.push(selected_grid_x);
       y_vertices.push(selected_grid_y);
@@ -330,27 +373,27 @@ function bindEventHandlers() {
     $("#movement_controls").hide();
     $("#editing_controls").hide();
   });
-  
+
   $("#grid_down").click(function() {
     $("#grid_space_dropdown").toggle();
   });
-  
+
   $("#drawing_controls_btn").click(function() {
     $("#drawing_controls").toggle();
   });
-  
+
   $("#editing_controls_btn").click(function() {
     $("#editing_controls").toggle();
   });
-  
+
   $("#movement_controls_btn").click(function() {
     $("#movement_controls").toggle();
   });
-  
+
   $("#settings_controls_btn").click(function() {
     $("#settings_controls").toggle();
   });
-  
+
   $("#element_list_btn").click(function() {
     $("#element_list_dropdown").toggle();
   });
@@ -366,11 +409,11 @@ function bindEventHandlers() {
       "category": $("#edit_category").val()
     });
 
-    $("#editing_controls").hide();
+    removeEditMenu();
   });
 
   $("#editing_controls_cancel").click(function() {
-    $("#editing_controls").hide();
+    removeEditMenu();
   });
 
   $("#randomize").click(function() {
@@ -409,9 +452,9 @@ function interfaceInitialization() {
   underlay_canvas = document.getElementById('underlay_canvas');
   overlay_canvas = document.getElementById('overlay_canvas');
   temporary_drawing_canvas = document.getElementById('temporary_drawing_canvas');
-  
+
   start_new_line_button = document.getElementById('start_new_line_button');
-  
+
   $("#movement_controls").hide();
   $("#reset_board_button").prop("disabled", true);
   $("#start_new_line_button").hide();
@@ -430,7 +473,7 @@ function interfaceInitialization() {
   overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
   temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
   temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-  
+
   drawTopRuler();
   drawLeftRuler();
 
@@ -445,7 +488,7 @@ function incremental_move_element(direction) {
     "x": selected_grid_x,
     "y": selected_grid_y,
     "direction": direction,
-    "size" : cursor_size
+    "size": cursor_size
   });
 }
 
@@ -504,7 +547,7 @@ function draw_item(element) {
 }
 
 function draw_temporary_item(element) {
-    switch (element.type) {
+  switch (element.type) {
     case "square":
       temporary_drawing_ctx.fillStyle = "#" + element.color;
       x = gridPoint2Pixel(element.x) + grid_line_width * 2;
@@ -543,7 +586,7 @@ function draw_temporary_item(element) {
  */
 function clear_prev_cursor_position() {
   overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
-  
+
   if (selected_grid_x === -1 || selected_grid_y === -1)
     return;
 
@@ -582,10 +625,10 @@ function draw_cursor_at_position(x, y, size) {
       cursor_size = size;
       break;
     case "line":
-    overlay_ctx.fillStyle = grid_highlight;
-    overlay_ctx.beginPath();
-    overlay_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
-    overlay_ctx.fill();
+      overlay_ctx.fillStyle = grid_highlight;
+      overlay_ctx.beginPath();
+      overlay_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
+      overlay_ctx.fill();
   }
 
   $("#move_to_x").val(selected_grid_x);
@@ -669,9 +712,55 @@ function composeElementListRowElement(el) {
     "</div>";
 }
 
-function edit_element_row(id) {
-  console.log(id);
+function showLongHoldMenu(x, y) {
+  $("body").append(getEditMenu(x, y));
+}
 
+function getContextMenu() {
+  $("body").append(getEditMenu(x, y));
+}
+
+function getEditMenu(x, y) {
+  return "<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+    "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
+    "<select id=\"edit_shape\" class=\"menu_item\">" +
+    "<option value=\"square\">Square</option>" +
+    "<option value=\"circle\">Circle</option>" +
+    "<option value=\"line\">Line</option>" +
+    "</select><br>" +
+    "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" +
+    "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
+    "<br>" +
+    "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_category\">Category</label>" +
+    "<br>" +
+    "<select id=\"edit_category\" class=\"menu_item\">" +
+    "<option value=\"environment\">Environment</option>" +
+    "<option value=\"player\">Player</option>" +
+    "<option value=\"enemy\">Enemy</option>" +
+    "<option value=\"npc\">NPC</option>" +
+    "</select>" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_name\">Name</label>" +
+    "<br>" +
+    "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
+    "</div>" +
+    "<br>" +
+    "<button id=\"editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "</div>";
+}
+
+function removeEditMenu() {
+  $("#editing_controls").remove();
+}
+
+function edit_element_row(id) {
   socket.emit('find_element_by_id', id);
   socket.on('element_by_id', function(msg) {
     $("#movement_controls").hide();
@@ -688,6 +777,14 @@ function edit_element_row(id) {
   });
 }
 
+function calculateMenuCoordinates(x, y) {
+  return [x, y];
+}
+
+function showPlayerName(x, y, name) {
+  $("body").append("<div id=\"popup_name\" class=\"popup_items\" style=\"top:" + y + "px; left:" + x + "px\"><p>" + name + "</p></div>");
+}
+
 /**
  * Move the cursor to the element that was selected from the list of elements
  *
@@ -698,7 +795,7 @@ function clicked_element_list(id) {
     "id": id,
     "selected_grid_x": selected_grid_x,
     "selected_grid_y": selected_grid_y,
-    "size" : cursor_size
+    "size": cursor_size
   });
 }
 
@@ -733,6 +830,10 @@ function drawLeftRuler() {
     var n = ctx2.measureText(i).width;
     ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
   }
+}
+
+function drawElements() {
+    local_stored_grid_space.forEach(function(el) { draw_item(el) });
 }
 
 /**
