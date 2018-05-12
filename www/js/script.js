@@ -259,15 +259,6 @@ function bindEventHandlers() {
     })
     .bind('touchstart', function(evt) {
       removeEditMenu();
-      var touch_x = evt.originalEvent.touches[0].pageX;
-      var touch_y = evt.originalEvent.touches[0].pageY;
-      socket.emit('canvas_clicked', {
-        "new_x": pixel2GridPoint(touch_x - (touch_x % grid_size)),
-        "new_y": pixel2GridPoint(touch_y - (touch_y % grid_size)),
-        "old_x": selected_grid_x,
-        "old_y": selected_grid_y,
-        "old_size": cursor_size
-      });
       holdTimer = window.setTimeout(function() {
         showLongHoldMenu(touch_x, touch_y);
       }, 1000);
