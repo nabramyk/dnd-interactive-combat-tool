@@ -150,31 +150,6 @@ function bindSocketListeners() {
     draw_cursor_at_position(msg.x, msg.y, msg.size);
   });
 
-  socket.on('canvas_clicked', function(msg) {
-    clear_prev_cursor_position();
-    if (selected_grid_x === -1 && selected_grid_y === -1) {
-      draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
-      return;
-    }
-
-    if (x_vertices.length > 0 && y_vertices.length) {
-      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-      var temp_x = x_vertices.slice(0);
-      var temp_y = y_vertices.slice(0);
-      temp_x.push(msg.selected_grid_x);
-      temp_y.push(msg.selected_grid_y);
-      draw_temporary_item({
-        "type": "line",
-        "x": temp_x,
-        "y": temp_y,
-        "color": $("#element_color").val,
-        "size": 3
-      });
-    }
-
-    draw_cursor_at_position(msg.selected_grid_x, msg.selected_grid_y, msg.size);
-  });
-
   socket.on('selected_element_from_list', function(msg) {
     clear_prev_cursor_position();
     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
@@ -227,13 +202,40 @@ function bindEventHandlers() {
   $("#overlay_canvas")
     .mousedown(function(evt) {
       removeEditMenu();
-      socket.emit('canvas_clicked', {
-        "new_x": pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size)),
-        "new_y": pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size)),
-        "old_x": selected_grid_x,
-        "old_y": selected_grid_y,
-        "old_size": cursor_size
+
+      var temp = local_stored_grid_space.find(function(el) {
+        return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
+          gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
       });
+    
+      if(isUndefined(temp)) {
+        cursor_size = 1;
+        selected_grid_x = pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size));
+        selected_grid_y = pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size));
+      } else {
+        cursor_size = temp.size;
+        selected_grid_x = temp.x;
+        selected_grid_y = temp.y;
+      }
+
+      clear_prev_cursor_position();
+
+      if (x_vertices.length > 0 && y_vertices.length) {
+        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+        var temp_x = x_vertices.slice(0);
+        var temp_y = y_vertices.slice(0);
+        temp_x.push(msg.selected_grid_x);
+        temp_y.push(msg.selected_grid_y);
+        draw_temporary_item({
+          "type": "line",
+          "x": temp_x,
+          "y": temp_y,
+          "color": $("#element_color").val,
+          "size": 3
+        });
+      }
+    
+      draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
       $("#editing_controls").remove();
     })
     .mousemove(function(evt) {
@@ -251,6 +253,7 @@ function bindEventHandlers() {
     })
     .contextmenu(function(evt) {
       removeEditMenu();
+      clearPlayerName();
       evt.preventDefault();
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
@@ -259,6 +262,9 @@ function bindEventHandlers() {
     })
     .bind('touchstart', function(evt) {
       removeEditMenu();
+      console.log(evt);
+      var touch_x = evt.originalEvent.touches[0].clientX;
+      var touch_y = evt.originalEvent.touches[0].clientY;
       holdTimer = window.setTimeout(function() {
         showLongHoldMenu(touch_x, touch_y);
       }, 1000);
@@ -269,6 +275,7 @@ function bindEventHandlers() {
       return true;
     })
     .bind('touchmove', function(evt) {
+      removeEditMenu();
       clearTimeout(holdTimer);
       return true;
     });
@@ -797,6 +804,10 @@ function calculateMenuCoordinates(x, y) {
 
 function showPlayerName(x, y, name) {
   $("body").append("<div id=\"popup_name\" class=\"popup_items\" style=\"top:" + y + "px; left:" + x + "px\"><p>" + name + "</p></div>");
+}
+
+function clearPlayerName() {
+  $("#popup_name").remove();
 }
 
 /**
