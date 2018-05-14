@@ -745,10 +745,47 @@ function getEditMenu() {
 
 function getOptionsMenu(x, y, id) {
   return "<div id=\"options_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    "<button class=\"menu_item\" onclick=\"getAddMenu()\">Add</button><br>" +
-    "<button class=\"menu_item\" onclick=\"getEditMenu()\">Edit</button><br>" +
+    "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" +
+    "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + ")\">Edit</button><br>" +
     "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>" +
     "</div>";
+}
+
+function getAddMenu(x, y) {
+  removeEditMenu();
+  $("body").append("<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+    "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
+    "<select id=\"edit_shape\" class=\"menu_item\">" +
+    "<option value=\"square\">Square</option>" +
+    "<option value=\"circle\">Circle</option>" +
+    "<option value=\"line\">Line</option>" +
+    "</select><br>" +
+    "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" +
+    "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
+    "<br>" +
+    "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_category\">Category</label>" +
+    "<br>" +
+    "<select id=\"edit_category\" class=\"menu_item\">" +
+    "<option value=\"environment\">Environment</option>" +
+    "<option value=\"player\">Player</option>" +
+    "<option value=\"enemy\">Enemy</option>" +
+    "<option value=\"npc\">NPC</option>" +
+    "</select>" +
+    "</div>" +
+    "<div style=\"display: inline-block;\">" +
+    "<label for=\"edit_name\">Name</label>" +
+    "<br>" +
+    "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
+    "</div>" +
+    "<br>" +
+    "<button id=\"editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "</div>");
 }
 
 function getEditMenu(x, y) {
