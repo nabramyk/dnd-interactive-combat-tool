@@ -28,6 +28,7 @@ var index_id = 0,
   index_y = 2;
 
 var holdTimer, hoverTimer;
+var prehandledByTouchEvent = false;
 
 var local_stored_grid_space = [];
 var x_vertices = [];
@@ -201,49 +202,18 @@ function bindEventHandlers() {
 
   $("#overlay_canvas")
     .mousedown(function(evt) {
-      removeEditMenu();
-
-      var temp = local_stored_grid_space.find(function(el) {
-        return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
-          gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
-      });
-    
-      if(isUndefined(temp)) {
-        cursor_size = 1;
-        selected_grid_x = pixel2GridPoint(evt.offsetX - (evt.offsetX % grid_size));
-        selected_grid_y = pixel2GridPoint(evt.offsetY - (evt.offsetY % grid_size));
-      } else {
-        cursor_size = temp.size;
-        selected_grid_x = temp.x;
-        selected_grid_y = temp.y;
-      }
-
-      clear_prev_cursor_position();
-
-      if (x_vertices.length > 0 && y_vertices.length) {
-        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-        var temp_x = x_vertices.slice(0);
-        var temp_y = y_vertices.slice(0);
-        temp_x.push(msg.selected_grid_x);
-        temp_y.push(msg.selected_grid_y);
-        draw_temporary_item({
-          "type": "line",
-          "x": temp_x,
-          "y": temp_y,
-          "color": $("#element_color").val,
-          "size": 3
-        });
-      }
-    
-      draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
-      $("#editing_controls").remove();
+      canvasClicked(evt.offsetX, evt.offsetY);
     })
     .mousemove(function(evt) {
-      $("#popup_name").remove();
+      clearPlayerName();
       clearTimeout(hoverTimer);
       local_stored_grid_space.forEach(function(el) {
         if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
           gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
+          if(prehandledByTouchEvent) {
+            prehandledByTouchEvent = false;
+            return;
+          }
           showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
         }
       });
@@ -260,22 +230,24 @@ function bindEventHandlers() {
       });
       showLongHoldMenu(evt.pageX, evt.pageY, (isUndefined(temp) ? -1 : temp.id));
     })
-    .bind('touchstart', function(evt) {
+    .on('touchstart', function(evt) {
+      prehandledByTouchEvent = true;
       removeEditMenu();
-      console.log(evt);
       var touch_x = evt.originalEvent.touches[0].clientX;
       var touch_y = evt.originalEvent.touches[0].clientY;
+      canvasClicked(touch_x - $("#overlay_canvas").offset().left, touch_y - $("#overlay_canvas").offset().top);
       holdTimer = window.setTimeout(function() {
         showLongHoldMenu(touch_x, touch_y);
       }, 1000);
       return true;
     })
-    .bind('touchend', function(evt) {
+    .on('touchend', function(evt) {
       clearTimeout(holdTimer);
-      return true;
+      return false;
     })
-    .bind('touchmove', function(evt) {
+    .on('touchmove', function(evt) {
       removeEditMenu();
+      clearPlayerName();
       clearTimeout(holdTimer);
       return true;
     });
@@ -494,6 +466,45 @@ function incremental_move_element(direction) {
     "direction": direction,
     "size": cursor_size
   });
+}
+
+function canvasClicked(x, y) {
+  removeEditMenu();
+
+      var temp = local_stored_grid_space.find(function(el) {
+        return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
+          gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
+      });
+    
+      if(isUndefined(temp)) {
+        cursor_size = 1;
+        selected_grid_x = pixel2GridPoint(x - (x % grid_size));
+        selected_grid_y = pixel2GridPoint(y - (y % grid_size));
+      } else {
+        cursor_size = temp.size;
+        selected_grid_x = temp.x;
+        selected_grid_y = temp.y;
+      }
+
+      clear_prev_cursor_position();
+
+      if (x_vertices.length > 0 && y_vertices.length) {
+        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+        var temp_x = x_vertices.slice(0);
+        var temp_y = y_vertices.slice(0);
+        temp_x.push(msg.selected_grid_x);
+        temp_y.push(msg.selected_grid_y);
+        draw_temporary_item({
+          "type": "line",
+          "x": temp_x,
+          "y": temp_y,
+          "color": $("#element_color").val,
+          "size": 3
+        });
+      }
+    
+      draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
+      $("#editing_controls").remove();
 }
 
 /**
