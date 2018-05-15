@@ -182,6 +182,20 @@ function bindSocketListeners() {
   socket.on('new_grid_space', function(msg) {
     $("<button class=\"tab\" value=\"" + msg.id + "\">" + msg.name + "</button>").insertBefore("#addition_tab");
   });
+  
+  socket.on('request_grid_space', function(msg) {
+    console.log(msg);
+    grid_count_height = msg.grid_space.height;
+    resizeGridHeight(grid_count_height);
+    grid_count_width = msg.grid_space.width;
+    resizeGridWidth(grid_count_width);
+    
+    if (msg.grid_space.elements.length !== 0) {
+      local_stored_grid_space = msg.grid_space.elements;
+      $("#reset_board_button").prop("disabled", false);
+      drawElements();
+    }
+  });
 }
 
 /**
@@ -418,7 +432,7 @@ function bindEventHandlers() {
   $(document).on('click','#tab_row .tab', function(evt) {
     $(".tab").removeClass("active");
     $(this).addClass("active");
-    socket.emit('request_grid_space', {});
+    socket.emit('request_grid_space', { "id" : $(this).val() });
   });
   
   $("#grid_canvas").focus();

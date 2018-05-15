@@ -500,7 +500,9 @@ io.on('connection', function(socket) {
   });
   
   socket.on('request_grid_space', function(msg) {
-    
+    var grid = grid_space.find(function(el) { return el.id == msg.id; });
+    console.log( grid_space.find(function(el) { return el.id == msg.id; }));
+    socket.emit('request_grid_space', { "grid_space" : grid });
   });
 });
 
