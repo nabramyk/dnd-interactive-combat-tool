@@ -400,6 +400,10 @@ function bindEventHandlers() {
     refresh_elements_list();
   });
 
+  $("#addition_tab").click(function() {
+    $("<button class=\"tab\">AHHHH!!!!</button>").insertBefore("#addition_tab");
+  });
+  
   $("#grid_canvas").focus();
   $(document).keydown(function(e) {
     switch (e.which) {
