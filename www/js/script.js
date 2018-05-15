@@ -401,7 +401,7 @@ function bindEventHandlers() {
   });
 
   $("#addition_tab").click(function() {
-    $("<button class=\"tab\">AHHHH!!!!</button>").insertBefore("#addition_tab");
+    $("<button class=\"tab\">" + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7) + "</button>").insertBefore("#addition_tab");
   });
   
   $(document).on('click','#tab_row .tab', function(evt) {
