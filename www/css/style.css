@@ -131,7 +131,7 @@ i {
   width: 100%;
   height: 40px;
   max-height: 40px;
-  background: #dddddd;
+  background: #b7b7b7;
   overflow-x: scroll;
   overflow-y: hidden;
   white-space: nowrap;
@@ -308,7 +308,7 @@ i {
 }
 
 .tab {
-  background: white;
+  background: #dddddd;
   height: 100%;
   border: none;
   min-width: 20px;
@@ -317,6 +317,16 @@ i {
   display: inline;
 }
 
+.active {
+  background: white;
+}
+
 #addition_tab {
-  
+  background: white;
+  height: 100%;
+  border: none;
+  min-width: 20px;
+  max-width: 20%;
+  margin: 2px;
+  display: inline;
 }

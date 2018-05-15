@@ -404,6 +404,11 @@ function bindEventHandlers() {
     $("<button class=\"tab\">AHHHH!!!!</button>").insertBefore("#addition_tab");
   });
   
+  $(document).on('click','#tab_row .tab', function(evt) {
+    $(".tab").removeClass("active");
+    $(this).addClass("active");
+  });
+  
   $("#grid_canvas").focus();
   $(document).keydown(function(e) {
     switch (e.which) {
