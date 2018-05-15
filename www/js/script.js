@@ -12,6 +12,7 @@ var grid_count_height = 0;
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
+var grid_id = 0;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
@@ -116,6 +117,7 @@ function bindSocketListeners() {
   })
 
   socket.on('resize_height', function(msg) {
+    if( grid_id != msg.grid_id) return;
     grid_count_height = msg.height;
     resizeGridHeight(grid_count_height);
     local_stored_grid_space = msg.elements;
@@ -123,6 +125,7 @@ function bindSocketListeners() {
   });
 
   socket.on('resize_width', function(msg) {
+    if( grid_id != msg.grid_id) return;
     grid_count_width = msg.width;
     resizeGridWidth(grid_count_width);
     local_stored_grid_space = msg.elements;
@@ -184,7 +187,6 @@ function bindSocketListeners() {
   });
   
   socket.on('request_grid_space', function(msg) {
-    console.log(msg);
     grid_count_height = msg.grid_space.height;
     resizeGridHeight(grid_count_height);
     grid_count_width = msg.grid_space.width;
@@ -214,6 +216,7 @@ function bindEventHandlers() {
   $("#grid_size_vertical").change(function() {
     grid_count_height = $("#grid_size_vertical").val();
     socket.emit('resize_height', {
+      "grid_id" : grid_id,
       "height": grid_count_height
     });
   });
@@ -221,6 +224,7 @@ function bindEventHandlers() {
   $("#grid_size_horizontal").change(function() {
     grid_count_width = $("#grid_size_horizontal").val();
     socket.emit('resize_width', {
+      "grid_id" : grid_id,
       "width": grid_count_width
     });
   });
@@ -432,6 +436,7 @@ function bindEventHandlers() {
   $(document).on('click','#tab_row .tab', function(evt) {
     $(".tab").removeClass("active");
     $(this).addClass("active");
+    grid_id = $(this).val();
     socket.emit('request_grid_space', { "id" : $(this).val() });
   });
   

@@ -423,18 +423,22 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('resize_height', function(msg) {
-		grid_space[0].resizeHeight(msg.height);
+    var temp = grid_space.find(function(el) { return msg.grid_id == el.id });
+		temp.resizeHeight(msg.height);
 		io.emit('resize_height', {
+      "grid_id" : msg.grid_id,
 			"height" : msg.height,
-			"elements" : grid_space[0].elements
+			"elements" : temp.elements
 		});
 	});
 
 	socket.on('resize_width', function(msg) {
-		grid_space[0].resizeWidth(msg.width);
+    var temp = grid_space.find(function(el) { return msg.grid_id == el.id });
+		temp.resizeWidth(msg.width);
 		io.emit('resize_width', {
+      "grid_id" : msg.grid_id,
 			"width" : msg.width,
-			"elements" : grid_space[0].elements
+			"elements" : temp.elements
 		});
 	});
 
@@ -501,7 +505,6 @@ io.on('connection', function(socket) {
   
   socket.on('request_grid_space', function(msg) {
     var grid = grid_space.find(function(el) { return el.id == msg.id; });
-    console.log( grid_space.find(function(el) { return el.id == msg.id; }));
     socket.emit('request_grid_space', { "grid_space" : grid });
   });
 });
