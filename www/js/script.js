@@ -760,8 +760,8 @@ function getAddMenu(x, y) {
     "<option value=\"circle\">Circle</option>" +
     "<option value=\"line\">Line</option>" +
     "</select><br>" +
-    "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" +
-    "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
+    "<input name=\"editcolor\" id=\"toolbar_edit_color\" type=\"hidden\" value=\"000000\">" +
+    "<input id=\"toolbar_edit_color_changer\" class=\"jscolor {valueElement:\'toolbar_edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
     "<div style=\"display: inline-block;\">" +
     "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
     "<br>" +
@@ -783,9 +783,15 @@ function getAddMenu(x, y) {
     "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
     "</div>" +
     "<br>" +
-    "<button id=\"editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
-    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "<button id=\"editing_controls_done\" class=\"menu_item\">Add</button><br>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\">Cancel</button>" +
     "</div>");
+  new jscolor.installByClassName("jscolor");
+  $("#editing_controls_done").on("click", function(evt) {
+    add_element_to_server($("#toolbar_edit_color").val(), selected_grid_x, selected_grid_y, $("#edit_shape").val(), null, $("#edit_size").val(), $("#edit_category").val());
+    removeEditMenu();
+  });
+  $("#editing_controls_cancel").on("click", function(evt) { removeEditMenu(); });
 }
 
 function getEditMenu(x, y) {
