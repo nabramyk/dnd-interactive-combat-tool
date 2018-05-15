@@ -31,6 +31,7 @@ var holdTimer, hoverTimer;
 var prehandledByTouchEvent = false;
 
 var local_stored_grid_space = [];
+var grid_spaces_list = [];
 var x_vertices = [];
 var y_vertices = [];
 
@@ -82,6 +83,12 @@ function bindSocketListeners() {
 
     $("#element_list").empty();
     refresh_elements_list();
+    
+    msg.spaces.forEach(function(el) {
+       $("<button class=\"tab\" value=\"" + el.id + "\">" + el.name + "</button>").insertBefore("#addition_tab");
+    });
+    
+    $(".tab").first().addClass("active");
 
     if (msg.elements.length !== 0) {
       local_stored_grid_space = msg.elements;
@@ -170,6 +177,10 @@ function bindSocketListeners() {
 
   socket.on('edited_element', function(msg) {
     $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
+  });
+  
+  socket.on('new_grid_space', function(msg) {
+    $("<button class=\"tab\" value=\"" + msg.id + "\">" + msg.name + "</button>").insertBefore("#addition_tab");
   });
 }
 
@@ -401,12 +412,13 @@ function bindEventHandlers() {
   });
 
   $("#addition_tab").click(function() {
-    $("<button class=\"tab\">" + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7) + "</button>").insertBefore("#addition_tab");
+    socket.emit('create_grid_space', {});
   });
   
   $(document).on('click','#tab_row .tab', function(evt) {
     $(".tab").removeClass("active");
     $(this).addClass("active");
+    socket.emit('request_grid_space', {});
   });
   
   $("#grid_canvas").focus();

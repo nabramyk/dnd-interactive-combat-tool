@@ -193,6 +193,7 @@ function GridSpace(width, height) {
 	this.elements = [];
 	this.width = width;
 	this.height = height;
+  this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
 	
 	/**
 	 * Set the grid space width
@@ -407,49 +408,41 @@ function GridSpace(width, height) {
 	}
 }
 
-var grid_space = new GridSpace(1, 1);
+var grid_space = [new GridSpace(1, 1)];
 
 io.on('connection', function(socket) {
 	console.log("a user connected");
 
 	socket.on('init', function(msg) {
 		socket.emit('init', { 
-			"grid_width" : grid_space.width,
-			"grid_height" : grid_space.height,
-			"elements" : grid_space.elements
+			"grid_width" : grid_space[0].width,
+			"grid_height" : grid_space[0].height,
+			"elements" : grid_space[0].elements,
+      "spaces" : grid_space.map(function(el) { return { "id" : el.id, "name" : el.name } })
 		});
 	});
 	
 	socket.on('resize_height', function(msg) {
-		grid_space.resizeHeight(msg.height);
+		grid_space[0].resizeHeight(msg.height);
 		io.emit('resize_height', {
 			"height" : msg.height,
-			"elements" : grid_space.elements
+			"elements" : grid_space[0].elements
 		});
 	});
 
 	socket.on('resize_width', function(msg) {
-		grid_space.resizeWidth(msg.width);
+		grid_space[0].resizeWidth(msg.width);
 		io.emit('resize_width', {
 			"width" : msg.width,
-			"elements" : grid_space.elements
-		});
-	});
-
-	socket.on('canvas_clicked', function(msg) {
-		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
-		socket.emit('canvas_clicked', {
-			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
-			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
-			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
+			"elements" : grid_space[0].elements
 		});
 	});
 
 	socket.on('move_element', function(msg) {
-		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
+		var movedElement = grid_space[0].nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 		
-		io.emit('move_element', { "element" : movedElement, "elements" : grid_space.elements });
+		io.emit('move_element', { "element" : movedElement, "elements" : grid_space[0].elements });
 		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
 	});
 
@@ -464,41 +457,50 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		
-		var output = grid_space.addElementToGridSpace(input);
-		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', grid_space.elements);
+		var output = grid_space[0].addElementToGridSpace(input);
+		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', grid_space[0].elements);
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
-		var temp = grid_space.removeElementFromGridSpace(msg);
+		var temp = grid_space[0].removeElementFromGridSpace(msg);
 		io.emit('removed_element', grid_space.elements);
 		io.emit('retrieve_elements_list', grid_space.elements);
 	});
   
   socket.on('edit_element_on_server', function(msg) {
-    io.emit('edited_element', grid_space.findElementById(msg.id).mutate(msg));
+    io.emit('edited_element', grid_space[0].findElementById(msg.id).mutate(msg));
   });
 	
 	socket.on('randomize', function(msg) {
-		grid_space.generateRandomBoardElements();
-		io.emit('added_element', grid_space.elements);
+		grid_space[0].generateRandomBoardElements();
+		io.emit('added_element', grid_space[0].elements);
 	});
 	
 	socket.on('reset_board', function(msg) {
-		grid_space.removeAllElementsFromGridSpace();
-		io.emit('removed_element', grid_space.elements);
+		grid_space[0].removeAllElementsFromGridSpace();
+		io.emit('removed_element', grid_space[0].elements);
 	});
 	
 	socket.on('get_elements_list', function(msg) {
-		socket.emit('retrieve_elements_list', grid_space.gatherElementsFromCategories(msg.filter));
+		socket.emit('retrieve_elements_list', grid_space[0].gatherElementsFromCategories(msg.filter));
 	});
 	
 	socket.on('select_element_from_list', function(msg) {
-		var element = grid_space.findElementById(msg.id);
+		var element = grid_space[0].findElementById(msg.id);
 		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element }));
 	});
   
   socket.on('find_element_by_id', function(msg) {
-    socket.emit('element_by_id', grid_space.findElementById(msg));
+    socket.emit('element_by_id', grid_space[0].findElementById(msg));
+  });
+  
+  socket.on('create_grid_space', function(msg) {
+    var newGridSpace = grid_space.push(new GridSpace(1, 1));
+    io.emit('new_grid_space', { "id" : grid_space[newGridSpace - 1].id, "name" : grid_space[newGridSpace - 1].name });
+  });
+  
+  socket.on('request_grid_space', function(msg) {
+    
   });
 });
 
