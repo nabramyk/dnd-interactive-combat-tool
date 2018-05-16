@@ -85,6 +85,7 @@ function bindSocketListeners() {
     $("#element_list").empty();
     refresh_elements_list();
     
+    grid_id = msg.spaces[0].id;
     msg.spaces.forEach(function(el) {
        $("<button class=\"tab\" value=\"" + el.id + "\">" + el.name + "</button>").insertBefore("#addition_tab");
     });
@@ -133,11 +134,12 @@ function bindSocketListeners() {
   });
 
   socket.on('added_element', function(msg) {
+	if(msg.grid_id != grid_id) return;
     if (msg === null)
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    local_stored_grid_space = msg;
+    local_stored_grid_space = msg.elements;
     drawElements();
     refresh_elements_list();
   });
@@ -422,7 +424,7 @@ function bindEventHandlers() {
   });
 
   $("#randomize").click(function() {
-    socket.emit('randomize', {});
+    socket.emit('randomize', { "grid_id" : grid_id });
   });
 
   $(".element_filter").click(function() {

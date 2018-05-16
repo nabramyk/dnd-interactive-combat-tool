@@ -193,7 +193,7 @@ function GridSpace(width, height) {
 	this.elements = [];
 	this.width = width;
 	this.height = height;
-  this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
+	this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
 	
 	/**
 	 * Set the grid space width
@@ -433,6 +433,7 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('resize_width', function(msg) {
+		console.log(msg.grid_id);
     var temp = grid_space.find(function(el) { return msg.grid_id == el.id });
 		temp.resizeWidth(msg.width);
 		io.emit('resize_width', {
@@ -476,8 +477,9 @@ io.on('connection', function(socket) {
   });
 	
 	socket.on('randomize', function(msg) {
-		grid_space[0].generateRandomBoardElements();
-		io.emit('added_element', grid_space[0].elements);
+		var temp = grid_space.find(function(el) { return el.id == msg.grid_id });
+		temp.generateRandomBoardElements();
+		io.emit('added_element', { "grid_id" : temp.id, "elements" : temp.elements });
 	});
 	
 	socket.on('reset_board', function(msg) {
