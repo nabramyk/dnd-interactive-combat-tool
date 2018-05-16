@@ -469,7 +469,7 @@ io.on('connection', function(socket) {
 	socket.on('delete_element_on_server', function(msg) {
 		var temp = grid_space[0].removeElementFromGridSpace(msg);
 		io.emit('removed_element', grid_space.elements);
-		io.emit('retrieve_elements_list', grid_space.elements);
+		//io.emit('retrieve_elements_list', grid_space.elements);
 	});
   
   socket.on('edit_element_on_server', function(msg) {
@@ -479,26 +479,15 @@ io.on('connection', function(socket) {
 	socket.on('randomize', function(msg) {
 		var temp = grid_space.find(function(el) { return el.id == msg.grid_id });
 		temp.generateRandomBoardElements();
-		io.emit('added_element', { "grid_id" : temp.id, "elements" : temp.elements });
+    temp.elements.forEach(function(el) {
+      	io.emit('added_element', { "grid_id" : msg.grid_id, "element" : el });
+    })
 	});
 	
 	socket.on('reset_board', function(msg) {
 		grid_space.find(function(el) { return el.id == msg.grid_id }).removeAllElementsFromGridSpace();
-		io.emit('removed_element', {});
+		io.emit('reset_grid', { "grid_id" : msg.grid_id });
 	});
-	
-	socket.on('get_elements_list', function(msg) {
-		socket.emit('retrieve_elements_list', grid_space[0].gatherElementsFromCategories(msg.filter));
-	});
-	
-	socket.on('select_element_from_list', function(msg) {
-		var element = grid_space[0].findElementById(msg.id);
-		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element }));
-	});
-  
-  socket.on('find_element_by_id', function(msg) {
-    socket.emit('element_by_id', grid_space[0].findElementById(msg));
-  });
   
   socket.on('create_grid_space', function(msg) {
     var newGridSpace = grid_space.push(new GridSpace(1, 1));

@@ -109,14 +109,6 @@ function bindSocketListeners() {
     $("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
   });
 
-  socket.on('retrieve_elements_list', function(msg) {
-    $("#element_list").empty();
-
-    msg.forEach(function(el) {
-      $("#element_list").append(composeElementListRowElement(el));
-    });
-  })
-
   socket.on('resize_height', function(msg) {
     if( grid_id != msg.grid_id) return;
     grid_count_height = msg.height;
@@ -169,22 +161,22 @@ function bindSocketListeners() {
     draw_cursor_at_position(msg.x, msg.y, msg.size);
   });
 
-  socket.on('selected_element_from_list', function(msg) {
-    clear_prev_cursor_position();
-    if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
-      return
+//   socket.on('selected_element_from_list', function(msg) {
+//     clear_prev_cursor_position();
+//     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
+//       return
 
-    if (msg.selected_element.type === "line") {
-      for (var i = 0; i < msg.selected_element.x.length; i++) {
-        overlay_ctx.fillStyle = "#" + grid_highlight;
-        overlay_ctx.beginPath();
-        overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
-        overlay_ctx.fill();
-      }
-    } else {
-      draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
-    }
-  });
+//     if (msg.selected_element.type === "line") {
+//       for (var i = 0; i < msg.selected_element.x.length; i++) {
+//         overlay_ctx.fillStyle = "#" + grid_highlight;
+//         overlay_ctx.beginPath();
+//         overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
+//         overlay_ctx.fill();
+//       }
+//     } else {
+//       draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
+//     }
+//   });
 
   socket.on('edited_element', function(msg) {
     $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
@@ -205,6 +197,12 @@ function bindSocketListeners() {
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
+  });
+  
+  socket.on('reset_grid', function(msg) {
+    if(grid_id != msg.grid_id) return;
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space = [];
   });
 }
 
@@ -306,7 +304,7 @@ function bindEventHandlers() {
 
   $('#reset_board_button').click(function() {
     if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
-      socket.emit('reset_board', {});
+      socket.emit('reset_board', { "grid_id" : grid_id });
       $("#reset_board_button").prop("disabled", true);
     }
   });
