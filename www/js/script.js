@@ -139,12 +139,13 @@ function bindSocketListeners() {
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    local_stored_grid_space = msg.elements;
+    local_stored_grid_space.push(msg.element);
     drawElements();
     refresh_elements_list();
   });
 
   socket.on('removed_element', function(msg) {
+    if(msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space = msg;
     drawElements();
@@ -152,8 +153,13 @@ function bindSocketListeners() {
   });
 
   socket.on('move_element', function(msg) {
+    if(msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    local_stored_grid_space = msg.elements;
+    local_stored_grid_space[local_stored_grid_space.indexOf(
+       local_stored_grid_space.find(
+         function(el) { return msg.element.id == el.id }
+       )
+    )] = msg.element;
     drawElements();
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
@@ -503,6 +509,7 @@ function interfaceInitialization() {
  */
 function incremental_move_element(direction) {
   socket.emit('move_element', {
+    "grid_id" : grid_id,
     "x": selected_grid_x,
     "y": selected_grid_y,
     "direction": direction,
@@ -716,6 +723,7 @@ function resizeGridHeight(height) {
 
 function add_element_to_server(color, x, y, shape, name, size, category) {
   socket.emit('add_element_to_server', {
+    "grid_id" : grid_id,
     "color": color,
     "x_coord": JSON.stringify(x),
     "y_coord": JSON.stringify(y),
@@ -738,9 +746,10 @@ function refresh_elements_list() {
   }
 
   if (filters.length !== 0) {
-    socket.emit('get_elements_list', {
-      "filter": filter
-    });
+    $("#element_list").empty();
+    local_stored_grid_space
+      .filter( function(el) { return filter.indexOf(el.category) != -1 })
+      .forEach( function(el) { $("#element_list").append(composeElementListRowElement(el)) });
   } else {
     $("#element_list").empty();
   }

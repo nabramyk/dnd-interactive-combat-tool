@@ -433,7 +433,6 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('resize_width', function(msg) {
-		console.log(msg.grid_id);
     var temp = grid_space.find(function(el) { return msg.grid_id == el.id });
 		temp.resizeWidth(msg.width);
 		io.emit('resize_width', {
@@ -444,15 +443,16 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('move_element', function(msg) {
-		var movedElement = grid_space[0].nudgeElement(msg.x, msg.y, msg.direction);
+		var movedElement = grid_space.find(function(el) { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 		
-		io.emit('move_element', { "element" : movedElement, "elements" : grid_space[0].elements });
+		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
 		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
 	});
 
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
+    
 		var input = new Element(element_id_counter++,
 								JSON.parse(msg.x_coord), 
 								JSON.parse(msg.y_coord), 
@@ -462,8 +462,8 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		
-		var output = grid_space[0].addElementToGridSpace(input);
-		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', grid_space[0].elements);
+		var output = grid_space.find(function(el) { return el.id == msg.grid_id }).addElementToGridSpace(input);
+		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : input });
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
@@ -483,8 +483,8 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('reset_board', function(msg) {
-		grid_space[0].removeAllElementsFromGridSpace();
-		io.emit('removed_element', grid_space[0].elements);
+		grid_space.find(function(el) { return el.id == msg.grid_id }).removeAllElementsFromGridSpace();
+		io.emit('removed_element', {});
 	});
 	
 	socket.on('get_elements_list', function(msg) {
