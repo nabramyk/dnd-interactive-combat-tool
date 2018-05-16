@@ -88,10 +88,10 @@ function bindSocketListeners() {
     $(".tab").remove();
     grid_id = msg.spaces[0].id;
     msg.spaces.forEach(function(el) {
-       $("<button class=\"tab\" value=\"" + el.id + "\">" + el.name + "</button>").insertBefore("#addition_tab");
+      $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">X</button></div>").insertBefore("#addition_tab");
     });
 
-    $(".tab").first().addClass("active");
+    //$(".tab").first().addClass("active");
 
     if (msg.elements.length !== 0) {
       local_stored_grid_space = msg.elements;
@@ -184,7 +184,7 @@ function bindSocketListeners() {
   });
   
   socket.on('new_grid_space', function(msg) {
-    $("<button class=\"tab\" value=\"" + msg.id + "\">" + msg.name + "</button>").insertBefore("#addition_tab");
+    $("<div class=\"tab\"><button value=\"" + msg.id + "\">" + msg.name + "</button><button>X</button></div>").insertBefore("#addition_tab");
   });
   
   socket.on('request_grid_space', function(msg) {
@@ -204,6 +204,10 @@ function bindSocketListeners() {
     if(grid_id != msg.grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space = [];
+  });
+  
+  socket.on('delete_grid_space', function(msg) {
+    $("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
   });
 }
 
@@ -440,11 +444,17 @@ function bindEventHandlers() {
     socket.emit('create_grid_space', {});
   });
   
-  $(document).on('click','#tab_row .tab', function(evt) {
+  $(document).on('click','#tab_row .grid-name', function(evt) {
     $(".tab").removeClass("active");
     $(this).addClass("active");
     grid_id = $(this).val();
     socket.emit('request_grid_space', { "id" : $(this).val() });
+  });
+  
+  $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
+    if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
+      socket.emit("delete_grid_space_from_server", { "grid_id" : $(this).val() });
+    }
   });
   
   $("#grid_canvas").focus();

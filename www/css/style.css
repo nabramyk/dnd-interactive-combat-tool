@@ -308,17 +308,21 @@ i {
 }
 
 .tab {
-  background: #dddddd;
+  background-color: #dddddd;
   height: 100%;
   border: none;
   min-width: 20px;
   max-width: 20%;
-  margin: 2px;
   display: inline;
 }
 
+.tab > button {
+  display: inline;
+  margin: 5px;
+}
+
 .active {
-  background: white;
+  background-color: white;
 }
 
 #addition_tab {

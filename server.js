@@ -374,21 +374,6 @@ function GridSpace(width, height) {
 			}
 	}
 	
-	/***/
-	this.clickInGridSpace = function(x, y) {
-		return this.elements.find( function(el) { return el.within(x, y) });
-	}
-	
-	/**
-	 * 
-	 */
-	this.gatherElementsFromCategories = function(filters) {
-		return this.elements
-					.filter( function(el) { 
-						return filters.indexOf(el.category) != -1 
-					});
-	}
-	
   this.gatherElementsWithinRegion = function(region) {
     
   }
@@ -497,6 +482,11 @@ io.on('connection', function(socket) {
   socket.on('request_grid_space', function(msg) {
     var grid = grid_space.find(function(el) { return el.id == msg.id; });
     socket.emit('request_grid_space', { "grid_space" : grid });
+  });
+  
+  socket.on('delete_grid_space_from_server', function(msg) {
+    grid_space.splice(grid_space.indexOf(grid_space.find(function(el) {return msg.grid_id == el.id; })),1);
+    io.emit('delete_grid_space', { "grid_id" : msg.grid_id });
   });
 });
 
