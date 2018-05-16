@@ -85,11 +85,12 @@ function bindSocketListeners() {
     $("#element_list").empty();
     refresh_elements_list();
     
+    $(".tab").remove();
     grid_id = msg.spaces[0].id;
     msg.spaces.forEach(function(el) {
        $("<button class=\"tab\" value=\"" + el.id + "\">" + el.name + "</button>").insertBefore("#addition_tab");
     });
-    
+
     $(".tab").first().addClass("active");
 
     if (msg.elements.length !== 0) {
