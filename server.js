@@ -485,8 +485,17 @@ io.on('connection', function(socket) {
   });
   
   socket.on('delete_grid_space_from_server', function(msg) {
+	if(grid_space.length <= 1) {
+		socket.emit('error_channel', { "message" : "Cannot have 0 grid spaces, you ass hat."});
+		return;
+	}
     grid_space.splice(grid_space.indexOf(grid_space.find(function(el) {return msg.grid_id == el.id; })),1);
     io.emit('delete_grid_space', { "grid_id" : msg.grid_id });
+  });
+  
+  socket.on('rename_grid', function(msg) {
+	  grid_space.find(function(el) { return el.id == msg.grid_id }).name = msg.grid_name;
+	  io.emit('renaming_grid', msg);
   });
 });
 

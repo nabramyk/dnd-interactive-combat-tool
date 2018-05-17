@@ -87,11 +87,12 @@ function bindSocketListeners() {
     
     $(".tab").remove();
     grid_id = msg.spaces[0].id;
+    $("#grid_name").val(msg.spaces[0].name);
     msg.spaces.forEach(function(el) {
       $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">X</button></div>").insertBefore("#addition_tab");
     });
 
-    //$(".tab").first().addClass("active");
+    $(".tab").first().addClass("active");
 
     if (msg.elements.length !== 0) {
       local_stored_grid_space = msg.elements;
@@ -184,7 +185,7 @@ function bindSocketListeners() {
   });
   
   socket.on('new_grid_space', function(msg) {
-    $("<div class=\"tab\"><button value=\"" + msg.id + "\">" + msg.name + "</button><button>X</button></div>").insertBefore("#addition_tab");
+	  $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">X</button></div>").insertBefore("#addition_tab");
   });
   
   socket.on('request_grid_space', function(msg) {
@@ -192,6 +193,9 @@ function bindSocketListeners() {
     resizeGridHeight(grid_count_height);
     grid_count_width = msg.grid_space.width;
     resizeGridWidth(grid_count_width);
+    clearPlayerName();
+    local_stored_grid_space = [];
+    $("#grid_name").val(msg.grid_space.name);
     
     if (msg.grid_space.elements.length !== 0) {
       local_stored_grid_space = msg.grid_space.elements;
@@ -208,6 +212,14 @@ function bindSocketListeners() {
   
   socket.on('delete_grid_space', function(msg) {
     $("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
+  });
+  
+  socket.on('renaming_grid', function(msg) {
+	  $("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
+  });
+  
+  socket.on('error_channel', function(msg) {
+	 alert(msg.message); 
   });
 }
 
@@ -239,7 +251,14 @@ function bindEventHandlers() {
       "width": grid_count_width
     });
   });
-
+  
+  $("#grid_name").change(function() {
+	 socket.emit('rename_grid', { 
+		 "grid_id" : grid_id,
+		 "grid_name" : $("#grid_name").val() 
+	}); 
+  });
+  
   $("#overlay_canvas")
     .mousedown(function(evt) {
       canvasClicked(evt.offsetX, evt.offsetY);
@@ -259,6 +278,7 @@ function bindEventHandlers() {
       });
     })
     .mouseleave(function(evt) {
+    	clearPlayerName();
       clearTimeout(hoverTimer);
     })
     .contextmenu(function(evt) {
@@ -446,7 +466,7 @@ function bindEventHandlers() {
   
   $(document).on('click','#tab_row .grid-name', function(evt) {
     $(".tab").removeClass("active");
-    $(this).addClass("active");
+    $(this).parent().addClass("active");
     grid_id = $(this).val();
     socket.emit('request_grid_space', { "id" : $(this).val() });
   });

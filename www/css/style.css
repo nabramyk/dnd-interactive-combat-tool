@@ -309,16 +309,17 @@ i {
 
 .tab {
   background-color: #dddddd;
-  height: 100%;
   border: none;
-  min-width: 20px;
-  max-width: 20%;
-  display: inline;
+  display: inline-block;
+  padding: 10px;
+  margin-right: 5px;
 }
 
 .tab > button {
-  display: inline;
-  margin: 5px;
+  display: inline-block;
+  height: 100%;
+  background: none;
+  border: none;
 }
 
 .active {
