@@ -452,9 +452,8 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
-		var temp = grid_space[0].removeElementFromGridSpace(msg);
-		io.emit('removed_element', grid_space.elements);
-		//io.emit('retrieve_elements_list', grid_space.elements);
+		var temp = grid_space.find(function(el) { return el.id == msg.grid_id }).removeElementFromGridSpace(msg.element_id);
+		io.emit('removed_element', { "grid_id" : msg.grid_id, "element_id" : msg.element_id });
 	});
   
   socket.on('edit_element_on_server', function(msg) {

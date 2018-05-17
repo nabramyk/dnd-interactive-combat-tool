@@ -99,6 +99,8 @@ function bindSocketListeners() {
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
+    
+    refresh_elements_list();
   });
 
   socket.on('connect', function(msg) {
@@ -141,9 +143,10 @@ function bindSocketListeners() {
   socket.on('removed_element', function(msg) {
     if(msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    local_stored_grid_space = msg;
+    local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) { return el.id == msg.element_id}), 1);
     drawElements();
     $("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
+    refresh_elements_list();
   });
 
   socket.on('move_element', function(msg) {
@@ -182,6 +185,7 @@ function bindSocketListeners() {
 
   socket.on('edited_element', function(msg) {
     $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
+    refresh_elements_list();
   });
   
   socket.on('new_grid_space', function(msg) {
@@ -202,6 +206,8 @@ function bindSocketListeners() {
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
+    
+    refresh_elements_list();
   });
   
   socket.on('reset_grid', function(msg) {
@@ -212,6 +218,11 @@ function bindSocketListeners() {
   
   socket.on('delete_grid_space', function(msg) {
     $("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
+    if(msg.grid_id == grid_id) {
+      alert("Well, someone decided that you don't need to be here anymore.");
+      ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+      socket.emit('init', {});
+    }
   });
   
   socket.on('renaming_grid', function(msg) {
@@ -331,6 +342,7 @@ function bindEventHandlers() {
     if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
       socket.emit('reset_board', { "grid_id" : grid_id });
       $("#reset_board_button").prop("disabled", true);
+      refresh_elements_list();
     }
   });
 
@@ -798,10 +810,6 @@ function composeElementListRowElement(el) {
     "<div style=\"width: 35%; display: inline-block;\">" +
     "<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
     "</div>" +
-    "<div style=\"width: 20%; display: inline-block;\">" +
-    "<p style=\"font-size: smaller;\">X: " + el.x +
-    "\nY: " + el.y + "</p>" +
-    "</div>" +
     "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
     "<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
@@ -964,7 +972,7 @@ function clicked_element_list(id) {
  * @param {int} id - the unique ID of the element to delete
  */
 function delete_element_from_server(id) {
-  socket.emit('delete_element_on_server', id);
+  socket.emit('delete_element_on_server', { "grid_id" : grid_id, "element_id" : id});
 }
 
 function drawTopRuler() {
