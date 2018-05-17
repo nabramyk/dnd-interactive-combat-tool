@@ -304,11 +304,14 @@ function bindEventHandlers() {
     .on('touchstart', function(evt) {
       prehandledByTouchEvent = true;
       removeEditMenu();
-      var touch_x = evt.originalEvent.touches[0].clientX;
-      var touch_y = evt.originalEvent.touches[0].clientY;
-      canvasClicked(touch_x - $("#overlay_canvas").offset().left, touch_y - $("#overlay_canvas").offset().top);
+      var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
+      var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
+      canvasClicked(touch_x, touch_y);
+      var temp = local_stored_grid_space.find(function(el) {
+        return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
+      });
       holdTimer = window.setTimeout(function() {
-        showLongHoldMenu(touch_x, touch_y);
+        showLongHoldMenu(touch_x + $("#overlay_canvas").offset().left, touch_y + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
       }, 1000);
       return true;
     })
