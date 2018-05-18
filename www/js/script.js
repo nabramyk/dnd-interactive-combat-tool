@@ -838,7 +838,9 @@ function getOptionsMenu(x, y, id) {
   return "<div id=\"options_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
     "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" +
     "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + ")\">Edit</button><br>" +
+    "<button class=\"menu_item\" onclick=\"\">Annotate</button>" +
     "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>" +
+    "<button class=\"menu_item\" onclick=\"\">Cancel</button>" +
     "</div>";
 }
 
