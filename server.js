@@ -463,9 +463,7 @@ io.on('connection', function(socket) {
 	socket.on('randomize', function(msg) {
 		var temp = grid_space.find(function(el) { return el.id == msg.grid_id });
 		temp.generateRandomBoardElements();
-    temp.elements.forEach(function(el) {
-      	io.emit('added_element', { "grid_id" : msg.grid_id, "element" : el });
-    })
+    io.emit('added_elements', { "grid_id" : msg.grid_id, "element" : temp.elements });
 	});
 	
 	socket.on('reset_board', function(msg) {

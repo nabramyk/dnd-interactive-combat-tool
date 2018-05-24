@@ -139,6 +139,15 @@ function bindSocketListeners() {
     drawElements();
     refresh_elements_list();
   });
+  
+  socket.on('added_elements', function(msg) {
+    if(msg.grid_id != grid_id) return;
+    $("#reset_board_button").prop("disabled", false);
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space = local_stored_grid_space.concat(msg.element);
+    drawElements();
+    refresh_elements_list();
+  });
 
   socket.on('removed_element', function(msg) {
     if(msg.grid_id != grid_id) return;
@@ -585,8 +594,8 @@ function canvasClicked(x, y) {
         temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
         var temp_x = x_vertices.slice(0);
         var temp_y = y_vertices.slice(0);
-        temp_x.push(msg.selected_grid_x);
-        temp_y.push(msg.selected_grid_y);
+        temp_x.push(selected_grid_x);
+        temp_y.push(selected_grid_y);
         draw_temporary_item({
           "type": "line",
           "x": temp_x,
