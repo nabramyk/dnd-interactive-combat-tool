@@ -193,8 +193,15 @@ function bindSocketListeners() {
 //   });
 
   socket.on('edited_element', function(msg) {
-    $("#element_list>#" + msg.id).replaceWith(composeElementListRowElement(msg));
-    refresh_elements_list();
+    if(msg.grid_id != grid_id) return;
+        ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    local_stored_grid_space[local_stored_grid_space.indexOf(
+       local_stored_grid_space.find(
+         function(el) { return msg.element.id == el.id }
+       )
+    )] = msg.element;
+        drawElements();
+    $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
   
   socket.on('new_grid_space', function(msg) {
@@ -461,6 +468,7 @@ function bindEventHandlers() {
   $("#editing_controls_done").click(function() {
 
     socket.emit('edit_element_on_server', {
+      "grid_id": grid_id,
       "id": $("#edit_element_id").val(),
       "name": $("#edit_name").val(),
       "type": $("#edit_shape").val(),
@@ -493,6 +501,19 @@ function bindEventHandlers() {
     $(this).parent().addClass("active");
     grid_id = $(this).val();
     socket.emit('request_grid_space', { "id" : $(this).val() });
+  });
+  
+  $(document).on('click','#context_editing_controls_done',function(evt) {
+    socket.emit('edit_element_on_server', {
+      "grid_id": grid_id,
+      "id": $("#context_edit_element_id").val(),
+      "name": $("#context_edit_name").val(),
+      "type": $("#context_edit_shape").val(),
+      "color": $("#context_edit_color").val(),
+      "size": $("#context_edit_size").val(),
+      "category": $("#context_edit_category").val()
+    });
+    removeEditMenu();
   });
   
   $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
@@ -835,20 +856,11 @@ function getContextMenu() {
   $("body").append(getEditMenu(x, y));
 }
 
-function getAddMenu() {
-  removeEditMenu();
-}
-
-function getEditMenu() {
-  removeEditMenu();
-}
-
 function getOptionsMenu(x, y, id) {
   return "<div id=\"options_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" +
-    "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + ")\">Edit</button><br>" +
+    ((id == -1) ? "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" : "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + "," + id + ")\">Edit</button><br>") +
     "<button class=\"menu_item\" onclick=\"\">Annotate</button>" +
-    "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>" +
+    ((id == -1) ? "" : "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>") +
     "<button class=\"menu_item\" onclick=\"\">Cancel</button>" +
     "</div>";
 }
@@ -896,45 +908,49 @@ function getAddMenu(x, y) {
   $("#editing_controls_cancel").on("click", function(evt) { removeEditMenu(); });
 }
 
-function getEditMenu(x, y) {
-  return "<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
-    "<select id=\"edit_shape\" class=\"menu_item\">" +
-    "<option value=\"square\">Square</option>" +
-    "<option value=\"circle\">Circle</option>" +
-    "<option value=\"line\">Line</option>" +
+function getEditMenu(x, y, id) {
+  removeEditMenu();
+  var temp = local_stored_grid_space.find(function(el) { return el.id == id });
+  $("body").append("<div id=\"context_editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+    "<input id=\"context_edit_element_id\" type=\"hidden\" value=\"" + id + "\">" +
+    "<select id=\"context_edit_shape\" class=\"menu_item\">" +
+    "<option value=\"square\" " + ((temp.type == "square") ? "selected" : "") + ">Square</option>" +
+    "<option value=\"circle\" " + ((temp.type == "circle") ? "selected" : "") + ">Circle</option>" +
+    "<option value=\"line\" " + ((temp.type == "line") ? "selected" : "") + ">Line</option>" +
     "</select><br>" +
-    "<input name=\"editcolor\" id=\"edit_color\" type=\"hidden\" value=\"000000\">" +
-    "<input id=\"edit_color_changer\" class=\"jscolor {valueElement:\'edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
+    "<input name=\"contexteditcolor\" id=\"context_edit_color\" type=\"hidden\" value=\"" + temp.color + "\">" +
+    "<input id=\"context_edit_color_changer\" class=\"jscolor {valueElement:\'context_edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
     "<div style=\"display: inline-block;\">" +
     "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
     "<br>" +
-    "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
+    "<input type=\"number\" id=\"context_edit_size\" class=\"menu_item\" value=\"" + temp.size + "\">" +
     "</div>" +
     "<div style=\"display: inline-block;\">" +
     "<label for=\"edit_category\">Category</label>" +
     "<br>" +
-    "<select id=\"edit_category\" class=\"menu_item\">" +
-    "<option value=\"environment\">Environment</option>" +
-    "<option value=\"player\">Player</option>" +
-    "<option value=\"enemy\">Enemy</option>" +
-    "<option value=\"npc\">NPC</option>" +
+    "<select id=\"context_edit_category\" class=\"menu_item\">" +
+    "<option value=\"environment\" " + ((temp.category == "environment") ? "selected" : "") + ">Environment</option>" +
+    "<option value=\"player\" " + ((temp.category == "player") ? "selected" : "") + ">Player</option>" +
+    "<option value=\"enemy\" " + ((temp.category == "enemy") ? "selected" : "") + ">Enemy</option>" +
+    "<option value=\"npc\" " + ((temp.category == "npc") ? "selected" : "") + ">NPC</option>" +
     "</select>" +
     "</div>" +
     "<div style=\"display: inline-block;\">" +
     "<label for=\"edit_name\">Name</label>" +
     "<br>" +
-    "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
+    "<input type=\"text\" id=\"context_edit_name\" class=\"menu_item\" value=\"" + temp.name + "\">" +
     "</div>" +
     "<br>" +
-    "<button id=\"editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
-    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
-    "</div>";
+    "<button id=\"context_editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
+    "<button id=\"context_editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "</div>");
+    new jscolor.installByClassName("jscolor");
 }
 
 function removeEditMenu() {
   $("#options_controls").remove();
   $("#editing_controls").remove();
+  $("#context_editing_controls").remove();
 }
 
 function edit_element_row(id) {

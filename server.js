@@ -457,7 +457,9 @@ io.on('connection', function(socket) {
 	});
   
   socket.on('edit_element_on_server', function(msg) {
-    io.emit('edited_element', grid_space[0].findElementById(msg.id).mutate(msg));
+    console.log(msg);
+    var temp = grid_space.find(function(el) { return el.id == msg.grid_id }).findElementById(msg.id).mutate(msg);
+    io.emit('edited_element', { "grid_id" : msg.grid_id, "element" : temp });
   });
 	
 	socket.on('randomize', function(msg) {
