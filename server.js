@@ -97,7 +97,6 @@ function Element(id, x, y, type, color, size, category, name) {
 
 			return this;
 		} else {
-      console.log("BONK!");
 			return undefined;
 		}
 	};

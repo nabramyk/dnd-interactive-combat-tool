@@ -98,6 +98,8 @@ function bindSocketListeners() {
       local_stored_grid_space = msg.elements;
       $("#reset_board_button").prop("disabled", false);
       drawElements();
+    } else {
+      local_stored_grid_space = [];
     }
     
     refresh_elements_list();
