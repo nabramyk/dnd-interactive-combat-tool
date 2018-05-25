@@ -861,7 +861,7 @@ function getOptionsMenu(x, y, id) {
     ((id == -1) ? "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" : "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + "," + id + ")\">Edit</button><br>") +
     "<button class=\"menu_item\" onclick=\"\">Annotate</button>" +
     ((id == -1) ? "" : "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>") +
-    "<button class=\"menu_item\" onclick=\"\">Cancel</button>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>";
 }
 
@@ -898,7 +898,7 @@ function getAddMenu(x, y) {
     "</div>" +
     "<br>" +
     "<button id=\"editing_controls_done\" class=\"menu_item\">Add</button><br>" +
-    "<button id=\"editing_controls_cancel\" class=\"menu_item\">Cancel</button>" +
+    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>");
   new jscolor.installByClassName("jscolor");
   $("#editing_controls_done").on("click", function(evt) {
