@@ -294,7 +294,7 @@ i {
   height: 100%;
 }
 
-#editing_controls,#options_controls {
+#editing_controls,#options_controls,#context_editing_controls {
   width:160px;
   display:inline;
   position:absolute;
@@ -343,4 +343,10 @@ i {
   max-height: 2%;
   display: inline-block;
   overflow: auto;
+}
+
+@media only screen and (max-width: 1200px) {
+  .menu_item {
+    height: 50px;
+  }
 }
