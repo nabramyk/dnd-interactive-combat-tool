@@ -534,10 +534,11 @@ function bindEventHandlers() {
     removeEditMenu();
   });
 
-  $(document).on("mousemove", "#dragging_element_icon", function(evt) {
+  $(document).mousemove(function(evt) {
     if (mouse_down) {
       $("#dragging_element_icon").css("top", evt.clientY - (grid_size/2));
       $("#dragging_element_icon").css("left", evt.clientX - (grid_size/2));
+      removeEditMenu();
     }
   });
   
@@ -628,6 +629,7 @@ function incremental_move_element(direction) {
 
 function canvasClicked(x, y) {
   removeEditMenu();
+  $("#dragging_element_icon").remove();
 
   var temp = local_stored_grid_space.find(function(el) {
     return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
