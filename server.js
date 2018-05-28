@@ -39,7 +39,7 @@ app.use('/css', express.static(__dirname + '/www/css'))
 
 var grid_id_counter = 1;
 
-const shapes = ["square","circle","line"];
+const shapes = ["square","circle","line","annotation"];
 const categories = ["npc","environment","enemy","player"]; 
 
 /**

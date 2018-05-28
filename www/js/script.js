@@ -45,6 +45,7 @@ var grid_canvas,
   temporary_drawing_canvas,
   temporary_drawing_ctx;
 
+var mouse_down = false;
 var socket;
 
 window.addEventListener('load', eventWindowLoaded, false);
@@ -84,7 +85,7 @@ function bindSocketListeners() {
 
     $("#element_list").empty();
     refresh_elements_list();
-    
+
     $(".tab").remove();
     grid_id = msg.spaces[0].id;
     $("#grid_name").val(msg.spaces[0].name);
@@ -101,7 +102,7 @@ function bindSocketListeners() {
     } else {
       local_stored_grid_space = [];
     }
-    
+
     refresh_elements_list();
   });
 
@@ -116,7 +117,7 @@ function bindSocketListeners() {
   });
 
   socket.on('resize_height', function(msg) {
-    if( grid_id != msg.grid_id) return;
+    if (grid_id != msg.grid_id) return;
     grid_count_height = msg.height;
     resizeGridHeight(grid_count_height);
     local_stored_grid_space = msg.elements;
@@ -124,7 +125,7 @@ function bindSocketListeners() {
   });
 
   socket.on('resize_width', function(msg) {
-    if( grid_id != msg.grid_id) return;
+    if (grid_id != msg.grid_id) return;
     grid_count_width = msg.width;
     resizeGridWidth(grid_count_width);
     local_stored_grid_space = msg.elements;
@@ -132,7 +133,7 @@ function bindSocketListeners() {
   });
 
   socket.on('added_element', function(msg) {
-	if(msg.grid_id != grid_id) return;
+    if (msg.grid_id != grid_id) return;
     if (msg === null)
       return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
@@ -141,9 +142,9 @@ function bindSocketListeners() {
     drawElements();
     refresh_elements_list();
   });
-  
+
   socket.on('added_elements', function(msg) {
-    if(msg.grid_id != grid_id) return;
+    if (msg.grid_id != grid_id) return;
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space = local_stored_grid_space.concat(msg.element);
@@ -152,21 +153,25 @@ function bindSocketListeners() {
   });
 
   socket.on('removed_element', function(msg) {
-    if(msg.grid_id != grid_id) return;
+    if (msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) { return el.id == msg.element_id}), 1);
+    local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) {
+      return el.id == msg.element_id
+    }), 1);
     drawElements();
     $("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
     refresh_elements_list();
   });
 
   socket.on('move_element', function(msg) {
-    if(msg.grid_id != grid_id) return;
+    if (msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space[local_stored_grid_space.indexOf(
-       local_stored_grid_space.find(
-         function(el) { return msg.element.id == el.id }
-       )
+      local_stored_grid_space.find(
+        function(el) {
+          return msg.element.id == el.id
+        }
+      )
     )] = msg.element;
     drawElements();
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
@@ -177,39 +182,41 @@ function bindSocketListeners() {
     draw_cursor_at_position(msg.x, msg.y, msg.size);
   });
 
-//   socket.on('selected_element_from_list', function(msg) {
-//     clear_prev_cursor_position();
-//     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
-//       return
+  //   socket.on('selected_element_from_list', function(msg) {
+  //     clear_prev_cursor_position();
+  //     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
+  //       return
 
-//     if (msg.selected_element.type === "line") {
-//       for (var i = 0; i < msg.selected_element.x.length; i++) {
-//         overlay_ctx.fillStyle = "#" + grid_highlight;
-//         overlay_ctx.beginPath();
-//         overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
-//         overlay_ctx.fill();
-//       }
-//     } else {
-//       draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
-//     }
-//   });
+  //     if (msg.selected_element.type === "line") {
+  //       for (var i = 0; i < msg.selected_element.x.length; i++) {
+  //         overlay_ctx.fillStyle = "#" + grid_highlight;
+  //         overlay_ctx.beginPath();
+  //         overlay_ctx.arc(gridPoint2Pixel(msg.selected_element.x[i]), gridPoint2Pixel(msg.selected_element.y[i]), grid_size / 4, 0, 2 * Math.PI);
+  //         overlay_ctx.fill();
+  //       }
+  //     } else {
+  //       draw_cursor_at_position(msg.selected_element.x, msg.selected_element.y, msg.selected_element.size);
+  //     }
+  //   });
 
   socket.on('edited_element', function(msg) {
-    if(msg.grid_id != grid_id) return;
-        ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    if (msg.grid_id != grid_id) return;
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space[local_stored_grid_space.indexOf(
-       local_stored_grid_space.find(
-         function(el) { return msg.element.id == el.id }
-       )
+      local_stored_grid_space.find(
+        function(el) {
+          return msg.element.id == el.id
+        }
+      )
     )] = msg.element;
-        drawElements();
+    drawElements();
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
-  
+
   socket.on('new_grid_space', function(msg) {
-	  $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">X</button></div>").insertBefore("#addition_tab");
+    $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">X</button></div>").insertBefore("#addition_tab");
   });
-  
+
   socket.on('request_grid_space', function(msg) {
     grid_count_height = msg.grid_space.height;
     resizeGridHeight(grid_count_height);
@@ -218,37 +225,37 @@ function bindSocketListeners() {
     clearPlayerName();
     local_stored_grid_space = [];
     $("#grid_name").val(msg.grid_space.name);
-    
+
     if (msg.grid_space.elements.length !== 0) {
       local_stored_grid_space = msg.grid_space.elements;
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
-    
+
     refresh_elements_list();
   });
-  
+
   socket.on('reset_grid', function(msg) {
-    if(grid_id != msg.grid_id) return;
+    if (grid_id != msg.grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space = [];
   });
-  
+
   socket.on('delete_grid_space', function(msg) {
     $("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
-    if(msg.grid_id == grid_id) {
+    if (msg.grid_id == grid_id) {
       alert("Well, someone decided that you don't need to be here anymore.");
       ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
       socket.emit('init', {});
     }
   });
-  
+
   socket.on('renaming_grid', function(msg) {
-	  $("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
+    $("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
   });
-  
+
   socket.on('error_channel', function(msg) {
-	 alert(msg.message); 
+    alert(msg.message);
   });
 }
 
@@ -268,7 +275,7 @@ function bindEventHandlers() {
   $("#grid_size_vertical").change(function() {
     grid_count_height = $("#grid_size_vertical").val();
     socket.emit('resize_height', {
-      "grid_id" : grid_id,
+      "grid_id": grid_id,
       "height": grid_count_height
     });
   });
@@ -276,18 +283,18 @@ function bindEventHandlers() {
   $("#grid_size_horizontal").change(function() {
     grid_count_width = $("#grid_size_horizontal").val();
     socket.emit('resize_width', {
-      "grid_id" : grid_id,
+      "grid_id": grid_id,
       "width": grid_count_width
     });
   });
-  
+
   $("#grid_name").change(function() {
-	 socket.emit('rename_grid', { 
-		 "grid_id" : grid_id,
-		 "grid_name" : $("#grid_name").val() 
-	}); 
+    socket.emit('rename_grid', {
+      "grid_id": grid_id,
+      "grid_name": $("#grid_name").val()
+    });
   });
-  
+
   $("#overlay_canvas")
     .mousedown(function(evt) {
       canvasClicked(evt.offsetX, evt.offsetY);
@@ -298,7 +305,7 @@ function bindEventHandlers() {
       local_stored_grid_space.forEach(function(el) {
         if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
           gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
-          if(prehandledByTouchEvent) {
+          if (prehandledByTouchEvent) {
             prehandledByTouchEvent = false;
             return;
           }
@@ -307,23 +314,25 @@ function bindEventHandlers() {
       });
     })
     .mouseleave(function(evt) {
-    	clearPlayerName();
+      clearPlayerName();
       clearTimeout(hoverTimer);
     })
     .contextmenu(function(evt) {
+      if (selected_grid_x == -1 && selected_grid_y == -1) return;
       removeEditMenu();
       clearPlayerName();
       evt.preventDefault();
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
       });
-      showLongHoldMenu(evt.pageX, evt.pageY, (isUndefined(temp) ? -1 : temp.id));
+      showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size), (isUndefined(temp) ? -1 : temp.id));
     })
     .on('touchstart', function(evt) {
       prehandledByTouchEvent = true;
       removeEditMenu();
       var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
       var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
+      console.log(evt);
       canvasClicked(touch_x, touch_y);
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
@@ -361,7 +370,9 @@ function bindEventHandlers() {
 
   $('#reset_board_button').click(function() {
     if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
-      socket.emit('reset_board', { "grid_id" : grid_id });
+      socket.emit('reset_board', {
+        "grid_id": grid_id
+      });
       $("#reset_board_button").prop("disabled", true);
       refresh_elements_list();
     }
@@ -487,7 +498,9 @@ function bindEventHandlers() {
   });
 
   $("#randomize").click(function() {
-    socket.emit('randomize', { "grid_id" : grid_id });
+    socket.emit('randomize', {
+      "grid_id": grid_id
+    });
   });
 
   $(".element_filter").click(function() {
@@ -497,15 +510,17 @@ function bindEventHandlers() {
   $("#addition_tab").click(function() {
     socket.emit('create_grid_space', {});
   });
-  
-  $(document).on('click','#tab_row .grid-name', function(evt) {
+
+  $(document).on('click', '#tab_row .grid-name', function(evt) {
     $(".tab").removeClass("active");
     $(this).parent().addClass("active");
     grid_id = $(this).val();
-    socket.emit('request_grid_space', { "id" : $(this).val() });
+    socket.emit('request_grid_space', {
+      "id": $(this).val()
+    });
   });
-  
-  $(document).on('click','#context_editing_controls_done',function(evt) {
+
+  $(document).on('click', '#context_editing_controls_done', function(evt) {
     console.log($("#context_edit_element_id").val());
     socket.emit('edit_element_on_server', {
       "grid_id": grid_id,
@@ -518,13 +533,30 @@ function bindEventHandlers() {
     });
     removeEditMenu();
   });
-  
-  $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
-    if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
-      socket.emit("delete_grid_space_from_server", { "grid_id" : $(this).val() });
+
+  $(document).on("mousemove", "#dragging_element_icon", function(evt) {
+    if (mouse_down) {
+      $("#dragging_element_icon").css("top", evt.clientY - (grid_size/2));
+      $("#dragging_element_icon").css("left", evt.clientX - (grid_size/2));
     }
   });
   
+  $(document).on("mousedown", "#dragging_element_icon", function(evt) {
+    mouse_down = true;
+  });
+
+  $(document).on("mouseup", "#dragging_element_icon", function(evt) {
+    mouse_down = false;
+  });
+  
+  $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
+    if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
+      socket.emit("delete_grid_space_from_server", {
+        "grid_id": $(this).val()
+      });
+    }
+  });
+
   $("#grid_canvas").focus();
   $(document).keydown(function(e) {
     switch (e.which) {
@@ -586,7 +618,7 @@ function interfaceInitialization() {
  */
 function incremental_move_element(direction) {
   socket.emit('move_element', {
-    "grid_id" : grid_id,
+    "grid_id": grid_id,
     "x": selected_grid_x,
     "y": selected_grid_y,
     "direction": direction,
@@ -597,40 +629,40 @@ function incremental_move_element(direction) {
 function canvasClicked(x, y) {
   removeEditMenu();
 
-      var temp = local_stored_grid_space.find(function(el) {
-        return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
-          gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
-      });
-    
-      if(isUndefined(temp)) {
-        cursor_size = 1;
-        selected_grid_x = pixel2GridPoint(x - (x % grid_size));
-        selected_grid_y = pixel2GridPoint(y - (y % grid_size));
-      } else {
-        cursor_size = temp.size;
-        selected_grid_x = temp.x;
-        selected_grid_y = temp.y;
-      }
+  var temp = local_stored_grid_space.find(function(el) {
+    return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
+      gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
+  });
 
-      clear_prev_cursor_position();
+  if (isUndefined(temp)) {
+    cursor_size = 1;
+    selected_grid_x = pixel2GridPoint(x - (x % grid_size));
+    selected_grid_y = pixel2GridPoint(y - (y % grid_size));
+  } else {
+    cursor_size = temp.size;
+    selected_grid_x = temp.x;
+    selected_grid_y = temp.y;
+  }
 
-      if (x_vertices.length > 0 && y_vertices.length) {
-        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-        var temp_x = x_vertices.slice(0);
-        var temp_y = y_vertices.slice(0);
-        temp_x.push(selected_grid_x);
-        temp_y.push(selected_grid_y);
-        draw_temporary_item({
-          "type": "line",
-          "x": temp_x,
-          "y": temp_y,
-          "color": $("#element_color").val,
-          "size": 3
-        });
-      }
-    
-      draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
-      $("#editing_controls").remove();
+  clear_prev_cursor_position();
+
+  if (x_vertices.length > 0 && y_vertices.length) {
+    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+    var temp_x = x_vertices.slice(0);
+    var temp_y = y_vertices.slice(0);
+    temp_x.push(selected_grid_x);
+    temp_y.push(selected_grid_y);
+    draw_temporary_item({
+      "type": "line",
+      "x": temp_x,
+      "y": temp_y,
+      "color": $("#element_color").val,
+      "size": 3
+    });
+  }
+
+  draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
+  $("#editing_controls").remove();
 }
 
 /**
@@ -800,7 +832,7 @@ function resizeGridHeight(height) {
 
 function add_element_to_server(color, x, y, shape, name, size, category) {
   socket.emit('add_element_to_server', {
-    "grid_id" : grid_id,
+    "grid_id": grid_id,
     "color": color,
     "x_coord": JSON.stringify(x),
     "y_coord": JSON.stringify(y),
@@ -825,8 +857,12 @@ function refresh_elements_list() {
   if (filters.length !== 0) {
     $("#element_list").empty();
     local_stored_grid_space
-      .filter( function(el) { return filter.indexOf(el.category) != -1 })
-      .forEach( function(el) { $("#element_list").append(composeElementListRowElement(el)) });
+      .filter(function(el) {
+        return filter.indexOf(el.category) != -1
+      })
+      .forEach(function(el) {
+        $("#element_list").append(composeElementListRowElement(el))
+      });
   } else {
     $("#element_list").empty();
   }
@@ -852,6 +888,7 @@ function composeElementListRowElement(el) {
 }
 
 function showLongHoldMenu(x, y, id) {
+  $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;\">&#xe068;</span>");
   $("body").append(getOptionsMenu(x, y, id));
 }
 
@@ -864,6 +901,8 @@ function getOptionsMenu(x, y, id) {
     ((id == -1) ? "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" : "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + "," + id + ")\">Edit</button><br>") +
     "<button class=\"menu_item\" onclick=\"\">Annotate</button>" +
     ((id == -1) ? "" : "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>") +
+    "<button class=\"menu_item\">Copy</button>" +
+    "<button class=\"menu_item\">Paste</button>" +
     "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>";
 }
@@ -908,12 +947,16 @@ function getAddMenu(x, y) {
     add_element_to_server($("#toolbar_edit_color").val(), selected_grid_x, selected_grid_y, $("#edit_shape").val(), null, $("#edit_size").val(), $("#edit_category").val());
     removeEditMenu();
   });
-  $("#editing_controls_cancel").on("click", function(evt) { removeEditMenu(); });
+  $("#editing_controls_cancel").on("click", function(evt) {
+    removeEditMenu();
+  });
 }
 
 function getEditMenu(x, y, id) {
   removeEditMenu();
-  var temp = local_stored_grid_space.find(function(el) { return el.id == id });
+  var temp = local_stored_grid_space.find(function(el) {
+    return el.id == id
+  });
   $("body").append("<div id=\"context_editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
     "<input id=\"context_edit_element_id\" type=\"hidden\" value=\"" + id + "\">" +
     "<select id=\"context_edit_shape\" class=\"menu_item\">" +
@@ -947,7 +990,7 @@ function getEditMenu(x, y, id) {
     "<button id=\"context_editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
     "<button id=\"context_editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>");
-    new jscolor.installByClassName("jscolor");
+  new jscolor.installByClassName("jscolor");
 }
 
 function removeEditMenu() {
@@ -1005,7 +1048,10 @@ function clicked_element_list(id) {
  * @param {int} id - the unique ID of the element to delete
  */
 function delete_element_from_server(id) {
-  socket.emit('delete_element_on_server', { "grid_id" : grid_id, "element_id" : id});
+  socket.emit('delete_element_on_server', {
+    "grid_id": grid_id,
+    "element_id": id
+  });
 }
 
 function drawTopRuler() {
