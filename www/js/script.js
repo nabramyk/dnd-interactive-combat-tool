@@ -538,6 +538,8 @@ function bindEventHandlers() {
     if (mouse_down) {
       $("#dragging_element_icon").css("top", evt.clientY - (grid_size/2));
       $("#dragging_element_icon").css("left", evt.clientX - (grid_size/2));
+      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+      draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
       removeEditMenu();
     }
   });
@@ -547,6 +549,11 @@ function bindEventHandlers() {
   });
 
   $(document).on("mouseup", "#dragging_element_icon", function(evt) {
+    $("#dragging_element_icon").css("top", evt.pageY - (evt.clientY % grid_size));
+    $("#dragging_element_icon").css("left", evt.pageX - (evt.clientX % grid_size));
+    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+    clear_prev_cursor_position();
+    draw_cursor_at_position(pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
     mouse_down = false;
   });
   
@@ -808,6 +815,27 @@ function draw_cursor_at_position(x, y, size) {
 
   $("#move_to_x").val(selected_grid_x);
   $("#move_to_y").val(selected_grid_y);
+}
+
+function draw_temporary_cursor_at_position(x, y, size) {
+    switch ($('#selected_shape').val()) {
+    case "square":
+    case "circle":
+      temporary_drawing_ctx.lineWidth = cursor_line_width;
+      temporary_drawing_ctx.strokeStyle = "#b38f00";
+      temporary_drawing_ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size * size, grid_size * size);
+      cursor_size = size;
+      break;
+    case "line":
+      temporary_drawing_ctx.fillStyle = grid_highlight;
+      temporary_drawing_ctx.beginPath();
+      temporary_drawing_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
+      temporary_drawing_ctx.fill();
+  }
+}
+
+function clear_temporary_cursor() {
+  
 }
 
 function resizeGridWidth(width) {
