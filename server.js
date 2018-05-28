@@ -37,7 +37,6 @@ app.use('/js', express.static(__dirname + '/www/js'))
 // webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-var element_id_counter = 1;
 var grid_id_counter = 1;
 
 const shapes = ["square","circle","line"];
@@ -437,7 +436,7 @@ io.on('connection', function(socket) {
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
     
-		var input = new Element(element_id_counter++,
+		var input = new Element(0,
 								JSON.parse(msg.x_coord), 
 								JSON.parse(msg.y_coord), 
 								msg.object_type, 
@@ -446,8 +445,11 @@ io.on('connection', function(socket) {
 								msg.category,
 								msg.name !== null ? msg.name : "object");
 		
-		var output = grid_space.find(function(el) { return el.id == msg.grid_id }).addElementToGridSpace(input);
-		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : input });
+		var output = grid_space
+                        .find(function(el) { return el.id == msg.grid_id })
+                        .addElementToGridSpace(input);
+    
+		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {

@@ -506,6 +506,7 @@ function bindEventHandlers() {
   });
   
   $(document).on('click','#context_editing_controls_done',function(evt) {
+    console.log($("#context_edit_element_id").val());
     socket.emit('edit_element_on_server', {
       "grid_id": grid_id,
       "id": $("#context_edit_element_id").val(),
