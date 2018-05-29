@@ -74,7 +74,7 @@ function Element(id, x, y, type, color, size, category, name) {
 	 *         if it cannot move
 	 */
 	this.nudge = function(direction, gridSpace) {
-		var moveToX = this.x, moveToY = this.y;
+		var moveToX = this.x, moveToY = this.y, moveToSize = this.size;
 		switch(direction) {
 			case "right": // right
 				moveToX++;
@@ -90,7 +90,7 @@ function Element(id, x, y, type, color, size, category, name) {
 				break;
 		}
 
-		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, size, id); } ) === undefined) {
+		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, moveToSize, id); } ) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 
@@ -103,8 +103,16 @@ function Element(id, x, y, type, color, size, category, name) {
 	/**
 	 * Move the element to a new grid location
 	 */
-	this.warp = function(x, y) {
-		
+	this.warp = function(x, y, gridSpace) {
+		var moveToSize = this.size;
+		if(gridSpace.elements.find( function(el) { return el.collide(x, y, moveToSize, id); } ) === undefined) {
+			this.x = x;
+			this.y = y;
+
+			return this;
+		} else {
+			return undefined;
+		}
 	};
 	
 	/**
@@ -112,14 +120,14 @@ function Element(id, x, y, type, color, size, category, name) {
 	 * 
 	 */
 	this.mutate = function(modifiedElement) {
-    console.log("before: " + this.toString());
+		console.log("before: " + this.toString());
 		this.type = modifiedElement.type;
-    this.name = modifiedElement.name;
-    this.category = modifiedElement.category;
-    this.color = modifiedElement.color;
-    this.size = parseInt(modifiedElement.size);
-    console.log("after: " + this.toString());
-    return this;
+		this.name = modifiedElement.name;
+		this.category = modifiedElement.category;
+		this.color = modifiedElement.color;
+		this.size = parseInt(modifiedElement.size);
+		console.log("after: " + this.toString());
+		return this;
 	}
 	
 	/**
@@ -372,6 +380,14 @@ function GridSpace(width, height) {
 			}
 	}
 	
+	this.warpElement = function(x, y, dest_x, dest_y) {
+		try { 
+			return this.findElementByPosition(x, y).warp(dest_x, dest_y, this);
+		} catch(e) {
+			return undefined; 
+		}
+	}
+	
   this.gatherElementsWithinRegion = function(region) {
     
   }
@@ -433,6 +449,14 @@ io.on('connection', function(socket) {
 		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
 	});
 
+	socket.on('warp_element', function(msg) {
+		var movedElement = grid_space.find(function(el) { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
+		if (typeof movedElement === 'undefined') return;
+		
+		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
+		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
+	});
+	
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
     

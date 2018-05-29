@@ -549,6 +549,13 @@ function bindEventHandlers() {
   });
 
   $(document).on("mouseup", "#dragging_element_icon", function(evt) {
+	socket.emit('warp_element', {     
+		"grid_id": grid_id,
+	    "x": selected_grid_x,
+	    "y": selected_grid_y,
+	    "dest_x" : pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
+	    "dest_y" : pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
+	});
     $("#dragging_element_icon").css("top", evt.pageY - (evt.clientY % grid_size));
     $("#dragging_element_icon").css("left", evt.pageX - (evt.clientX % grid_size));
     temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
