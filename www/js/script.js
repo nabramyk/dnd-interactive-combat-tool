@@ -925,7 +925,7 @@ function composeElementListRowElement(el) {
 }
 
 function showLongHoldMenu(x, y, id) {
-  $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;\">&#xe068;</span>");
+  if(id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
   $("body").append(getOptionsMenu(x, y, id));
 }
 

@@ -105,7 +105,8 @@ function Element(id, x, y, type, color, size, category, name) {
 	 */
 	this.warp = function(x, y, gridSpace) {
 		var moveToSize = this.size;
-		if(gridSpace.elements.find( function(el) { return el.collide(x, y, moveToSize, id); } ) === undefined) {
+    var moveToId = this.id;
+		if(gridSpace.elements.find( function(el) { return el.collide(x, y, moveToSize, moveToId); } ) === undefined) {
 			this.x = x;
 			this.y = y;
 
@@ -451,7 +452,10 @@ io.on('connection', function(socket) {
 
 	socket.on('warp_element', function(msg) {
 		var movedElement = grid_space.find(function(el) { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
-		if (typeof movedElement === 'undefined') return;
+		if (typeof movedElement === 'undefined') { 
+      socket.emit('error_channel', { "message" : "Somethings already there! " });
+      return; 
+    }
 		
 		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
 		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
