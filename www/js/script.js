@@ -512,97 +512,70 @@ function bindEventHandlers() {
     socket.emit('create_grid_space', {});
   });
 
-  $(document).on('click', '#tab_row .grid-name', function(evt) {
-    $(".tab").removeClass("active");
-    $(this).parent().addClass("active");
-    grid_id = $(this).val();
-    socket.emit('request_grid_space', {
-      "id": $(this).val()
-    });
-  });
-
-  $(document).on('click', '#context_editing_controls_done', function(evt) {
-    console.log($("#context_edit_element_id").val());
-    socket.emit('edit_element_on_server', {
-      "grid_id": grid_id,
-      "id": $("#context_edit_element_id").val(),
-      "name": $("#context_edit_name").val(),
-      "type": $("#context_edit_shape").val(),
-      "color": $("#context_edit_color").val(),
-      "size": $("#context_edit_size").val(),
-      "category": $("#context_edit_category").val()
-    });
-    removeEditMenu();
-  });
-
-  $(document).on("mousedown", "#dragging_element_icon", function(evt) {
-    mouse_down = true;
-  });
-
-  $(document).on("touchstart", "#dragging_element_icon", function(evt) {
-    touch_start = true;
-  });
-
-  $(document).mousemove(function(evt) {
-    if (mouse_down) {
-      $("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
-      $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
-      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-      draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
-      removeEditMenu();
-    }
-  });
-
-  $(document).on("touchmove", "#dragging_element_icon", function(evt) {
-    if (touch_start) {
-      $("#dragging_element_icon").css("top", evt.originalEvent.touches[0].clientY - (grid_size / 2));
-      $("#dragging_element_icon").css("left", evt.originalEvent.touches[0].clientX - (grid_size / 2));
-      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-      draw_temporary_cursor_at_position(evt.originalEvent.touches[0].clientX - (evt.originalEvent.touches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.originalEvent.touches[0].clientY - (evt.originalEvent.touches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
-      removeEditMenu();
-    }
-  });
-
-  $(document).on("mouseup", "#dragging_element_icon", function(evt) {
-    socket.emit('warp_element', {
-      "grid_id": grid_id,
-      "x": selected_grid_x,
-      "y": selected_grid_y,
-      "dest_x": pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
-      "dest_y": pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
-    });
-    $("#dragging_element_icon").css("top", evt.pageY - (evt.clientY % grid_size));
-    $("#dragging_element_icon").css("left", evt.pageX - (evt.clientX % grid_size));
-    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-    clear_prev_cursor_position();
-    draw_cursor_at_position(pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
-    mouse_down = false;
-  });
-
-  $(document).on("touchend", "#dragging_element_icon", function(evt) {
-    console.log(evt);
-    socket.emit('warp_element', {
-      "grid_id": grid_id,
-      "x": selected_grid_x,
-      "y": selected_grid_y,
-      "dest_x": pixel2GridPoint(evt.originalEvent.changedTouches[0].clientX - (evt.originalEvent.changedTouches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
-      "dest_y": pixel2GridPoint(evt.originalEvent.changedTouches[0].clientY - (evt.originalEvent.changedTouches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
-    });
-    $("#dragging_element_icon").css("top", evt.originalEvent.changedTouches[0].pageY - (evt.originalEvent.changedTouches[0].clientY % grid_size));
-    $("#dragging_element_icon").css("left", evt.originalEvent.changedTouches[0].pageX - (evt.originalEvent.changedTouches[0].clientX % grid_size));
-    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-    clear_prev_cursor_position();
-    draw_cursor_at_position(pixel2GridPoint(evt.originalEvent.changedTouches[0].clientX - (evt.originalEvent.changedTouches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(evt.originalEvent.changedTouches[0].clientY - (evt.originalEvent.changedTouches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
-    touch_start = false;
-  });
-
-  $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
-    if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
-      socket.emit("delete_grid_space_from_server", {
-        "grid_id": $(this).val()
+  $(document)
+    .on('click', '#tab_row .grid-name', function(evt) {
+      $(".tab").removeClass("active");
+      $(this).parent().addClass("active");
+      grid_id = $(this).val();
+      socket.emit('request_grid_space', {
+        "id": $(this).val()
       });
-    }
-  });
+    })
+    .on('click', '#context_editing_controls_done', function(evt) {
+      console.log($("#context_edit_element_id").val());
+      socket.emit('edit_element_on_server', {
+        "grid_id": grid_id,
+        "id": $("#context_edit_element_id").val(),
+        "name": $("#context_edit_name").val(),
+        "type": $("#context_edit_shape").val(),
+        "color": $("#context_edit_color").val(),
+        "size": $("#context_edit_size").val(),
+        "category": $("#context_edit_category").val()
+      });
+      removeEditMenu();
+    })
+    .on("mousedown", "#dragging_element_icon", function(evt) {
+      mouse_down = true;
+    })
+    .on("touchstart", "#dragging_element_icon", function(evt) {
+      touch_start = true;
+    })
+    .mousemove(function(evt) {
+      if (mouse_down) {
+        $("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
+        $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
+        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+        draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
+        removeEditMenu();
+      }
+    })
+    .on("touchmove", "#dragging_element_icon", function(evt) {
+      if (touch_start) {
+        $("#dragging_element_icon").css("top", evt.originalEvent.touches[0].clientY - (grid_size / 2));
+        $("#dragging_element_icon").css("left", evt.originalEvent.touches[0].clientX - (grid_size / 2));
+        temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+        draw_temporary_cursor_at_position(evt.originalEvent.touches[0].clientX - (evt.originalEvent.touches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.originalEvent.touches[0].clientY - (evt.originalEvent.touches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
+        removeEditMenu();
+      }
+    })
+    .on("mouseup", "#dragging_element_icon", function(evt) {
+      dragElement(evt.clientX, evt.clientY, evt.pageX, evt.pageY);
+      mouse_down = false;
+    })
+    .on("touchend", "#dragging_element_icon", function(evt) {
+      dragElement(evt.originalEvent.changedTouches[0].clientX,
+        evt.originalEvent.changedTouches[0].clientY,
+        evt.originalEvent.changedTouches[0].pageX,
+        evt.originalEvent.changedTouches[0].pageY);
+      touch_start = false;
+    })
+    .on('click', '#tab_row .grid-space-delete', function(evt) {
+      if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
+        socket.emit("delete_grid_space_from_server", {
+          "grid_id": $(this).val()
+        });
+      }
+    });
 
   $("#grid_canvas").focus();
   $(document).keydown(function(e) {
@@ -1151,6 +1124,25 @@ function drawElements() {
   local_stored_grid_space.forEach(function(el) {
     draw_item(el)
   });
+}
+
+/**
+ * Move a selected element to the final dragged position
+ *
+ */
+function dragElement(client_x, client_y, page_x, page_y) {
+  socket.emit('warp_element', {
+    "grid_id": grid_id,
+    "x": selected_grid_x,
+    "y": selected_grid_y,
+    "dest_x": pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
+    "dest_y": pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
+  });
+  $("#dragging_element_icon").css("top", page_y - (client_y % grid_size));
+  $("#dragging_element_icon").css("left", page_x - (client_x % grid_size));
+  temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+  clear_prev_cursor_position();
+  draw_cursor_at_position(pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
 }
 
 /**
