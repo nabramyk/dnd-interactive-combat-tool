@@ -46,6 +46,8 @@ var grid_canvas,
   temporary_drawing_ctx;
 
 var mouse_down = false;
+var touch_start = false;
+
 var socket;
 
 window.addEventListener('load', eventWindowLoaded, false);
@@ -332,13 +334,12 @@ function bindEventHandlers() {
       removeEditMenu();
       var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
       var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
-      console.log(evt);
       canvasClicked(touch_x, touch_y);
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
       });
       holdTimer = window.setTimeout(function() {
-        showLongHoldMenu(touch_x + $("#overlay_canvas").offset().left, touch_y + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
+        showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
       }, 1000);
       return true;
     })
@@ -534,28 +535,42 @@ function bindEventHandlers() {
     removeEditMenu();
   });
 
+  $(document).on("mousedown", "#dragging_element_icon", function(evt) {
+    mouse_down = true;
+  });
+
+  $(document).on("touchstart", "#dragging_element_icon", function(evt) {
+    touch_start = true;
+  });
+
   $(document).mousemove(function(evt) {
     if (mouse_down) {
-      $("#dragging_element_icon").css("top", evt.clientY - (grid_size/2));
-      $("#dragging_element_icon").css("left", evt.clientX - (grid_size/2));
+      $("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
+      $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
       temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
       draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
       removeEditMenu();
     }
   });
-  
-  $(document).on("mousedown", "#dragging_element_icon", function(evt) {
-    mouse_down = true;
+
+  $(document).on("touchmove", "#dragging_element_icon", function(evt) {
+    if (touch_start) {
+      $("#dragging_element_icon").css("top", evt.originalEvent.touches[0].clientY - (grid_size / 2));
+      $("#dragging_element_icon").css("left", evt.originalEvent.touches[0].clientX - (grid_size / 2));
+      temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+      draw_temporary_cursor_at_position(evt.originalEvent.touches[0].clientX - (evt.originalEvent.touches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.originalEvent.touches[0].clientY - (evt.originalEvent.touches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
+      removeEditMenu();
+    }
   });
 
   $(document).on("mouseup", "#dragging_element_icon", function(evt) {
-	socket.emit('warp_element', {     
-		"grid_id": grid_id,
-	    "x": selected_grid_x,
-	    "y": selected_grid_y,
-	    "dest_x" : pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
-	    "dest_y" : pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
-	});
+    socket.emit('warp_element', {
+      "grid_id": grid_id,
+      "x": selected_grid_x,
+      "y": selected_grid_y,
+      "dest_x": pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
+      "dest_y": pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
+    });
     $("#dragging_element_icon").css("top", evt.pageY - (evt.clientY % grid_size));
     $("#dragging_element_icon").css("left", evt.pageX - (evt.clientX % grid_size));
     temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
@@ -563,7 +578,24 @@ function bindEventHandlers() {
     draw_cursor_at_position(pixel2GridPoint(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
     mouse_down = false;
   });
-  
+
+  $(document).on("touchend", "#dragging_element_icon", function(evt) {
+    console.log(evt);
+    socket.emit('warp_element', {
+      "grid_id": grid_id,
+      "x": selected_grid_x,
+      "y": selected_grid_y,
+      "dest_x": pixel2GridPoint(evt.originalEvent.changedTouches[0].clientX - (evt.originalEvent.changedTouches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
+      "dest_y": pixel2GridPoint(evt.originalEvent.changedTouches[0].clientY - (evt.originalEvent.changedTouches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
+    });
+    $("#dragging_element_icon").css("top", evt.originalEvent.changedTouches[0].pageY - (evt.originalEvent.changedTouches[0].clientY % grid_size));
+    $("#dragging_element_icon").css("left", evt.originalEvent.changedTouches[0].pageX - (evt.originalEvent.changedTouches[0].clientX % grid_size));
+    temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+    clear_prev_cursor_position();
+    draw_cursor_at_position(pixel2GridPoint(evt.originalEvent.changedTouches[0].clientX - (evt.originalEvent.changedTouches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(evt.originalEvent.changedTouches[0].clientY - (evt.originalEvent.changedTouches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
+    touch_start = false;
+  });
+
   $(document).on('click', '#tab_row .grid-space-delete', function(evt) {
     if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
       socket.emit("delete_grid_space_from_server", {
@@ -825,7 +857,7 @@ function draw_cursor_at_position(x, y, size) {
 }
 
 function draw_temporary_cursor_at_position(x, y, size) {
-    switch ($('#selected_shape').val()) {
+  switch ($('#selected_shape').val()) {
     case "square":
     case "circle":
       temporary_drawing_ctx.lineWidth = cursor_line_width;
@@ -842,7 +874,7 @@ function draw_temporary_cursor_at_position(x, y, size) {
 }
 
 function clear_temporary_cursor() {
-  
+
 }
 
 function resizeGridWidth(width) {
@@ -925,7 +957,7 @@ function composeElementListRowElement(el) {
 }
 
 function showLongHoldMenu(x, y, id) {
-  if(id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
+  if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
   $("body").append(getOptionsMenu(x, y, id));
 }
 
