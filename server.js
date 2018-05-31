@@ -39,7 +39,7 @@ app.use('/css', express.static(__dirname + '/www/css'))
 
 var grid_id_counter = 1;
 
-const shapes = ["square","circle","line","annotation"];
+const shapes = ["square","circle","line"];
 const categories = ["npc","environment","enemy","player"]; 
 
 /**
@@ -195,9 +195,11 @@ function Element(id, x, y, type, color, size, category, name) {
 function GridSpace(width, height) {
 	
 	this.elementIdCounter = 1;
+  this.annotationsIdCounter = 1;
 	this.id = grid_id_counter++;
 	this.history = [];
 	this.elements = [];
+  this.annotations = [];
 	this.width = width;
 	this.height = height;
 	this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
@@ -336,6 +338,17 @@ function GridSpace(width, height) {
 		this.elements.push(newElement);
 		return newElement;
 	};
+  
+  this.addAnnotationToGridSpace = function(obj) {
+    var newAnnotation = {
+      "id" : this.annotationsIdCounter++,
+      "title" : obj.title,
+      "content" : obj.content
+    };
+    
+    this.annotations.push(newAnnotation);
+    return newAnnotation;
+  }
 	
 	/**
 	 * Delete an element from the grid space
@@ -524,6 +537,10 @@ io.on('connection', function(socket) {
   socket.on('rename_grid', function(msg) {
 	  grid_space.find(function(el) { return el.id == msg.grid_id }).name = msg.grid_name;
 	  io.emit('renaming_grid', msg);
+  });
+  
+  socket.on('add_annotation_to_server', function(msg) {
+    io.emit('added_annotation', grid_space.find(function(el) { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg));
   });
 });
 

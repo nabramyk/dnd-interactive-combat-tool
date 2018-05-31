@@ -32,6 +32,8 @@ var holdTimer, hoverTimer;
 var prehandledByTouchEvent = false;
 
 var local_stored_grid_space = [];
+var local_stored_annotations = [];
+
 var grid_spaces_list = [];
 var x_vertices = [];
 var y_vertices = [];
@@ -105,6 +107,9 @@ function bindSocketListeners() {
       local_stored_grid_space = [];
     }
 
+    local_stored_annotations = msg.annotations;
+    console.log(local_stored_annotations);
+    
     refresh_elements_list();
   });
 
@@ -254,6 +259,11 @@ function bindSocketListeners() {
 
   socket.on('renaming_grid', function(msg) {
     $("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
+  });
+  
+  socket.on('added_annotation', function(msg) {
+    if (grid_id != msg.grid_id) return;
+    
   });
 
   socket.on('error_channel', function(msg) {
@@ -522,7 +532,6 @@ function bindEventHandlers() {
       });
     })
     .on('click', '#context_editing_controls_done', function(evt) {
-      console.log($("#context_edit_element_id").val());
       socket.emit('edit_element_on_server', {
         "grid_id": grid_id,
         "id": $("#context_edit_element_id").val(),
@@ -531,6 +540,14 @@ function bindEventHandlers() {
         "color": $("#context_edit_color").val(),
         "size": $("#context_edit_size").val(),
         "category": $("#context_edit_category").val()
+      });
+      removeEditMenu();
+    })
+    .on('click', '#context_annotation_controls_done', function(evt) {
+      socket.emit('add_annotation_to_server', {
+        "grid_id" : grid_id,
+        "title" : "",
+        "content" : ""
       });
       removeEditMenu();
     })
@@ -941,7 +958,7 @@ function getContextMenu() {
 function getOptionsMenu(x, y, id) {
   return "<div id=\"options_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
     ((id == -1) ? "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" : "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + "," + id + ")\">Edit</button><br>") +
-    "<button class=\"menu_item\" onclick=\"\">Annotate</button>" +
+    "<button class=\"menu_item\" onclick=\"getAnnotationMenu(" + x + "," + y + ")\">Annotate</button>" +
     ((id == -1) ? "" : "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>") +
     "<button class=\"menu_item\">Copy</button>" +
     "<button class=\"menu_item\">Paste</button>" +
@@ -1035,10 +1052,20 @@ function getEditMenu(x, y, id) {
   new jscolor.installByClassName("jscolor");
 }
 
+function getAnnotationMenu(x, y) {
+  removeEditMenu();
+  $("body").append("<div id=\"context_annotation_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
+                   "<textarea id=\"annotation_long\"></textarea>" +
+    "<button id=\"context_annotation_controls_done\" class=\"menu_item\">Done</button><br>" +
+    "<button id=\"context_annotation_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
+    "</div>");
+}
+
 function removeEditMenu() {
   $("#options_controls").remove();
   $("#editing_controls").remove();
   $("#context_editing_controls").remove();
+  $("#context_annotation_controls").remove();
 }
 
 function edit_element_row(id) {
