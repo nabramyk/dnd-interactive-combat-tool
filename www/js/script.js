@@ -108,6 +108,7 @@ function bindSocketListeners() {
     }
 
     local_stored_annotations = msg.annotations;
+    showAnnotations();
     console.log(local_stored_annotations);
     
     refresh_elements_list();
@@ -263,7 +264,14 @@ function bindSocketListeners() {
   
   socket.on('added_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
-    
+    local_stored_annotations.push(msg.annotation);
+    hideAnnotations();
+    showAnnotations();
+  });
+  
+  socket.on('removed_annotation', function(msg) {
+    if (grid_id != msg.grid_id) return;
+    console.log(msg);
   });
 
   socket.on('error_channel', function(msg) {
@@ -337,7 +345,8 @@ function bindEventHandlers() {
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
       });
-      showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size), (isUndefined(temp) ? -1 : temp.id));
+      console.log(($("#grid_canvas_scrolling_container").scrollLeft() % grid_size));
+      showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size), evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size), (isUndefined(temp) ? -1 : temp.id));
     })
     .on('touchstart', function(evt) {
       prehandledByTouchEvent = true;
@@ -547,7 +556,9 @@ function bindEventHandlers() {
       socket.emit('add_annotation_to_server', {
         "grid_id" : grid_id,
         "title" : "",
-        "content" : ""
+        "content" : $("#annotation_content").val(),
+        "x" : selected_grid_x,
+        "y" : selected_grid_y
       });
       removeEditMenu();
     })
@@ -562,7 +573,8 @@ function bindEventHandlers() {
         $("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
         $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
         temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-        draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
+        console.log($("#grid_canvas_scrolling_container").scrollTop() % grid_size);
+        draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size), evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size), cursor_size);
         removeEditMenu();
       }
     })
@@ -1055,7 +1067,7 @@ function getEditMenu(x, y, id) {
 function getAnnotationMenu(x, y) {
   removeEditMenu();
   $("body").append("<div id=\"context_annotation_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-                   "<textarea id=\"annotation_long\"></textarea>" +
+                   "<textarea id=\"annotation_content\"></textarea>" +
     "<button id=\"context_annotation_controls_done\" class=\"menu_item\">Done</button><br>" +
     "<button id=\"context_annotation_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>");
@@ -1170,6 +1182,17 @@ function dragElement(client_x, client_y, page_x, page_y) {
   temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
   clear_prev_cursor_position();
   draw_cursor_at_position(pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
+}
+
+function showAnnotations() {
+  local_stored_annotations.forEach(function(el) {
+    console.log(gridPoint2Pixel(el.y));
+    $("#grid_canvas_scrolling_container").append("<span style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 10;\">&#x2139;</span>");
+  });
+}
+
+function hideAnnotations() {
+  
 }
 
 /**

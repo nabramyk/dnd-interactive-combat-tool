@@ -343,7 +343,9 @@ function GridSpace(width, height) {
     var newAnnotation = {
       "id" : this.annotationsIdCounter++,
       "title" : obj.title,
-      "content" : obj.content
+      "content" : obj.content,
+      "x" : obj.x,
+      "y" : obj.y
     };
     
     this.annotations.push(newAnnotation);
@@ -431,6 +433,7 @@ io.on('connection', function(socket) {
 			"grid_width" : grid_space[0].width,
 			"grid_height" : grid_space[0].height,
 			"elements" : grid_space[0].elements,
+      "annotations" : grid_space[0].annotations,
       "spaces" : grid_space.map(function(el) { return { "id" : el.id, "name" : el.name } })
 		});
 	});
@@ -540,7 +543,12 @@ io.on('connection', function(socket) {
   });
   
   socket.on('add_annotation_to_server', function(msg) {
-    io.emit('added_annotation', grid_space.find(function(el) { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg));
+    io.emit('added_annotation', { "grid_id" : msg.grid_id, "annotation" : grid_space.find(function(el) { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
+    console.log(grid_space.find(function(el) { return el.id == msg.grid_id }).annotations);
+  });
+  
+  socket.on('remove_annotation_from_server', function(msg) {
+    
   });
 });
 
