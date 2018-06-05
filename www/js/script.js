@@ -627,6 +627,11 @@ function bindEventHandlers() {
         break;
     }
   });
+  
+  $("#overlapping_container_handle").click(function(evt) {
+    $("#overlapping_container").toggle();
+    $("#overlapping_container_handle").html(($("#overlapping_container").is(':visible')) ? "&#8250;" : "&#8249;" );
+  });
 }
 
 function interfaceInitialization() {
@@ -1187,7 +1192,7 @@ function dragElement(client_x, client_y, page_x, page_y) {
 function showAnnotations() {
   local_stored_annotations.forEach(function(el) {
     console.log(gridPoint2Pixel(el.y));
-    $("#grid_canvas_scrolling_container").append("<span style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 10;\">&#x2139;</span>");
+    $("#grid_canvas_scrolling_container").append("<span clase=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 10;\">&#x2139;</span>");
   });
 }
 
