@@ -109,6 +109,7 @@ function bindSocketListeners() {
 
     local_stored_annotations = msg.annotations;
     showAnnotations();
+    refresh_annotations_list();
     console.log(local_stored_annotations);
     
     refresh_elements_list();
@@ -267,11 +268,13 @@ function bindSocketListeners() {
     local_stored_annotations.push(msg.annotation);
     hideAnnotations();
     showAnnotations();
+    refresh_annotations_list();
   });
   
   socket.on('removed_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
     console.log(msg);
+    refresh_annotations_list();
   });
 
   socket.on('error_channel', function(msg) {
@@ -536,6 +539,9 @@ function bindEventHandlers() {
     $("#list_header_elements").css("color","white");
     $("#list_header_annotations").css("background"," #dddddd");
     $("#list_header_annotations").css("color","black");
+    
+    $("#annotations_list").hide();
+    $("#element_list_container").show();
   });
   
   $("#list_header_annotations").click(function() {
@@ -543,6 +549,9 @@ function bindEventHandlers() {
     $("#list_header_annotations").css("color","white");
     $("#list_header_elements").css("background"," #dddddd");
     $("#list_header_elements").css("color","black");
+    
+    $("#element_list_container").hide();
+    $("#annotations_list").show();
   })
 
   $(document)
@@ -958,6 +967,13 @@ function refresh_elements_list() {
   }
 }
 
+function refresh_annotations_list() {
+  $("#annotations_list").empty();
+  local_stored_annotations.forEach(function(el) {
+    $("#annotations_list").append(composeAnnotationListRowElement(el));
+  });
+}
+
 /**
  * Create an HTML DOM element
  *
@@ -972,7 +988,15 @@ function composeElementListRowElement(el) {
     "<div style=\"width: 35%; display: inline-block;\">" +
     "<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
     "</div>" +
-    "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"annotation_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"annotation_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
+    "</div>";
+}
+
+function composeAnnotationListRowElement(el) {
+  return "<div class=\"element_list_row\">" + 
+        "<p>" + el.content + "<\p>" +
+        "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
     "<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
