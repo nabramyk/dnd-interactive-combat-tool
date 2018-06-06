@@ -219,6 +219,7 @@ i {
   position: absolute;
   width: 100%;
   height: 100%;
+  padding: 100px;
   overflow-x: scroll;
   overflow-y: scroll;
   z-index: -1;
@@ -341,9 +342,16 @@ i {
 }
 
 #element_list {
-  max-height: 2%;
+  overflow-y: scroll;
+  position: relative;
   display: inline-block;
-  overflow: auto;
+  width: 100%;
+}
+
+#element_list_container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .grid_canvas_annotation {
@@ -370,12 +378,29 @@ i {
 }
 
 #overlapping_container {
-  display: inline-block;
   float: left;
-  background: red;
+  background: white;
   display: none;
   height: 100%;
-  width: 100px;
+  width: 200px;
+}
+
+.list_header {
+  width: 50%;
+  display: inline-block;
+  border: none;
+}
+
+#list_header_elements {
+  margin-right: -2px;
+  background-color: #345eb2;
+  color: white;
+}
+
+#list_header_annotations {
+  margin-left: -2px;
+  background-color: #dddddd;
+  color: black;
 }
 
 @media only screen and (max-width: 1200px) {

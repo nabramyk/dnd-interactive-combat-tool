@@ -530,6 +530,20 @@ function bindEventHandlers() {
   $("#addition_tab").click(function() {
     socket.emit('create_grid_space', {});
   });
+  
+  $("#list_header_elements").click(function() {
+    $("#list_header_elements").css("background","#345eb2");
+    $("#list_header_elements").css("color","white");
+    $("#list_header_annotations").css("background"," #dddddd");
+    $("#list_header_annotations").css("color","black");
+  });
+  
+  $("#list_header_annotations").click(function() {
+    $("#list_header_annotations").css("background","#345eb2");
+    $("#list_header_annotations").css("color","white");
+    $("#list_header_elements").css("background"," #dddddd");
+    $("#list_header_elements").css("color","black");
+  })
 
   $(document)
     .on('click', '#tab_row .grid-name', function(evt) {
