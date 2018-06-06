@@ -351,6 +351,13 @@ function GridSpace(width, height) {
     this.annotations.push(newAnnotation);
     return newAnnotation;
   }
+  
+  this.removeAnnotationFromGridSpace = function(id) {
+    var ind = this.annotations.findIndex( function(el) { return el.id === id });
+    var return_annotation = this.annotations[ind];
+    this.annotations.splice(ind, 1);
+    return return_annotation.id;
+  }
 	
 	/**
 	 * Delete an element from the grid space
@@ -547,8 +554,8 @@ io.on('connection', function(socket) {
     console.log(grid_space.find(function(el) { return el.id == msg.grid_id }).annotations);
   });
   
-  socket.on('remove_annotation_from_server', function(msg) {
-    
+  socket.on('delete_annotation_from_server', function(msg) {
+    io.emit('deleted_annotation', {"grid_id" : msg.grid_id, "annotation_id" : grid_space.find(function(el) { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
   });
 });
 
@@ -556,45 +563,6 @@ io.on('connection', function(socket) {
 http.listen(8080, function() {
 	console.log("%s:%s", http.address().address, http.address().port)
 });
-
-/**
- * Determine if two objects are lines with matching vertices, or if two objects
- * have overlapping coordinates Need to fix by incorporating both elements sizes
- * instead of just one
- * 
- * @param obj_1
- * @param obj_2
- * @returns
- */
-function coordinate_comparison(obj_1, obj_2) {
-	if (obj_1.x instanceof Array)
-		return obj_1.x.every(function(u, i) {
-				return u === obj_2.x[i];
-			}) &&
-			obj_1.y.every(function(u, i) {
-				return u === obj_2.y[i];
-			});
-	else
-		return obj_1.x <= obj_2.x && obj_1.x + obj_1.size > obj_2.x && 
-			obj_1.y <= obj_2.y && obj_1.y + obj_1.size > obj_2.y;
-}
-
-
-/**
- * Detect it two elements are colliding
- * 
- * @param {Element}
- *            obj_1 -
- * @param {Element}
- *            obj_2 -
- * @returns {Boolean} True if the objects are colliding; False otherwise
- */
-function collision_detection(obj_1, obj_2) {
-	return obj_1.x < obj_2.x + obj_2.size &&
-			obj_1.x + obj_1.size > obj_2.x &&
-			obj_1.y < obj_2.y + obj_2.size &&
-			obj_1.y + obj_1.size > obj_2.y;
-}
 
 /**
  * 

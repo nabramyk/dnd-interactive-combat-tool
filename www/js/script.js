@@ -271,9 +271,10 @@ function bindSocketListeners() {
     refresh_annotations_list();
   });
   
-  socket.on('removed_annotation', function(msg) {
+  socket.on('deleted_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
     console.log(msg);
+    local_stored_annotations.splice(local_stored_annotations.findIndex(function(el) { return el.id == msg.annotation_id}), 1);
     refresh_annotations_list();
   });
 
@@ -996,8 +997,8 @@ function composeElementListRowElement(el) {
 function composeAnnotationListRowElement(el) {
   return "<div class=\"element_list_row\">" + 
         "<p>" + el.content + "<\p>" +
-        "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
-    "<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
+        "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
 
@@ -1175,6 +1176,13 @@ function delete_element_from_server(id) {
   socket.emit('delete_element_on_server', {
     "grid_id": grid_id,
     "element_id": id
+  });
+}
+
+function delete_annotation_from_server(id) {
+  socket.emit('delete_annotation_from_server', {
+    "grid_id" : grid_id,
+    "annotation_id" : id
   });
 }
 
