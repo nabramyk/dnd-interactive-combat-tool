@@ -124,6 +124,7 @@ i {
   height: 40px;
   background: #262626;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 4;
 }
 
 #tab_row {
@@ -137,6 +138,7 @@ i {
   overflow-x: scroll;
   overflow-y: hidden;
   white-space: nowrap;
+  z-index: 2;
 }
 
 #center_column {
@@ -363,8 +365,9 @@ i {
 }
 
 #overlapping_container_handle {
-  display: table-cell;
-  position: inline-block;
+  display: inline;
+  position: relative;
+  float: left;
   height: 100%;
   width: 20px;
   background-color: #345eb2;
@@ -373,23 +376,21 @@ i {
   border: none;
 }
 
+#overlapping_container {
+  display: inline;
+  height: 100%;
+  width: 200px;
+  z-index: 99;
+}
+
 #overlapping_side_container {
   display: table-cell;
   height: 100%;
-  width: 100%;
-}
-
-#overlapping_container {
-  background: white;
-  position: inline-block;
-  display: none;
-  height: 100%;
-  width: 200px;
+  max-width: 100%;
 }
 
 .list_header {
   width: 50%;
-  display: inline-block;
   border: none;
 }
 
