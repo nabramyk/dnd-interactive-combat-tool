@@ -1246,6 +1246,7 @@ function showAnnotations() {
   local_stored_annotations.forEach(function(el) {
     $("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
   });
+  if(!$("#annotations_display").attr("checked")) $(".grid_canvas_annotations").hide();
 }
 
 function hideAnnotations() {
