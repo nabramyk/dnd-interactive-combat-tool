@@ -553,7 +553,11 @@ function bindEventHandlers() {
     
     $("#element_list_container").hide();
     $("#annotations_list").show();
-  })
+  });
+  
+  $("#annotations_display").change(function() {
+    $(".grid_canvas_annotation").toggle();
+  });
 
   $(document)
     .on('click', '#tab_row .grid-name', function(evt) {
@@ -973,6 +977,9 @@ function refresh_annotations_list() {
   local_stored_annotations.forEach(function(el) {
     $("#annotations_list").append(composeAnnotationListRowElement(el));
   });
+  hideAnnotations();
+  showAnnotations();
+  $(".grid_canvas_annotation").toggle(false);
 }
 
 /**
@@ -998,7 +1005,7 @@ function composeAnnotationListRowElement(el) {
   return "<div class=\"element_list_row\">" + 
         "<p>" + el.content + "<\p>" +
         "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
-    "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
+        "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
 
@@ -1237,13 +1244,12 @@ function dragElement(client_x, client_y, page_x, page_y) {
 
 function showAnnotations() {
   local_stored_annotations.forEach(function(el) {
-    console.log(gridPoint2Pixel(el.y));
-    $("#grid_canvas_scrolling_container").append("<span clase=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 10;\">&#x2139;</span>");
+    $("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
   });
 }
 
 function hideAnnotations() {
-  
+  $("#grid_canvas_scrolling_container .grid_canvas_annotation").remove();
 }
 
 /**
