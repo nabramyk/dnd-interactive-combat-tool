@@ -110,7 +110,6 @@ function bindSocketListeners() {
     local_stored_annotations = msg.annotations;
     showAnnotations();
     refresh_annotations_list();
-    console.log(local_stored_annotations);
     
     refresh_elements_list();
   });
@@ -657,8 +656,6 @@ function bindEventHandlers() {
   });
   
   $("#overlapping_container_handle").click(function(evt) {
-    $("#overlapping_container").toggle();
-    $("#overlapping_container_handle").html(($("#overlapping_container").is(':visible')) ? "&#8250;" : "&#8249;" );
   });
 }
 
