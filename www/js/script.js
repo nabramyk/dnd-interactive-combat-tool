@@ -656,6 +656,9 @@ function bindEventHandlers() {
   });
   
   $("#overlapping_container_handle").click(function(evt) {
+	  $("#overlapping_side_container").toggle();
+	  $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+	  console.log($(".drawing_canvas").css("padding-right"));
   });
 }
 
