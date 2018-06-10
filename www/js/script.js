@@ -1008,7 +1008,7 @@ function composeElementListRowElement(el) {
 }
 
 function composeAnnotationListRowElement(el) {
-  return "<div class=\"element_list_row\">" + 
+  return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" + 
         "<p>" + el.content + "<\p>" +
         "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
         "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
@@ -1178,6 +1178,12 @@ function clicked_element_list(id) {
     "selected_grid_y": selected_grid_y,
     "size": cursor_size
   });
+}
+
+function clicked_annotation_list(id) {
+	var temp = local_stored_annotations.find(function(el) { return el.id == id; });
+	clear_prev_cursor_position();
+	draw_cursor_at_position(temp.x, temp.y, 1);
 }
 
 /**
