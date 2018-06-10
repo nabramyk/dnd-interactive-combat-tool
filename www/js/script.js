@@ -232,6 +232,7 @@ function bindSocketListeners() {
     resizeGridWidth(grid_count_width);
     clearPlayerName();
     local_stored_grid_space = [];
+    local_stored_annotations = [];
     $("#grid_name").val(msg.grid_space.name);
 
     if (msg.grid_space.elements.length !== 0) {
@@ -239,8 +240,13 @@ function bindSocketListeners() {
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
+    
+    if (msg.grid_space.annotations.length !== 0) {
+    	local_stored_annotations = msg.grid_space.annotations;
+    }
 
     refresh_elements_list();
+    refresh_annotations_list();
   });
 
   socket.on('reset_grid', function(msg) {
