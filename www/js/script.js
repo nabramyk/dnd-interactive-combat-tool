@@ -540,7 +540,7 @@ function bindEventHandlers() {
     $("#list_header_annotations").css("background"," #dddddd");
     $("#list_header_annotations").css("color","black");
     
-    $("#annotations_list").hide();
+    $("#annotations_list_container").hide();
     $("#element_list_container").show();
   });
   
@@ -551,7 +551,7 @@ function bindEventHandlers() {
     $("#list_header_elements").css("color","black");
     
     $("#element_list_container").hide();
-    $("#annotations_list").show();
+    $("#annotations_list_container").show();
   });
   
   $("#annotations_display").change(function() {
@@ -996,8 +996,8 @@ function composeElementListRowElement(el) {
     "<div style=\"width: 35%; display: inline-block;\">" +
     "<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
     "</div>" +
-    "<button id=\"annotation_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
-    "<button id=\"annotation_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
+    "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
 
