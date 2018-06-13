@@ -127,7 +127,7 @@ i {
 #tab_row {
   position: absolute;
   width: 100%;
-  top: 40px;
+  top: 0;
   left: 0;
   height: 40px;
   max-height: 40px;
@@ -200,6 +200,9 @@ i {
 
 .menu_item {
   width: 100%;
+  height: 100%;
+  display: inline-block;
+  position: relative;
 }
 
 #movement_controls,
@@ -231,7 +234,7 @@ i {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,8 +249,6 @@ i {
   background-color: #80bfff;
   border: none;
   color: white;
-  width: 50%;
-  height: 40px;
   display: inline-block;
   outline: none;
 }
@@ -383,7 +384,7 @@ i {
 
 #overlapping_container {
   postion: relative;
-  display: block;
+  display: none;
   height: 100%;
   z-index: 99;
   width: 200px;
@@ -393,10 +394,19 @@ i {
   position: fixed;
   display: none;
   right: 0;
-  margin-top: 80px;
+  margin-top: 0;
   height: 100%;
   background: white;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 150;
+}
+
+#options_container {
+  width: 200px;
+  height: 100%;
+  position: relative;
+  display: inline-block;
+  overflow-y: scroll;
 }
 
 .list_header {
@@ -415,6 +425,15 @@ i {
 #list_header_annotations {
   background-color: #dddddd;
   color: black;
+}
+
+#side_container_swap {
+  position: relative;
+  display: block;
+  margin-top: 40px;
+  overflow-y: scroll;
+  height: 100%;
+  padding-bottom: 36px;
 }
 
 @media only screen and (max-width: 1200px) {

@@ -348,13 +348,12 @@ function bindEventHandlers() {
     })
     .contextmenu(function(evt) {
       if (selected_grid_x == -1 && selected_grid_y == -1) return;
-      removeEditMenu();
+      //removeEditMenu();
       clearPlayerName();
       evt.preventDefault();
       var temp = local_stored_grid_space.find(function(el) {
         return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
       });
-      console.log(($("#grid_canvas_scrolling_container").scrollLeft() % grid_size));
       showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size) + grid_size, (isUndefined(temp) ? -1 : temp.id));
     })
     .on('touchstart', function(evt) {
@@ -664,7 +663,6 @@ function bindEventHandlers() {
   $("#overlapping_container_handle").click(function(evt) {
 	  $("#overlapping_side_container").toggle();
 	  $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
-	  console.log($(".drawing_canvas").css("padding-right"));
   });
 }
 
@@ -1017,11 +1015,16 @@ function composeAnnotationListRowElement(el) {
 
 function showLongHoldMenu(x, y, id) {
   if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
-  $("body").append(getOptionsMenu(x, y, id));
+  //$("body").append(getOptionsMenu(x, y, id));
+  getContextMenu();
 }
 
 function getContextMenu() {
-  $("body").append(getEditMenu(x, y));
+  //$("body").append(getEditMenu(x, y));
+    $("#side_container_swap > *").hide();
+    $("#options_container").show();
+    $("#overlapping_side_container").show();
+  	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
 }
 
 function getOptionsMenu(x, y, id) {
@@ -1135,6 +1138,10 @@ function removeEditMenu() {
   $("#editing_controls").remove();
   $("#context_editing_controls").remove();
   $("#context_annotation_controls").remove();
+}
+
+function sideMenuBack() {
+  getContextMenu();
 }
 
 function edit_element_row(id) {
@@ -1257,6 +1264,38 @@ function showAnnotations() {
 
 function hideAnnotations() {
   $("#grid_canvas_scrolling_container .grid_canvas_annotation").remove();
+}
+
+function selectedMenuOption(option) {
+  switch(option) {
+    case "lists":
+      $("#options_container").hide();
+      $("#overlapping_container").show();
+      break;
+    case "grid_space":
+      $("#options_container").hide();
+      $("#grid_space_container").show();
+      break;
+    case "add":
+      $("#options_container").hide();
+      $("#add_container").show();
+      break;
+    case "edit":
+      $("#options_container").hide();
+      $("#edit_container").show();
+      break;
+    case "movement":
+      $("#options_container").hide();
+      $("#movement_container").show();
+      break;
+    case "copy":
+      break;
+    case "paste":
+      break;
+    case "cancel": 
+      $("#overlapping_side_container").hide();
+      $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+  }
 }
 
 /**
