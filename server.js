@@ -55,11 +55,11 @@ const categories = ["npc","environment","enemy","player"];
  * @property {string} category - the meta group this element belongs to
  * @property {string} name - the unique name of this element
  */
-function Element(id, x, y, type, color, size, category, name) {
+function Element(id, x, y, shape, color, size, category, name) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
-	this.type = type;
+	this.shape = shape;
 	this.color = color;
 	this.size = size;
 	this.category = category;
@@ -122,7 +122,7 @@ function Element(id, x, y, type, color, size, category, name) {
 	 */
 	this.mutate = function(modifiedElement) {
 		console.log("before: " + this.toString());
-		this.type = modifiedElement.type;
+		this.shape = modifiedElement.shape;
 		this.name = modifiedElement.name;
 		this.category = modifiedElement.category;
 		this.color = modifiedElement.color;
@@ -177,7 +177,7 @@ function Element(id, x, y, type, color, size, category, name) {
 	}
   
   this.toString = function() {
-    return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", type: " + this.type + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
+    return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", shape: " + this.shape + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
   }
 }
 
@@ -328,7 +328,7 @@ function GridSpace(width, height) {
 				this.elementIdCounter++,
 				obj.x,
 				obj.y,
-				obj.type,
+				obj.shape,
 				obj.color,
 				obj.size,
 				obj.category,
@@ -486,11 +486,10 @@ io.on('connection', function(socket) {
 	
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', function(msg) {
-    
 		var input = new Element(0,
-								JSON.parse(msg.x_coord), 
-								JSON.parse(msg.y_coord), 
-								msg.object_type, 
+								JSON.parse(msg.x), 
+								JSON.parse(msg.y), 
+								msg.shape, 
 								msg.color, 
 								JSON.parse(msg.size), 
 								msg.category,
@@ -499,7 +498,7 @@ io.on('connection', function(socket) {
 		var output = grid_space
                         .find(function(el) { return el.id == msg.grid_id })
                         .addElementToGridSpace(input);
-    
+    console.log(output);
 		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
 	});
 	

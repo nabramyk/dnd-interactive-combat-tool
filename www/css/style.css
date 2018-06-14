@@ -436,6 +436,17 @@ i {
   padding-bottom: 36px;
 }
 
+#overlapping_container_tab {
+  position: absolute; 
+  right: 0; 
+  top: 50%; 
+  height: 10%;
+  color: white; 
+  background-color: #345eb2; 
+  border: none;
+  font-size: 24px;
+}
+
 @media only screen and (max-width: 1200px) {
   .menu_item {
     height: 50px;

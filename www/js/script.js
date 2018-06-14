@@ -50,6 +50,8 @@ var grid_canvas,
 var mouse_down = false;
 var touch_start = false;
 
+var copied_element;
+
 var socket;
 
 window.addEventListener('load', eventWindowLoaded, false);
@@ -149,6 +151,7 @@ function bindSocketListeners() {
     local_stored_grid_space.push(msg.element);
     drawElements();
     refresh_elements_list();
+        console.log(msg);
   });
 
   socket.on('added_elements', function(msg) {
@@ -348,7 +351,6 @@ function bindEventHandlers() {
     })
     .contextmenu(function(evt) {
       if (selected_grid_x == -1 && selected_grid_y == -1) return;
-      //removeEditMenu();
       clearPlayerName();
       evt.preventDefault();
       var temp = local_stored_grid_space.find(function(el) {
@@ -660,9 +662,11 @@ function bindEventHandlers() {
     }
   });
   
-  $("#overlapping_container_handle").click(function(evt) {
-	  $("#overlapping_side_container").toggle();
-	  $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+  $("#overlapping_container_tab").click(function(evt) {
+    $("#side_container_swap > *").hide();
+    $("#options_container").show();
+    $("#overlapping_side_container").show();
+  	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));    
   });
 }
 
@@ -713,7 +717,6 @@ function incremental_move_element(direction) {
 }
 
 function canvasClicked(x, y) {
-  removeEditMenu();
   $("#dragging_element_icon").remove();
 
   var temp = local_stored_grid_space.find(function(el) {
@@ -772,7 +775,7 @@ function drawScreen() {
  * @returns
  */
 function draw_item(element) {
-  switch (element.type) {
+  switch (element.shape) {
     case "square":
       ctx.fillStyle = "#" + element.color;
       x = gridPoint2Pixel(element.x) + grid_line_width * 2;
@@ -912,10 +915,6 @@ function draw_temporary_cursor_at_position(x, y, size) {
   }
 }
 
-function clear_temporary_cursor() {
-
-}
-
 function resizeGridWidth(width) {
   grid_count_width = width;
   $("#grid_size_horizontal").val(grid_count_width);
@@ -942,9 +941,9 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
   socket.emit('add_element_to_server', {
     "grid_id": grid_id,
     "color": color,
-    "x_coord": JSON.stringify(x),
-    "y_coord": JSON.stringify(y),
-    "object_type": shape,
+    "x": JSON.stringify(x),
+    "y": JSON.stringify(y),
+    "shape": shape,
     "name": name,
     "size": size,
     "category": category
@@ -1015,113 +1014,14 @@ function composeAnnotationListRowElement(el) {
 
 function showLongHoldMenu(x, y, id) {
   if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
-  //$("body").append(getOptionsMenu(x, y, id));
   getContextMenu();
 }
 
 function getContextMenu() {
-  //$("body").append(getEditMenu(x, y));
     $("#side_container_swap > *").hide();
     $("#options_container").show();
     $("#overlapping_side_container").show();
   	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
-}
-
-function getOptionsMenu(x, y, id) {
-  return "<div id=\"options_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    ((id == -1) ? "<button class=\"menu_item\" onclick=\"getAddMenu(" + x + "," + y + ")\">Add</button><br>" : "<button class=\"menu_item\" onclick=\"getEditMenu(" + x + "," + y + "," + id + ")\">Edit</button><br>") +
-    "<button class=\"menu_item\" onclick=\"getAnnotationMenu(" + x + "," + y + ")\">Annotate</button>" +
-    ((id == -1) ? "" : "<button class=\"menu_item\" onclick=\"delete_element_from_server(" + id + ")\">Delete</button>") +
-    "<button class=\"menu_item\">Copy</button>" +
-    "<button class=\"menu_item\">Paste</button>" +
-    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
-    "</div>";
-}
-
-function getAddMenu(x, y) {
-  removeEditMenu();
-  $("body").append("<div id=\"editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    "<input id=\"edit_element_id\" type=\"hidden\" value=\"0\">" +
-    "<select id=\"edit_shape\" class=\"menu_item\">" +
-    "<option value=\"square\">Square</option>" +
-    "<option value=\"circle\">Circle</option>" +
-    "<option value=\"line\">Line</option>" +
-    "</select><br>" +
-    "<input name=\"editcolor\" id=\"toolbar_edit_color\" type=\"hidden\" value=\"000000\">" +
-    "<input id=\"toolbar_edit_color_changer\" class=\"jscolor {valueElement:\'toolbar_edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
-    "<br>" +
-    "<input type=\"number\" id=\"edit_size\" class=\"menu_item\" value=\"1\">" +
-    "</div>" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_category\">Category</label>" +
-    "<br>" +
-    "<select id=\"edit_category\" class=\"menu_item\">" +
-    "<option value=\"environment\">Environment</option>" +
-    "<option value=\"player\">Player</option>" +
-    "<option value=\"enemy\">Enemy</option>" +
-    "<option value=\"npc\">NPC</option>" +
-    "</select>" +
-    "</div>" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_name\">Name</label>" +
-    "<br>" +
-    "<input type=\"text\" id=\"edit_name\" class=\"menu_item\">" +
-    "</div>" +
-    "<br>" +
-    "<button id=\"editing_controls_done\" class=\"menu_item\">Add</button><br>" +
-    "<button id=\"editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
-    "</div>");
-  new jscolor.installByClassName("jscolor");
-  $("#editing_controls_done").on("click", function(evt) {
-    add_element_to_server($("#toolbar_edit_color").val(), selected_grid_x, selected_grid_y, $("#edit_shape").val(), null, $("#edit_size").val(), $("#edit_category").val());
-    removeEditMenu();
-  });
-  $("#editing_controls_cancel").on("click", function(evt) {
-    removeEditMenu();
-  });
-}
-
-function getEditMenu(x, y, id) {
-  removeEditMenu();
-  var temp = local_stored_grid_space.find(function(el) {
-    return el.id == id
-  });
-  $("body").append("<div id=\"context_editing_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-    "<input id=\"context_edit_element_id\" type=\"hidden\" value=\"" + id + "\">" +
-    "<select id=\"context_edit_shape\" class=\"menu_item\">" +
-    "<option value=\"square\" " + ((temp.type == "square") ? "selected" : "") + ">Square</option>" +
-    "<option value=\"circle\" " + ((temp.type == "circle") ? "selected" : "") + ">Circle</option>" +
-    "<option value=\"line\" " + ((temp.type == "line") ? "selected" : "") + ">Line</option>" +
-    "</select><br>" +
-    "<input name=\"contexteditcolor\" id=\"context_edit_color\" type=\"hidden\" value=\"" + temp.color + "\">" +
-    "<input id=\"context_edit_color_changer\" class=\"jscolor {valueElement:\'context_edit_color\', width: 500, height: 350, closable: true} menu_item\">" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_size\" style=\"width: 50px; margin-left: auto; margin-right: auto;\">Size</label>" +
-    "<br>" +
-    "<input type=\"number\" id=\"context_edit_size\" class=\"menu_item\" value=\"" + temp.size + "\">" +
-    "</div>" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_category\">Category</label>" +
-    "<br>" +
-    "<select id=\"context_edit_category\" class=\"menu_item\">" +
-    "<option value=\"environment\" " + ((temp.category == "environment") ? "selected" : "") + ">Environment</option>" +
-    "<option value=\"player\" " + ((temp.category == "player") ? "selected" : "") + ">Player</option>" +
-    "<option value=\"enemy\" " + ((temp.category == "enemy") ? "selected" : "") + ">Enemy</option>" +
-    "<option value=\"npc\" " + ((temp.category == "npc") ? "selected" : "") + ">NPC</option>" +
-    "</select>" +
-    "</div>" +
-    "<div style=\"display: inline-block;\">" +
-    "<label for=\"edit_name\">Name</label>" +
-    "<br>" +
-    "<input type=\"text\" id=\"context_edit_name\" class=\"menu_item\" value=\"" + temp.name + "\">" +
-    "</div>" +
-    "<br>" +
-    "<button id=\"context_editing_controls_done\" class=\"menu_item\" onclick=\"\">Done</button><br>" +
-    "<button id=\"context_editing_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
-    "</div>");
-  new jscolor.installByClassName("jscolor");
 }
 
 function getAnnotationMenu(x, y) {
@@ -1131,13 +1031,6 @@ function getAnnotationMenu(x, y) {
     "<button id=\"context_annotation_controls_done\" class=\"menu_item\">Done</button><br>" +
     "<button id=\"context_annotation_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
     "</div>");
-}
-
-function removeEditMenu() {
-  $("#options_controls").remove();
-  $("#editing_controls").remove();
-  $("#context_editing_controls").remove();
-  $("#context_annotation_controls").remove();
 }
 
 function sideMenuBack() {
@@ -1295,10 +1188,14 @@ function selectedMenuOption(option) {
       $("#movement_container").show();
       break;
     case "copy":
+      copied_element = local_stored_grid_space.find( function(el) { return el.x == selected_grid_x && el.y == selected_grid_y; });
+      copied_element.grid_id = grid_id;
+      console.log(copied_element);
       break;
     case "paste":
+      add_element_to_server(copied_element.color, selected_grid_x, selected_grid_y, copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
       break;
-    case "cancel": 
+    case "close": 
       $("#overlapping_side_container").hide();
       $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
   }

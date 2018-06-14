@@ -54,7 +54,7 @@
         <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('copy')">Copy</button>
         <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('paste')">Paste</button>
         <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('movement')">Movement</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('cancel')">Cancel</button>
+        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('close')">Close</button>
       </div>
       <div id="add_container" style="display: none; width: 200px;">
         <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
@@ -222,6 +222,10 @@
       </div>
     </div>
   </div>
+  
+  <button id="overlapping_container_tab">
+    &laquo;
+  </button>
 
   <div id="lost_connection_div">
     <h2 id="lost_connection_text"></h2>
