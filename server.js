@@ -121,13 +121,11 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * 
 	 */
 	this.mutate = function(modifiedElement) {
-		console.log("before: " + this.toString());
 		this.shape = modifiedElement.shape;
 		this.name = modifiedElement.name;
 		this.category = modifiedElement.category;
 		this.color = modifiedElement.color;
 		this.size = parseInt(modifiedElement.size);
-		console.log("after: " + this.toString());
 		return this;
 	}
 	
@@ -498,8 +496,8 @@ io.on('connection', function(socket) {
 		var output = grid_space
                         .find(function(el) { return el.id == msg.grid_id })
                         .addElementToGridSpace(input);
-    console.log(output);
-		isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
+
+    isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {
@@ -508,7 +506,6 @@ io.on('connection', function(socket) {
 	});
   
   socket.on('edit_element_on_server', function(msg) {
-    console.log(msg);
     var temp = grid_space.find(function(el) { return el.id == msg.grid_id }).findElementById(msg.id).mutate(msg);
     io.emit('edited_element', { "grid_id" : msg.grid_id, "element" : temp });
   });
@@ -550,7 +547,6 @@ io.on('connection', function(socket) {
   
   socket.on('add_annotation_to_server', function(msg) {
     io.emit('added_annotation', { "grid_id" : msg.grid_id, "annotation" : grid_space.find(function(el) { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
-    console.log(grid_space.find(function(el) { return el.id == msg.grid_id }).annotations);
   });
   
   socket.on('delete_annotation_from_server', function(msg) {

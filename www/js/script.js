@@ -20,13 +20,11 @@ var selected_grid_x = -1;
 /** @global {int} selected_grid_y - y coordinate of the selected cursor position */
 var selected_grid_y = -1;
 
+var selected_element;
+
 /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
 var cursor_size = 1;
 var cursor_line_width = 1;
-
-var index_id = 0,
-  index_x = 1,
-  index_y = 2;
 
 var holdTimer, hoverTimer;
 var prehandledByTouchEvent = false;
@@ -96,7 +94,7 @@ function bindSocketListeners() {
     grid_id = msg.spaces[0].id;
     $("#grid_name").val(msg.spaces[0].name);
     msg.spaces.forEach(function(el) {
-      $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">X</button></div>").insertBefore("#addition_tab");
+      $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">&times</button></div>").insertBefore("#addition_tab");
     });
 
     $(".tab").first().addClass("active");
@@ -151,7 +149,6 @@ function bindSocketListeners() {
     local_stored_grid_space.push(msg.element);
     drawElements();
     refresh_elements_list();
-        console.log(msg);
   });
 
   socket.on('added_elements', function(msg) {
@@ -225,7 +222,7 @@ function bindSocketListeners() {
   });
 
   socket.on('new_grid_space', function(msg) {
-    $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">X</button></div>").insertBefore("#addition_tab");
+    $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></div>").insertBefore("#addition_tab");
   });
 
   socket.on('request_grid_space', function(msg) {
@@ -281,7 +278,6 @@ function bindSocketListeners() {
   
   socket.on('deleted_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
-    console.log(msg);
     local_stored_annotations.splice(local_stored_annotations.findIndex(function(el) { return el.id == msg.annotation_id}), 1);
     refresh_annotations_list();
   });
@@ -360,7 +356,6 @@ function bindEventHandlers() {
     })
     .on('touchstart', function(evt) {
       prehandledByTouchEvent = true;
-      removeEditMenu();
       var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
       var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
       canvasClicked(touch_x, touch_y);
@@ -377,7 +372,6 @@ function bindEventHandlers() {
       return false;
     })
     .on('touchmove', function(evt) {
-      removeEditMenu();
       clearPlayerName();
       clearTimeout(holdTimer);
       return true;
@@ -607,7 +601,6 @@ function bindEventHandlers() {
         $("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
         $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
         temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-        console.log($("#grid_canvas_scrolling_container").scrollTop() % grid_size);
         draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size), evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size), cursor_size);
         removeEditMenu();
       }
@@ -666,7 +659,13 @@ function bindEventHandlers() {
     $("#side_container_swap > *").hide();
     $("#options_container").show();
     $("#overlapping_side_container").show();
+    $("#overlapping_back_button").hide();
   	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));    
+  });
+  
+  $("#overlapping_back_button").click(function(evt) {
+      $("#overlapping_back_button").hide();
+      getContextMenu();
   });
 }
 
@@ -718,7 +717,8 @@ function incremental_move_element(direction) {
 
 function canvasClicked(x, y) {
   $("#dragging_element_icon").remove();
-
+  selected_element = null;
+  
   var temp = local_stored_grid_space.find(function(el) {
     return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
       gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
@@ -732,6 +732,7 @@ function canvasClicked(x, y) {
     cursor_size = temp.size;
     selected_grid_x = temp.x;
     selected_grid_y = temp.y;
+    selected_element = temp;
   }
 
   clear_prev_cursor_position();
@@ -871,13 +872,13 @@ function draw_cursor_at_position(x, y, size) {
   selected_grid_x = x;
   selected_grid_y = y;
 
-  if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
-    $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
-  }
+//   if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
+//     $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
+//   }
 
-  if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
-    $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
-  }
+//   if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
+//     $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
+//   }
 
   switch ($('#selected_shape').val()) {
     case "square":
@@ -1018,23 +1019,17 @@ function showLongHoldMenu(x, y, id) {
 }
 
 function getContextMenu() {
+    $("#overlapping_back_button").hide();
     $("#side_container_swap > *").hide();
     $("#options_container").show();
     $("#overlapping_side_container").show();
   	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+    $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0" ));
 }
 
 function getAnnotationMenu(x, y) {
   removeEditMenu();
-  $("body").append("<div id=\"context_annotation_controls\" style=\"top:" + y + "px;left:" + x + "px;\">" +
-                   "<textarea id=\"annotation_content\"></textarea>" +
-    "<button id=\"context_annotation_controls_done\" class=\"menu_item\">Done</button><br>" +
-    "<button id=\"context_annotation_controls_cancel\" class=\"menu_item\" onclick=\"removeEditMenu()\">Cancel</button>" +
-    "</div>");
-}
-
-function sideMenuBack() {
-  getContextMenu();
+  $("body").append();
 }
 
 function edit_element_row(id) {
@@ -1168,36 +1163,49 @@ function hideAnnotations() {
 function selectedMenuOption(option) {
   switch(option) {
     case "lists":
+      $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#overlapping_container").show();
       break;
     case "grid_space":
+      $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#grid_space_container").show();
       break;
     case "add":
+      $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#add_container").show();
       break;
     case "edit":
+      $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#edit_container").show();
       break;
     case "movement":
+      $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#movement_container").show();
       break;
     case "copy":
       copied_element = local_stored_grid_space.find( function(el) { return el.x == selected_grid_x && el.y == selected_grid_y; });
       copied_element.grid_id = grid_id;
-      console.log(copied_element);
       break;
     case "paste":
       add_element_to_server(copied_element.color, selected_grid_x, selected_grid_y, copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
       break;
-    case "close": 
+    case "close":
       $("#overlapping_side_container").hide();
       $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+      break;
+    case "delete":
+      socket.emit('delete_element_on_server', { "grid_id" : grid_id, "element_id" : selected_element.id});
+      break;
+    case "annotate":
+      $("#overlapping_back_button").show();
+      $("#options_container").hide();
+      $("#annotations_container").show();
+      break;
   }
 }
 

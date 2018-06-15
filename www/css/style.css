@@ -234,7 +234,7 @@ i {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 150;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -383,9 +383,7 @@ i {
 }
 
 #overlapping_container {
-  postion: relative;
   display: none;
-  height: 100%;
   z-index: 99;
   width: 200px;
 }
@@ -445,6 +443,28 @@ i {
   background-color: #345eb2; 
   border: none;
   font-size: 24px;
+}
+
+.back_button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  font-size: 24px;
+  border: none;
+  color: white;
+  background-color: #7599bd;
+}
+
+.transition_button {
+  color: white;
+  background-color: #8c8c8c;
+}
+
+#annotation_content, #annotation_title {
+  width: 100%;
+  min-height: 200px;
+  resize: none;
 }
 
 @media only screen and (max-width: 1200px) {

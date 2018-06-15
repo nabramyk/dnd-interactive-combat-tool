@@ -39,25 +39,25 @@
 
   <div id="overlapping_side_container">
     <div style="display: block; position: absolute; top: 0; left: 0; background-color: #262626; width: 200px; height: 40px;">
+      <button id="overlapping_back_button" class="back_button" onclick="sideMenuBack()">&laquo;</button>
       <h5 style="color: #b7b7b7; position: absolute; right: 0; margin-right: 8px;">
         Clutter v1.0.0
       </h5>
     </div>
     <div id="side_container_swap">
       <div id="options_container" style="display: none;">
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('lists')">Lists</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('grid_space')">Grid Space</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('add')">Add</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('edit')">Edit</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('annotate')">Annotate</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('delete')">Delete</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('copy')">Copy</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('paste')">Paste</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('movement')">Movement</button>
-        <button class="menu_item" style="height: 10%;" onclick="selectedMenuOption('close')">Close</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('lists')">Lists</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('grid_space')">Grid Space</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('add')">Add</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('edit')">Edit</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('annotate')">Annotate</button>
+        <button id="" class="menu_item destructive" style="height: 10%;" onclick="selectedMenuOption('delete')">Delete</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('copy')">Copy</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('paste')">Paste</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('movement')">Movement</button>
+        <button id="" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('close')">Close</button>
       </div>
       <div id="add_container" style="display: none; width: 200px;">
-        <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
         <select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
@@ -95,7 +95,6 @@
         <button id="start_new_line_button" class="menu_item">Start New Line</button>
       </div>
       <div id="grid_space_container" style="display: none; width: 200px;">
-        <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
         <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
         <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
         <label for="grid_size_horizontal">Width Size</label><br>
@@ -103,10 +102,9 @@
         <label for="grid_name">Name</label>
         <input id="grid_name" name="grid_name" type="text" class="menu_item">
         <button id="randomize">Randomize</button>
-        <button id="reset_board_button">Reset Board</button>
+        <button id="reset_board_button" class="destructive">Reset Board</button>
       </div>
       <div id="edit_container" style="display: none; width: 200px;">
-        <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
         <select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
 					<option value="circle">Circle</option>
@@ -144,7 +142,6 @@
         <button id="start_new_line_button" class="menu_item">Start New Line</button>
       </div>
       <div id="movement_container" style="display: none; width: 200px;">
-        <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
         <div>
           <label for="move_to_x">X</label>
           <input type="number" id="move_to_x" class="menu_item">
@@ -186,7 +183,6 @@
         </table>
       </div>
       <div id="overlapping_container" style="display: none; width: 200px;">
-        <button class="menu_item" onclick="sideMenuBack()">&laquo; Back</button>
         <button id="list_header_elements" class="list_header">
               Elements
             </button>
@@ -219,6 +215,14 @@
           <label for="annotations_display">Highlight on map</label>
           <div id="annotations_list" class=""></div>
         </div>
+      </div>
+      <div id="annotations_container" style="display: none; width: 200px;">
+        <label for="annotation_title">Title</label><br>
+        <textarea id="annotation_title"></textarea><br>
+        <label for="annotation_content">Content</label><br>
+        <textarea id="annotation_content"></textarea><br>
+        <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
+        <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
       </div>
     </div>
   </div>
