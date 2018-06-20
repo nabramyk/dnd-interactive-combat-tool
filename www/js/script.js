@@ -48,7 +48,7 @@ var grid_canvas,
 var mouse_down = false;
 var touch_start = false;
 
-var copied_element;
+var copied_element = null;
 
 var socket;
 
@@ -110,7 +110,7 @@ function bindSocketListeners() {
     local_stored_annotations = msg.annotations;
     showAnnotations();
     refresh_annotations_list();
-    
+
     refresh_elements_list();
   });
 
@@ -240,9 +240,9 @@ function bindSocketListeners() {
       $("#reset_board_button").prop("disabled", false);
       drawElements();
     }
-    
+
     if (msg.grid_space.annotations.length !== 0) {
-    	local_stored_annotations = msg.grid_space.annotations;
+      local_stored_annotations = msg.grid_space.annotations;
     }
 
     refresh_elements_list();
@@ -267,7 +267,7 @@ function bindSocketListeners() {
   socket.on('renaming_grid', function(msg) {
     $("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
   });
-  
+
   socket.on('added_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
     local_stored_annotations.push(msg.annotation);
@@ -275,10 +275,12 @@ function bindSocketListeners() {
     showAnnotations();
     refresh_annotations_list();
   });
-  
+
   socket.on('deleted_annotation', function(msg) {
     if (grid_id != msg.grid_id) return;
-    local_stored_annotations.splice(local_stored_annotations.findIndex(function(el) { return el.id == msg.annotation_id}), 1);
+    local_stored_annotations.splice(local_stored_annotations.findIndex(function(el) {
+      return el.id == msg.annotation_id
+    }), 1);
     refresh_annotations_list();
   });
 
@@ -381,7 +383,7 @@ function bindEventHandlers() {
     switch ($("#selected_shape").val()) {
       case "square":
       case "circle":
-        add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
+        add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), $("#element_size").val(), $("#element_category").val());
         break;
       case "line":
         x_vertices.push(selected_grid_x);
@@ -534,27 +536,27 @@ function bindEventHandlers() {
   $("#addition_tab").click(function() {
     socket.emit('create_grid_space', {});
   });
-  
+
   $("#list_header_elements").click(function() {
-    $("#list_header_elements").css("background","#345eb2");
-    $("#list_header_elements").css("color","white");
-    $("#list_header_annotations").css("background"," #dddddd");
-    $("#list_header_annotations").css("color","black");
-    
+    $("#list_header_elements").css("background", "#345eb2");
+    $("#list_header_elements").css("color", "white");
+    $("#list_header_annotations").css("background", " #dddddd");
+    $("#list_header_annotations").css("color", "black");
+
     $("#annotations_list_container").hide();
     $("#element_list_container").show();
   });
-  
+
   $("#list_header_annotations").click(function() {
-    $("#list_header_annotations").css("background","#345eb2");
-    $("#list_header_annotations").css("color","white");
-    $("#list_header_elements").css("background"," #dddddd");
-    $("#list_header_elements").css("color","black");
-    
+    $("#list_header_annotations").css("background", "#345eb2");
+    $("#list_header_annotations").css("color", "white");
+    $("#list_header_elements").css("background", " #dddddd");
+    $("#list_header_elements").css("color", "black");
+
     $("#element_list_container").hide();
     $("#annotations_list_container").show();
   });
-  
+
   $("#annotations_display").change(function() {
     $(".grid_canvas_annotation").toggle();
   });
@@ -578,17 +580,15 @@ function bindEventHandlers() {
         "size": $("#context_edit_size").val(),
         "category": $("#context_edit_category").val()
       });
-      removeEditMenu();
     })
     .on('click', '#context_annotation_controls_done', function(evt) {
       socket.emit('add_annotation_to_server', {
-        "grid_id" : grid_id,
-        "title" : "",
-        "content" : $("#annotation_content").val(),
-        "x" : selected_grid_x,
-        "y" : selected_grid_y
+        "grid_id": grid_id,
+        "title": "",
+        "content": $("#annotation_content").val(),
+        "x": selected_grid_x,
+        "y": selected_grid_y
       });
-      removeEditMenu();
     })
     .on("mousedown", "#dragging_element_icon", function(evt) {
       mouse_down = true;
@@ -602,7 +602,6 @@ function bindEventHandlers() {
         $("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
         temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
         draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size), evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size), cursor_size);
-        removeEditMenu();
       }
     })
     .on("touchmove", "#dragging_element_icon", function(evt) {
@@ -611,7 +610,6 @@ function bindEventHandlers() {
         $("#dragging_element_icon").css("left", evt.originalEvent.touches[0].clientX - (grid_size / 2));
         temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
         draw_temporary_cursor_at_position(evt.originalEvent.touches[0].clientX - (evt.originalEvent.touches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.originalEvent.touches[0].clientY - (evt.originalEvent.touches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
-        removeEditMenu();
       }
     })
     .on("mouseup", "#dragging_element_icon", function(evt) {
@@ -654,18 +652,18 @@ function bindEventHandlers() {
         break;
     }
   });
-  
+
   $("#overlapping_container_tab").click(function(evt) {
     $("#side_container_swap > *").hide();
     $("#options_container").show();
     $("#overlapping_side_container").show();
     $("#overlapping_back_button").hide();
-  	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));    
+    $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
   });
-  
+
   $("#overlapping_back_button").click(function(evt) {
-      $("#overlapping_back_button").hide();
-      getContextMenu();
+    $("#overlapping_back_button").hide();
+    getContextMenu();
   });
 }
 
@@ -718,7 +716,7 @@ function incremental_move_element(direction) {
 function canvasClicked(x, y) {
   $("#dragging_element_icon").remove();
   selected_element = null;
-  
+
   var temp = local_stored_grid_space.find(function(el) {
     return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
       gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
@@ -753,7 +751,7 @@ function canvasClicked(x, y) {
   }
 
   draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
-  $("#editing_controls").remove();
+  updateSideMenuContent();
 }
 
 /**
@@ -872,13 +870,13 @@ function draw_cursor_at_position(x, y, size) {
   selected_grid_x = x;
   selected_grid_y = y;
 
-//   if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
-//     $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
-//   }
+  //   if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
+  //     $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
+  //   }
 
-//   if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
-//     $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
-//   }
+  //   if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
+  //     $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
+  //   }
 
   switch ($('#selected_shape').val()) {
     case "square":
@@ -1006,10 +1004,10 @@ function composeElementListRowElement(el) {
 }
 
 function composeAnnotationListRowElement(el) {
-  return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" + 
-        "<p>" + el.content + "<\p>" +
-        "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
-        "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
+  return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" +
+    "<p>" + el.content + "<\p>" +
+    "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
 
@@ -1019,12 +1017,12 @@ function showLongHoldMenu(x, y, id) {
 }
 
 function getContextMenu() {
-    $("#overlapping_back_button").hide();
-    $("#side_container_swap > *").hide();
-    $("#options_container").show();
-    $("#overlapping_side_container").show();
-  	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
-    $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0" ));
+  $("#overlapping_back_button").hide();
+  $("#side_container_swap > *").hide();
+  $("#options_container").show();
+  $("#overlapping_side_container").show();
+  $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+  $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
 
 function getAnnotationMenu(x, y) {
@@ -1076,9 +1074,11 @@ function clicked_element_list(id) {
 }
 
 function clicked_annotation_list(id) {
-	var temp = local_stored_annotations.find(function(el) { return el.id == id; });
-	clear_prev_cursor_position();
-	draw_cursor_at_position(temp.x, temp.y, 1);
+  var temp = local_stored_annotations.find(function(el) {
+    return el.id == id;
+  });
+  clear_prev_cursor_position();
+  draw_cursor_at_position(temp.x, temp.y, 1);
 }
 
 /**
@@ -1095,8 +1095,8 @@ function delete_element_from_server(id) {
 
 function delete_annotation_from_server(id) {
   socket.emit('delete_annotation_from_server', {
-    "grid_id" : grid_id,
-    "annotation_id" : id
+    "grid_id": grid_id,
+    "annotation_id": id
   });
 }
 
@@ -1153,7 +1153,7 @@ function showAnnotations() {
   local_stored_annotations.forEach(function(el) {
     $("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
   });
-  if(!$("#annotations_display").attr("checked")) $(".grid_canvas_annotations").hide();
+  if (!$("#annotations_display").attr("checked")) $(".grid_canvas_annotations").hide();
 }
 
 function hideAnnotations() {
@@ -1161,7 +1161,7 @@ function hideAnnotations() {
 }
 
 function selectedMenuOption(option) {
-  switch(option) {
+  switch (option) {
     case "lists":
       $("#overlapping_back_button").show();
       $("#options_container").hide();
@@ -1188,7 +1188,9 @@ function selectedMenuOption(option) {
       $("#movement_container").show();
       break;
     case "copy":
-      copied_element = local_stored_grid_space.find( function(el) { return el.x == selected_grid_x && el.y == selected_grid_y; });
+      copied_element = local_stored_grid_space.find(function(el) {
+        return el.x == selected_grid_x && el.y == selected_grid_y;
+      });
       copied_element.grid_id = grid_id;
       break;
     case "paste":
@@ -1196,16 +1198,43 @@ function selectedMenuOption(option) {
       break;
     case "close":
       $("#overlapping_side_container").hide();
-      $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px" ));
+      $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
       break;
     case "delete":
-      socket.emit('delete_element_on_server', { "grid_id" : grid_id, "element_id" : selected_element.id});
+      socket.emit('delete_element_on_server', {
+        "grid_id": grid_id,
+        "element_id": selected_element.id
+      });
       break;
     case "annotate":
       $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#annotations_container").show();
       break;
+  }
+}
+
+function updateSideMenuContent() {
+  if (selected_element === null) {
+    $("#options_add_button").show();
+    $("#options_edit_button").hide();
+    $("#options_copy_button").hide();
+    $("#options_paste_button").hide();
+    $("#options_delete_button").hide();
+    $("#options_movement_button").hide();
+  } else {
+    $("#options_add_button").hide();
+    $("#options_edit_button").show();
+    $("#options_copy_button").show();
+    $("#options_paste_button").show();
+    $("#options_delete_button").show();
+    $("#options_movement_button").show();
+  }
+
+  if (copied_element === null) {
+    $("#options_paste_button").hide();
+  } else {
+    $("#options_paste_button").show();
   }
 }
 

@@ -491,7 +491,7 @@ io.on('connection', function(socket) {
 								msg.color, 
 								JSON.parse(msg.size), 
 								msg.category,
-								msg.name !== null ? msg.name : "object");
+								isUndefined(msg.name) ? "object" : msg.name);
 		
 		var output = grid_space
                         .find(function(el) { return el.id == msg.grid_id })
