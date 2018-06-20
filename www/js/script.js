@@ -659,6 +659,7 @@ function bindEventHandlers() {
     $("#overlapping_side_container").show();
     $("#overlapping_back_button").hide();
     $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+    $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
   });
 
   $("#overlapping_back_button").click(function(evt) {
@@ -1023,6 +1024,8 @@ function getContextMenu() {
   $("#overlapping_side_container").show();
   $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
   $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
+  
+  console.log($("#tab_row").css("padding-right"));
 }
 
 function getAnnotationMenu(x, y) {
@@ -1199,6 +1202,7 @@ function selectedMenuOption(option) {
     case "close":
       $("#overlapping_side_container").hide();
       $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+      $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
       break;
     case "delete":
       socket.emit('delete_element_on_server', {
