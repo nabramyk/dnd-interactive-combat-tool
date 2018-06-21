@@ -497,7 +497,7 @@ io.on('connection', function(socket) {
                         .find(function(el) { return el.id == msg.grid_id })
                         .addElementToGridSpace(input);
 
-    isUndefined(output) ? socket.emit('added_element', output) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
+    isUndefined(output) ? socket.emit('error_channel', { "message" : "Cannot place an element where one already exists."}) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
 	});
 	
 	socket.on('delete_element_on_server', function(msg) {

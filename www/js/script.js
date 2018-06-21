@@ -112,6 +112,13 @@ function bindSocketListeners() {
     refresh_annotations_list();
 
     refresh_elements_list();
+    
+    $("#options_add_or_edit_button").hide();
+    $("#options_annotate_button").hide();
+    $("#options_delete_button").hide();
+    $("#options_copy_button").hide();
+    $("#options_paste_button").hide();
+    $("#options_movement_button").hide();
   });
 
   socket.on('connect', function(msg) {
@@ -142,8 +149,6 @@ function bindSocketListeners() {
 
   socket.on('added_element', function(msg) {
     if (msg.grid_id != grid_id) return;
-    if (msg === null)
-      return alert("Cannot place an element where one already exists");
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space.push(msg.element);
@@ -247,6 +252,13 @@ function bindSocketListeners() {
 
     refresh_elements_list();
     refresh_annotations_list();
+    
+    $("#options_add_or_edit_button").hide();
+    $("#options_annotate_button").hide();
+    $("#options_delete_button").hide();
+    $("#options_copy_button").hide();
+    $("#options_paste_button").hide();
+    $("#options_movement_button").hide();
   });
 
   socket.on('reset_grid', function(msg) {
@@ -1024,8 +1036,6 @@ function getContextMenu() {
   $("#overlapping_side_container").show();
   $(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
   $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
-  
-  console.log($("#tab_row").css("padding-right"));
 }
 
 function getAnnotationMenu(x, y) {
@@ -1175,15 +1185,17 @@ function selectedMenuOption(option) {
       $("#options_container").hide();
       $("#grid_space_container").show();
       break;
-    case "add":
+    case "add_or_edit":
       $("#overlapping_back_button").show();
       $("#options_container").hide();
       $("#add_container").show();
-      break;
-    case "edit":
-      $("#overlapping_back_button").show();
-      $("#options_container").hide();
-      $("#edit_container").show();
+      var isAdd = $("#options_add_or_edit_button").text() === "Add";
+      $("#selected_shape").val(isAdd ? "square" : selected_element.shape);
+      $("#element_color").val(isAdd ? "000000" : selected_element.color);
+      $("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
+      $("#element_size").val(isAdd ? 1 : selected_element.size);
+      $("#element_category").val(isAdd ? "environment" : selected_element.category);
+      $("#element_name").val(isAdd ? "object" : selected_element.name);
       break;
     case "movement":
       $("#overlapping_back_button").show();
@@ -1219,16 +1231,15 @@ function selectedMenuOption(option) {
 }
 
 function updateSideMenuContent() {
+  $("#options_add_or_edit_button").show();
   if (selected_element === null) {
-    $("#options_add_button").show();
-    $("#options_edit_button").hide();
+    $("#options_add_or_edit_button").text("Add");
     $("#options_copy_button").hide();
     $("#options_paste_button").hide();
     $("#options_delete_button").hide();
     $("#options_movement_button").hide();
   } else {
-    $("#options_add_button").hide();
-    $("#options_edit_button").show();
+    $("#options_add_or_edit_button").text("Edit");
     $("#options_copy_button").show();
     $("#options_paste_button").show();
     $("#options_delete_button").show();

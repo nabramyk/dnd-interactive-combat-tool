@@ -48,8 +48,7 @@
       <div id="options_container" style="display: none;">
         <button id="options_lists_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('lists')">Lists</button>
         <button id="options_grid_space_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('grid_space')">Grid Space</button>
-        <button id="options_add_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('add')">Add</button>
-        <button id="options_edit_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('edit')">Edit</button>
+        <button id="options_add_or_edit_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('add_or_edit')">Add</button>
         <button id="options_annotate_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('annotate')">Annotate</button>
         <button id="options_delete_button" class="menu_item destructive" style="height: 10%;" onclick="selectedMenuOption('delete')">Delete</button>
         <button id="options_copy_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('copy')">Copy</button>
@@ -103,43 +102,6 @@
         <input id="grid_name" name="grid_name" type="text" class="menu_item">
         <button id="randomize">Randomize</button>
         <button id="reset_board_button" class="destructive">Reset Board</button>
-      </div>
-      <div id="edit_container" style="display: none; width: 200px;">
-        <select id="selected_shape" class="menu_item">
-					<option value="square">Square</option>
-					<option value="circle">Circle</option>
-					<option value="line">Line</option>
-				</select><br>
-        <input name="elementcolor" id="element_color" type="hidden" value="000000">
-        <button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
-
-        <div style="display: inline-block;">
-          <label for="element_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
-          <br>
-          <input type="number" id="element_size" class="menu_item" value=1>
-        </div>
-
-        <div style="display: inline-block;">
-          <label for="element_category">Category</label>
-          <br>
-          <select id="element_category" class="menu_item">
-						<option value="environment">Environment</option>
-						<option value="player">Player</option>
-						<option value="enemy">Enemy</option>
-						<option value="npc">NPC</option>
-					</select>
-        </div>
-
-        <div style="display: inline-block;">
-          <label for="element_name">Name</label>
-          <br>
-          <input type="text" id="element_name" class="menu_item">
-        </div>
-        <br>
-
-        <button id="place_element_button" class="menu_item">Add Element</button>
-        <br>
-        <button id="start_new_line_button" class="menu_item">Start New Line</button>
       </div>
       <div id="movement_container" style="display: none; width: 200px;">
         <div>
