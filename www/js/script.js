@@ -112,7 +112,7 @@ function bindSocketListeners() {
     refresh_annotations_list();
 
     refresh_elements_list();
-    
+
     $("#options_add_or_edit_button").hide();
     $("#options_annotate_button").hide();
     $("#options_delete_button").hide();
@@ -213,6 +213,7 @@ function bindSocketListeners() {
   //   });
 
   socket.on('edited_element', function(msg) {
+    console.log(msg);
     if (msg.grid_id != grid_id) return;
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space[local_stored_grid_space.indexOf(
@@ -252,7 +253,7 @@ function bindSocketListeners() {
 
     refresh_elements_list();
     refresh_annotations_list();
-    
+
     $("#options_add_or_edit_button").hide();
     $("#options_annotate_button").hide();
     $("#options_delete_button").hide();
@@ -392,17 +393,30 @@ function bindEventHandlers() {
     });
 
   $('#place_element_button').click(function() {
-    switch ($("#selected_shape").val()) {
-      case "square":
-      case "circle":
-        add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), $("#element_size").val(), $("#element_category").val());
-        break;
-      case "line":
-        x_vertices.push(selected_grid_x);
-        y_vertices.push(selected_grid_y);
-        if (x_vertices.length === 1 && y_vertices.length === 1)
-          $("#start_new_line_button").toggle();
-        break;
+    if ($("#place_element_button").text() === "Add") {
+      switch ($("#selected_shape").val()) {
+        case "square":
+        case "circle":
+          add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), $("#element_size").val(), $("#element_category").val());
+          break;
+        case "line":
+          x_vertices.push(selected_grid_x);
+          y_vertices.push(selected_grid_y);
+          if (x_vertices.length === 1 && y_vertices.length === 1)
+            $("#start_new_line_button").toggle();
+          break;
+      }
+    } else {
+      console.log($("#element_color").val());
+      socket.emit('edit_element_on_server', {
+        "grid_id": grid_id,
+        "id": selected_element.id,
+        "name": $("#element_name").val(),
+        "shape": $("#selected_shape").val(),
+        "color": $("#element_color").val(),
+        "size": $("#element_size").val(),
+        "category": $("#element_category").val()
+      });
     }
   });
 
@@ -452,7 +466,7 @@ function bindEventHandlers() {
         break;
       case "square":
       case "circle":
-        $('#place_element_button').html("Add Element");
+        $('#place_element_button').html("Add");
         $('#start_new_line_button').hide();
         break;
     }
@@ -528,10 +542,6 @@ function bindEventHandlers() {
       "category": $("#edit_category").val()
     });
 
-    removeEditMenu();
-  });
-
-  $("#editing_controls_cancel").click(function() {
     removeEditMenu();
   });
 
@@ -1011,7 +1021,7 @@ function composeElementListRowElement(el) {
     "<div style=\"width: 35%; display: inline-block;\">" +
     "<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
     "</div>" +
-    "<button id=\"element_row_edit\" onClick=\"edit_element_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.id + ")\">&#x270E;</button>" +
     "<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
@@ -1019,7 +1029,7 @@ function composeElementListRowElement(el) {
 function composeAnnotationListRowElement(el) {
   return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" +
     "<p>" + el.content + "<\p>" +
-    "<button id=\"element_row_edit\" onClick=\"edit_annotation_row(" + el.id + ")\">&#x270E;</button>" +
+    "<button id=\"element_row_edit\" onClick=\"editAnnotationRow(" + el.id + ")\">&#x270E;</button>" +
     "<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
     "</div>";
 }
@@ -1038,30 +1048,26 @@ function getContextMenu() {
   $("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
 
-function getAnnotationMenu(x, y) {
-  removeEditMenu();
-  $("body").append();
-}
-
-function edit_element_row(id) {
-  socket.emit('find_element_by_id', id);
-  socket.on('element_by_id', function(msg) {
-    $("#movement_controls").hide();
-    $("#drawing_controls").hide();
-    $("#settings_controls").hide();
-    $("#editing_controls").show();
-
-    $("#edit_element_id").val(id);
-    $("#edit_shape").value = msg.type;
-    $("#edit_color_changer").css("background", "#" + msg.color);
-    $("#edit_size").val(msg.size);
-    $("#edit_category").val(msg.category);
-    $("#edit_name").val(msg.name);
+function editElementRow(id) {
+  selected_element = local_stored_grid_space.find(function(el) {
+    return el.id == id;
   });
+
+  $("#overlapping_container").hide();
+  $("#add_container").show();
+
+  $("#selected_shape").val(selected_element.shape);
+  $("#element_color").val(selected_element.color);
+  $("#element_color_changer")[0].jscolor.fromString(selected_element.color);
+  $("#element_size").val(selected_element.size);
+  $("#element_category").val(selected_element.category);
+  $("#element_name").val(selected_element.name);
+
+  $("#place_element_button").text("Submit");
 }
 
-function calculateMenuCoordinates(x, y) {
-  return [x, y];
+function editAnnotationRow(id) {
+
 }
 
 function showPlayerName(x, y, name) {
@@ -1196,6 +1202,7 @@ function selectedMenuOption(option) {
       $("#element_size").val(isAdd ? 1 : selected_element.size);
       $("#element_category").val(isAdd ? "environment" : selected_element.category);
       $("#element_name").val(isAdd ? "object" : selected_element.name);
+      $("#place_element_button").text(isAdd ? "Add" : "Submit");
       break;
     case "movement":
       $("#overlapping_back_button").show();
