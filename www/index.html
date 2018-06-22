@@ -38,12 +38,14 @@
   </div>
 
   <div id="overlapping_side_container">
+    
     <div style="display: block; position: absolute; top: 0; left: 0; background-color: #262626; width: 200px; height: 40px;">
       <button id="overlapping_back_button" class="back_button">&laquo;</button>
       <h5 style="color: #b7b7b7; position: absolute; right: 0; margin-right: 8px;">
         Clutter v1.0.0
       </h5>
     </div>
+    
     <div id="side_container_swap">
       <div id="options_container" style="display: none;">
         <button id="options_lists_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('lists')">Lists</button>
@@ -56,10 +58,13 @@
         <button id="options_movement_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('movement')">Movement</button>
         <button id="options_close_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('close')">Close</button>
       </div>
+      
       <div id="add_container" style="display: none; width: 200px;">
         <select id="selected_shape" class="menu_item">
 					<option value="square">Square</option>
+          <option value="rectangle">Rectangle</option>
 					<option value="circle">Circle</option>
+          <option value="oval">Oval</option>
 					<option value="line">Line</option>
 				</select><br>
         <input name="elementcolor" id="element_color" type="hidden" value="000000">
@@ -88,11 +93,16 @@
           <input type="text" id="element_name" class="menu_item">
         </div>
         <br>
+        
+        <div id="vertices_list" style="display: inline-block;">
+          
+        </div>
 
         <button id="place_element_button" class="menu_item">Add</button>
         <br>
         <button id="start_new_line_button" class="menu_item">Start New Line</button>
       </div>
+      
       <div id="grid_space_container" style="display: none; width: 200px;">
         <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
         <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
@@ -103,6 +113,7 @@
         <button id="randomize">Randomize</button>
         <button id="reset_board_button" class="destructive">Reset Board</button>
       </div>
+      
       <div id="movement_container" style="display: none; width: 200px;">
         <div>
           <label for="move_to_x">X</label>
@@ -144,6 +155,7 @@
           </tr>
         </table>
       </div>
+      
       <div id="overlapping_container" style="display: none; width: 200px;">
         <button id="list_header_elements" class="list_header">
               Elements
@@ -178,6 +190,7 @@
           <div id="annotations_list" class=""></div>
         </div>
       </div>
+      
       <div id="annotations_container" style="display: none; width: 200px;">
         <label for="annotation_title">Title</label><br>
         <textarea id="annotation_title"></textarea><br>

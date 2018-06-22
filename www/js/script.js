@@ -799,12 +799,14 @@ function drawScreen() {
 function draw_item(element) {
   switch (element.shape) {
     case "square":
+    case "rectangle":
       ctx.fillStyle = "#" + element.color;
       x = gridPoint2Pixel(element.x) + grid_line_width * 2;
       y = gridPoint2Pixel(element.y) + grid_line_width * 2;
       ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size * grid_size - cursor_line_width * 2, element.size * grid_size - cursor_line_width * 2);
       break;
     case "circle":
+    case "oval":
       ctx.fillStyle = "#" + element.color;
       x = gridPoint2Pixel(element.x) + grid_line_width;
       y = gridPoint2Pixel(element.y) + grid_line_width;
@@ -1052,7 +1054,7 @@ function editElementRow(id) {
   selected_element = local_stored_grid_space.find(function(el) {
     return el.id == id;
   });
-
+  
   $("#overlapping_container").hide();
   $("#add_container").show();
 
@@ -1063,6 +1065,13 @@ function editElementRow(id) {
   $("#element_category").val(selected_element.category);
   $("#element_name").val(selected_element.name);
 
+  $("#vertices_list").empty();
+  if(selected_element.shape === "line") {
+    selected_element.x.forEach(function(_, ind) {
+      $("#vertices_list").append("<p>" + selected_element.x[ind] + "," + selected_element.y[ind] + "</p>");
+    });
+  }
+  
   $("#place_element_button").text("Submit");
 }
 
