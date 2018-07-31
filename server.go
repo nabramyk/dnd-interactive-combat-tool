@@ -9,6 +9,8 @@ import (
 
 var GridSpaces = []GridSpace
 
+
+
 func main() {
 	server, err := socketio.NewServer(nil)
 	if err != nil {
