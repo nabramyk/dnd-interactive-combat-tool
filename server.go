@@ -5,11 +5,10 @@ import (
 	"net/http"
 
 	"github.com/googollee/go-socket.io"
+	"./models"
 )
 
 var GridSpaces = []GridSpace
-
-
 
 func main() {
 	server, err := socketio.NewServer(nil)
