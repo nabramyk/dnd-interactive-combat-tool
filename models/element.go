@@ -15,5 +15,9 @@ type Element struct {
 func (el Element) nudge(direction string) {}
 func (el Element) warp(x int, y int) {}
 func (el Element) mutate(modifiedElement Element) {}
-func (el Element) collide(x int, y int, size int, id int) bool {}
-func (el Element) within(x int, y int) bool {}
+func (el Element) collide(x int, y int, size int, id int) bool {
+	return true
+}
+func (el Element) within(x int, y int) bool {
+	return true
+}
