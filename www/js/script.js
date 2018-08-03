@@ -1268,6 +1268,8 @@ function updateSideMenuContent() {
   } else {
     $("#options_paste_button").show();
   }
+  
+  $("#options_annotate_button").show();
 }
 
 /**

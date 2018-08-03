@@ -560,11 +560,24 @@ io.on('connection', (socket) => {
   });
   
   socket.on('undo', (msg) => {
-    grid_space.find((el) => { return el.id == msg.grid_id }).historyUndo();
+    var space = grid_space.find((el) => { return el.id == msg.grid_id });
+    var frame = space.historyUndo();
+    switch(frame.action) {
+      case "create": 
+        io.emit('removed_element', { "grid_id" : msg.grid_id, "element_id" : space.removeElementFromGridSpace(frame.frame.id).id });
+        break;
+      case "edit": break;
+      case "delete": break;
+    }
   });
   
   socket.on('redo', (msg) => {
-    grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
+    var frame = grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
+    switch(frame.action) {
+      case "create": break;
+      case "edit": break;
+      case "delete": break;
+    }
   });
 });
 
