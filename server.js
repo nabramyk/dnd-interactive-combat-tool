@@ -42,6 +42,11 @@ var grid_id_counter = 1;
 const shapes = ["square","rectangle","circle","oval","line"];
 const categories = ["npc","environment","enemy","player"]; 
 
+function HistoryFrame(action, frame) {
+  this.action = action;
+  this.frame = frame;
+}
+
 /**
  * @class Objects which are representable in the grid space
  * 
@@ -196,6 +201,7 @@ function GridSpace(width, height) {
   this.annotationsIdCounter = 1;
 	this.id = grid_id_counter++;
 	this.history = [];
+  this.temporaryHistory = [];
 	this.elements = [];
   this.annotations = [];
 	this.width = width;
@@ -308,7 +314,7 @@ function GridSpace(width, height) {
 			}
 		}
 
-		return this.elements;
+		return this;
 	};
 	
 	/**
@@ -417,14 +423,14 @@ function GridSpace(width, height) {
 	 * 
 	 */
 	this.historyUndo = function() {
-		
+    return temporaryHistory[temporaryHistory.push(history.pop())];
 	}
 	
 	/**
 	 * 
 	 */
 	this.historyRedo = function() {
-		
+    return history[history.push(temporaryHistory.pop())];
 	}
 }
 
@@ -433,8 +439,8 @@ var grid_space = [new GridSpace(1, 1)];
 io.on('connection', (socket) => {
 	console.log("a user connected");
 
-	socket.on('init', (msg) => {
-		socket.emit('init', { 
+	socket.on('init', (msg, fn) => {
+		fn({ 
 			"grid_width" : grid_space[0].width,
 			"grid_height" : grid_space[0].height,
 			"elements" : grid_space[0].elements,
@@ -463,15 +469,15 @@ io.on('connection', (socket) => {
 		});
 	});
 
-	socket.on('move_element', (msg) => {
+	socket.on('move_element', (msg, fn) => {
 		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 		
 		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
-		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
+		fn({ "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
 	});
 
-	socket.on('warp_element', (msg) => {
+	socket.on('warp_element', (msg, fn) => {
 		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
 		if (typeof movedElement === 'undefined') { 
       socket.emit('error_channel', { "message" : "Somethings already there! " });
@@ -479,7 +485,7 @@ io.on('connection', (socket) => {
     }
 		
 		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
-		socket.emit('moving_element', { "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
+		fn({ "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
 	});
 	
 	/* ADD ELEMENT TO SERVER */
@@ -511,8 +517,7 @@ io.on('connection', (socket) => {
   });
 	
 	socket.on('randomize', (msg) => {
-		var temp = grid_space.find((el) => { return el.id == msg.grid_id });
-		temp.generateRandomBoardElements();
+		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).generateRandomBoardElements();
     io.emit('added_elements', { "grid_id" : msg.grid_id, "element" : temp.elements });
 	});
 	
@@ -526,16 +531,17 @@ io.on('connection', (socket) => {
     io.emit('new_grid_space', { "id" : grid_space[newGridSpace - 1].id, "name" : grid_space[newGridSpace - 1].name });
   });
   
-  socket.on('request_grid_space', (msg) => {
+  socket.on('request_grid_space', (msg, fn) => {
     var grid = grid_space.find((el) => { return el.id == msg.id; });
-    socket.emit('request_grid_space', { "grid_space" : grid });
+    fn({ "grid_space" : grid });
   });
   
   socket.on('delete_grid_space_from_server', (msg) => {
-	if(grid_space.length <= 1) {
-		socket.emit('error_channel', { "message" : "Cannot have 0 grid spaces, you ass hat."});
-		return;
-	}
+	  if(grid_space.length <= 1) {
+		  socket.emit('error_channel', { "message" : "Cannot have 0 grid spaces, you ass hat."});
+		  return;
+	  }
+    
     grid_space.splice(grid_space.indexOf(grid_space.find((el) => { return msg.grid_id == el.id; })),1);
     io.emit('delete_grid_space', { "grid_id" : msg.grid_id });
   });
@@ -551,6 +557,14 @@ io.on('connection', (socket) => {
   
   socket.on('delete_annotation_from_server', (msg) => {
     io.emit('deleted_annotation', {"grid_id" : msg.grid_id, "annotation_id" : grid_space.find((el) => { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
+  });
+  
+  socket.on('undo', (msg) => {
+    grid_space.find((el) => { return el.id == msg.grid_id }).historyUndo();
+  });
+  
+  socket.on('redo', (msg) => {
+    grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
   });
 });
 

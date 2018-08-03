@@ -77,53 +77,54 @@ function canvasApp() {
 
 function bindSocketListeners() {
 
-  socket.on('init', function(msg) {
-    grid_count_height = msg.grid_height;
-    resizeGridHeight(grid_count_height);
-    grid_count_width = msg.grid_width;
-    resizeGridWidth(grid_count_width);
-
-    clear_prev_cursor_position();
-    selected_grid_x = -1;
-    selected_grid_y = -1;
-
-    $("#element_list").empty();
-    refresh_elements_list();
-
-    $(".tab").remove();
-    grid_id = msg.spaces[0].id;
-    $("#grid_name").val(msg.spaces[0].name);
-    msg.spaces.forEach(function(el) {
-      $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">&times</button></div>").insertBefore("#addition_tab");
-    });
-
-    $(".tab").first().addClass("active");
-
-    if (msg.elements.length !== 0) {
-      local_stored_grid_space = msg.elements;
-      $("#reset_board_button").prop("disabled", false);
-      drawElements();
-    } else {
-      local_stored_grid_space = [];
-    }
-
-    local_stored_annotations = msg.annotations;
-    showAnnotations();
-    refresh_annotations_list();
-
-    refresh_elements_list();
-
-    $("#options_add_or_edit_button").hide();
-    $("#options_annotate_button").hide();
-    $("#options_delete_button").hide();
-    $("#options_copy_button").hide();
-    $("#options_paste_button").hide();
-    $("#options_movement_button").hide();
-  });
-
   socket.on('connect', function(msg) {
     $("#lost_connection_div").hide();
-    socket.emit('init', {});
+
+    socket.emit('init', {}, function(msg) {
+      grid_count_height = msg.grid_height;
+      resizeGridHeight(grid_count_height);
+      grid_count_width = msg.grid_width;
+      resizeGridWidth(grid_count_width);
+
+      clear_prev_cursor_position();
+      selected_grid_x = -1;
+      selected_grid_y = -1;
+
+      $("#element_list").empty();
+      refresh_elements_list();
+
+      $(".tab").remove();
+      grid_id = msg.spaces[0].id;
+      $("#grid_name").val(msg.spaces[0].name);
+
+      msg.spaces.forEach(function(el) {
+        $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">&times</button></div>").insertBefore("#addition_tab");
+      });
+
+      $(".tab").first().addClass("active");
+
+      if (msg.elements.length !== 0) {
+        local_stored_grid_space = msg.elements;
+        $("#reset_board_button").prop("disabled", false);
+        drawElements();
+      } else {
+        local_stored_grid_space = [];
+      }
+
+      local_stored_annotations = msg.annotations;
+      showAnnotations();
+      refresh_annotations_list();
+
+      refresh_elements_list();
+
+      $("#options_add_or_edit_button").hide();
+      $("#options_annotate_button").hide();
+      $("#options_delete_button").hide();
+      $("#options_copy_button").hide();
+      $("#options_paste_button").hide();
+      $("#options_movement_button").hide();
+    });
+
   });
 
   socket.on('disconnect', function() {
@@ -190,11 +191,6 @@ function bindSocketListeners() {
     $("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
   });
 
-  socket.on('moving_element', function(msg) {
-    clear_prev_cursor_position();
-    draw_cursor_at_position(msg.x, msg.y, msg.size);
-  });
-
   //   socket.on('selected_element_from_list', function(msg) {
   //     clear_prev_cursor_position();
   //     if (msg.selected_element.x === -1 && msg.selected_element.y === -1)
@@ -229,37 +225,6 @@ function bindSocketListeners() {
 
   socket.on('new_grid_space', function(msg) {
     $("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></div>").insertBefore("#addition_tab");
-  });
-
-  socket.on('request_grid_space', function(msg) {
-    grid_count_height = msg.grid_space.height;
-    resizeGridHeight(grid_count_height);
-    grid_count_width = msg.grid_space.width;
-    resizeGridWidth(grid_count_width);
-    clearPlayerName();
-    local_stored_grid_space = [];
-    local_stored_annotations = [];
-    $("#grid_name").val(msg.grid_space.name);
-
-    if (msg.grid_space.elements.length !== 0) {
-      local_stored_grid_space = msg.grid_space.elements;
-      $("#reset_board_button").prop("disabled", false);
-      drawElements();
-    }
-
-    if (msg.grid_space.annotations.length !== 0) {
-      local_stored_annotations = msg.grid_space.annotations;
-    }
-
-    refresh_elements_list();
-    refresh_annotations_list();
-
-    $("#options_add_or_edit_button").hide();
-    $("#options_annotate_button").hide();
-    $("#options_delete_button").hide();
-    $("#options_copy_button").hide();
-    $("#options_paste_button").hide();
-    $("#options_movement_button").hide();
   });
 
   socket.on('reset_grid', function(msg) {
@@ -590,6 +555,35 @@ function bindEventHandlers() {
       grid_id = $(this).val();
       socket.emit('request_grid_space', {
         "id": $(this).val()
+      }, function(msg) {
+        grid_count_height = msg.grid_space.height;
+        resizeGridHeight(grid_count_height);
+        grid_count_width = msg.grid_space.width;
+        resizeGridWidth(grid_count_width);
+        clearPlayerName();
+        local_stored_grid_space = [];
+        local_stored_annotations = [];
+        $("#grid_name").val(msg.grid_space.name);
+
+        if (msg.grid_space.elements.length !== 0) {
+          local_stored_grid_space = msg.grid_space.elements;
+          $("#reset_board_button").prop("disabled", false);
+          drawElements();
+        }
+
+        if (msg.grid_space.annotations.length !== 0) {
+          local_stored_annotations = msg.grid_space.annotations;
+        }
+
+        refresh_elements_list();
+        refresh_annotations_list();
+
+        $("#options_add_or_edit_button").hide();
+        $("#options_annotate_button").hide();
+        $("#options_delete_button").hide();
+        $("#options_copy_button").hide();
+        $("#options_paste_button").hide();
+        $("#options_movement_button").hide();
       });
     })
     .on('click', '#context_editing_controls_done', function(evt) {
@@ -733,6 +727,9 @@ function incremental_move_element(direction) {
     "y": selected_grid_y,
     "direction": direction,
     "size": cursor_size
+  }, function(msg) {
+    clear_prev_cursor_position();
+    draw_cursor_at_position(msg.x, msg.y, msg.size);
   });
 }
 
@@ -1054,7 +1051,7 @@ function editElementRow(id) {
   selected_element = local_stored_grid_space.find(function(el) {
     return el.id == id;
   });
-  
+
   $("#overlapping_container").hide();
   $("#add_container").show();
 
@@ -1066,12 +1063,12 @@ function editElementRow(id) {
   $("#element_name").val(selected_element.name);
 
   $("#vertices_list").empty();
-  if(selected_element.shape === "line") {
+  if (selected_element.shape === "line") {
     selected_element.x.forEach(function(_, ind) {
       $("#vertices_list").append("<p>" + selected_element.x[ind] + "," + selected_element.y[ind] + "</p>");
     });
   }
-  
+
   $("#place_element_button").text("Submit");
 }
 
@@ -1169,7 +1166,11 @@ function dragElement(client_x, client_y, page_x, page_y) {
     "y": selected_grid_y,
     "dest_x": pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
     "dest_y": pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
+  }, function(msg) {
+    clear_prev_cursor_position();
+    draw_cursor_at_position(msg.x, msg.y, msg.size);
   });
+
   $("#dragging_element_icon").css("top", page_y - (client_y % grid_size));
   $("#dragging_element_icon").css("left", page_x - (client_x % grid_size));
   temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
