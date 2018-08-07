@@ -403,7 +403,14 @@ function bindEventHandlers() {
     .mouseup(function() {
       console.log("cleared");
       window.clearInterval(movementTimer);
-    });
+    })
+    .on("touchstart", function(evt) {
+      incremental_move_element("up");
+      movementTimer = window.setInterval(function() { incremental_move_element("up"); }, movementInterval);
+    })
+    .on("touchend", function(evt) {
+      window.clearInterval(movementTimer);
+  });
 
   $("#move_inc_down")
     .mousedown(function() {
@@ -412,6 +419,13 @@ function bindEventHandlers() {
     })
     .mouseup(function() {
       clearInterval(movementTimer);
+    })
+    .on("touchstart", function(evt) {
+      incremental_move_element("down");
+      movementTimer = window.setInterval(function() { incremental_move_element("down"); }, movementInterval);
+    })
+    .on("touchend", function(evt) {
+      window.clearInterval(movementTimer)
     });
 
   $("#move_inc_left")
@@ -421,6 +435,13 @@ function bindEventHandlers() {
     })
     .mouseup(function() {
       clearInterval(movementTimer);
+    })
+    .on("touchstart", function(evt) {
+      incremental_move_element("left");
+      movementTimer = window.setInterval(function() { incremental_move_element("left"); }, movementInterval);
+    })
+    .on("touchend", function(evt) {
+      window.clearInterval(movementTimer);
     });
 
   $("#move_inc_right")
@@ -430,7 +451,14 @@ function bindEventHandlers() {
     })
     .mouseup(function() {
       clearInterval(movementTimer);
-    });
+    })
+    .on("touchstart", function(evt) {
+      incremental_move_element("right");
+      movementTimer = window.setInterval(function() { incremental_move_element("right"); }, movementInterval);
+    })
+    .on("touchend", function(evt) {
+      window.clearInterval(movementTimer)
+  });
 
   $("#selected_shape").change(function(el) {
     switch ($("#selected_shape").val()) {
