@@ -314,6 +314,8 @@ function GridSpace(width, height) {
 			}
 		}
 
+    this.history.push(new HistoryFrame("randomize", this.elements));
+    
 		return this;
 	};
 	
@@ -340,6 +342,9 @@ function GridSpace(width, height) {
 			);
 		
 		this.elements.push(newElement);
+    this.history.push(new HistoryFrame("add", newElement));
+    this.temporaryHistory = [];
+    
 		return newElement;
 	};
   
@@ -353,6 +358,7 @@ function GridSpace(width, height) {
     };
     
     this.annotations.push(newAnnotation);
+    
     return newAnnotation;
   }
   
@@ -374,6 +380,10 @@ function GridSpace(width, height) {
 		var ind = this.elements.findIndex( function(el) { return el.id === id; });
 		var return_element = this.elements[ind];
 		this.elements.splice(ind, 1);
+    
+    this.history.push(new HistoryFrame("remove", return_element));
+    this.temporaryHistory = [];
+    
 		return return_element;
 	};
 	
