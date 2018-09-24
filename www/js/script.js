@@ -13,7 +13,7 @@ var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 var grid_id = 0;
-var ping_period = 4000;
+var ping_period = 30;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
@@ -411,7 +411,6 @@ function bindEventHandlers() {
       }, movementInterval);
     })
     .mouseup(function() {
-      console.log("cleared");
       window.clearInterval(movementTimer);
     })
     .on("touchstart", function(evt) {
@@ -853,14 +852,78 @@ function drawPing(ping, _grid_id) {
   ping.color = "4286f4";
   ping.size = 1;
   ping.id = ping_counter++;
+  ping.frame_counter = 0;
+  ping.opacity = 0;
   local_stored_pings.push(ping);
-  drawElements();
   window.setTimeout(function() {
-    if(_grid_id != grid_id) return;
-    local_stored_pings.splice( local_stored_pings.findIndex(function(el) { return el.id == ping.id; }), 1);
-    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    drawElements();
+    pingAnimation(ping, _grid_id)
   }, ping_period);
+}
+
+function pingAnimation(ping, _grid_id) {
+  if (_grid_id != grid_id) return;
+
+  switch (true) {
+    case ping.frame_counter >= 0 && ping.frame_counter < 1000:
+      ctx.save();
+      ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+      drawElements();
+      ctx.fillStyle = "#" + ping.color;
+      x = gridPoint2Pixel(ping.x) + grid_line_width;
+      y = gridPoint2Pixel(ping.y) + grid_line_width;
+      ctx.beginPath();
+      ping.opacity += 0.015;
+      ctx.globalAlpha = ping.opacity;
+      ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.restore();
+      break;
+    case ping.frame_counter >= 1000 && ping.frame_counter < 3000:
+      ctx.save();
+      ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+      drawElements();
+      ctx.fillStyle = "#" + ping.color;
+      x = gridPoint2Pixel(ping.x) + grid_line_width;
+      y = gridPoint2Pixel(ping.y) + grid_line_width;
+      ctx.beginPath();
+      ctx.globalAlpha = ping.opacity;
+      ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.restore();
+      break;
+    case ping.frame_counter >= 3000 && ping.frame_counter < 4000:
+      ctx.save();
+      ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+      drawElements();
+      ctx.fillStyle = "#" + ping.color;
+      x = gridPoint2Pixel(ping.x) + grid_line_width;
+      y = gridPoint2Pixel(ping.y) + grid_line_width;
+      ctx.beginPath();
+      ping.opacity -= 0.015;
+      ctx.globalAlpha = ping.opacity;
+      ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.restore();
+      break;
+    case ping.frame_counter > 4000:
+      local_stored_pings.splice(local_stored_pings.findIndex(function(el) {
+        return el.id == ping.id;
+      }), 1);
+      console.log("Stop!");
+      break;
+  }
+
+  ping.frame_counter += ping_period;
+
+  if (ping.frame_counter < 4000) {
+    window.setTimeout(
+      function() {
+        window.requestAnimationFrame(function() { pingAnimation(ping, _grid_id); });
+      }, ping_period);
+  } else {
+    console.log("Stop!");
+    return;
+  }
 }
 
 /**
@@ -870,6 +933,7 @@ function drawPing(ping, _grid_id) {
  * @returns
  */
 function draw_item(element) {
+  ctx.save();
   switch (element.shape) {
     case "square":
     case "rectangle":
@@ -904,6 +968,7 @@ function draw_item(element) {
       ctx.stroke();
       break;
   }
+  ctx.restore();
 }
 
 function draw_temporary_item(element) {
@@ -1227,11 +1292,19 @@ function drawLeftRuler() {
 
 function drawElements() {
   local_stored_grid_space.forEach(function(el) {
-    draw_item(el)
+    draw_item(el);
   });
-  
+
   local_stored_pings.forEach(function(el) {
-    draw_item(el)
+    ctx.save();
+    ctx.fillStyle = "#" + el.color;
+    var x = gridPoint2Pixel(el.x) + grid_line_width;
+    var y = gridPoint2Pixel(el.y) + grid_line_width;
+    ctx.beginPath();
+    ctx.globalAlpha = el.opacity;
+    ctx.arc(x + (grid_size / 2) * el.size, y + (grid_size / 2) * el.size, el.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
   });
 }
 
