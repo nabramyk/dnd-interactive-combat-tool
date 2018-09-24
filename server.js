@@ -500,6 +500,11 @@ io.on('connection', (socket) => {
 	
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', (msg) => {
+    if(msg.category == "ping") {
+      io.emit('added_element', { "grid_id" : msg.grid_id, "element" : new Element(0, JSON.parse(msg.x), JSON.parse(msg.y), "", "", "", "ping", "") });
+      return;  
+    }
+    
 		var input = new Element(0,
 								JSON.parse(msg.x), 
 								JSON.parse(msg.y), 

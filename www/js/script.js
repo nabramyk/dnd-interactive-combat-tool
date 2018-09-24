@@ -13,6 +13,7 @@ var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 var grid_id = 0;
+var ping_period = 4000;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
@@ -26,12 +27,15 @@ var selected_element;
 var cursor_size = 1;
 var cursor_line_width = 1;
 
+var ping_counter = 0;
+
 var holdTimer, hoverTimer, movementTimer;
 var movementInterval = 100;
 var prehandledByTouchEvent = false;
 
 var local_stored_grid_space = [];
 var local_stored_annotations = [];
+var local_stored_pings = [];
 
 var grid_spaces_list = [];
 var x_vertices = [];
@@ -151,6 +155,10 @@ function bindSocketListeners() {
 
   socket.on('added_element', function(msg) {
     if (msg.grid_id != grid_id) return;
+    if (msg.element.category == "ping") {
+      drawPing(msg.element, msg.grid_id);
+      return;
+    }
     $("#reset_board_button").prop("disabled", false);
     ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
     local_stored_grid_space.push(msg.element);
@@ -398,7 +406,9 @@ function bindEventHandlers() {
   $("#move_inc_up")
     .mousedown(function() {
       incremental_move_element("up");
-      movementTimer = window.setInterval(function() { incremental_move_element("up"); }, movementInterval);
+      movementTimer = window.setInterval(function() {
+        incremental_move_element("up");
+      }, movementInterval);
     })
     .mouseup(function() {
       console.log("cleared");
@@ -406,23 +416,29 @@ function bindEventHandlers() {
     })
     .on("touchstart", function(evt) {
       incremental_move_element("up");
-      movementTimer = window.setInterval(function() { incremental_move_element("up"); }, movementInterval);
+      movementTimer = window.setInterval(function() {
+        incremental_move_element("up");
+      }, movementInterval);
     })
     .on("touchend", function(evt) {
       window.clearInterval(movementTimer);
-  });
+    });
 
   $("#move_inc_down")
     .mousedown(function() {
       incremental_move_element("down");
-      movementTimer = setInterval(function() { incremental_move_element("down"); }, movementInterval);
+      movementTimer = setInterval(function() {
+        incremental_move_element("down");
+      }, movementInterval);
     })
     .mouseup(function() {
       clearInterval(movementTimer);
     })
     .on("touchstart", function(evt) {
       incremental_move_element("down");
-      movementTimer = window.setInterval(function() { incremental_move_element("down"); }, movementInterval);
+      movementTimer = window.setInterval(function() {
+        incremental_move_element("down");
+      }, movementInterval);
     })
     .on("touchend", function(evt) {
       window.clearInterval(movementTimer)
@@ -431,14 +447,18 @@ function bindEventHandlers() {
   $("#move_inc_left")
     .mousedown(function() {
       incremental_move_element("left");
-      movementTimer = setInterval(function() { incremental_move_element("left"); }, movementInterval);
+      movementTimer = setInterval(function() {
+        incremental_move_element("left");
+      }, movementInterval);
     })
     .mouseup(function() {
       clearInterval(movementTimer);
     })
     .on("touchstart", function(evt) {
       incremental_move_element("left");
-      movementTimer = window.setInterval(function() { incremental_move_element("left"); }, movementInterval);
+      movementTimer = window.setInterval(function() {
+        incremental_move_element("left");
+      }, movementInterval);
     })
     .on("touchend", function(evt) {
       window.clearInterval(movementTimer);
@@ -447,18 +467,22 @@ function bindEventHandlers() {
   $("#move_inc_right")
     .mousedown(function() {
       incremental_move_element("right");
-      movementTimer = setInterval(function() { incremental_move_element("right"); }, movementInterval);
+      movementTimer = setInterval(function() {
+        incremental_move_element("right");
+      }, movementInterval);
     })
     .mouseup(function() {
       clearInterval(movementTimer);
     })
     .on("touchstart", function(evt) {
       incremental_move_element("right");
-      movementTimer = window.setInterval(function() { incremental_move_element("right"); }, movementInterval);
+      movementTimer = window.setInterval(function() {
+        incremental_move_element("right");
+      }, movementInterval);
     })
     .on("touchend", function(evt) {
       window.clearInterval(movementTimer)
-  });
+    });
 
   $("#selected_shape").change(function(el) {
     switch ($("#selected_shape").val()) {
@@ -599,6 +623,7 @@ function bindEventHandlers() {
         clearPlayerName();
         local_stored_grid_space = [];
         local_stored_annotations = [];
+        local_stored_pings = [];
         $("#grid_name").val(msg.grid_space.name);
 
         if (msg.grid_space.elements.length !== 0) {
@@ -821,6 +846,21 @@ function drawScreen() {
       ctx2.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
     }
   }
+}
+
+function drawPing(ping, _grid_id) {
+  ping.shape = "circle";
+  ping.color = "4286f4";
+  ping.size = 1;
+  ping.id = ping_counter++;
+  local_stored_pings.push(ping);
+  drawElements();
+  window.setTimeout(function() {
+    if(_grid_id != grid_id) return;
+    local_stored_pings.splice( local_stored_pings.findIndex(function(el) { return el.id == ping.id; }), 1);
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    drawElements();
+  }, ping_period);
 }
 
 /**
@@ -1189,6 +1229,10 @@ function drawElements() {
   local_stored_grid_space.forEach(function(el) {
     draw_item(el)
   });
+  
+  local_stored_pings.forEach(function(el) {
+    draw_item(el)
+  });
 }
 
 /**
@@ -1306,6 +1350,10 @@ function updateSideMenuContent() {
   }
 
   $("#options_annotate_button").show();
+}
+
+function pingPosition() {
+  add_element_to_server("", selected_grid_x, selected_grid_y, "", "", "", "ping");
 }
 
 /**
