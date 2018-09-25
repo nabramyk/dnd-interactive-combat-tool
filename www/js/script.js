@@ -13,7 +13,8 @@ var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 var grid_id = 0;
-var ping_period = 30;
+var ping_period = 10;
+var opacity_rate = 0.04;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
@@ -864,7 +865,7 @@ function pingAnimation(ping, _grid_id) {
   if (_grid_id != grid_id) return;
 
   switch (true) {
-    case ping.frame_counter >= 0 && ping.frame_counter < 1000:
+    case ping.frame_counter >= 0 && ping.frame_counter < 250:
       ctx.save();
       ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
       drawElements();
@@ -872,13 +873,14 @@ function pingAnimation(ping, _grid_id) {
       x = gridPoint2Pixel(ping.x) + grid_line_width;
       y = gridPoint2Pixel(ping.y) + grid_line_width;
       ctx.beginPath();
-      ping.opacity += 0.015;
+      ping.opacity += opacity_rate;
+      ping.opacity = ping.opacity >= 1 ? 1 : ping.opacity;
       ctx.globalAlpha = ping.opacity;
       ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
       ctx.fill();
       ctx.restore();
       break;
-    case ping.frame_counter >= 1000 && ping.frame_counter < 3000:
+    case ping.frame_counter >= 250 && ping.frame_counter < 750:
       ctx.save();
       ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
       drawElements();
@@ -886,12 +888,12 @@ function pingAnimation(ping, _grid_id) {
       x = gridPoint2Pixel(ping.x) + grid_line_width;
       y = gridPoint2Pixel(ping.y) + grid_line_width;
       ctx.beginPath();
-      ctx.globalAlpha = ping.opacity;
+      ctx.globalAlpha = Math.abs(ping.opacity);
       ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
       ctx.fill();
       ctx.restore();
       break;
-    case ping.frame_counter >= 3000 && ping.frame_counter < 4000:
+    case ping.frame_counter >= 750 && ping.frame_counter < 1000:
       ctx.save();
       ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
       drawElements();
@@ -899,29 +901,33 @@ function pingAnimation(ping, _grid_id) {
       x = gridPoint2Pixel(ping.x) + grid_line_width;
       y = gridPoint2Pixel(ping.y) + grid_line_width;
       ctx.beginPath();
-      ping.opacity -= 0.015;
+      ping.opacity -= opacity_rate;
+      ping.opacity = ping.opacity <= 0 ? 0 : ping.opacity;
       ctx.globalAlpha = ping.opacity;
       ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
       ctx.fill();
       ctx.restore();
-      break;
-    case ping.frame_counter > 4000:
-      local_stored_pings.splice(local_stored_pings.findIndex(function(el) {
-        return el.id == ping.id;
-      }), 1);
-      console.log("Stop!");
       break;
   }
 
   ping.frame_counter += ping_period;
-
-  if (ping.frame_counter < 4000) {
+  console.log(ping.opacity);
+  if (ping.frame_counter < 1000) {
     window.setTimeout(
       function() {
-        window.requestAnimationFrame(function() { pingAnimation(ping, _grid_id); });
+        window.requestAnimationFrame(function() {
+          pingAnimation(ping, _grid_id);
+        });
       }, ping_period);
   } else {
+    local_stored_pings.splice(local_stored_pings.findIndex(function(el) {
+      return el.id == ping.id;
+    }), 1);
     console.log("Stop!");
+    ctx.save();
+    ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+    drawElements();
+    ctx.restore()
     return;
   }
 }
