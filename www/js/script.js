@@ -351,7 +351,7 @@ function bindEventHandlers() {
     });
 
   $('#place_element_button').click(function() {
-    if ($("#place_element_button").text() === "Add") {
+    if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
       switch ($("#selected_shape").val()) {
         case "square":
         case "circle":
@@ -365,7 +365,6 @@ function bindEventHandlers() {
           break;
       }
     } else {
-      console.log($("#element_color").val());
       socket.emit('edit_element_on_server', {
         "grid_id": grid_id,
         "id": selected_element.id,
@@ -850,8 +849,8 @@ function drawScreen() {
 
 function drawPing(ping, _grid_id) {
   ping.shape = "circle";
-  ping.color = "4286f4";
-  ping.size = 1;
+  ping.color = "f44242";
+  ping.size = cursor_size;
   ping.id = ping_counter++;
   ping.frame_counter = 0;
   ping.opacity = 0;
