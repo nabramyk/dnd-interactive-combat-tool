@@ -355,7 +355,7 @@ function bindEventHandlers() {
 			switch ($("#selected_shape").val()) {
 			case "square":
 			case "circle":
-				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), $("#element_size").val(), $("#element_category").val());
+				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val());
 				break;
 			case "rectangle":
 				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(),  { "width" : $("#element_width").val(), "height" : $("#element_height").val() }, $("#element_category").val());
@@ -378,6 +378,30 @@ function bindEventHandlers() {
 				"category": $("#element_category").val()
 			});
 		}
+	});
+
+	$('#button_rotate_left').click(function() {
+		socket.emit('edit_element_on_server', {
+			"grid_id": grid_id,
+			"id": selected_element.id,
+			"name": selected_element.name,
+			"shape": selected_element.shape,
+			"color": selected_element.color,
+			"size": { "width" : selected_element.size.height, "height" : selected_element.size.width },
+			"category": selected_element.category
+		});
+	});
+
+	$('#button_rotate_right').click(function() {
+		socket.emit('edit_element_on_server', {
+			"grid_id": grid_id,
+			"id": selected_element.id,
+			"name": selected_element.name,
+			"shape": selected_element.shape,
+			"color": selected_element.color,
+			"size": { "width" : selected_element.size.height, "height" : selected_element.size.width },
+			"category": selected_element.category
+		});
 	});
 
 	$('#reset_board_button').click(function() {
@@ -801,8 +825,8 @@ function canvasClicked(x, y) {
 	selected_element = null;
 
 	var temp = local_stored_grid_space.find(function(el) {
-		return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + el.size) > x &&
-		gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + el.size) > y;
+		return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + JSON.parse(el.size.width)) > x &&
+		gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + JSON.parse(el.size.height)) > y;
 	});
 
 	if (isUndefined(temp)) {
@@ -948,7 +972,7 @@ function draw_item(element) {
 		ctx.fillStyle = "#" + element.color;
 		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
 		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size.width * grid_size - cursor_line_width * 2, element.size.height * grid_size - cursor_line_width * 2);
+		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
 		break;
 	case "circle":
 	case "oval":
