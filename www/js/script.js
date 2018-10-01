@@ -380,7 +380,7 @@ function bindEventHandlers() {
 		}
 	});
 
-	$('#button_rotate_left').click(function() {
+	$('#b_rotate_left').click(function() {
 		socket.emit('edit_element_on_server', {
 			"grid_id": grid_id,
 			"id": selected_element.id,
@@ -392,7 +392,7 @@ function bindEventHandlers() {
 		});
 	});
 
-	$('#button_rotate_right').click(function() {
+	$('#b_rotate_right').click(function() {
 		socket.emit('edit_element_on_server', {
 			"grid_id": grid_id,
 			"id": selected_element.id,
