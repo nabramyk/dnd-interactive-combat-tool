@@ -806,7 +806,7 @@ function canvasClicked(x, y) {
 	});
 
 	if (isUndefined(temp)) {
-		cursor_size = 1;
+		cursor_size = { "width" : 1, "height" : 1 };
 		selected_grid_x = pixel2GridPoint(x - (x % grid_size));
 		selected_grid_y = pixel2GridPoint(y - (y % grid_size));
 	} else {
@@ -948,7 +948,7 @@ function draw_item(element) {
 		ctx.fillStyle = "#" + element.color;
 		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
 		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size * grid_size - cursor_line_width * 2, element.size * grid_size - cursor_line_width * 2);
+		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size.width * grid_size - cursor_line_width * 2, element.size.height * grid_size - cursor_line_width * 2);
 		break;
 	case "circle":
 	case "oval":
@@ -956,7 +956,7 @@ function draw_item(element) {
 		x = gridPoint2Pixel(element.x) + grid_line_width;
 		y = gridPoint2Pixel(element.y) + grid_line_width;
 		ctx.beginPath();
-		ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size, element.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+		ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size.width, element.size.height * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
 		ctx.fill();
 		break;
 	case "line":
@@ -1050,18 +1050,17 @@ function draw_cursor_at_position(x, y, size) {
 	//   }
 
 	switch ($('#selected_shape').val()) {
-	case "square":
-	case "circle":
-		overlay_ctx.lineWidth = cursor_line_width;
-		overlay_ctx.strokeStyle = grid_highlight;
-		overlay_ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size, grid_size * size);
-		cursor_size = size;
-		break;
 	case "line":
 		overlay_ctx.fillStyle = grid_highlight;
 		overlay_ctx.beginPath();
 		overlay_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
 		overlay_ctx.fill();
+		break;
+	default:
+		overlay_ctx.lineWidth = cursor_line_width;
+		overlay_ctx.strokeStyle = grid_highlight;
+		overlay_ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size.width, grid_size * size.height);
+		cursor_size = size;
 	}
 
 	$("#move_to_x").val(selected_grid_x);

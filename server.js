@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: false
 }));
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
@@ -39,8 +39,8 @@ app.use('/css', express.static(__dirname + '/www/css'))
 
 var grid_id_counter = 1;
 
-const shapes = ["square","rectangle","circle","oval","line"];
-const categories = ["npc","environment","enemy","player"]; 
+const shapes = ["square", "rectangle", "circle", "oval", "line"];
+const categories = ["npc", "environment", "enemy", "player"];
 
 function HistoryFrame(action, frame) {
 	this.action = action;
@@ -78,24 +78,24 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * @return {Element|undefine} This element at its new position, or undefined
 	 *         if it cannot move
 	 */
-	this.nudge = function(direction, gridSpace) {
+	this.nudge = function (direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y, moveToSize = this.size;
-		switch(direction) {
-		case "right": // right
-			moveToX++;
-			break;
-		case "up": // up
-			moveToY--;
-			break;
-		case "left": // left
-			moveToX--;
-			break;
-		case "down": // down
-			moveToY++;
-			break;
+		switch (direction) {
+			case "right": // right
+				moveToX++;
+				break;
+			case "up": // up
+				moveToY--;
+				break;
+			case "left": // left
+				moveToX--;
+				break;
+			case "down": // down
+				moveToY++;
+				break;
 		}
 
-		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, moveToSize, id); } ) === undefined) {
+		if (gridSpace.elements.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, id); }) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 
@@ -108,10 +108,10 @@ function Element(id, x, y, shape, color, size, category, name) {
 	/**
 	 * Move the element to a new grid location
 	 */
-	this.warp = function(x, y, gridSpace) {
+	this.warp = function (x, y, gridSpace) {
 		var moveToSize = this.size;
 		var moveToId = this.id;
-		if(gridSpace.elements.find( function(el) { return el.collide(x, y, moveToSize, moveToId); } ) === undefined) {
+		if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); }) === undefined) {
 			this.x = x;
 			this.y = y;
 
@@ -125,7 +125,7 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * Modify this elements properties
 	 * 
 	 */
-	this.mutate = function(modifiedElement) {
+	this.mutate = function (modifiedElement) {
 		this.shape = modifiedElement.shape;
 		this.name = modifiedElement.name;
 		this.category = modifiedElement.category;
@@ -139,7 +139,7 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * 
 	 * @return {JSON} The properties of this element
 	 */
-	this.condense = function() {
+	this.condense = function () {
 		return {};
 	}
 
@@ -156,12 +156,12 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 *            id - unique identifier of comparing element
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
-	this.collide = function(x, y, size, id) {
+	this.collide = function (x, y, size, id) {
 		return id != this.id &&
-		x < this.x + this.size &&
-		x + size > this.x &&
-		y < this.y + this.size &&
-		y + size > this.y;
+			x < this.x + this.size &&
+			x + size > this.x &&
+			y < this.y + this.size &&
+			y + size > this.y;
 	}
 
 	/**
@@ -174,12 +174,12 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * @return {boolean} True if this point is is within this element, false
 	 *         otherwise
 	 */
-	this.within = function(x, y) {
-		return this.x <= x && this.x + this.size > x && 
-		this.y <= y && this.y + this.size > y;
+	this.within = function (x, y) {
+		return this.x <= x && this.x + this.size > x &&
+			this.y <= y && this.y + this.size > y;
 	}
 
-	this.toString = function() {
+	this.toString = function () {
 		return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", shape: " + this.shape + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
 	}
 }
@@ -215,7 +215,7 @@ function GridSpace(width, height) {
 	 *            newWidth - the new width of the grid space
 	 * @return {int} The new width of the grid space
 	 */
-	this.resizeWidth = function(newWidth) {
+	this.resizeWidth = function (newWidth) {
 		this.width = newWidth;
 		return this.width;
 	};
@@ -227,7 +227,7 @@ function GridSpace(width, height) {
 	 *            newHeight - the new height of the grid space
 	 * @return {int} The new height of the grid space
 	 */
-	this.resizeHeight = function(newHeight) {
+	this.resizeHeight = function (newHeight) {
 		this.height = newHeight;
 		return this.height;
 	};
@@ -240,7 +240,7 @@ function GridSpace(width, height) {
 	 * @return {(Element|undefined)} The element with the matching id, or
 	 *         undefined if no element with that id exists
 	 */
-	this.findElementById = function(id) {
+	this.findElementById = function (id) {
 		return this.elements.find(function (el) { return el.id == id; })
 	};
 
@@ -254,12 +254,12 @@ function GridSpace(width, height) {
 	 * @return {(Element|undefined)} The element at this position, or undefined
 	 *         if no element is there
 	 */
-	this.findElementByPosition = function(x, y) {
+	this.findElementByPosition = function (x, y) {
 		return this.elements.find(function (el) { return el.within(x, y); });
 	};
 
 	/***/
-	this.hasElementAtPosition = function(x, y) {
+	this.hasElementAtPosition = function (x, y) {
 		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
 	}
 
@@ -268,7 +268,7 @@ function GridSpace(width, height) {
 	 * 
 	 * @return [Element] An array of drawables elements
 	 */
-	this.generateRandomBoardElements = function() {
+	this.generateRandomBoardElements = function () {
 		for (var w = 0; w < this.width; w++) {
 			for (var h = 0; h < this.height; h++) {
 				if (Math.random() < 0.1) {
@@ -279,13 +279,13 @@ function GridSpace(width, height) {
 					var x = [];
 
 					// todo uncomment in order to insert randomized lines
-					if(type == "line") {
-						while(Math.random() < 0.5) {
+					if (type == "line") {
+						while (Math.random() < 0.5) {
 							x.push(Math.ceil(Math.random() * this.width));
 							y.push(Math.ceil(Math.random() * this.height));
 						}
 
-						while(x.length < 2) {
+						while (x.length < 2) {
 							x.push(Math.ceil(Math.random() * this.width));
 							y.push(Math.ceil(Math.random() * this.height));
 						}
@@ -295,19 +295,19 @@ function GridSpace(width, height) {
 					}
 
 					var input = new Element(
-							this.elementIdCounter++,
-							x, // x
-							y, // y
-							type, // shape
-							Math.floor(Math.random()*16777215).toString(16), // color
-							Math.round(Math.random() * 3) + 1, // size
-							categories[Math.floor(Math.random() * categories.length)],
-							("rando" + h * w)
+						this.elementIdCounter++,
+						x, // x
+						y, // y
+						type, // shape
+						Math.floor(Math.random() * 16777215).toString(16), // color
+						Math.round(Math.random() * 3) + 1, // size
+						categories[Math.floor(Math.random() * categories.length)],
+						("rando" + h * w)
 					);
 
-					if(this.elements.find(function(el) {
+					if (this.elements.find(function (el) {
 						return el.collide(input.x, input.y, input.size, input.id);
-					}) === undefined ) {
+					}) === undefined) {
 						this.elements.push(input);
 					}
 				}
@@ -326,19 +326,19 @@ function GridSpace(width, height) {
 	 *            obj - the element to add to the grid space
 	 * @return {Element} the newly added element
 	 */
-	this.addElementToGridSpace = function(obj) {
-		if(this.hasElementAtPosition(obj.x, obj.y))
+	this.addElementToGridSpace = function (obj) {
+		if (this.hasElementAtPosition(obj.x, obj.y))
 			return undefined;
 
 		var newElement = new Element(
-				this.elementIdCounter++,
-				obj.x,
-				obj.y,
-				obj.shape,
-				obj.color,
-				obj.size,
-				obj.category,
-				obj.name
+			this.elementIdCounter++,
+			obj.x,
+			obj.y,
+			obj.shape,
+			obj.color,
+			obj.size,
+			obj.category,
+			obj.name
 		);
 
 		this.elements.push(newElement);
@@ -348,13 +348,13 @@ function GridSpace(width, height) {
 		return newElement;
 	};
 
-	this.addAnnotationToGridSpace = function(obj) {
+	this.addAnnotationToGridSpace = function (obj) {
 		var newAnnotation = {
-				"id" : this.annotationsIdCounter++,
-				"title" : obj.title,
-				"content" : obj.content,
-				"x" : obj.x,
-				"y" : obj.y
+			"id": this.annotationsIdCounter++,
+			"title": obj.title,
+			"content": obj.content,
+			"x": obj.x,
+			"y": obj.y
 		};
 
 		this.annotations.push(newAnnotation);
@@ -362,8 +362,8 @@ function GridSpace(width, height) {
 		return newAnnotation;
 	}
 
-	this.removeAnnotationFromGridSpace = function(id) {
-		var ind = this.annotations.findIndex( function(el) { return el.id === id });
+	this.removeAnnotationFromGridSpace = function (id) {
+		var ind = this.annotations.findIndex(function (el) { return el.id === id });
 		var return_annotation = this.annotations[ind];
 		this.annotations.splice(ind, 1);
 		return return_annotation.id;
@@ -376,8 +376,8 @@ function GridSpace(width, height) {
 	 *            id - the unique numerical id of an element
 	 * @return {Element} The removed element
 	 */
-	this.removeElementFromGridSpace = function(id) {
-		var ind = this.elements.findIndex( function(el) { return el.id === id; });
+	this.removeElementFromGridSpace = function (id) {
+		var ind = this.elements.findIndex(function (el) { return el.id === id; });
 		var return_element = this.elements[ind];
 		this.elements.splice(ind, 1);
 
@@ -392,7 +392,7 @@ function GridSpace(width, height) {
 	 * 
 	 * @return the newly emptied list
 	 */
-	this.removeAllElementsFromGridSpace = function() {
+	this.removeAllElementsFromGridSpace = function () {
 		var returnGridSpace = this.elements.slice();
 		this.elements = [];
 		return returnGridSpace;
@@ -409,37 +409,37 @@ function GridSpace(width, height) {
 	 *            direction - the direction to move the element
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
-	this.nudgeElement = function(x, y, direction) {
-		try { 
+	this.nudgeElement = function (x, y, direction) {
+		try {
 			return this.findElementByPosition(x, y).nudge(direction, this);
-		} catch(e) {
-			return undefined; 
+		} catch (e) {
+			return undefined;
 		}
 	}
 
-	this.warpElement = function(x, y, dest_x, dest_y) {
-		try { 
+	this.warpElement = function (x, y, dest_x, dest_y) {
+		try {
 			return this.findElementByPosition(x, y).warp(dest_x, dest_y, this);
-		} catch(e) {
-			return undefined; 
+		} catch (e) {
+			return undefined;
 		}
 	}
 
-	this.gatherElementsWithinRegion = function(region) {
+	this.gatherElementsWithinRegion = function (region) {
 
 	}
 
 	/**
 	 * 
 	 */
-	this.historyUndo = function() {
+	this.historyUndo = function () {
 		return temporaryHistory[temporaryHistory.push(history.pop())];
 	}
 
 	/**
 	 * 
 	 */
-	this.historyRedo = function() {
+	this.historyRedo = function () {
 		return history[history.push(temporaryHistory.pop())];
 	}
 }
@@ -450,12 +450,12 @@ io.on('connection', (socket) => {
 	console.log("a user connected");
 
 	socket.on('init', (msg, fn) => {
-		fn({ 
-			"grid_width" : grid_space[0].width,
-			"grid_height" : grid_space[0].height,
-			"elements" : grid_space[0].elements,
-			"annotations" : grid_space[0].annotations,
-			"spaces" : grid_space.map((el) => { return { "id" : el.id, "name" : el.name } })
+		fn({
+			"grid_width": grid_space[0].width,
+			"grid_height": grid_space[0].height,
+			"elements": grid_space[0].elements,
+			"annotations": grid_space[0].annotations,
+			"spaces": grid_space.map((el) => { return { "id": el.id, "name": el.name } })
 		});
 	});
 
@@ -463,9 +463,9 @@ io.on('connection', (socket) => {
 		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
 		temp.resizeHeight(msg.height);
 		io.emit('resize_height', {
-			"grid_id" : msg.grid_id,
-			"height" : msg.height,
-			"elements" : temp.elements
+			"grid_id": msg.grid_id,
+			"height": msg.height,
+			"elements": temp.elements
 		});
 	});
 
@@ -473,9 +473,9 @@ io.on('connection', (socket) => {
 		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
 		temp.resizeWidth(msg.width);
 		io.emit('resize_width', {
-			"grid_id" : msg.grid_id,
-			"width" : msg.width,
-			"elements" : temp.elements
+			"grid_id": msg.grid_id,
+			"width": msg.width,
+			"elements": temp.elements
 		});
 	});
 
@@ -483,79 +483,77 @@ io.on('connection', (socket) => {
 		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
 
-		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
-		fn({ "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
 	socket.on('warp_element', (msg, fn) => {
 		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
-		if (typeof movedElement === 'undefined') { 
-			socket.emit('error_channel', { "message" : "Somethings already there! " });
-			return; 
+		if (typeof movedElement === 'undefined') {
+			socket.emit('error_channel', { "message": "Somethings already there! " });
+			return;
 		}
 
-		io.emit('move_element', { "grid_id" : msg.grid_id, "element" : movedElement });
-		fn({ "x" : movedElement.x, "y" : movedElement.y, "size" : movedElement.size});
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
 	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', (msg) => {
-		console.log(JSON.parse(msg.size));
-
 		var input = new Element(0,
-				JSON.parse(msg.x), 
-				JSON.parse(msg.y), 
-				msg.shape, 
-				msg.color, 
-				msg.size, 
-				msg.category,
-				isUndefined(msg.name) ? "object" : msg.name);
+			JSON.parse(msg.x),
+			JSON.parse(msg.y),
+			msg.shape,
+			msg.color,
+			msg.size,
+			msg.category,
+			isUndefined(msg.name) ? "object" : msg.name);
 
 		var output = grid_space
-		.find((el) => { return el.id == msg.grid_id })
-		.addElementToGridSpace(input);
+			.find((el) => { return el.id == msg.grid_id })
+			.addElementToGridSpace(input);
 
-		isUndefined(output) ? socket.emit('error_channel', { "message" : "Cannot place an element where one already exists."}) : io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });
+		isUndefined(output) ? socket.emit('error_channel', { "message": "Cannot place an element where one already exists." }) : io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
 	});
 
 	socket.on('delete_element_on_server', (msg) => {
 		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).removeElementFromGridSpace(msg.element_id);
-		io.emit('removed_element', { "grid_id" : msg.grid_id, "element_id" : msg.element_id });
+		io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": msg.element_id });
 	});
 
 	socket.on('edit_element_on_server', (msg) => {
 		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).findElementById(msg.id).mutate(msg);
-		io.emit('edited_element', { "grid_id" : msg.grid_id, "element" : temp });
+		io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
 	});
 
 	socket.on('randomize', (msg) => {
 		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).generateRandomBoardElements();
-		io.emit('added_elements', { "grid_id" : msg.grid_id, "element" : temp.elements });
+		io.emit('added_elements', { "grid_id": msg.grid_id, "element": temp.elements });
 	});
 
 	socket.on('reset_board', (msg) => {
 		grid_space.find((el) => { return el.id == msg.grid_id }).removeAllElementsFromGridSpace();
-		io.emit('reset_grid', { "grid_id" : msg.grid_id });
+		io.emit('reset_grid', { "grid_id": msg.grid_id });
 	});
 
 	socket.on('create_grid_space', (msg) => {
 		var newGridSpace = grid_space.push(new GridSpace(1, 1));
-		io.emit('new_grid_space', { "id" : grid_space[newGridSpace - 1].id, "name" : grid_space[newGridSpace - 1].name });
+		io.emit('new_grid_space', { "id": grid_space[newGridSpace - 1].id, "name": grid_space[newGridSpace - 1].name });
 	});
 
 	socket.on('request_grid_space', (msg, fn) => {
 		var grid = grid_space.find((el) => { return el.id == msg.id; });
-		fn({ "grid_space" : grid });
+		fn({ "grid_space": grid });
 	});
 
 	socket.on('delete_grid_space_from_server', (msg) => {
-		if(grid_space.length <= 1) {
-			socket.emit('error_channel', { "message" : "Cannot have 0 grid spaces, you ass hat."});
+		if (grid_space.length <= 1) {
+			socket.emit('error_channel', { "message": "Cannot have 0 grid spaces, you ass hat." });
 			return;
 		}
 
-		grid_space.splice(grid_space.indexOf(grid_space.find((el) => { return msg.grid_id == el.id; })),1);
-		io.emit('delete_grid_space', { "grid_id" : msg.grid_id });
+		grid_space.splice(grid_space.indexOf(grid_space.find((el) => { return msg.grid_id == el.id; })), 1);
+		io.emit('delete_grid_space', { "grid_id": msg.grid_id });
 	});
 
 	socket.on('rename_grid', (msg) => {
@@ -564,31 +562,31 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('add_annotation_to_server', (msg) => {
-		io.emit('added_annotation', { "grid_id" : msg.grid_id, "annotation" : grid_space.find((el) => { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
+		io.emit('added_annotation', { "grid_id": msg.grid_id, "annotation": grid_space.find((el) => { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
 	});
 
 	socket.on('delete_annotation_from_server', (msg) => {
-		io.emit('deleted_annotation', {"grid_id" : msg.grid_id, "annotation_id" : grid_space.find((el) => { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
+		io.emit('deleted_annotation', { "grid_id": msg.grid_id, "annotation_id": grid_space.find((el) => { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
 	});
 
 	socket.on('undo', (msg) => {
 		var space = grid_space.find((el) => { return el.id == msg.grid_id });
 		var frame = space.historyUndo();
-		switch(frame.action) {
-		case "create": 
-			io.emit('removed_element', { "grid_id" : msg.grid_id, "element_id" : space.removeElementFromGridSpace(frame.frame.id).id });
-			break;
-		case "edit": break;
-		case "delete": break;
+		switch (frame.action) {
+			case "create":
+				io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": space.removeElementFromGridSpace(frame.frame.id).id });
+				break;
+			case "edit": break;
+			case "delete": break;
 		}
 	});
 
 	socket.on('redo', (msg) => {
 		var frame = grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
-		switch(frame.action) {
-		case "create": break;
-		case "edit": break;
-		case "delete": break;
+		switch (frame.action) {
+			case "create": break;
+			case "edit": break;
+			case "delete": break;
 		}
 	});
 });
