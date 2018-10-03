@@ -46,34 +46,38 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: false
 }));
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
 
-// Define the main path to index.html, which will be automatically loaded when
-// the user visits for the
-// first time
+//Define the main path to index.html, which will be automatically loaded when
+//the user visits for the
+//first time
 app.use(express.static('www'));
 
-// Define the path for where the javscript files are located for the users
-// webpage
+//Define the path for where the javscript files are located for the users
+//webpage
 app.use('/js', express.static(__dirname + '/www/js'))
 
-// Define the path for where the css stylesheets are located for the users
-// webpage
+//Define the path for where the css stylesheets are located for the users
+//webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-var element_id_counter = 1;
 var grid_id_counter = 1;
 
-const shapes = ["square","circle","line"];
-const categories = ["npc","environment","enemy","player"]; 
+const shapes = ["square", "rectangle", "circle", "oval", "line"];
+const categories = ["npc", "environment", "enemy", "player"];
+
+function HistoryFrame(action, frame) {
+	this.action = action;
+	this.frame = frame;
+}
 
 /**
  * @class Objects which are representable in the grid space
- *
+ * 
  * @constructor
  * @property {int} id - unique numerical identifier of this element
  * @property {int} x - horizontal grid coordinate of the element
@@ -84,39 +88,42 @@ const categories = ["npc","environment","enemy","player"];
  * @property {string} category - the meta group this element belongs to
  * @property {string} name - the unique name of this element
  */
-function Element(id, x, y, type, color, size, category, name) {
+function Element(id, x, y, shape, color, size, category, name) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
-	this.type = type;
+	this.shape = shape;
 	this.color = color;
 	this.size = size;
 	this.category = category;
 	this.name = name;
-	
+
 	/**
 	 * Move the element 1 unit in a specific direction
-	 * @param {String} direction - the direction to move this element
-	 * @return {Element|undefine} This element at its new position, or undefined if it cannot move
+	 * 
+	 * @param {String}
+	 *            direction - the direction to move this element
+	 * @return {Element|undefine} This element at its new position, or undefined
+	 *         if it cannot move
 	 */
-	this.nudge = function(direction, gridSpace) {
-		var moveToX = this.x, moveToY = this.y;
-		switch(direction) {
-			case "right": //right
+	this.nudge = function (direction, gridSpace) {
+		var moveToX = this.x, moveToY = this.y, moveToSize = this.size;
+		switch (direction) {
+			case "right": // right
 				moveToX++;
 				break;
-			case "up": //up
+			case "up": // up
 				moveToY--;
 				break;
-			case "left": //left
+			case "left": // left
 				moveToX--;
 				break;
-			case "down": //down
+			case "down": // down
 				moveToY++;
 				break;
 		}
 
-		if(gridSpace.elements.find( function(el) { return el.collide(moveToX, moveToY, size, id); } ) === undefined) {
+		if (gridSpace.elements.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, id); }) === undefined) {
 			this.x = moveToX;
 			this.y = moveToY;
 
@@ -125,495 +132,502 @@ function Element(id, x, y, type, color, size, category, name) {
 			return undefined;
 		}
 	};
-	
+
 	/**
 	 * Move the element to a new grid location
 	 */
-	this.warp = function(x, y) {
-		
+	this.warp = function (x, y, gridSpace) {
+		var moveToSize = this.size;
+		var moveToId = this.id;
+		if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); }) === undefined) {
+			this.x = x;
+			this.y = y;
+
+			return this;
+		} else {
+			return undefined;
+		}
 	};
-	
+
 	/**
 	 * Modify this elements properties
 	 * 
 	 */
-	this.mutate = function(modifiedElement) {
-		
+	this.mutate = function (modifiedElement) {
+		this.shape = modifiedElement.shape;
+		this.name = modifiedElement.name;
+		this.category = modifiedElement.category;
+		this.color = modifiedElement.color;
+		this.size = modifiedElement.size;
+		return this;
 	}
-	
+
 	/**
 	 * Return this elements properties and stripped of its methods
+	 * 
 	 * @return {JSON} The properties of this element
 	 */
-	this.condense = function() {
+	this.condense = function () {
 		return {};
 	}
-	
+
 	/**
 	 * Determine if this element is colliding with another
-	 * @param {int} x - horizontal coordinate of comparing element
-	 * @param {int} y - vertical coordinate of comparing element
-	 * @param {int} size - numerical span of comparing element
-	 * @param {int} id - unique identifier of comparing element
+	 * 
+	 * @param {int}
+	 *            x - horizontal coordinate of comparing element
+	 * @param {int}
+	 *            y - vertical coordinate of comparing element
+	 * @param {int}
+	 *            size - numerical span of comparing element
+	 * @param {int}
+	 *            id - unique identifier of comparing element
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
-	this.collide = function(x, y, size, id) {
-		console.log(x, y, size, id, this.x, this.y, this.size, this.id);
+	this.collide = function (x, y, size, id) {
 		return id != this.id &amp;&amp;
-				x &lt; this.x + this.size &amp;&amp;
-				x + size > this.x &amp;&amp;
-				y &lt; this.y + this.size &amp;&amp;
-				y + size > this.y;
+			x &lt; this.x + JSON.parse(this.size.width) &amp;&amp;
+			x + JSON.parse(size.width) > this.x &amp;&amp;
+			y &lt; this.y + JSON.parse(this.size.height) &amp;&amp;
+			y + JSON.parse(size.height) > this.y;
 	}
-	
+
 	/**
 	 * Determine if a sinlge point is contained within this element
-	 * @param {int} x - horizontal grid position
-	 * @param {int} y - vertical grid position
-	 * @return {boolean} True if this point is is within this element, false otherwise
+	 * 
+	 * @param {int}
+	 *            x - horizontal grid position
+	 * @param {int}
+	 *            y - vertical grid position
+	 * @return {boolean} True if this point is is within this element, false
+	 *         otherwise
 	 */
-	this.within = function(x, y) {
-		return this.x &lt;= x &amp;&amp; this.x + this.size > x &amp;&amp; 
-				this.y &lt;= y &amp;&amp; this.y + this.size > y;
+	this.within = function (x, y) {
+		return this.x &lt;= x &amp;&amp; this.x + JSON.parse(this.size.width) > x &amp;&amp;
+			this.y &lt;= y &amp;&amp; this.y + JSON.parse(this.size.height) > y;
+	}
+
+	this.toString = function () {
+		return "[id: " + this.id + ", x: " + this.x + ", y:" + this.y + ", shape: " + this.shape + ", color: " + this.color + ", size: " + this.size + ", category: " + this.category + ", name: " + this.name + "]";
 	}
 }
 
 /**
  * @class
- *
+ * 
  * @constructor
- * @property {int} elementIdCounter 
+ * @property {int} elementIdCounter
  * @property {int} id - unique numerical identifier for this grid space
- * @property {int} history - 
+ * @property {int} history -
  * @property [Element] - collection of displayable elements in this grid space
  * @property {int} width - amount of horizontal grid points in this space
  * @property {int} height - amount of vertical grid points in this space
  */
 function GridSpace(width, height) {
-	
+
 	this.elementIdCounter = 1;
+	this.annotationsIdCounter = 1;
 	this.id = grid_id_counter++;
 	this.history = [];
+	this.temporaryHistory = [];
 	this.elements = [];
+	this.annotations = [];
 	this.width = width;
 	this.height = height;
-	
+	this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
+
 	/**
 	 * Set the grid space width
-	 * @param {int} newWidth - the new width of the grid space
+	 * 
+	 * @param {int}
+	 *            newWidth - the new width of the grid space
 	 * @return {int} The new width of the grid space
 	 */
-	this.resizeWidth = function(newWidth) {
+	this.resizeWidth = function (newWidth) {
 		this.width = newWidth;
 		return this.width;
 	};
-	
+
 	/**
 	 * Set the grid space height
-	 * @param {int} newHeight - the new height of the grid space
+	 * 
+	 * @param {int}
+	 *            newHeight - the new height of the grid space
 	 * @return {int} The new height of the grid space
 	 */
-	this.resizeHeight = function(newHeight) {
+	this.resizeHeight = function (newHeight) {
 		this.height = newHeight;
 		return this.height;
 	};
-	
+
 	/**
 	 * Find the element with the corresponding ID
-	 * @param {int} id - the unique numerical identifier to search for
-	 * @return {(Element|undefined)} The element with the matching id, or undefined if no element with that id exists
+	 * 
+	 * @param {int}
+	 *            id - the unique numerical identifier to search for
+	 * @return {(Element|undefined)} The element with the matching id, or
+	 *         undefined if no element with that id exists
 	 */
-	this.findElementById = function(id) {
-		return this.elements.find(function (el) { return el.id === id; })
+	this.findElementById = function (id) {
+		return this.elements.find(function (el) { return el.id == id; })
 	};
-	
+
 	/**
 	 * Find the element at the specified position
-	 * @param {int} x - x grid point 
-	 * @param {int} y - y grid point
-	 * @return {(Element|undefined)} The element at this position, or undefined if no element is there
+	 * 
+	 * @param {int}
+	 *            x - x grid point
+	 * @param {int}
+	 *            y - y grid point
+	 * @return {(Element|undefined)} The element at this position, or undefined
+	 *         if no element is there
 	 */
-	this.findElementByPosition = function(x, y) {
+	this.findElementByPosition = function (x, y) {
 		return this.elements.find(function (el) { return el.within(x, y); });
 	};
-	
+
 	/***/
-	this.hasElementAtPosition = function(x, y) {
+	this.hasElementAtPosition = function (x, y) {
 		return this.elements.find(function (el) { return el.within(x, y); }) !== undefined;
 	}
-	
+
 	/**
 	 * Generate a grid space of random elements
+	 * 
 	 * @return [Element] An array of drawables elements
 	 */
-	this.generateRandomBoardElements = function() {
+	this.generateRandomBoardElements = function () {
 		for (var w = 0; w &lt; this.width; w++) {
 			for (var h = 0; h &lt; this.height; h++) {
 				if (Math.random() &lt; 0.1) {
-					
-					var type = shapes[Math.floor(Math.random() * (shapes.length-1))];
-					
+
+					var type = shapes[Math.floor(Math.random() * shapes.length)];
+
 					var y = [];
 					var x = [];
-					
-					//todo uncomment in order to insert randomized lines
-					//if(type === "line") {
-						//while(Math.random() &lt; 0.5) {
-							//x.push(Math.floor(Math.random() * this.width));
-							//y.push(Math.floor(Math.random() * this.height));
-						//}
-					//} else {
+
+					// todo uncomment in order to insert randomized lines
+					if (type == "line") {
+						while (Math.random() &lt; 0.5) {
+							x.push(Math.ceil(Math.random() * this.width));
+							y.push(Math.ceil(Math.random() * this.height));
+						}
+
+						while (x.length &lt; 2) {
+							x.push(Math.ceil(Math.random() * this.width));
+							y.push(Math.ceil(Math.random() * this.height));
+						}
+					} else {
 						x = w + 1;
 						y = h + 1;
-					//}
-					
+					}
+
 					var input = new Element(
-												this.elementIdCounter++,
-												x, //x
-												y, //y
-												type, //shape
-												Math.floor(Math.random()*16777215).toString(16), //color
-												Math.round(Math.random() * 3) + 1, //size
-												categories[Math.floor(Math.random() * categories.length)],
-												("rando" + h * w)
+						this.elementIdCounter++,
+						x, // x
+						y, // y
+						type, // shape
+						Math.floor(Math.random() * 16777215).toString(16), // color
+						Math.round(Math.random() * 3) + 1, // size
+						categories[Math.floor(Math.random() * categories.length)],
+						("rando" + h * w)
 					);
-					
-					if(this.elements.find(function(el) {
-							return collision_detection(el, input); 
-						}) === undefined ) {
+
+					if (this.elements.find(function (el) {
+						return el.collide(input.x, input.y, input.size, input.id);
+					}) === undefined) {
 						this.elements.push(input);
 					}
 				}
 			}
 		}
 
-		return this.elements;
+		this.history.push(new HistoryFrame("randomize", this.elements));
+
+		return this;
 	};
-	
+
 	/**
 	 * Add an element to the grid space
-	 * @param {Element} obj - the element to add to the grid space
+	 * 
+	 * @param {Element}
+	 *            obj - the element to add to the grid space
 	 * @return {Element} the newly added element
 	 */
-	this.addElementToGridSpace = function(obj) {
-		if(this.hasElementAtPosition(obj.x, obj.y))
+	this.addElementToGridSpace = function (obj) {
+		if (this.hasElementAtPosition(obj.x, obj.y))
 			return undefined;
-			
+
 		var newElement = new Element(
-				this.elementIdCounter++,
-				obj.x,
-				obj.y,
-				obj.type,
-				obj.color,
-				obj.size,
-				obj.category,
-				obj.name
-			);
-		
+			this.elementIdCounter++,
+			obj.x,
+			obj.y,
+			obj.shape,
+			obj.color,
+			obj.size,
+			obj.category,
+			obj.name
+		);
+
 		this.elements.push(newElement);
+		this.history.push(new HistoryFrame("add", newElement));
+		this.temporaryHistory = [];
+
 		return newElement;
 	};
-	
+
+	this.addAnnotationToGridSpace = function (obj) {
+		var newAnnotation = {
+			"id": this.annotationsIdCounter++,
+			"title": obj.title,
+			"content": obj.content,
+			"x": obj.x,
+			"y": obj.y
+		};
+
+		this.annotations.push(newAnnotation);
+
+		return newAnnotation;
+	}
+
+	this.removeAnnotationFromGridSpace = function (id) {
+		var ind = this.annotations.findIndex(function (el) { return el.id === id });
+		var return_annotation = this.annotations[ind];
+		this.annotations.splice(ind, 1);
+		return return_annotation.id;
+	}
+
 	/**
 	 * Delete an element from the grid space
-	 * @param {int} id - the unique numerical id of an element
-	 * @return nothing
+	 * 
+	 * @param {int}
+	 *            id - the unique numerical id of an element
+	 * @return {Element} The removed element
 	 */
-	this.removeElementFromGridSpace = function(id) {
-		var ind = this.elements.findIndex( function(el) { return el.id === id; });
+	this.removeElementFromGridSpace = function (id) {
+		var ind = this.elements.findIndex(function (el) { return el.id === id; });
+		var return_element = this.elements[ind];
 		this.elements.splice(ind, 1);
+
+		this.history.push(new HistoryFrame("remove", return_element));
+		this.temporaryHistory = [];
+
+		return return_element;
 	};
-	
+
 	/**
 	 * Deletes all elements from the grid space
+	 * 
 	 * @return the newly emptied list
 	 */
-	this.removeAllElementsFromGridSpace = function() {
+	this.removeAllElementsFromGridSpace = function () {
 		var returnGridSpace = this.elements.slice();
 		this.elements = [];
 		return returnGridSpace;
 	}
-	
+
 	/**
 	 * Moves an element 1 grid unit
-	 * @param {int} x - horizontal grid position
-	 * @param {int} y - vertical grid position
-	 * @param {String} direction - the direction to move the element
+	 * 
+	 * @param {int}
+	 *            x - horizontal grid position
+	 * @param {int}
+	 *            y - vertical grid position
+	 * @param {String}
+	 *            direction - the direction to move the element
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
-	this.nudgeElement = function(x, y, direction) {
-			try { 
-				return this.findElementByPosition(x, y).nudge(direction, this);
-			} catch(e) {
-				return undefined; 
-			}
+	this.nudgeElement = function (x, y, direction) {
+		try {
+			return this.findElementByPosition(x, y).nudge(direction, this);
+		} catch (e) {
+			return undefined;
+		}
 	}
-	
-	/***/
-	this.clickInGridSpace = function(x, y) {
-		return this.elements.find( function(el) { return el.within(x, y) });
+
+	this.warpElement = function (x, y, dest_x, dest_y) {
+		try {
+			return this.findElementByPosition(x, y).warp(dest_x, dest_y, this);
+		} catch (e) {
+			return undefined;
+		}
 	}
-	
+
+	this.gatherElementsWithinRegion = function (region) {
+
+	}
+
 	/**
-	 *
+	 * 
 	 */
-	this.gatherElementsFromCategories = function(filters) {
-		return this.elements
-					.filter( function(el) { 
-						return filters.indexOf(el.category) != -1 
-					});
+	this.historyUndo = function () {
+		return temporaryHistory[temporaryHistory.push(history.pop())];
+	}
+
+	/**
+	 * 
+	 */
+	this.historyRedo = function () {
+		return history[history.push(temporaryHistory.pop())];
 	}
 }
 
-var grid_space = new GridSpace(1, 1);
+var grid_space = [new GridSpace(1, 1)];
 
-io.on('connection', function(socket) {
+io.on('connection', (socket) => {
 	console.log("a user connected");
 
-	socket.on('init', function(msg) {
-		socket.emit('init', { 
-			"grid_width" : grid_space.width,
-			"grid_height" : grid_space.height,
-			"elements" : grid_space.elements
-		});
-	});
-	
-	socket.on('resize_height', function(msg) {
-		grid_space.resizeHeight(msg.height);
-		io.emit('resize_height', msg);
-	});
-
-	socket.on('resize_width', function(msg) {
-		grid_space.resizeWidth(msg.width);
-		io.emit('resize_width', msg);
-	});
-
-	socket.on('canvas_clicked', function(msg) {
-		var size = grid_space.clickInGridSpace(msg.new_x, msg.new_y);
-		socket.emit('canvas_clicked', {
-			"selected_grid_x" : !isUndefined(size) ? parseInt(size.x) : msg.new_x,
-			"selected_grid_y" : !isUndefined(size) ? parseInt(size.y) : msg.new_y,
-			"size" : !isUndefined(size) ? parseInt(size.size) : 1,
-			"elements" : elementsToBeRedrawn(msg.old_x, msg.old_y)
+	socket.on('init', (msg, fn) => {
+		fn({
+			"grid_width": grid_space[0].width,
+			"grid_height": grid_space[0].height,
+			"elements": grid_space[0].elements,
+			"annotations": grid_space[0].annotations,
+			"spaces": grid_space.map((el) => { return { "id": el.id, "name": el.name } })
 		});
 	});
 
-	socket.on('move_element', function(msg) {
+	socket.on('resize_height', (msg) => {
+		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
+		temp.resizeHeight(msg.height);
+		io.emit('resize_height', {
+			"grid_id": msg.grid_id,
+			"height": msg.height,
+			"elements": temp.elements
+		});
+	});
 
-		var movedElement = grid_space.nudgeElement(msg.x, msg.y, msg.direction);
+	socket.on('resize_width', (msg) => {
+		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
+		temp.resizeWidth(msg.width);
+		io.emit('resize_width', {
+			"grid_id": msg.grid_id,
+			"width": msg.width,
+			"elements": temp.elements
+		});
+	});
+
+	socket.on('move_element', (msg, fn) => {
+		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
 		if (typeof movedElement === 'undefined') return;
-		
-		socket.broadcast.emit('move_element', { "from_x" : msg.x, "from_y" : msg.y, "element" : movedElement, "elements" : {}});
-		socket.emit('moving_element', { "x" : msg.x, "y" : msg.y, "size" : movedElement.size, "element" : movedElement, "elements" : elementsToBeRedrawn(msg.x, msg.y)});
+
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
+	});
+
+	socket.on('warp_element', (msg, fn) => {
+		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
+		if (typeof movedElement === 'undefined') {
+			socket.emit('error_channel', { "message": "Somethings already there! " });
+			return;
+		}
+
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
 	/* ADD ELEMENT TO SERVER */
-	socket.on('add_element_to_server', function(msg) {
-		var input = new Element(element_id_counter++,
-								JSON.parse(msg.x_coord), 
-								JSON.parse(msg.y_coord), 
-								msg.object_type, 
-								msg.color, 
-								JSON.parse(msg.size), 
-								msg.category,
-								msg.name !== null ? msg.name : "object");
-		
-		io.emit('added_element', grid_space.addElementToGridSpace(input));
+	socket.on('add_element_to_server', (msg) => {
+		var input = new Element(0,
+			JSON.parse(msg.x),
+			JSON.parse(msg.y),
+			msg.shape,
+			msg.color,
+			msg.size,
+			msg.category,
+			isUndefined(msg.name) ? "object" : msg.name);
+
+		var output = grid_space
+			.find((el) => { return el.id == msg.grid_id })
+			.addElementToGridSpace(input);
+
+		isUndefined(output) ? socket.emit('error_channel', { "message": "Cannot place an element where one already exists." }) : io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
 	});
-	
-	socket.on('delete_element_on_server', function(msg) {
-		var ind = cells.findIndex( function(el) { return el.id === msg; });
-		io.emit('removed_element', cells[ind]);
-		cells.splice(ind, 1);
-		io.emit('retrieve_elements_list', cells);
+
+	socket.on('delete_element_on_server', (msg) => {
+		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).removeElementFromGridSpace(msg.element_id);
+		io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": msg.element_id });
 	});
-	
-	socket.on('randomize', function(msg) {
-		grid_space
-			.generateRandomBoardElements()
-			.forEach(function(el) {
-				io.emit('added_element', el);
-		});
+
+	socket.on('edit_element_on_server', (msg) => {
+		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).findElementById(msg.id).mutate(msg);
+		io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
 	});
-	
-	socket.on('reset_board', function(msg) {
-		grid_space
-			.removeAllElementsFromGridSpace()
-			.forEach(function(el) {
-				console.log(el);
-				io.emit('removed_element', el);
-		})
+
+	socket.on('randomize', (msg) => {
+		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).generateRandomBoardElements();
+		io.emit('added_elements', { "grid_id": msg.grid_id, "element": temp.elements });
 	});
-	
-	socket.on('get_elements_list', function(msg) {
-		socket.emit('retrieve_elements_list', grid_space.gatherElementsFromCategories(msg.filter));
+
+	socket.on('reset_board', (msg) => {
+		grid_space.find((el) => { return el.id == msg.grid_id }).removeAllElementsFromGridSpace();
+		io.emit('reset_grid', { "grid_id": msg.grid_id });
 	});
-	
-	socket.on('select_element_from_list', function(msg) {
-		var element = grid_space.findElementById(msg.id);
-		var element_to_redraw = elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y);
-		//console.log(elementsToBeRedrawn(msg.selected_grid_x, msg.selected_grid_y));
-		//element_to_redraw.element.push(element);
-		socket.emit('selected_element_from_list', (isUndefined(element) ? { "selected_element" : { "x" : -1, "y" : -1 }} : { "selected_element" : element , "redraw_element" : element_to_redraw}));
+
+	socket.on('create_grid_space', (msg) => {
+		var newGridSpace = grid_space.push(new GridSpace(1, 1));
+		io.emit('new_grid_space', { "id": grid_space[newGridSpace - 1].id, "name": grid_space[newGridSpace - 1].name });
+	});
+
+	socket.on('request_grid_space', (msg, fn) => {
+		var grid = grid_space.find((el) => { return el.id == msg.id; });
+		fn({ "grid_space": grid });
+	});
+
+	socket.on('delete_grid_space_from_server', (msg) => {
+		if (grid_space.length &lt;= 1) {
+			socket.emit('error_channel', { "message": "Cannot have 0 grid spaces, you ass hat." });
+			return;
+		}
+
+		grid_space.splice(grid_space.indexOf(grid_space.find((el) => { return msg.grid_id == el.id; })), 1);
+		io.emit('delete_grid_space', { "grid_id": msg.grid_id });
+	});
+
+	socket.on('rename_grid', (msg) => {
+		grid_space.find((el) => { return el.id == msg.grid_id }).name = msg.grid_name;
+		io.emit('renaming_grid', msg);
+	});
+
+	socket.on('add_annotation_to_server', (msg) => {
+		io.emit('added_annotation', { "grid_id": msg.grid_id, "annotation": grid_space.find((el) => { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
+	});
+
+	socket.on('delete_annotation_from_server', (msg) => {
+		io.emit('deleted_annotation', { "grid_id": msg.grid_id, "annotation_id": grid_space.find((el) => { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
+	});
+
+	socket.on('undo', (msg) => {
+		var space = grid_space.find((el) => { return el.id == msg.grid_id });
+		var frame = space.historyUndo();
+		switch (frame.action) {
+			case "create":
+				io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": space.removeElementFromGridSpace(frame.frame.id).id });
+				break;
+			case "edit": break;
+			case "delete": break;
+		}
+	});
+
+	socket.on('redo', (msg) => {
+		var frame = grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
+		switch (frame.action) {
+			case "create": break;
+			case "edit": break;
+			case "delete": break;
+		}
 	});
 });
 
-// Main driver for booting up the server
-http.listen(8080, function() {
+//Main driver for booting up the server
+http.listen(8080, () => {
 	console.log("%s:%s", http.address().address, http.address().port)
 });
 
 /**
- * Determine if two objects are lines with matching vertices, or if two objects have overlapping coordinates
- * Need to fix by incorporating both elements sizes instead of just one 
- *
- * @param obj_1
- * @param obj_2
- * @returns
- */
-function coordinate_comparison(obj_1, obj_2) {
-	if (obj_1.x instanceof Array)
-		return obj_1.x.every(function(u, i) {
-				return u === obj_2.x[i];
-			}) &amp;&amp;
-			obj_1.y.every(function(u, i) {
-				return u === obj_2.y[i];
-			});
-	else
-		return obj_1.x &lt;= obj_2.x &amp;&amp; obj_1.x + obj_1.size > obj_2.x &amp;&amp; 
-			obj_1.y &lt;= obj_2.y &amp;&amp; obj_1.y + obj_1.size > obj_2.y;
-}
-
-/**
- * Determine if the grid coordinate lies on an aliased vector path
- * 
- * @param {obj} grid_location - xy coordinate of a grid point to find
- * @param {obj} line - vector of grid points to search from
- * @returns {obj|undefined} 
- */
-function check_for_clipped_regions(grid_location, line) {
-	for(var i=1; i&lt;line.x.length; i++) {
-		var line_segment = [{ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]}];
-		if(typeof calculate_grid_points_on_line({ "x" : line.x[i-1], "y" : line.y[i-1]}, {"x" : line.x[i], "y" : line.y[i]})
-			 .find(function(el) {
-					return grid_location.x === el.x &amp;&amp; grid_location.y === el.y ? true : undefined;
-				}) !== 'undefined') {
-				return line_segment;
-		}
-	}
-	return undefined;
-}
-
-/**
- * Compute an array of XY pairs which are the grid squares that the line crosses 
- * 
- * @param {obj} starting_point - coordinate of the starting vertex
- * @param {obj} ending_point - coordinate of the ending vertex
- * @returns [{obj}]
- */
-function calculate_grid_points_on_line(starting_point, ending_point) {
-	var grid_points = [];
-	var m, b, y_val;
-	var step_size = 0.01;
-
-	// Swap the points if the x value at the end is smaller than the starting x
-	// value
-	if (ending_point.x &lt; starting_point.x) {
-		var temp = starting_point;
-		starting_point = ending_point;
-		ending_point = temp;
-	}
-
-	m = (ending_point.y - starting_point.y) / (ending_point.x - starting_point.x);
-	b = starting_point.y - m * starting_point.x;
-
-	if (!isFinite(m)) {
-		var _start, _end;
-		if (starting_point.y &lt; ending_point.y) {
-			_start = starting_point.y;
-			_end = ending_point.y;
-		} else {
-			_start = ending_point.y;
-			_end = starting_point.y;
-		}
-		for (; _start &lt; _end; _start++) {
-			grid_points.push({
-				"x": starting_point.x,
-				"y": _start
-			});
-		}
-	} else
-		for (var x_val = starting_point.x; x_val &lt;= ending_point.x; x_val = x_val + step_size) {
-			y_val = Math.floor(m * x_val + b);
-			var xy_pair = {
-				"x": Math.floor(x_val),
-				"y": y_val
-			};
-
-			if (grid_points.length === 0) {
-				grid_points.push(xy_pair);
-				continue;
-			}
-
-			for (var i = 0; i &lt; grid_points.length; i++) {
-				if (xy_pair.x === grid_points[i].x &amp;&amp; xy_pair.y === grid_points[i].y)
-					break;
-				else if (i == grid_points.length - 1)
-					grid_points.push(xy_pair);
-			}
-		}
-
-	return grid_points;
-}
-
-/**
- * Compile a list of all elements that would have erroneously erased within a given grid area
- *
- * @param msg
- * @returns
- */
-function elementsToBeRedrawn(old_x, old_y) {
-	var ob = [];
-		
-		[ { "x" : old_x, "y" : old_y },
-			{ "x" : old_x-1, "y" : old_y},
-			{ "x" : old_x, "y" : old_y-1},
-			{ "x" : old_x-1, "y" : old_y-1}]
-		.forEach(function(cursor_space) {
-			grid_space.elements.forEach( function(el) {
-				if(el.type === 'line') {
-					var out = check_for_clipped_regions(cursor_space, el);
-					if(out !== undefined) {
-						ob.push({ "element" : { "type" : "line-segment", "x" : [out[0].x,out[1].x], "y" : [out[0].y,out[1].y], "color" : el.color } , "bbox" : cursor_space});
-					}
-				} else {
-					if(coordinate_comparison(el,cursor_space))
-						ob.push({ "element" : el });
-				}
-			});
-		});
-	
-	return ob;
-}
-
-/**
- * Detect it two elements are colliding
- *
- * @param {Element} obj_1 -
- * @param {Element} obj_2 -
- * @returns {Boolean} True if the objects are colliding; False otherwise 
- */
-function collision_detection(obj_1, obj_2) {
-	return obj_1.x &lt; obj_2.x + obj_2.size &amp;&amp;
-					obj_1.x + obj_1.size > obj_2.x &amp;&amp;
-					obj_1.y &lt; obj_2.y + obj_2.size &amp;&amp;
-					obj_1.y + obj_1.size > obj_2.y;
-}
-
-/**
  * 
  * @param value
- * @returns
+ * @returns { boolean } True if value is undefined, false otherwise
  */
 function isUndefined(value) {
 	return value === undefined;
@@ -627,13 +641,13 @@ function isUndefined(value) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Element.html">Element</a></li><li><a href="GridSpace.html">GridSpace</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculate_grid_points_on_line">calculate_grid_points_on_line</a></li><li><a href="global.html#check_for_clipped_regions">check_for_clipped_regions</a></li><li><a href="global.html#collision_detection">collision_detection</a></li><li><a href="global.html#coordinate_comparison">coordinate_comparison</a></li><li><a href="global.html#elementsToBeRedrawn">elementsToBeRedrawn</a></li><li><a href="global.html#isUndefined">isUndefined</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Element.html">Element</a></li><li><a href="GridSpace.html">GridSpace</a></li></ul><h3>Global</h3><ul><li><a href="global.html#isUndefined">isUndefined</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 16 2018 23:38:09 GMT-0600 (CST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 03 2018 08:40:54 GMT-0600 (CST)
 </footer>
 
 <script> prettyPrint(); </script>

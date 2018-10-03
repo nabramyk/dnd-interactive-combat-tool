@@ -599,7 +599,7 @@ http.listen(8080, () => {
 /**
  * 
  * @param value
- * @returns
+ * @returns { boolean } True if value is undefined, false otherwise
  */
 function isUndefined(value) {
 	return value === undefined;
