@@ -126,6 +126,7 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 * 
 	 */
 	this.mutate = function (modifiedElement) {
+
 		this.shape = modifiedElement.shape;
 		this.name = modifiedElement.name;
 		this.category = modifiedElement.category;
@@ -348,6 +349,17 @@ function GridSpace(width, height) {
 		return newElement;
 	};
 
+	this.mutateElementInGridSpace = function (obj) {
+		this.elements.forEach(function(el) {
+			console.log(el.collide(obj.x, obj.y, obj.size, obj.id));
+		});
+		if (this.elements.find(function(el) { return el.collide(obj.x, obj.y, obj.size, obj.id); }) === undefined) {
+			return this.elements.find(function(el) { return el.id === obj.id }).mutate(obj);
+		} else {
+			return undefined;
+		}
+	}
+
 	this.addAnnotationToGridSpace = function (obj) {
 		var newAnnotation = {
 			"id": this.annotationsIdCounter++,
@@ -522,8 +534,15 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('edit_element_on_server', (msg) => {
-		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).findElementById(msg.id).mutate(msg);
-		io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
+		msg.size = { "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) };
+		msg.x = JSON.parse(msg.x);
+		msg.y = JSON.parse(msg.y);
+		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg);
+		if(isUndefined(temp)) {
+			socket.emit('error_channel', {"message" : "Unable to modify element properties."});
+		} else {
+			io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
+		}
 	});
 
 	socket.on('randomize', (msg) => {

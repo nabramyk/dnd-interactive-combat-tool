@@ -374,6 +374,8 @@ function bindEventHandlers() {
 				"name": $("#element_name").val(),
 				"shape": $("#selected_shape").val(),
 				"color": $("#element_color").val(),
+				"x": selected_element.x,
+				"y": selected_element.y,
 				"size": $("#element_size").val(),
 				"category": $("#element_category").val()
 			});
@@ -387,6 +389,8 @@ function bindEventHandlers() {
 			"name": selected_element.name,
 			"shape": selected_element.shape,
 			"color": selected_element.color,
+			"x": selected_element.x,
+			"y": selected_element.y,
 			"size": { "width" : selected_element.size.height, "height" : selected_element.size.width },
 			"category": selected_element.category
 		});
@@ -399,6 +403,8 @@ function bindEventHandlers() {
 			"name": selected_element.name,
 			"shape": selected_element.shape,
 			"color": selected_element.color,
+			"x": selected_element.x,
+			"y": selected_element.y,
 			"size": { "width" : selected_element.size.height, "height" : selected_element.size.width },
 			"category": selected_element.category
 		});
