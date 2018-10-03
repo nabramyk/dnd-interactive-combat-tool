@@ -59,6 +59,7 @@ function HistoryFrame(action, frame) {
  * @property {int} size - the amount of grid spaces this elements spans across
  * @property {string} category - the meta group this element belongs to
  * @property {string} name - the unique name of this element
+ * @property {int} rotation - the angle which this element is facing (values 0 - 3)
  */
 function Element(id, x, y, shape, color, size, category, name) {
 	this.id = id;
@@ -69,6 +70,7 @@ function Element(id, x, y, shape, color, size, category, name) {
 	this.size = size;
 	this.category = category;
 	this.name = name;
+	this.rotation = 0;
 
 	/**
 	 * Move the element 1 unit in a specific direction
