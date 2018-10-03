@@ -158,10 +158,10 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 */
 	this.collide = function (x, y, size, id) {
 		return id != this.id &&
-			x < this.x + JSON.parse(this.size.width) &&
-			x + JSON.parse(size.width) > this.x &&
-			y < this.y + JSON.parse(this.size.height) &&
-			y + JSON.parse(size.height) > this.y;
+			x < this.x + this.size.width &&
+			x + size.width > this.x &&
+			y < this.y + this.size.height &&
+			y + size.height > this.y;
 	}
 
 	/**
@@ -175,8 +175,8 @@ function Element(id, x, y, shape, color, size, category, name) {
 	 *         otherwise
 	 */
 	this.within = function (x, y) {
-		return this.x <= x && this.x + JSON.parse(this.size.width) > x &&
-			this.y <= y && this.y + JSON.parse(this.size.height) > y;
+		return this.x <= x && this.x + this.size.width > x &&
+			this.y <= y && this.y + this.size.height > y;
 	}
 
 	this.toString = function () {
@@ -505,7 +505,7 @@ io.on('connection', (socket) => {
 			JSON.parse(msg.y),
 			msg.shape,
 			msg.color,
-			msg.size,
+			{ "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) },
 			msg.category,
 			isUndefined(msg.name) ? "object" : msg.name);
 
