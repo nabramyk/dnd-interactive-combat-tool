@@ -59,9 +59,9 @@ function HistoryFrame(action, frame) {
  * @property {int} size - the amount of grid spaces this elements spans across
  * @property {string} category - the meta group this element belongs to
  * @property {string} name - the unique name of this element
- * @property {int} rotation - the angle which this element is facing (values 0 - 3)
+ * @property {int} rotation - the angle which this element is facing (values 1 - 4)
  */
-function Element(id, x, y, shape, color, size, category, name) {
+function Element(id, x, y, shape, color, size, category, name, rotation) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
@@ -70,7 +70,7 @@ function Element(id, x, y, shape, color, size, category, name) {
 	this.size = size;
 	this.category = category;
 	this.name = name;
-	this.rotation = 0;
+	this.rotation = rotation;
 
 	/**
 	 * Move the element 1 unit in a specific direction
@@ -341,7 +341,8 @@ function GridSpace(width, height) {
 			obj.color,
 			obj.size,
 			obj.category,
-			obj.name
+			obj.name,
+			obj.rotation
 		);
 
 		this.elements.push(newElement);
@@ -521,7 +522,8 @@ io.on('connection', (socket) => {
 			msg.color,
 			{ "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) },
 			msg.category,
-			isUndefined(msg.name) ? "object" : msg.name);
+			isUndefined(msg.name) ? "object" : msg.name,
+			msg.rotation);
 
 		var output = grid_space
 			.find((el) => { return el.id == msg.grid_id })

@@ -979,6 +979,31 @@ function draw_item(element) {
 		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
 		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
 		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+		if(element.rotation != 0) {
+			ctx.beginPath();
+			console.log(element);
+			switch(element.rotation) {
+				case 1: 
+					x += JSON.parse(element.size.width) * grid_size - 2;
+					y += JSON.parse(element.size.height) * grid_size / 2;
+				break;
+				case 2: 
+					x += JSON.parse(element.size.width) * grid_size / 2;
+					y += 2;
+				break;
+				case 3: 
+					x += 2;
+					y += JSON.parse(element.size.height) * grid_size / 2;
+				break;
+				case 4: 
+					x += JSON.parse(element.size.width) * grid_size / 2;
+					y += JSON.parse(element.size.height) * grid_size - 2;
+				break;
+			}
+			ctx.fillStyle = "#FFFFFF";
+			ctx.arc(y, x, 2, 0, 2 * Math.PI);
+			ctx.fill();
+		}
 		break;
 	case "circle":
 	case "oval":
@@ -1145,7 +1170,8 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 		"shape": shape,
 		"name": name,
 		"size": size,
-		"category": category
+		"category": category,
+		"rotation": 1
 	});
 }
 
