@@ -788,7 +788,9 @@ function interfaceInitialization() {
 	hammer.on('pan', function(evt) {
 		window.requestAnimationFrame(function() {
 			ctx2.clearRect(0, 0, underlay_canvas.width, underlay_canvas.height);
-			ctx2.translate(evt.velocityX * 10, evt.velocityY * 10);
+			ctx2.translate(Math.ceil(evt.velocityX * 10), Math.ceil(evt.velocityY * 10));
+			ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+			ctx.translate(Math.ceil(evt.velocityX * 10), Math.ceil(evt.velocityY * 10));
 			drawScreen();
 		});
 	}).on('tap', function(evt) {
