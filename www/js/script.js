@@ -265,13 +265,18 @@ function bindSocketListeners() {
  * @returns
  */
 function bindEventHandlers() {
-	$("#grid_canvas_scrolling_container").scroll(function() {
-		$("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
-		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
-	});
+	$( window ).resize(function() {
+		grid_canvas.width = window.innerWidth;
+		grid_canvas.height = window.innerHeight;
+		underlay_canvas.width = window.innerWidth;
+		underlay_canvas.height = window.innerHeight;
+		overlay_canvas.width = window.innerWidth;
+		overlay_canvas.height = window.innerHeight;
+		temporary_drawing_canvas.width = window.innerWidth;
+		temporary_drawing_canvas.height = window.innerHeight;
 
-	$("#grid_size_vertical").val(grid_count_height);
-	$("#grid_size_horizontal").val(grid_count_width);
+		drawScreen();
+	});
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
@@ -297,9 +302,6 @@ function bindEventHandlers() {
 	});
 
 	$("#overlay_canvas")
-	.mousedown(function(evt) {
-		canvasClicked(evt.offsetX, evt.offsetY);
-	})
 	.mousemove(function(evt) {
 		clearPlayerName();
 		clearTimeout(hoverTimer);
@@ -326,28 +328,6 @@ function bindEventHandlers() {
 			return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
 		});
 		showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size) + grid_size, (isUndefined(temp) ? -1 : temp.id));
-	})
-	.on('touchstart', function(evt) {
-		prehandledByTouchEvent = true;
-		var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
-		var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
-		canvasClicked(touch_x, touch_y);
-		var temp = local_stored_grid_space.find(function(el) {
-			return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
-		});
-		holdTimer = window.setTimeout(function() {
-			showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
-		}, 1000);
-		return true;
-	})
-	.on('touchend', function(evt) {
-		clearTimeout(holdTimer);
-		return false;
-	})
-	.on('touchmove', function(evt) {
-		clearPlayerName();
-		clearTimeout(holdTimer);
-		return true;
 	});
 
 	$('#place_element_button').click(function() {
@@ -767,7 +747,6 @@ function bindEventHandlers() {
 		$("#options_container").show();
 		$("#overlapping_side_container").show();
 		$("#overlapping_back_button").hide();
-		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 	});
 
@@ -795,22 +774,35 @@ function interfaceInitialization() {
 	overlay_ctx = overlay_canvas.getContext('2d');
 	temporary_drawing_ctx = temporary_drawing_canvas.getContext('2d');
 
-	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	grid_canvas.width = window.innerWidth;
+	grid_canvas.height = window.innerHeight;
+	underlay_canvas.width = window.innerWidth;
+	underlay_canvas.height = window.innerHeight;
+	overlay_canvas.width = window.innerWidth;
+	overlay_canvas.height = window.innerHeight;
+	temporary_drawing_canvas.width = window.innerWidth;
+	temporary_drawing_canvas.height = window.innerHeight;
 
 	var hammer = new Hammer(overlay_canvas, null);
+	
 	hammer.on('pan', function(evt) {
-		alert(evt);
+		window.requestAnimationFrame(function() {
+			ctx2.clearRect(0, 0, underlay_canvas.width, underlay_canvas.height);
+			ctx2.translate(evt.velocityX * 10, evt.velocityY * 10);
+			drawScreen();
+		});
+	}).on('tap', function(evt) {
+		console.log(evt);
+		var touch_x = evt.center.x;
+		var touch_y = evt.center.y;
+		canvasClicked(touch_x, touch_y);
+		var temp = local_stored_grid_space.find(function(el) {
+			return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
+		});
+		//holdTimer = window.setTimeout(function() {
+		//	showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
+		//}, 1000);
 	});
-
-	drawTopRuler();
-	drawLeftRuler();
 
 	drawScreen();
 }
@@ -876,6 +868,7 @@ function canvasClicked(x, y) {
  * Function for drawing the grid board
  */
 function drawScreen() {
+	ctx2.save();
 	ctx2.lineWidth = grid_line_width;
 	ctx2.strokeStyle = grid_color;
 	for (var i = 0; i < grid_count_height; i++) {
@@ -883,6 +876,7 @@ function drawScreen() {
 			ctx2.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		}
 	}
+	ctx2.restore();
 }
 
 function drawPing(ping, _grid_id) {
@@ -1147,23 +1141,23 @@ function draw_temporary_cursor_at_position(x, y, size) {
 function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
-	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	//grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	//underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	//overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	//temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	drawScreen();
-	drawTopRuler();
+	//drawTopRuler();
 }
 
 function resizeGridHeight(height) {
 	grid_count_height = height;
 	$("#grid_size_vertical").val(grid_count_height);
-	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	//grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	//underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	//overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	//temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	drawScreen();
-	drawLeftRuler();
+	//drawLeftRuler();
 }
 
 function add_element_to_server(color, x, y, shape, name, size, category) {
@@ -1447,7 +1441,6 @@ function selectedMenuOption(option) {
 		break;
 	case "close":
 		$("#overlapping_side_container").hide();
-		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 		break;
 	case "delete":
