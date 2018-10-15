@@ -804,6 +804,11 @@ function interfaceInitialization() {
 	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
+	var hammer = new Hammer(overlay_canvas, null);
+	hammer.on('pan', function(evt) {
+		alert(evt);
+	});
+
 	drawTopRuler();
 	drawLeftRuler();
 
