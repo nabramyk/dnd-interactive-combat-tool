@@ -787,14 +787,17 @@ function interfaceInitialization() {
 	
 	hammer.on('pan', function(evt) {
 		window.requestAnimationFrame(function() {
+			console.log(evt);
 			ctx2.clearRect(0, 0, underlay_canvas.width, underlay_canvas.height);
-			ctx2.translate(Math.ceil(evt.velocityX * 10), Math.ceil(evt.velocityY * 10));
+			ctx2.translate(Math.ceil(evt.deltaX / evt.deltaTime), Math.ceil(evt.deltaY / evt.deltaTime));
 			ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-			ctx.translate(Math.ceil(evt.velocityX * 10), Math.ceil(evt.velocityY * 10));
+			ctx.translate(Math.ceil(evt.velocityX), Math.ceil(evt.velocityY));
+			overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
+			overlay_ctx.translate(Math.ceil(evt.velocityX), Math.ceil(evt.velocityY));
+			draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
 			drawScreen();
 		});
 	}).on('tap', function(evt) {
-		console.log(evt);
 		var touch_x = evt.center.x;
 		var touch_y = evt.center.y;
 		canvasClicked(touch_x, touch_y);
