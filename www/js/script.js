@@ -16,6 +16,8 @@ var grid_id = 0;
 var ping_period = 10;
 var opacity_rate = 0.04;
 
+var cPosX = 0, cPosY = 0;
+
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
 
@@ -804,9 +806,23 @@ function interfaceInitialization() {
 	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
-	var hammer = new Hammer(overlay_canvas, null);
+	cPosX = Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+	cPosY = Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+
+	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+
+	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
 	hammer.on('pan', function(evt) {
-		alert(evt);
+		console.log(evt);
+		cPosX += Math.ceil(evt.deltaX * 0.05);
+		cPosY += Math.ceil(evt.deltaY * 0.05);
+		grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	});
 
 	drawTopRuler();
