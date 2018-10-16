@@ -131,6 +131,8 @@ function bindSocketListeners() {
 			$("#options_copy_button").hide();
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
+
+			$("#loading_div").hide();
 		});
 
 	});
@@ -806,8 +808,11 @@ function interfaceInitialization() {
 	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
-	cPosX = Math.ceil((window.innerWidth - grid_canvas.width) / 3);
-	cPosY = Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+	cPosY = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+
+	console.log(grid_canvas.width);
+	console.log(window.innerWidth);
 
 	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
