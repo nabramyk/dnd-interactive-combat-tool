@@ -72,6 +72,8 @@ function canvasSupport(e) {
 
 function canvasApp() {
 
+	$("loading_div").show();
+	
 	interfaceInitialization();
 
 	if (!canvasSupport(grid_canvas)) {
@@ -821,7 +823,6 @@ function interfaceInitialization() {
 	overlay_canvas_hammer.get('pinch').set({ enable: true });
 
 	hammer.on('pan', function(evt) {
-		//console.log(evt);
 		cPosX += Math.ceil(evt.deltaX * 0.05);
 		cPosY += Math.ceil(evt.deltaY * 0.05);
 		grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
