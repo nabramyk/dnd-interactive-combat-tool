@@ -73,7 +73,7 @@ function canvasSupport(e) {
 function canvasApp() {
 
 	$("loading_div").show();
-	
+
 	interfaceInitialization();
 
 	if (!canvasSupport(grid_canvas)) {
@@ -271,11 +271,6 @@ function bindSocketListeners() {
  * @returns
  */
 function bindEventHandlers() {
-	$("#grid_canvas_scrolling_container").scroll(function() {
-		$("#ruler_top_scrolling_container").scrollLeft($("#grid_canvas_scrolling_container").scrollLeft());
-		$("#ruler_left_scrolling_container").scrollTop($("#grid_canvas_scrolling_container").scrollTop());
-	});
-
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
@@ -823,12 +818,15 @@ function interfaceInitialization() {
 	overlay_canvas_hammer.get('pinch').set({ enable: true });
 
 	hammer.on('pan', function(evt) {
-		cPosX += Math.ceil(evt.deltaX * 0.05);
-		cPosY += Math.ceil(evt.deltaY * 0.05);
+		cPosX += Math.ceil(evt.deltaX * 0.03);
+		cPosY += Math.ceil(evt.deltaY * 0.03);
 		grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+
+		document.getElementById("ruler_left_scrolling_container").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
+		document.getElementById("ruler_top_scrolling_container").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
 	});
 
 	hammer.on('swipe', function(evt) {

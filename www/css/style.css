@@ -147,21 +147,11 @@ i {
 }
 
 #ruler_left_scrolling_container {
-  margin-top: 40px;
-  overflow-y: scroll;
-  overflow: hidden;
   height: 100%;
-  display: none;
   position: fixed;
 }
 
 #ruler_top_scrolling_container {
-  margin-top: 40px;
-  margin-left: auto;
-  margin-right: auto;
-  overflow-x: scroll;
-  overflow: hidden;
-  display: none;
   position: fixed;
 }
 
