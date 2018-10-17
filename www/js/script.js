@@ -857,7 +857,7 @@ function interfaceInitialization() {
 	});
 
 	tab_row.on('pan', function(evt) {
-		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 0.1 * evt.deltaX);
+		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
 	});
 
 	drawTopRuler();
