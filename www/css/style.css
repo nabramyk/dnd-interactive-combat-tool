@@ -129,39 +129,20 @@ i {
   height: 40px;
   max-height: 40px;
   background: #b7b7b7;
-  overflow-x: scroll;
-  overflow-y: hidden;
   white-space: nowrap;
+  overflow: hidden;
   z-index: 2;
   margin-bottom: 50px;
 }
 
-#center_column {
-  width: 100%;
+#ruler_left, #ruler_top {
   position: fixed;
-  top: 0;
-  left: 0;
-  text-align: center;
-  overflow-y: scroll;
-  display: none;
-}
-
-#ruler_left_scrolling_container {
-  height: 100%;
-  position: fixed;
-}
-
-#ruler_top_scrolling_container {
-  position: fixed;
+  background: blue;
 }
 
 #grid_size_vertical,
 #grid_size_horizontal {
   width: 100%;
-}
-
-#ruler_top {
-  display: block;
 }
 
 .right {

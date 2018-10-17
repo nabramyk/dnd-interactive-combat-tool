@@ -134,6 +134,8 @@ function bindSocketListeners() {
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
 
+			//interfaceInitialization();
+
 			$("#loading_div").hide();
 		});
 
@@ -805,16 +807,20 @@ function interfaceInitialization() {
 	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
-	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 3);
-	cPosY = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 3);
+	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
+	cPosY = (window.innerWidth - grid_canvas.width) < 60 ? 60 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
 
 	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
+	document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
 
 	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
 	var overlay_canvas_hammer = new Hammer(document.getElementById('overlay_canvas'), null);
+	var tab_row = new Hammer(document.getElementById('tab_row'), null);
+
 	overlay_canvas_hammer.get('pinch').set({ enable: true });
 
 	hammer.on('pan', function(evt) {
@@ -825,11 +831,15 @@ function interfaceInitialization() {
 		overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 
-		document.getElementById("ruler_left_scrolling_container").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
-		document.getElementById("ruler_top_scrolling_container").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
+		document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
+		document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
 	});
 
 	hammer.on('swipe', function(evt) {
+		console.log(evt);
+	});
+
+	hammer.on('tap', function(evt) {
 		console.log(evt);
 	});
 
@@ -844,6 +854,10 @@ function interfaceInitialization() {
 		underlay_canvas.style.transform = "scale(0.5,0.5)";
 		//overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		//temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	});
+
+	tab_row.on('pan', function(evt) {
+		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 0.1 * evt.deltaX);
 	});
 
 	drawTopRuler();
