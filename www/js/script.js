@@ -16,6 +16,8 @@ var grid_id = 0;
 var ping_period = 10;
 var opacity_rate = 0.04;
 
+var cPosX = 0, cPosY = 0;
+
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
 
@@ -69,6 +71,8 @@ function canvasSupport(e) {
 }
 
 function canvasApp() {
+
+	$("loading_div").show();
 
 	interfaceInitialization();
 
@@ -129,6 +133,10 @@ function bindSocketListeners() {
 			$("#options_copy_button").hide();
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
+
+			//interfaceInitialization();
+
+			$("#loading_div").hide();
 		});
 
 	});
@@ -265,18 +273,8 @@ function bindSocketListeners() {
  * @returns
  */
 function bindEventHandlers() {
-	$( window ).resize(function() {
-		grid_canvas.width = window.innerWidth;
-		grid_canvas.height = window.innerHeight;
-		underlay_canvas.width = window.innerWidth;
-		underlay_canvas.height = window.innerHeight;
-		overlay_canvas.width = window.innerWidth;
-		overlay_canvas.height = window.innerHeight;
-		temporary_drawing_canvas.width = window.innerWidth;
-		temporary_drawing_canvas.height = window.innerHeight;
-
-		drawScreen();
-	});
+	$("#grid_size_vertical").val(grid_count_height);
+	$("#grid_size_horizontal").val(grid_count_width);
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
@@ -301,34 +299,59 @@ function bindEventHandlers() {
 		});
 	});
 
-	$("#overlay_canvas")
-	.mousemove(function(evt) {
-		clearPlayerName();
-		clearTimeout(hoverTimer);
-		local_stored_grid_space.forEach(function(el) {
-			if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
-					gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
-				if (prehandledByTouchEvent) {
-					prehandledByTouchEvent = false;
-					return;
-				}
-				showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
-			}
-		});
-	})
-	.mouseleave(function(evt) {
-		clearPlayerName();
-		clearTimeout(hoverTimer);
-	})
-	.contextmenu(function(evt) {
-		if (selected_grid_x == -1 && selected_grid_y == -1) return;
-		clearPlayerName();
-		evt.preventDefault();
-		var temp = local_stored_grid_space.find(function(el) {
-			return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
-		});
-		showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size) + grid_size, (isUndefined(temp) ? -1 : temp.id));
-	});
+	//$("#overlay_canvas")
+	// .mousedown(function(evt) {
+	// 	canvasClicked(evt.offsetX, evt.offsetY);
+	// })
+	// .mousemove(function(evt) {
+	// 	clearPlayerName();
+	// 	clearTimeout(hoverTimer);
+	// 	local_stored_grid_space.forEach(function(el) {
+	// 		if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
+	// 				gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
+	// 			if (prehandledByTouchEvent) {
+	// 				prehandledByTouchEvent = false;
+	// 				return;
+	// 			}
+	// 			showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
+	// 		}
+	// 	});
+	// })
+	// .mouseleave(function(evt) {
+	// 	clearPlayerName();
+	// 	clearTimeout(hoverTimer);
+	// })
+	// .contextmenu(function(evt) {
+	// 	if (selected_grid_x == -1 && selected_grid_y == -1) return;
+	// 	clearPlayerName();
+	// 	evt.preventDefault();
+	// 	var temp = local_stored_grid_space.find(function(el) {
+	// 		return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
+	// 	});
+	// 	showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size) + grid_size, (isUndefined(temp) ? -1 : temp.id));
+	// })
+	// .on('touchstart', function(evt) {
+	// 	prehandledByTouchEvent = true;
+	// 	var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
+	// 	var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
+	// 	canvasClicked(touch_x, touch_y);
+	// 	var temp = local_stored_grid_space.find(function(el) {
+	// 		return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
+	// 	});
+	// 	holdTimer = window.setTimeout(function() {
+	// 		showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
+	// 	}, 1000);
+	// 	return true;
+	// })
+	// .on('touchend', function(evt) {
+	// 	clearTimeout(holdTimer);
+	// 	return false;
+	// })
+	// .on('touchmove', function(evt) {
+	// 	clearPlayerName();
+	// 	clearTimeout(holdTimer);
+	// 	return true;
+	// })
 
 	$('#place_element_button').click(function() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
@@ -747,6 +770,7 @@ function bindEventHandlers() {
 		$("#options_container").show();
 		$("#overlapping_side_container").show();
 		$("#overlapping_back_button").hide();
+		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 	});
 
@@ -774,40 +798,70 @@ function interfaceInitialization() {
 	overlay_ctx = overlay_canvas.getContext('2d');
 	temporary_drawing_ctx = temporary_drawing_canvas.getContext('2d');
 
-	grid_canvas.width = window.innerWidth;
-	grid_canvas.height = window.innerHeight;
-	underlay_canvas.width = window.innerWidth;
-	underlay_canvas.height = window.innerHeight;
-	overlay_canvas.width = window.innerWidth;
-	overlay_canvas.height = window.innerHeight;
-	temporary_drawing_canvas.width = window.innerWidth;
-	temporary_drawing_canvas.height = window.innerHeight;
+	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
-	var hammer = new Hammer(overlay_canvas, null);
-	
+	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
+	cPosY = (window.innerWidth - grid_canvas.width) < 60 ? 60 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
+
+	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
+	document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
+
+	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
+	var overlay_canvas_hammer = new Hammer(document.getElementById('overlay_canvas'), null);
+	var tab_row = new Hammer(document.getElementById('tab_row'), null);
+
+	overlay_canvas_hammer.get('pinch').set({ enable: true });
+
 	hammer.on('pan', function(evt) {
-		window.requestAnimationFrame(function() {
-			console.log(evt);
-			ctx2.clearRect(0, 0, underlay_canvas.width, underlay_canvas.height);
-			ctx2.translate(Math.ceil(evt.deltaX / evt.deltaTime), Math.ceil(evt.deltaY / evt.deltaTime));
-			ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-			ctx.translate(Math.ceil(evt.velocityX), Math.ceil(evt.velocityY));
-			overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
-			overlay_ctx.translate(Math.ceil(evt.velocityX), Math.ceil(evt.velocityY));
-			draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
-			drawScreen();
-		});
-	}).on('tap', function(evt) {
-		var touch_x = evt.center.x;
-		var touch_y = evt.center.y;
-		canvasClicked(touch_x, touch_y);
-		var temp = local_stored_grid_space.find(function(el) {
-			return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
-		});
-		//holdTimer = window.setTimeout(function() {
-		//	showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
-		//}, 1000);
+		cPosX += Math.ceil(evt.deltaX * 0.03);
+		cPosY += Math.ceil(evt.deltaY * 0.03);
+		grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+
+		document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
+		document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
 	});
+
+	hammer.on('swipe', function(evt) {
+		console.log(evt);
+	});
+
+	hammer.on('tap', function(evt) {
+		console.log(evt);
+	});
+
+	overlay_canvas_hammer.on('tap', function(evt) {
+		console.log(evt);
+		canvasClicked(evt.center.x - $("#overlay_canvas").offset().left, evt.center.y - $("#overlay_canvas").offset().top);
+	});
+
+	overlay_canvas_hammer.on('pinch', function(evt) {
+		console.log(evt);
+		//grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		underlay_canvas.style.transform = "scale(0.5,0.5)";
+		//overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		//temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+	});
+
+	tab_row.on('pan', function(evt) {
+		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
+	});
+
+	drawTopRuler();
+	drawLeftRuler();
 
 	drawScreen();
 }
@@ -873,7 +927,6 @@ function canvasClicked(x, y) {
  * Function for drawing the grid board
  */
 function drawScreen() {
-	ctx2.save();
 	ctx2.lineWidth = grid_line_width;
 	ctx2.strokeStyle = grid_color;
 	for (var i = 0; i < grid_count_height; i++) {
@@ -881,7 +934,6 @@ function drawScreen() {
 			ctx2.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		}
 	}
-	ctx2.restore();
 }
 
 function drawPing(ping, _grid_id) {
@@ -1146,23 +1198,23 @@ function draw_temporary_cursor_at_position(x, y, size) {
 function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
-	//grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
 	drawScreen();
-	//drawTopRuler();
+	drawTopRuler();
 }
 
 function resizeGridHeight(height) {
 	grid_count_height = height;
 	$("#grid_size_vertical").val(grid_count_height);
-	//grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	//underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	//overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	//temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 	drawScreen();
-	//drawLeftRuler();
+	drawLeftRuler();
 }
 
 function add_element_to_server(color, x, y, shape, name, size, category) {
@@ -1251,6 +1303,7 @@ function getContextMenu() {
 	$("#side_container_swap > *").hide();
 	$("#options_container").show();
 	$("#overlapping_side_container").show();
+	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
 
@@ -1445,6 +1498,7 @@ function selectedMenuOption(option) {
 		break;
 	case "close":
 		$("#overlapping_side_container").hide();
+		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 		break;
 	case "delete":

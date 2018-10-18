@@ -4,7 +4,7 @@
 <head>
   <title>Clutter</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/script.js" type="text/javascript"></script>
   <script src="/js/jscolor.min.js" type="text/javascript"></script>
@@ -24,13 +24,8 @@
     </button>
   </div>
 
-  <div id="ruler_left_scrolling_container">
-    <canvas id="ruler_left"></canvas>
-  </div>
-
-  <div id="ruler_top_scrolling_container">
-    <canvas id="ruler_top"></canvas>
-  </div>
+  <canvas id="ruler_left"></canvas>
+  <canvas id="ruler_top"></canvas>
 
   <div id="grid_canvas_scrolling_container">
     <canvas id="underlay_canvas" class="drawing_canvas"></canvas>
@@ -229,6 +224,10 @@
 
   <div id="lost_connection_div">
     <h2 id="lost_connection_text"></h2>
+  </div>
+
+  <div id="loading_div">
+  <div class="loader"></div>
   </div>
 </body>
 
