@@ -944,6 +944,7 @@ function drawPing(ping, _grid_id) {
 	ping.frame_counter = 0;
 	ping.opacity = 0;
 	local_stored_pings.push(ping);
+	console.log(ping);
 	window.setTimeout(function() {
 		pingAnimation(ping, _grid_id)
 	}, ping_period);
@@ -952,51 +953,44 @@ function drawPing(ping, _grid_id) {
 function pingAnimation(ping, _grid_id) {
 	if (_grid_id != grid_id) return;
 
+	temporary_drawing_ctx.save();
 	switch (true) {
 	case ping.frame_counter >= 0 && ping.frame_counter < 250:
-		ctx.save();
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	drawElements();
-	ctx.fillStyle = "#" + ping.color;
-	x = gridPoint2Pixel(ping.x) + grid_line_width;
-	y = gridPoint2Pixel(ping.y) + grid_line_width;
-	ctx.beginPath();
-	ping.opacity += opacity_rate;
-	ping.opacity = ping.opacity >= 1 ? 1 : ping.opacity;
-	ctx.globalAlpha = ping.opacity;
-	ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-	ctx.fill();
-	ctx.restore();
+		temporary_drawing_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+		x = gridPoint2Pixel(ping.x) + grid_line_width;
+		y = gridPoint2Pixel(ping.y) + grid_line_width;
+		ping.opacity += opacity_rate;
+		ping.opacity = ping.opacity >= 1 ? 1 : ping.opacity;
+		temporary_drawing_ctx.beginPath();
+		temporary_drawing_ctx.fillStyle = "#" + ping.color;
+		temporary_drawing_ctx.globalAlpha = ping.opacity;
+		temporary_drawing_ctx.arc(x + (grid_size / 2) * ping.size.width, y + (grid_size / 2) * ping.size.height, ping.size.width * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+		temporary_drawing_ctx.fill();
 	break;
 	case ping.frame_counter >= 250 && ping.frame_counter < 750:
-		ctx.save();
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	drawElements();
-	ctx.fillStyle = "#" + ping.color;
-	x = gridPoint2Pixel(ping.x) + grid_line_width;
-	y = gridPoint2Pixel(ping.y) + grid_line_width;
-	ctx.beginPath();
-	ctx.globalAlpha = Math.abs(ping.opacity);
-	ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-	ctx.fill();
-	ctx.restore();
+		temporary_drawing_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+		x = gridPoint2Pixel(ping.x) + grid_line_width;
+		y = gridPoint2Pixel(ping.y) + grid_line_width;
+		temporary_drawing_ctx.beginPath();
+		temporary_drawing_ctx.fillStyle = "#" + ping.color;
+		temporary_drawing_ctx.globalAlpha = Math.abs(ping.opacity);
+		temporary_drawing_ctx.arc(x + (grid_size / 2) * ping.size.width, y + (grid_size / 2) * ping.size.height, ping.size.width * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+		temporary_drawing_ctx.fill();
 	break;
 	case ping.frame_counter >= 750 && ping.frame_counter < 1000:
-		ctx.save();
-	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	drawElements();
-	ctx.fillStyle = "#" + ping.color;
-	x = gridPoint2Pixel(ping.x) + grid_line_width;
-	y = gridPoint2Pixel(ping.y) + grid_line_width;
-	ctx.beginPath();
-	ping.opacity -= opacity_rate;
-	ping.opacity = ping.opacity <= 0 ? 0 : ping.opacity;
-	ctx.globalAlpha = ping.opacity;
-	ctx.arc(x + (grid_size / 2) * ping.size, y + (grid_size / 2) * ping.size, ping.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-	ctx.fill();
-	ctx.restore();
+		temporary_drawing_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+		x = gridPoint2Pixel(ping.x) + grid_line_width;
+		y = gridPoint2Pixel(ping.y) + grid_line_width;
+		ping.opacity -= opacity_rate;
+		ping.opacity = ping.opacity <= 0 ? 0 : ping.opacity;
+		temporary_drawing_ctx.beginPath();
+		temporary_drawing_ctx.fillStyle = "#" + ping.color;
+		temporary_drawing_ctx.globalAlpha = ping.opacity;
+		temporary_drawing_ctx.arc(x + (grid_size / 2) * ping.size.width, y + (grid_size / 2) * ping.size.height, ping.size.width * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+		temporary_drawing_ctx.fill();
 	break;
 	}
+	temporary_drawing_ctx.restore();
 
 	ping.frame_counter += ping_period;
 	console.log(ping.opacity);
@@ -1012,10 +1006,7 @@ function pingAnimation(ping, _grid_id) {
 			return el.id == ping.id;
 		}), 1);
 		console.log("Stop!");
-		ctx.save();
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-		drawElements();
-		ctx.restore()
+		temporary_drawing_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		return;
 	}
 }
