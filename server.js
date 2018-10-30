@@ -43,9 +43,6 @@ app.use('/css', express.static(__dirname + '/www/css'))
 
 var grid_id_counter = 1;
 
-const shapes = ["square", "rectangle", "circle", "oval", "line"];
-const categories = ["npc", "environment", "enemy", "player"];
-
 var grid_space = [new GridSpace(1, 1, grid_id_counter++)];
 
 io.on('connection', (socket) => {
