@@ -117,7 +117,6 @@ module.exports = class Element {
 	 * @return {boolean} True if both elements collide, false otherwise
 	 */
 	collide(x, y, size, el_id) {
-        console.log(x, y, size, el_id);
 		return el_id != this.id &&
 			x < this.x + this.size.width &&
 			x + size.width > this.x &&
