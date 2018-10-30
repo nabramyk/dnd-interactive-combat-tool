@@ -32,4 +32,33 @@ describe('Element Test', function() {
         it("Element not colliding", function() { assert.equal(element.collide(1, 1, { "width" : 1, "height" : 1}, 1), false)});
         it("Element is colliding", function() { assert.equal(element.collide(0, 0, { "width" : 1, "height" : 1}, 1), false)});
     });
+
+    describe('Nudging', function() {
+        it("Element should be nudged to the right", function() { 
+            var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            element = element.nudge("right", []);
+            assert.equal(element.x, 1);
+        });
+        it("Element should be nudged to the left", function() { 
+            var element = new Element(0, 1, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            element = element.nudge("left", []);
+            assert.equal(element.x, 0);
+        });
+        it("Element should be nudged up", function() { 
+            var element = new Element(0, 0, 1, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            element = element.nudge("up", []);
+            assert.equal(element.y, 0);
+        });
+        it("Element should be nudged down", function() { 
+            var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            element = element.nudge("down", []);
+            assert.equal(element.y, 1);
+        });
+        it("Element should bump into an element to the right", function() { 
+            var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            var element2 = new Element(1, 1, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
+            element = element.nudge("right", [element2]);
+            assert.equal(element, undefined)
+        });
+    });
 });
