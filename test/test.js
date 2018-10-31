@@ -96,10 +96,30 @@ describe('Grid Space Test', function() {
         it("Grid space should have a width of 1", () => { assert(gridSpace.resizeHeight(1), 1)});
     });
 
-    context('Add 1 Element to Grid Space', function() {
-        var gridSpace = new GridSpace(0, 0, 1);
-        var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
-        it("Grid space elements array should be incremented", () => { assert.equal(gridSpace.elements.length, 1)});
-        it("New element should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)});        
+    context('Add Element to Grid Space', function() {
+        context('1 Element', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            it("Grid space elements array should be incremented", () => { assert.equal(gridSpace.elements.length, 1)});
+            it("New element should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)});   
+        });
+
+        context('2 Elements, different position', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            var element2 = gridSpace.addElementToGridSpace(new Element(1, 1, 1, "circle", "FFFFFF", { "width" : 1, "height" : 1}, "player", "mutated element", 0));
+            it("Grid space elements array should be 2", () => { assert.equal(2, gridSpace.elements.length)});
+            it("New element 1 should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)}); 
+            it("New element 2 should be added to the grid space", () => { assert.equal(element2.id, gridSpace.elements[1].id)}); 
+        });
+
+        context('2 Elements, same position', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            var element2 = gridSpace.addElementToGridSpace(new Element(1, 0, 0, "circle", "FFFFFF", { "width" : 1, "height" : 1}, "player", "mutated element", 0));
+            it("Grid space elements array should be 1", () => { assert.equal(1, gridSpace.elements.length)});
+            it("New element 1 should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)}); 
+            it("New element 2 should not be added to the grid space", () => { assert.equal(element2, undefined)}); 
+        });
     });
 });
