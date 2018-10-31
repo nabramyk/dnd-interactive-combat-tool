@@ -85,4 +85,21 @@ describe('Grid Space Test', function() {
         it("New grid space has an empty annotations array", () => { assert.equal(gridSpace.annotations.length, 0)});
         it("New grid space has a randomly generated name", () => { assert.notEqual(gridSpace.name, "")});
     });
+
+    context('Resize Width', function() {
+        var gridSpace = new GridSpace(0, 0, 1);
+        it("Grid space should have a width of 1", () => { assert(gridSpace.resizeWidth(1), 1)});
+    });
+
+    context('Resize Height', function() {
+        var gridSpace = new GridSpace(0, 0, 1);
+        it("Grid space should have a width of 1", () => { assert(gridSpace.resizeHeight(1), 1)});
+    });
+
+    context('Add 1 Element to Grid Space', function() {
+        var gridSpace = new GridSpace(0, 0, 1);
+        var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+        it("Grid space elements array should be incremented", () => { assert.equal(gridSpace.elements.length, 1)});
+        it("New element should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)});        
+    });
 });
