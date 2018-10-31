@@ -2,60 +2,60 @@ var assert = require('assert');
 var Element = require('../models/Element.js');
 var GridSpace = require('../models/GridSpace.js');
 
-describe('Element Test', function() {
+describe('Element Test', () => {
     
-    context('Initialization', function() {
+    context('Initialization', () => {
         var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
-        it("New element has id of 0", function() { assert.equal(element.id, 0)});
-        it("New element has x of 0", function() { assert.equal(element.x, 0)});
-        it("New element has y of 0", function() { assert.equal(element.y, 0)});
-        it("New element is a square", function() { assert.equal(element.shape, "square")});
-        it("New element has a color of 000000", function() { assert.equal(element.color, "000000")});
-        it("New element has a width of 1", function() { assert.equal(element.size.width, 1)});
-        it("New element has a height of 1", function() { assert.equal(element.size.height, 1)});
-        it("New element is in category npc", function() { assert.equal(element.category, "npc")});
-        it("New element has name 'test element'", function() { assert.equal(element.name, "test element")});
-        it("New element has a rotation of 0", function() { assert.equal(element.rotation, 0)});
+        it("New element has id of 0", () => { assert.equal(element.id, 0)});
+        it("New element has x of 0", () => { assert.equal(element.x, 0)});
+        it("New element has y of 0", () => { assert.equal(element.y, 0)});
+        it("New element is a square", () => { assert.equal(element.shape, "square")});
+        it("New element has a color of 000000", () => { assert.equal(element.color, "000000")});
+        it("New element has a width of 1", () => { assert.equal(element.size.width, 1)});
+        it("New element has a height of 1", () => { assert.equal(element.size.height, 1)});
+        it("New element is in category npc", () => { assert.equal(element.category, "npc")});
+        it("New element has name 'test element'", () => { assert.equal(element.name, "test element")});
+        it("New element has a rotation of 0", () => { assert.equal(element.rotation, 0)});
     });
 
-    context('Mutation', function() {
+    context('Mutation', () => {
         var element = new Element(0, 0, 0, "square", "000000", 0, "npc", "test element", 0);
         element = element.mutate(new Element(0, 0, 0, "circle", "FFFFFF", 1, "player", "mutated element", 0));
-        it("Element should now have shape set to 'circle'", function() { assert.equal(element.shape, "circle")});
-        it("Element should now have name set to 'mutated element'", function() { assert.equal(element.name, "mutated element")});
-        it("Element should now have category set to player", function() { assert.equal(element.category, "player")});
-        it("Element should now have color set to 'FFFFFF", function() { assert.equal(element.color, "FFFFFF")});
-        it("Element should now have size set to 1", function() { assert.equal(element.size, 1)});
+        it("Element should now have shape set to 'circle'", () => { assert.equal(element.shape, "circle")});
+        it("Element should now have name set to 'mutated element'", () => { assert.equal(element.name, "mutated element")});
+        it("Element should now have category set to player", () => { assert.equal(element.category, "player")});
+        it("Element should now have color set to 'FFFFFF", () => { assert.equal(element.color, "FFFFFF")});
+        it("Element should now have size set to 1", () => { assert.equal(element.size, 1)});
     });
 
-    context('Collision', function() {
+    context('Collision', () => {
         var element = new Element(0, 0, { "width" : 1, "height" : 1}, "square", "000000", 1, "npc", "test element", 0);
-        it("Element not colliding", function() { assert.equal(element.collide(1, 1, { "width" : 1, "height" : 1}, 1), false)});
-        it("Element is colliding", function() { assert.equal(element.collide(0, 0, { "width" : 1, "height" : 1}, 1), false)});
+        it("Element not colliding", () => { assert.equal(element.collide(1, 1, { "width" : 1, "height" : 1}, 1), false)});
+        it("Element is colliding", () => { assert.equal(element.collide(0, 0, { "width" : 1, "height" : 1}, 1), false)});
     });
 
-    context('Nudging', function() {
-        it("Element should be nudged to the right", function() { 
+    context('Nudging', () => {
+        it("Element should be nudged to the right", () => { 
             var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             element = element.nudge("right", []);
             assert.equal(element.x, 1);
         });
-        it("Element should be nudged to the left", function() { 
+        it("Element should be nudged to the left", () => { 
             var element = new Element(0, 1, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             element = element.nudge("left", []);
             assert.equal(element.x, 0);
         });
-        it("Element should be nudged up", function() { 
+        it("Element should be nudged up", () => { 
             var element = new Element(0, 0, 1, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             element = element.nudge("up", []);
             assert.equal(element.y, 0);
         });
-        it("Element should be nudged down", function() { 
+        it("Element should be nudged down", () => { 
             var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             element = element.nudge("down", []);
             assert.equal(element.y, 1);
         });
-        it("Element should bump into an element to the right", function() { 
+        it("Element should bump into an element to the right", () => { 
             var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             var element2 = new Element(1, 1, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
             element = element.nudge("right", [element2]);
@@ -63,7 +63,7 @@ describe('Element Test', function() {
         });
     });
 
-    context('Within', function() {
+    context('Within', () => {
         var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
         it("Point is within the element space", function() { assert.equal(element.within(0, 0), true)});
         it("Point to the right is not within the element space", function() { assert.equal(element.within(1, 0), false)});
@@ -71,8 +71,8 @@ describe('Element Test', function() {
     });
 });
 
-describe('Grid Space Test', function() {
-    context('Initialization', function() {
+describe('Grid Space Test', () => {
+    context('Initialization', () => {
         var gridSpace = new GridSpace(0, 0, 1);
         it("New grid space has a width of 0", () => { assert.equal(gridSpace.width, 0)});
         it("New grid space has a height of 0", () => { assert.equal(gridSpace.height, 0)});
@@ -96,7 +96,7 @@ describe('Grid Space Test', function() {
         it("Grid space should have a width of 1", () => { assert(gridSpace.resizeHeight(1), 1)});
     });
 
-    context('Add Element to Grid Space', function() {
+    context('Add Element to Grid Space', () => {
         context('1 Element', () => {
             var gridSpace = new GridSpace(0, 0, 1);
             var element = gridSpace.addElementToGridSpace(new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
@@ -120,6 +120,27 @@ describe('Grid Space Test', function() {
             it("Grid space elements array should be 1", () => { assert.equal(1, gridSpace.elements.length)});
             it("New element 1 should be added to the grid space", () => { assert.equal(element.id, gridSpace.elements[0].id)}); 
             it("New element 2 should not be added to the grid space", () => { assert.equal(element2, undefined)}); 
+        });
+    });
+
+    context('Find Element by Id', () => {
+        context('No Elements', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            it("No elements to find", () => { assert.equal(undefined, gridSpace.findElementById(1))});
+        })
+
+        context('1 Element', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            it("Find element with id 1", () => { assert.equal(1, gridSpace.findElementById(1).id)});
+        });
+
+        context('2 Elements', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            gridSpace.addElementToGridSpace(new Element(2, 1, 1, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            it("Find element with id 1", () => { assert.equal(1, gridSpace.findElementById(1).id)});
+            it("Find element with id 2", () => { assert.equal(2, gridSpace.findElementById(2).id)});
         });
     });
 });
