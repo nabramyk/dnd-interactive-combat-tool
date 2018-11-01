@@ -173,9 +173,6 @@ module.exports = class GridSpace {
 	};
 
 	mutateElementInGridSpace(obj) {
-		this.elements.forEach(function(el) {
-			console.log(el.collide(obj.x, obj.y, obj.size, obj.id));
-		});
 		if (this.elements.find(function(el) { return el.collide(obj.x, obj.y, obj.size, obj.id); }) === undefined) {
 			return this.elements.find(function(el) { return el.id === obj.id }).mutate(obj);
 		} else {

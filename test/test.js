@@ -145,14 +145,27 @@ describe('Grid Space Test', () => {
     });
 
     context('Mutate Element in Grid Space', () => {
+        context('1 element, no rotation, no collision', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+            gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
+            var element = gridSpace.mutateElementInGridSpace(new Element(1, 0, 0, "circle", "FFFFFF", { "width" : 2, "height" : 2}, "player", "mutated element", 0));
+            it("Element in grid space has a shape circle", () => { assert.equal("circle", element.shape)});
+            it("Element in grid space has the color FFFFFF", () => { assert.equal("FFFFFF", element.color)});
+            it("Element in grid space is in category player", () => { assert.equal("player", element.category)});
+            it("Element in grid space has the name mutated element", () => { assert.equal("mutated element", element.name)});
+            it("Element in grid space has width 2", () => { assert.equal(2, element.size.width)});
+            it("Element in grid space has height 2", () => { assert.equal(2, element.size.height)});
+        });
+
+        context('2 elements, rotation, no collision', () => {
+            var gridSpace = new GridSpace(0, 0, 1);
+        });
+    });
+
+    context('Remove Element from Grid Space', () => {
         var gridSpace = new GridSpace(0, 0, 1);
         gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
-        var element = gridSpace.mutateElementInGridSpace(new Element(1, 0, 0, "circle", "FFFFFF", { "width" : 2, "height" : 2}, "player", "mutated element", 0));
-        it("Element in grid space has a shape circle", () => { assert.equal("circle", element.shape)});
-        it("Element in grid space has the color FFFFFF", () => { assert.equal("FFFFFF", element.color)});
-        it("Element in grid space is in category player", () => { assert.equal("player", element.category)});
-        it("Element in grid space has the name mutated element", () => { assert.equal("mutated element", element.name)});
-        it("Element in grid space has width 2", () => { assert.equal(2, element.size.width)});
-        it("Element in grid space has height 2", () => { assert.equal(2, element.size.height)});
+        it("Element in grid space should be removed", () => { assert.equal(1, gridSpace.removeElementFromGridSpace(1).id)});
+        it("Grid space should have a size of 0", () => { assert.equal(0, gridSpace.elements.length)});
     });
 });
