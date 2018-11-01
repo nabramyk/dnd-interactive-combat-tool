@@ -1,6 +1,7 @@
 var assert = require('assert');
 var Element = require('../models/Element.js');
 var GridSpace = require('../models/GridSpace.js');
+var Annotation = require('../models/Annotation.js');
 
 describe('Element Test', () => {
     
@@ -167,5 +168,10 @@ describe('Grid Space Test', () => {
         gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
         it("Element in grid space should be removed", () => { assert.equal(1, gridSpace.removeElementFromGridSpace(1).id)});
         it("Grid space should have a size of 0", () => { assert.equal(0, gridSpace.elements.length)});
+    });
+
+    context('Add Annotation to Grid Space', () => {
+        var gridSpace = new GridSpace(0, 0, 1);
+        //gridSpace.addAnnotationToGridSpace();
     });
 });
