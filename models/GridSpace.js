@@ -12,6 +12,7 @@
 "use strict";
 const Element = require("./Element.js")
 const HistoryFrame = require("./HistoryFrame.js")
+const Annotation = require("./Annotation.js")
 
 const shapes = ["square", "rectangle", "circle", "oval", "line"];
 const categories = ["npc", "environment", "enemy", "player"];

@@ -3,20 +3,23 @@ var Element = require('../models/Element.js');
 var GridSpace = require('../models/GridSpace.js');
 var Annotation = require('../models/Annotation.js');
 
+describe('Annotation Test', () => {
+
+    context('Initialization', () => {
+        var annotation = new Annotation(1, "title", "content", 0, 0, {"width" : 1, "height" : 1});
+        it("New annotation is created with id:1, title:title, content:content, x:0, y:0, region.width:1, region.height:1", () => { 
+            assert.deepStrictEqual(annotation, new Annotation(1, "title", "content", 0, 0, {"width" : 1, "height" : 1}))
+        });
+    });
+});
+
 describe('Element Test', () => {
     
     context('Initialization', () => {
         var element = new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0);
-        it("New element has id of 0", () => { assert.equal(element.id, 0)});
-        it("New element has x of 0", () => { assert.equal(element.x, 0)});
-        it("New element has y of 0", () => { assert.equal(element.y, 0)});
-        it("New element is a square", () => { assert.equal(element.shape, "square")});
-        it("New element has a color of 000000", () => { assert.equal(element.color, "000000")});
-        it("New element has a width of 1", () => { assert.equal(element.size.width, 1)});
-        it("New element has a height of 1", () => { assert.equal(element.size.height, 1)});
-        it("New element is in category npc", () => { assert.equal(element.category, "npc")});
-        it("New element has name 'test element'", () => { assert.equal(element.name, "test element")});
-        it("New element has a rotation of 0", () => { assert.equal(element.rotation, 0)});
+        it("New element is created with id:0, x:0, y:0", () => { 
+            assert.deepStrictEqual(element, new Element(0, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0))
+        });
     });
 
     context('Mutation', () => {
@@ -140,7 +143,7 @@ describe('Grid Space Test', () => {
             var gridSpace = new GridSpace(0, 0, 1);
             gridSpace.addElementToGridSpace(new Element(1, 0, 0, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
             gridSpace.addElementToGridSpace(new Element(2, 1, 1, "square", "000000", { "width" : 1, "height" : 1}, "npc", "test element", 0));
-            it("Find element with id 1", () => { assert.equal(1, gridSpace.findElementById(1).id)});
+            it("Find element with id 1", () => { assert.deepStrictEqual(gridSpace.elements[0], gridSpace.findElementById(1))});
             it("Find element with id 2", () => { assert.equal(2, gridSpace.findElementById(2).id)});
         });
     });
@@ -172,6 +175,6 @@ describe('Grid Space Test', () => {
 
     context('Add Annotation to Grid Space', () => {
         var gridSpace = new GridSpace(0, 0, 1);
-        //gridSpace.addAnnotationToGridSpace();
+        var temp = gridSpace.addAnnotationToGridSpace(new Annotation(1, "title", "content", 0, 0, { "region" : 1 }));
     });
 });
