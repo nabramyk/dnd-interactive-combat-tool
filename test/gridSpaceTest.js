@@ -110,10 +110,20 @@ describe('Grid Space Test', () => {
     });
 
     context('Delete Annotation from Grid Space', () => {
-        var gridSpace = new GridSpace(0, 0, 1);
-        var temp = gridSpace.addAnnotationToGridSpace(new Annotation(1, "title", "content", 0, 0, { "region" : 1 }));
-        var removedElement = gridSpace.removeAnnotationFromGridSpace(temp.id);
-        it("Grid space should have an empty annotations array", () => { assert.deepStrictEqual([], gridSpace.annotations)});
-        it("Grid space should have removed the corresponding annotation", () => { assert.deepStrictEqual(temp.id, removedElement)});
+        context('0 annotations', function() {
+
+        });
+
+        context('1 annotation', function() {
+            var gridSpace = new GridSpace(0, 0, 1);
+            var temp = gridSpace.addAnnotationToGridSpace(new Annotation(1, "title", "content", 0, 0, { "region" : 1 }));
+            var removedElement = gridSpace.removeAnnotationFromGridSpace(temp.id);
+            it("Grid space should have an empty annotations array", () => { assert.deepStrictEqual([], gridSpace.annotations)});
+            it("Grid space should have removed the corresponding annotation", () => { assert.deepStrictEqual(temp.id, removedElement)});
+        });
+
+        context('2 annotations', function() {
+
+        });
     });
 });
