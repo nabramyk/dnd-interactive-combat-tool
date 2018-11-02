@@ -181,6 +181,13 @@ module.exports = class GridSpace {
 		}
 	}
 
+    /**
+     * Add a new annotation to the grid space
+     * 
+     * @param {Annotation} obj - the new annotation to be added
+     * 
+     * @returns {Annotation} The newly added annotation 
+     */
 	addAnnotationToGridSpace(obj) {
 		var newAnnotation = {
 			"id": this.annotationsIdCounter++,
@@ -195,6 +202,13 @@ module.exports = class GridSpace {
 		return newAnnotation;
 	}
 
+    /**
+     * Delete an annotation from the grid space
+     * 
+     * @param {int} id - the unique numerical if of an annotation
+     * 
+     * @returns {int} The id of the removed annotation
+     */
 	removeAnnotationFromGridSpace(id) {
 		var ind = this.annotations.findIndex(function (el) { return el.id === id });
 		var return_annotation = this.annotations[ind];
@@ -205,9 +219,9 @@ module.exports = class GridSpace {
 	/**
 	 * Delete an element from the grid space
 	 * 
-	 * @param {int}
-	 *            id - the unique numerical id of an element
-	 * @return {Element} The removed element
+	 * @param {int} id - the unique numerical id of an element
+	 *
+	 * @returns {Element} The removed element
 	 */
 	removeElementFromGridSpace(id) {
 		var ind = this.elements.findIndex(function (el) { return el.id === id; });
