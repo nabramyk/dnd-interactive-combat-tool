@@ -1,14 +1,3 @@
-/**
- * @class
- * 
- * @constructor
- * @property {int} elementIdCounter
- * @property {int} id - unique numerical identifier for this grid space
- * @property {int} history -
- * @property [Element] - collection of displayable elements in this grid space
- * @property {int} width - amount of horizontal grid points in this space
- * @property {int} height - amount of vertical grid points in this space
- */
 "use strict";
 const Element = require("./Element.js")
 const HistoryFrame = require("./HistoryFrame.js")
@@ -17,6 +6,17 @@ const Annotation = require("./Annotation.js")
 const shapes = ["square", "rectangle", "circle", "oval", "line"];
 const categories = ["npc", "environment", "enemy", "player"];
 
+/**
+ * @class
+ * 
+ * @constructor
+ * @property {int} elementIdCounter
+ * @property {int} id - unique numerical identifier for this grid space
+ * @property {int} history -
+ * @property {[Element]} - collection of displayable elements in this grid space
+ * @property {int} width - amount of horizontal grid points in this space
+ * @property {int} height - amount of vertical grid points in this space
+ */
 module.exports = class GridSpace {
 
     constructor(width, height, id) {

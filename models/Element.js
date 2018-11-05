@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * @class Objects which are representable in the grid space
  * 
@@ -12,9 +14,6 @@
  * @property {string} name - the unique name of this element
  * @property {int} rotation - the angle which this element is facing (values 1 - 4)
  */
-
-"use strict";
-
 module.exports = class Element {
 
     constructor(id, x, y, shape, color, size, category, name, rotation) {

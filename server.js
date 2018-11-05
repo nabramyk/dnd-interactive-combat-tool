@@ -14,8 +14,6 @@ var app = require('express')();
 var express = require('express');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var log4js = require('log4js');
-var log = log4js.getLogger();
 var bodyParser = require('body-parser')
 
 app.use(bodyParser.json());
@@ -48,7 +46,7 @@ var grid_space = [new GridSpace(1, 1, grid_id_counter++)];
 io.on('connection', (socket) => {
 	console.log("a user connected");
 
-	socket.on('init', (msg, fn) => {
+	socket.on('init', (_, fn) => {
 		fn({
 			"grid_width": grid_space[0].width,
 			"grid_height": grid_space[0].height,
