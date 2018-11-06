@@ -99,7 +99,7 @@ module.exports = class ClutterInstance {
     }
 
     createGridSpace() {
-        var newGridSpace = this.grid_space.push(new GridSpace(1, 1));
+        var newGridSpace = this.grid_space.push(new GridSpace(1, 1, this.grid_id_counter++));
         return { "id": this.grid_space[newGridSpace - 1].id, "name": this.grid_space[newGridSpace - 1].name };
     }
 
