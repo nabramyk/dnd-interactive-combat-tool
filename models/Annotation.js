@@ -9,4 +9,9 @@ module.exports = class Annotation {
         this.y = y;
         this.region = region;
     };
+
+    resize(size) {
+        this.region = size;
+        return this.region;
+    }
 }

@@ -7,8 +7,7 @@
 
 "use strict";
 
-const GridSpace = require("./models/GridSpace.js");
-const Element = require("./models/Element.js");
+const ClutterInstance = require("./models/ClutterInstance.js");
 
 var app = require('express')();
 var express = require('express');
@@ -39,54 +38,33 @@ app.use('/js', express.static(__dirname + '/www/js'))
 //webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
-var grid_id_counter = 1;
-
-var grid_space = [new GridSpace(1, 1, grid_id_counter++)];
+var clutter = new ClutterInstance();
 
 io.on('connection', (socket) => {
 	console.log("a user connected");
 
 	socket.on('init', (_, fn) => {
-		fn({
-			"grid_width": grid_space[0].width,
-			"grid_height": grid_space[0].height,
-			"elements": grid_space[0].elements,
-			"annotations": grid_space[0].annotations,
-			"spaces": grid_space.map((el) => { return { "id": el.id, "name": el.name } })
-		});
+		fn(clutter.init());
 	});
 
 	socket.on('resize_height', (msg) => {
-		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
-		temp.resizeHeight(msg.height);
-		io.emit('resize_height', {
-			"grid_id": msg.grid_id,
-			"height": msg.height,
-			"elements": temp.elements
-		});
+		io.emit('resize_height', clutter.resizeHeight(msg));
 	});
 
 	socket.on('resize_width', (msg) => {
-		var temp = grid_space.find((el) => { return msg.grid_id == el.id });
-		temp.resizeWidth(msg.width);
-		io.emit('resize_width', {
-			"grid_id": msg.grid_id,
-			"width": msg.width,
-			"elements": temp.elements
-		});
+		io.emit('resize_width', clutter.resizeWidth(msg));
 	});
 
 	socket.on('move_element', (msg, fn) => {
-		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
-		if (typeof movedElement === 'undefined') return;
-
+		var movedElement = clutter.moveElement(msg);
+		if(isUndefined(movedElement)) return;
 		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
 		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
 	socket.on('warp_element', (msg, fn) => {
-		var movedElement = grid_space.find((el) => { return msg.grid_id == el.id }).warpElement(msg.x, msg.y, msg.dest_x, msg.dest_y);
-		if (typeof movedElement === 'undefined') {
+		var movedElement = clutter.warpElement(msg);
+		if (isUndefined(movedElement)) {
 			socket.emit('error_channel', { "message": "Somethings already there! " });
 			return;
 		}
@@ -95,40 +73,25 @@ io.on('connection', (socket) => {
 		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
-	/* ADD ELEMENT TO SERVER */
 	socket.on('add_element_to_server', (msg) => {
+		var output = clutter.addElement(msg);
+
 		if(msg.category == "ping") {
-			io.emit('added_element', { "grid_id" : msg.grid_id, "element" : new Element(0, JSON.parse(msg.x), JSON.parse(msg.y), "", "", "", "ping", "") });
-			return;  
+			io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });  
+		} else if(isUndefined(output)) {
+			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
+		} else {
+			io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
 		}
-
-		var input = new Element(0,
-			JSON.parse(msg.x),
-			JSON.parse(msg.y),
-			msg.shape,
-			msg.color,
-			{ "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) },
-			msg.category,
-			isUndefined(msg.name) ? "object" : msg.name,
-			msg.rotation);
-
-		var output = grid_space
-			.find((el) => { return el.id == msg.grid_id })
-			.addElementToGridSpace(input);
-
-		isUndefined(output) ? socket.emit('error_channel', { "message": "Cannot place an element where one already exists." }) : io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
 	});
 
 	socket.on('delete_element_on_server', (msg) => {
-		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).removeElementFromGridSpace(msg.element_id);
+		clutter.deleteElement(msg);
 		io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": msg.element_id });
 	});
 
 	socket.on('edit_element_on_server', (msg) => {
-		msg.size = { "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) };
-		msg.x = JSON.parse(msg.x);
-		msg.y = JSON.parse(msg.y);
-		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg);
+		var temp = clutter.editElement(msg);
 		if(isUndefined(temp)) {
 			socket.emit('error_channel', {"message" : "Unable to modify element properties."});
 		} else {
@@ -137,67 +100,43 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('randomize', (msg) => {
-		var temp = grid_space.find((el) => { return el.id == msg.grid_id }).generateRandomBoardElements();
-		io.emit('added_elements', { "grid_id": msg.grid_id, "element": temp.elements });
+		io.emit('added_elements', { "grid_id": msg.grid_id, "element": clutter.randomize(msg).elements });
 	});
 
 	socket.on('reset_board', (msg) => {
-		grid_space.find((el) => { return el.id == msg.grid_id }).removeAllElementsFromGridSpace();
-		io.emit('reset_grid', { "grid_id": msg.grid_id });
+		io.emit('reset_grid', clutter.reset(msg));
 	});
 
-	socket.on('create_grid_space', (msg) => {
-		var newGridSpace = grid_space.push(new GridSpace(1, 1));
-		io.emit('new_grid_space', { "id": grid_space[newGridSpace - 1].id, "name": grid_space[newGridSpace - 1].name });
+	socket.on('create_grid_space', () => {
+		io.emit('new_grid_space', clutter.createGridSpace());
 	});
 
 	socket.on('request_grid_space', (msg, fn) => {
-		var grid = grid_space.find((el) => { return el.id == msg.id; });
-		fn({ "grid_space": grid });
+		fn({ "grid_space": clutter.findGridSpace(msg) });
 	});
 
 	socket.on('delete_grid_space_from_server', (msg) => {
-		if (grid_space.length <= 1) {
-			socket.emit('error_channel', { "message": "Cannot have 0 grid spaces, you ass hat." });
-			return;
-		}
-
-		grid_space.splice(grid_space.indexOf(grid_space.find((el) => { return msg.grid_id == el.id; })), 1);
-		io.emit('delete_grid_space', { "grid_id": msg.grid_id });
+		io.emit('delete_grid_space', clutter.deleteGridSpace(msg));
 	});
 
 	socket.on('rename_grid', (msg) => {
-		grid_space.find((el) => { return el.id == msg.grid_id }).name = msg.grid_name;
-		io.emit('renaming_grid', msg);
+		io.emit('renaming_grid', clutter.renameGrid(msg));
 	});
 
 	socket.on('add_annotation_to_server', (msg) => {
-		io.emit('added_annotation', { "grid_id": msg.grid_id, "annotation": grid_space.find((el) => { return el.id == msg.grid_id }).addAnnotationToGridSpace(msg) });
+		io.emit('added_annotation', clutter.addAnnotation(msg));
 	});
 
 	socket.on('delete_annotation_from_server', (msg) => {
-		io.emit('deleted_annotation', { "grid_id": msg.grid_id, "annotation_id": grid_space.find((el) => { return el.id == msg.grid_id }).removeAnnotationFromGridSpace(msg.annotation_id) });
+		io.emit('deleted_annotation', clutter.deleteAnnotation(msg));
 	});
 
 	socket.on('undo', (msg) => {
-		var space = grid_space.find((el) => { return el.id == msg.grid_id });
-		var frame = space.historyUndo();
-		switch (frame.action) {
-			case "create":
-				io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": space.removeElementFromGridSpace(frame.frame.id).id });
-				break;
-			case "edit": break;
-			case "delete": break;
-		}
+		clutter.undo(msg);
 	});
 
 	socket.on('redo', (msg) => {
-		var frame = grid_space.find((el) => { return el.id == msg.grid_id }).historyRedo();
-		switch (frame.action) {
-			case "create": break;
-			case "edit": break;
-			case "delete": break;
-		}
+		clutter.redo(msg);
 	});
 });
 
