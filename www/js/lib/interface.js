@@ -1,5 +1,5 @@
 /**
- * 
+ * @fileoverview Should handle all of the jquery interface stuff
  * @returns
  */
 function bindEventHandlers() {
@@ -499,4 +499,45 @@ function bindEventHandlers() {
 		$("#overlapping_back_button").hide();
 		getContextMenu();
 	});
+}
+
+/**
+ * Create an HTML DOM element
+ *
+ * @param {Element} el -
+ * @return {string} An html element to display 
+ */
+function composeElementListRowElement(el) {
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
+	"<div style=\"width: 25%; display: inline-block;\">" +
+	"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
+	"</div>" +
+	"<div style=\"width: 35%; display: inline-block;\">" +
+	"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
+	"</div>" +
+	"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.id + ")\">&#x270E;</button>" +
+	"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
+	"</div>";
+}
+
+function composeAnnotationListRowElement(el) {
+	return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" +
+	"<p>" + el.content + "<\p>" +
+	"<button id=\"element_row_edit\" onClick=\"editAnnotationRow(" + el.id + ")\">&#x270E;</button>" +
+	"<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
+	"</div>";
+}
+
+function showLongHoldMenu(x, y, id) {
+	if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
+	getContextMenu();
+}
+
+function getContextMenu() {
+	$("#overlapping_back_button").hide();
+	$("#side_container_swap > *").hide();
+	$("#options_container").show();
+	$("#overlapping_side_container").show();
+	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }

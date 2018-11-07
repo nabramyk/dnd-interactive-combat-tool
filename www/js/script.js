@@ -9,9 +9,6 @@ var grid_size = 20;
 /** @global {int} grid_count_width */
 var grid_count_width = 0;
 var grid_count_height = 0;
-var grid_color = 'rgba(200,200,200,1)';
-var grid_highlight = 'rgba(0,153,0,1)';
-var grid_line_width = 0.5;
 var grid_id = 0;
 var ping_period = 10;
 var opacity_rate = 0.04;
@@ -745,47 +742,6 @@ function refresh_annotations_list() {
 	$(".grid_canvas_annotation").toggle(false);
 }
 
-/**
- * Create an HTML DOM element
- *
- * @param {Element} el -
- * @return {string} An html element to display 
- */
-function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
-	"<div style=\"width: 25%; display: inline-block;\">" +
-	"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
-	"</div>" +
-	"<div style=\"width: 35%; display: inline-block;\">" +
-	"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
-	"</div>" +
-	"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.id + ")\">&#x270E;</button>" +
-	"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
-	"</div>";
-}
-
-function composeAnnotationListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" +
-	"<p>" + el.content + "<\p>" +
-	"<button id=\"element_row_edit\" onClick=\"editAnnotationRow(" + el.id + ")\">&#x270E;</button>" +
-	"<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
-	"</div>";
-}
-
-function showLongHoldMenu(x, y, id) {
-	if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
-	getContextMenu();
-}
-
-function getContextMenu() {
-	$("#overlapping_back_button").hide();
-	$("#side_container_swap > *").hide();
-	$("#options_container").show();
-	$("#overlapping_side_container").show();
-	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
-	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
-}
-
 function editElementRow(id) {
 	selected_element = local_stored_grid_space.find(function(el) {
 		return el.id == id;
@@ -857,48 +813,6 @@ function delete_annotation_from_server(id) {
 	socket.emit('delete_annotation_from_server', {
 		"grid_id": grid_id,
 		"annotation_id": id
-	});
-}
-
-function drawTopRuler() {
-	var ruler_top = document.getElementById("ruler_top");
-	ruler_top.width = grid_size * grid_count_width + 2 * grid_line_width;
-	ruler_top.height = grid_size;
-	var ctx2 = ruler_top.getContext("2d");
-	ctx2.font = "10px Arial";
-	for (var i = 0; i < grid_count_width; i++) {
-		var n = ctx2.measureText(i).width / 2;
-		ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size / 1.5);
-	}
-}
-
-function drawLeftRuler() {
-	var ruler_left = document.getElementById("ruler_left");
-	ruler_left.height = grid_size * grid_count_height + 2 * grid_line_width;
-	ruler_left.width = grid_size;
-	var ctx2 = ruler_left.getContext("2d");
-	ctx2.font = "10px Arial";
-	for (var i = 0; i < grid_count_height; i++) {
-		var n = ctx2.measureText(i).width;
-		ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
-	}
-}
-
-function drawElements() {
-	local_stored_grid_space.forEach(function(el) {
-		draw_item(el);
-	});
-
-	local_stored_pings.forEach(function(el) {
-		ctx.save();
-		ctx.fillStyle = "#" + el.color;
-		var x = gridPoint2Pixel(el.x) + grid_line_width;
-		var y = gridPoint2Pixel(el.y) + grid_line_width;
-		ctx.beginPath();
-		ctx.globalAlpha = el.opacity;
-		ctx.arc(x + (grid_size / 2) * el.size, y + (grid_size / 2) * el.size, el.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.restore();
 	});
 }
 
