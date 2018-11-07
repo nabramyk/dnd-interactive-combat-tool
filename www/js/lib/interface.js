@@ -2,6 +2,9 @@
  * @fileoverview Should handle all of the jquery interface stuff
  * @returns
  */
+
+var movementInterval = 100;
+
 function bindEventHandlers() {
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
@@ -689,4 +692,22 @@ function refresh_elements_list() {
 	} else {
 		$("#element_list").empty();
 	}
+}
+
+/**
+ * Move the cursor to the element that was selected from the list of elements
+ *
+ * @param {int} id - the unique ID of the selected element
+ */
+function clicked_element_list(id) {
+	//todo
+	console.log("TODO: Implement clicking element list items.");
+}
+
+function clicked_annotation_list(id) {
+	var temp = local_stored_annotations.find(function(el) {
+		return el.id == id;
+	});
+	clear_prev_cursor_position();
+	draw_cursor_at_position(temp.x, temp.y, 1);
 }

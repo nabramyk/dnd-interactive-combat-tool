@@ -27,3 +27,12 @@ function gridPoint2Pixel(grid_point) {
 function isUndefined(value) {
 	return value === undefined;
 }
+
+/**
+ * 
+ * @param {*} status 
+ * @param {*} error 
+ */
+function error_report(status, error) {
+	console.log("Error: " + status.status + ", " + error);
+}

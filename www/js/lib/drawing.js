@@ -5,6 +5,9 @@
 var ping_period = 10;
 var opacity_rate = 0.04;
 var cursor_line_width = 1;
+var ping_counter = 0;
+
+var local_stored_pings = [];
 
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
