@@ -24,8 +24,6 @@ var selected_element;
 /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
 var cursor_size = 1;
 
-var holdTimer, hoverTimer, movementTimer;
-
 var local_stored_grid_space = [];
 var local_stored_annotations = [];
 

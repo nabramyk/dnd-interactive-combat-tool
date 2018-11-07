@@ -13,6 +13,8 @@ var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 
+var hoverTimer, movementTimer;
+
 function drawTopRuler() {
 	var ruler_top = document.getElementById("ruler_top");
 	ruler_top.width = grid_size * grid_count_width + 2 * grid_line_width;
