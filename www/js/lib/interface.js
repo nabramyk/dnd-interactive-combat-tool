@@ -541,3 +541,152 @@ function getContextMenu() {
 	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
+
+function updateSideMenuContent() {
+	$("#options_add_or_edit_button").show();
+	if (selected_element === null) {
+		$("#options_add_or_edit_button").text("Add");
+		$("#options_copy_button").hide();
+		$("#options_paste_button").hide();
+		$("#options_delete_button").hide();
+		$("#options_movement_button").hide();
+	} else {
+		$("#options_add_or_edit_button").text("Edit");
+		$("#options_copy_button").show();
+		$("#options_paste_button").show();
+		$("#options_delete_button").show();
+		$("#options_movement_button").show();
+	}
+
+	if (copied_element === null) {
+		$("#options_paste_button").hide();
+	} else {
+		$("#options_paste_button").show();
+	}
+
+	$("#options_annotate_button").show();
+}
+
+function selectedMenuOption(option) {
+	switch (option) {
+	case "lists":
+		$("#overlapping_back_button").show();
+		$("#options_container").hide();
+		$("#overlapping_container").show();
+		break;
+	case "grid_space":
+		$("#overlapping_back_button").show();
+		$("#options_container").hide();
+		$("#grid_space_container").show();
+		break;
+	case "add_or_edit":
+		$("#overlapping_back_button").show();
+		$("#options_container").hide();
+		$("#add_container").show();
+		var isAdd = $("#options_add_or_edit_button").text() === "Add";
+		$("#selected_shape").val(isAdd ? "square" : selected_element.shape);
+		$("#element_color").val(isAdd ? "000000" : selected_element.color);
+		$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
+		$("#element_size").val(isAdd ? 1 : selected_element.size);
+		$("#element_category").val(isAdd ? "environment" : selected_element.category);
+		$("#element_name").val(isAdd ? "object" : selected_element.name);
+		$("#place_element_button").text(isAdd ? "Add" : "Submit");
+		break;
+	case "movement":
+		$("#overlapping_back_button").show();
+		$("#options_container").hide();
+		$("#movement_container").show();
+		break;
+	case "copy":
+		copied_element = local_stored_grid_space.find(function(el) {
+			return el.x == selected_grid_x && el.y == selected_grid_y;
+		});
+		copied_element.grid_id = grid_id;
+		break;
+	case "paste":
+		add_element_to_server(copied_element.color, selected_grid_x, selected_grid_y, copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
+		break;
+	case "close":
+		$("#overlapping_side_container").hide();
+		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
+		break;
+	case "delete":
+		socket.emit('delete_element_on_server', {
+			"grid_id": grid_id,
+			"element_id": selected_element.id
+		});
+		break;
+	case "annotate":
+		$("#overlapping_back_button").show();
+		$("#options_container").hide();
+		$("#annotations_container").show();
+		break;
+	}
+}
+
+function showAnnotations() {
+	local_stored_annotations.forEach(function(el) {
+		$("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
+	});
+	if (!$("#annotations_display").attr("checked")) $(".grid_canvas_annotations").hide();
+}
+
+function hideAnnotations() {
+	$("#grid_canvas_scrolling_container .grid_canvas_annotation").remove();
+}
+
+
+function showPlayerName(x, y, name) {
+	$("body").append("<div id=\"popup_name\" class=\"popup_items\" style=\"top:" + y + "px; left:" + x + "px\"><p>" + name + "</p></div>");
+}
+
+function clearPlayerName() {
+	$("#popup_name").remove();
+}
+
+function editElementRow(id) {
+	selected_element = local_stored_grid_space.find(function(el) {
+		return el.id == id;
+	});
+
+	$("#overlapping_container").hide();
+	$("#add_container").show();
+
+	$("#selected_shape").val(selected_element.shape);
+	$("#element_color").val(selected_element.color);
+	$("#element_color_changer")[0].jscolor.fromString(selected_element.color);
+	$("#element_size").val(selected_element.size);
+	$("#element_category").val(selected_element.category);
+	$("#element_name").val(selected_element.name);
+
+	$("#vertices_list").empty();
+	if (selected_element.shape === "line") {
+		selected_element.x.forEach(function(_, ind) {
+			$("#vertices_list").append("<p>" + selected_element.x[ind] + "," + selected_element.y[ind] + "</p>");
+		});
+	}
+
+	$("#place_element_button").text("Submit");
+}
+
+function refresh_elements_list() {
+	var filters = document.querySelectorAll(".element_filter:checked");
+	var filter = [];
+	for (var i = 0; i <= filters.length - 1; i++) {
+		filter[i] = filters[i].value;
+	}
+
+	if (filters.length !== 0) {
+		$("#element_list").empty();
+		local_stored_grid_space
+		.filter(function(el) {
+			return filter.indexOf(el.category) != -1
+		})
+		.forEach(function(el) {
+			$("#element_list").append(composeElementListRowElement(el))
+		});
+	} else {
+		$("#element_list").empty();
+	}
+}
