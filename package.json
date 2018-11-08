@@ -20,6 +20,8 @@
   },
   "scripts": {
     "test": "mocha",
+    "build:js": "uglifyjs www/js/lib/*.js -o www/js/script.min.js",
+    "build": "npm run build:js",
     "start": "node server.js"
   },
   "repository": {
