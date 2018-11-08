@@ -2,9 +2,6 @@
  * @fileoverview Should handle all of the jquery interface stuff
  * @returns
  */
-
-var movementInterval = 100;
-
 function bindEventHandlers() {
 
 	$("#grid_size_vertical").val(grid_count_height);
