@@ -6,6 +6,7 @@
 var movementInterval = 100;
 
 function bindEventHandlers() {
+
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
@@ -496,6 +497,15 @@ function bindEventHandlers() {
 			$("#move_inc_down").mousedown().mouseup();
 			break;
 		}
+	});
+
+	$("#overlapping_container_tab").click(function(evt) {
+		$("#side_container_swap > *").hide();
+		$("#options_container").show();
+		$("#overlapping_side_container").show();
+		$("#overlapping_back_button").hide();
+		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
+		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 	});
 
 	$("#overlapping_back_button").click(function(evt) {
