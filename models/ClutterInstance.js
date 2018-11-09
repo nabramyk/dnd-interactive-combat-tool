@@ -2,6 +2,7 @@
 
 const GridSpace = require("./GridSpace.js");
 const Element = require("./Element.js");
+var isUndefined = require("../utils.js").isUndefined;
 
 /**
  * 

@@ -13,7 +13,8 @@ var app = require('express')();
 var express = require('express');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var isUndefined = require('./utils.js').isUndefined;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -144,12 +145,3 @@ io.on('connection', (socket) => {
 http.listen(8080, () => {
 	console.log("%s:%s", http.address().address, http.address().port)
 });
-
-/**
- * 
- * @param value
- * @returns { boolean } True if value is undefined, false otherwise
- */
-function isUndefined(value) {
-	return value === undefined;
-}
