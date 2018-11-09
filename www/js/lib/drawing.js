@@ -175,14 +175,6 @@ function draw_cursor_at_position(x, y, size) {
 	selected_grid_x = x;
 	selected_grid_y = y;
 
-	//   if (gridPoint2Pixel(x) < $("#grid_canvas_scrolling_container").scrollLeft() || gridPoint2Pixel(x) > $("#grid_canvas_scrolling_container").scrollLeft() + $("#grid_canvas_scrolling_container").width()) {
-	//     $("#grid_canvas_scrolling_container").scrollLeft(gridPoint2Pixel(x));
-	//   }
-
-	//   if (gridPoint2Pixel(y) < $("#grid_canvas_scrolling_container").scrollTop() || gridPoint2Pixel(y) > $("#grid_canvas_scrolling_container").scrollTop() + $("#grid_canvas_scrolling_container").height()) {
-	//     $("#grid_canvas_scrolling_container").scrollTop(gridPoint2Pixel(y));
-	//   }
-
 	switch ($('#selected_shape').val()) {
 	case "line":
 		overlay_ctx.fillStyle = grid_highlight;
@@ -304,4 +296,45 @@ function pingAnimation(ping, _grid_id) {
 		temporary_drawing_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		return;
 	}
+}
+
+function canvasClicked(x, y) {
+	$("#dragging_element_icon").remove();
+	selected_element = null;
+
+	var temp = local_stored_grid_space.find(function(el) {
+		return gridPoint2Pixel(el.x) < x && gridPoint2Pixel(el.x + JSON.parse(el.size.width)) > x &&
+		gridPoint2Pixel(el.y) < y && gridPoint2Pixel(el.y + JSON.parse(el.size.height)) > y;
+	});
+
+	if (isUndefined(temp)) {
+		cursor_size = { "width" : 1, "height" : 1 };
+		selected_grid_x = pixel2GridPoint(x - (x % grid_size));
+		selected_grid_y = pixel2GridPoint(y - (y % grid_size));
+	} else {
+		cursor_size = temp.size;
+		selected_grid_x = temp.x;
+		selected_grid_y = temp.y;
+		selected_element = temp;
+	}
+
+	clear_prev_cursor_position();
+
+	if (x_vertices.length > 0 && y_vertices.length) {
+		temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+		var temp_x = x_vertices.slice(0);
+		var temp_y = y_vertices.slice(0);
+		temp_x.push(selected_grid_x);
+		temp_y.push(selected_grid_y);
+		draw_temporary_item({
+			"type": "line",
+			"x": temp_x,
+			"y": temp_y,
+			"color": $("#element_color").val,
+			"size": 3
+		});
+	}
+
+	draw_cursor_at_position(selected_grid_x, selected_grid_y, cursor_size);
+	updateSideMenuContent();
 }

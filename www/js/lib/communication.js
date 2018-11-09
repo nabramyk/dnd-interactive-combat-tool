@@ -241,6 +241,32 @@ function delete_annotation_from_server(id) {
 	});
 }
 
+/**
+ *
+ */
+function incremental_move_element(direction) {
+	socket.emit('move_element', {
+		"grid_id": grid_id,
+		"x": selected_grid_x,
+		"y": selected_grid_y,
+		"direction": direction,
+		"size": cursor_size
+	}, function(msg) {
+		clear_prev_cursor_position();
+		draw_cursor_at_position(msg.x, msg.y, msg.size);
+	});
+}
+
+function refresh_annotations_list() {
+	$("#annotations_list").empty();
+	local_stored_annotations.forEach(function(el) {
+		$("#annotations_list").append(composeAnnotationListRowElement(el));
+	});
+	hideAnnotations();
+	showAnnotations();
+	$(".grid_canvas_annotation").toggle(false);
+}
+
 function editAnnotationRow(id) {
 
 }

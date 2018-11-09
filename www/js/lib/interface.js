@@ -718,3 +718,25 @@ function clicked_annotation_list(id) {
 	clear_prev_cursor_position();
 	draw_cursor_at_position(temp.x, temp.y, 1);
 }
+
+function resizeGridWidth(width) {
+	grid_count_width = width;
+	$("#grid_size_horizontal").val(grid_count_width);
+	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	drawScreen();
+	drawTopRuler();
+}
+
+function resizeGridHeight(height) {
+	grid_count_height = height;
+	$("#grid_size_vertical").val(grid_count_height);
+	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	drawScreen();
+	drawLeftRuler();
+}
