@@ -8,8 +8,9 @@ function drawTopRuler() {
 	var ctx2 = ruler_top.getContext("2d");
 	ctx2.font = "10px Arial";
 	for (var i = 0; i < grid_count_width; i++) {
-		var n = ctx2.measureText(i).width / 2;
+		var n = ctx2.measureText(i+1).width / 2;
 		ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size / 1.5);
+		ctx2.strokeRect(i * grid_size + grid_line_width, 0, grid_size, grid_size);
 	}
 }
 
@@ -20,8 +21,9 @@ function drawLeftRuler() {
 	var ctx2 = ruler_left.getContext("2d");
 	ctx2.font = "10px Arial";
 	for (var i = 0; i < grid_count_height; i++) {
-		var n = ctx2.measureText(i).width;
-		ctx2.fillText(i + 1, 0, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - n);
+		var n = ctx2.measureText(i+1).width / 2;
+		ctx2.fillText(i + 1, grid_line_width + (grid_size / 2) - n, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - 6);
+		ctx2.strokeRect(0, i * grid_size + grid_line_width, grid_size, grid_size);
 	}
 }
 
