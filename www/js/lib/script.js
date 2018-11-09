@@ -68,18 +68,19 @@ function interfaceInitialization() {
 	var overlay_canvas_hammer = new Hammer(document.getElementById('overlay_canvas'), null);
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
+	hammer.get('pinch').set({ enable: true });
 	overlay_canvas_hammer.get('pinch').set({ enable: true });
 
 	hammer.on('pan', function(evt) {
 		cPosX += Math.ceil(evt.deltaX * 0.03);
 		cPosY += Math.ceil(evt.deltaY * 0.03);
-		grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
+		grid_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		overlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		temporary_drawing_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 
-		document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
-		document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
+		document.getElementById("ruler_left").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		document.getElementById("ruler_top").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 	});
 
 	hammer.on('swipe', function(evt) {
@@ -88,18 +89,24 @@ function interfaceInitialization() {
 
 	hammer.on('tap', function(evt) {
 		console.log(evt);
-		clear_prev_cursor_position();
+		//clear_prev_cursor_position();
+	});
+
+	hammer.on('pinch', function(evt) {
+		//scaleX(),skewY(),skewX(),scaleY(),translateX(),translateY()
+		scale = evt.scale;
+		underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 	});
 
 	overlay_canvas_hammer.on('tap', function(evt) {
-		console.log(evt);
+		//alert(evt);
 		canvasClicked(evt.center.x - $("#overlay_canvas").offset().left, evt.center.y - $("#overlay_canvas").offset().top);
 	});
 
 	overlay_canvas_hammer.on('pinch', function(evt) {
 		console.log(evt);
 		//grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		underlay_canvas.style.transform = "scale(0.5,0.5)";
+		//underlay_canvas.style.transform = "scale(" + underlay_canvas.width * evt.scale + "," + underlay_canvas.width * evt.scale +")";
 		//overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 		//temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	});
