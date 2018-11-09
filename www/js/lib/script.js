@@ -55,7 +55,7 @@ function interfaceInitialization() {
 	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
 	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
-	cPosY = (window.innerWidth - grid_canvas.width) < 60 ? 60 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
+	cPosY = (window.innerHeight - grid_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - grid_canvas.height) / 2);
 
 	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
 	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
