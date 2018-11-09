@@ -10,8 +10,7 @@ describe('Clutter Instance Test', () => {
 
     context('init', () => {
         var clutter = new ClutterInstance();
-        it("grid width = 1", () => { assert.equal(1, clutter.init().grid_width)});
-        it("grid height = 1", () => { assert.equal(1, clutter.init().grid_height)});
+        it("size = 1,1", () => { assert.deepStrictEqual({ "width" : 1, "height" : 1}, clutter.init().size)});
         it("elements.length = 0", () => { assert.equal(0, clutter.init().elements.length)});
         it("annotations.length = 0", () => { assert.equal(0, clutter.init().annotations.length)});
         it("spaces.length = 1", () => { assert.equal(1, clutter.init().spaces.length)});

@@ -5,9 +5,8 @@ var Annotation = require('../models/Annotation.js');
 
 describe('Grid Space Test', () => {
     context('Initialization', () => {
-        var gridSpace = new GridSpace(0, 0, 1);
-        it("New grid space has a width of 0", () => { assert.equal(gridSpace.width, 0)});
-        it("New grid space has a height of 0", () => { assert.equal(gridSpace.height, 0)});
+        var gridSpace = new GridSpace({"width" : 0, "height" : 0}, 1);
+        it("New grid space has a size of 1,1", () => { assert.deepStrictEqual({"width" : 0, "height" : 0}, gridSpace.size)});
         it("New grid space has an id of 1", () => { assert.equal(gridSpace.id, 1)});
         it("New grid space has an elementIdCounter of 1", () => { assert.equal(gridSpace.elementIdCounter, 1)});
         it("New grid space has an annotationsIdCounter of 1", () => { assert.equal(gridSpace.annotationsIdCounter, 1)});

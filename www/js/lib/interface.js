@@ -9,17 +9,17 @@ function bindEventHandlers() {
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
-		socket.emit('resize_height', {
+		socket.emit('resize', {
 			"grid_id": grid_id,
-			"height": grid_count_height
+			"size": { "width": grid_count_width, "height": grid_count_height }
 		});
 	});
 
 	$("#grid_size_horizontal").change(function() {
 		grid_count_width = $("#grid_size_horizontal").val();
-		socket.emit('resize_width', {
+		socket.emit('resize', {
 			"grid_id": grid_id,
-			"width": grid_count_width
+			"size": { "width": grid_count_width, "height": grid_count_height }
 		});
 	});
 
@@ -382,9 +382,9 @@ function bindEventHandlers() {
 		socket.emit('request_grid_space', {
 			"id": $(this).val()
 		}, function(msg) {
-			grid_count_height = msg.grid_space.height;
+			grid_count_height = msg.grid_space.size.height;
 			resizeGridHeight(grid_count_height);
-			grid_count_width = msg.grid_space.width;
+			grid_count_width = msg.grid_space.size.width;
 			resizeGridWidth(grid_count_width);
 			clearPlayerName();
 			local_stored_grid_space = [];

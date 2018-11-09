@@ -4,9 +4,9 @@ function bindSocketListeners() {
 		$("#lost_connection_div").hide();
 
 		socket.emit('init', {}, function(msg) {
-			grid_count_height = msg.grid_height;
+			grid_count_height = msg.size.height;
 			resizeGridHeight(grid_count_height);
-			grid_count_width = msg.grid_width;
+			grid_count_width = msg.size.width;
 			resizeGridWidth(grid_count_width);
 
 			clear_prev_cursor_position();
@@ -59,18 +59,28 @@ function bindSocketListeners() {
 		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 	});
 
-	socket.on('resize_height', function(msg) {
-		if (grid_id != msg.grid_id) return;
-		grid_count_height = msg.height;
-		resizeGridHeight(grid_count_height);
-		local_stored_grid_space = msg.elements;
-		drawElements();
-	});
+	// socket.on('resize_height', function(msg) {
+	// 	if (grid_id != msg.grid_id) return;
+	// 	grid_count_height = msg.height;
+	// 	resizeGridHeight(grid_count_height);
+	// 	local_stored_grid_space = msg.elements;
+	// 	drawElements();
+	// });
 
-	socket.on('resize_width', function(msg) {
+	// socket.on('resize_width', function(msg) {
+	// 	if (grid_id != msg.grid_id) return;
+	// 	grid_count_width = msg.width;
+	// 	resizeGridWidth(grid_count_width);
+	// 	local_stored_grid_space = msg.elements;
+	// 	drawElements();
+	// });
+
+	socket.on('resize', function(msg) {
 		if (grid_id != msg.grid_id) return;
-		grid_count_width = msg.width;
+		grid_count_width = msg.size.width;
+		grid_count_height = msg.size.height;
 		resizeGridWidth(grid_count_width);
+		resizeGridHeight(grid_count_height);
 		local_stored_grid_space = msg.elements;
 		drawElements();
 	});

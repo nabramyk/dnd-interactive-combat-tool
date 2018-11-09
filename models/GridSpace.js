@@ -16,10 +16,11 @@ const categories = ["npc", "environment", "enemy", "player"];
  * @property {[Element]} - collection of displayable elements in this grid space
  * @property {int} width - amount of horizontal grid points in this space
  * @property {int} height - amount of vertical grid points in this space
+ * @property {{ width: int, height: int }} size -
  */
 module.exports = class GridSpace {
 
-    constructor(width, height, id) {
+    constructor(size, id) {
         this.elementIdCounter = 1;
         this.annotationsIdCounter = 1;
         this.id = id;
@@ -27,8 +28,7 @@ module.exports = class GridSpace {
         this.temporaryHistory = [];
         this.elements = [];
         this.annotations = [];
-        this.width = width;
-        this.height = height;
+		this.size = size;
         this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
     }
 
@@ -55,6 +55,11 @@ module.exports = class GridSpace {
 		this.height = newHeight;
 		return this.height;
 	};
+
+	resize(size) {
+		this.size = size;
+		return this.size;
+	}
 
 	/**
 	 * Find the element with the corresponding ID

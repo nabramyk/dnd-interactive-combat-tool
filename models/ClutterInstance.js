@@ -10,17 +10,26 @@ var isUndefined = require("../utils.js").isUndefined;
 module.exports = class ClutterInstance {
     constructor() {
         this.grid_id_counter = 1;
-        this.grid_space = [new GridSpace(1, 1, this.grid_id_counter++)];
+        this.grid_space = [new GridSpace({ "width" : 1, "height": 1}, this.grid_id_counter++)];
     }
 
     init() {
         return {
-			"grid_width": this.grid_space[0].width,
-			"grid_height": this.grid_space[0].height,
+			"size": this.grid_space[0].size,
 			"elements": this.grid_space[0].elements,
 			"annotations": this.grid_space[0].annotations,
 			"spaces": this.grid_space.map((el) => { return { "id": el.id, "name": el.name } })
 		};
+    }
+
+    resize(msg) {
+        var temp = this.grid_space.find((el) => { return msg.grid_id == el.id });
+        temp.resize(msg.size);
+        return {
+            "grid_id": msg.grid_id,
+            "size": msg.size,
+            "elements": temp.elements
+        };
     }
 
     resizeHeight(msg) {
@@ -100,7 +109,7 @@ module.exports = class ClutterInstance {
     }
 
     createGridSpace() {
-        var newGridSpace = this.grid_space.push(new GridSpace(1, 1, this.grid_id_counter++));
+        var newGridSpace = this.grid_space.push(new GridSpace({ "width" : 1, "height" : 1 }, this.grid_id_counter++));
         return { "id": this.grid_space[newGridSpace - 1].id, "name": this.grid_space[newGridSpace - 1].name };
     }
 

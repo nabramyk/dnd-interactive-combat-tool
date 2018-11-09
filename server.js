@@ -48,12 +48,16 @@ io.on('connection', (socket) => {
 		fn(clutter.init());
 	});
 
-	socket.on('resize_height', (msg) => {
-		io.emit('resize_height', clutter.resizeHeight(msg));
-	});
+	// socket.on('resize_height', (msg) => {
+	// 	io.emit('resize_height', clutter.resizeHeight(msg));
+	// });
 
-	socket.on('resize_width', (msg) => {
-		io.emit('resize_width', clutter.resizeWidth(msg));
+	// socket.on('resize_width', (msg) => {
+	// 	io.emit('resize_width', clutter.resizeWidth(msg));
+	// });
+
+	socket.on('resize', (msg) => {
+		io.emit('resize', clutter.resize(msg));
 	});
 
 	socket.on('move_element', (msg, fn) => {
