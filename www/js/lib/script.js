@@ -55,12 +55,13 @@ function interfaceInitialization() {
 	cPosX = (window.innerWidth - grid_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - grid_canvas.width) / 2);
 	cPosY = (window.innerHeight - grid_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - grid_canvas.height) / 2);
 
-	grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-	underlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-	overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-	temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-	document.getElementById("ruler_left").style.transform = "translate(" + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "px," + cPosY + "px)";
-	document.getElementById("ruler_top").style.transform = "translate(" + cPosX + "px," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + "px)";
+	$('#grid_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+	$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+	$('#overlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+	$('#temporary_drawing_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+
+	$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
+	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 
 	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
 	var overlay_canvas_hammer = new Hammer(document.getElementById('overlay_canvas'), null);
@@ -72,13 +73,13 @@ function interfaceInitialization() {
 	hammer.on('pan', function(evt) {
 		cPosX += Math.ceil(evt.deltaX * 0.03);
 		cPosY += Math.ceil(evt.deltaY * 0.03);
-		grid_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
-		underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
-		overlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
-		temporary_drawing_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		$('#grid_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+		$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+		$('#overlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+		$('#temporary_drawing_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 
-		document.getElementById("ruler_left").style.transform = "matrix(" + scale + ",0,0," + scale + "," + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "," + cPosY + ")";
-		document.getElementById("ruler_top").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + ")";
+		$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
+		$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 	});
 
 	hammer.on('swipe', function(evt) {
