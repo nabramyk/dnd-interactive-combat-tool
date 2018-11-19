@@ -33,8 +33,6 @@ function interfaceInitialization() {
 	overlay_canvas = document.getElementById('overlay_canvas');
 	temporary_drawing_canvas = document.getElementById('temporary_drawing_canvas');
 
-	start_new_line_button = document.getElementById('start_new_line_button');
-
 	$("#movement_controls").hide();
 	$("#reset_board_button").prop("disabled", true);
 	$("#start_new_line_button").hide();
