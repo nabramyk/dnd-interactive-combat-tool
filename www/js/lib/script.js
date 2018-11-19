@@ -79,8 +79,8 @@ function interfaceInitialization() {
 		overlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 		temporary_drawing_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 
-		document.getElementById("ruler_left").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
-		document.getElementById("ruler_top").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		document.getElementById("ruler_left").style.transform = "matrix(" + scale + ",0,0," + scale + "," + (cPosX - 20 < 0 ? 0 : cPosX - 20) + "," + cPosY + ")";
+		document.getElementById("ruler_top").style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + (cPosY - 20 < 40 ? 40 : cPosY - 20) + ")";
 	});
 
 	hammer.on('swipe', function(evt) {
@@ -94,8 +94,8 @@ function interfaceInitialization() {
 
 	hammer.on('pinch', function(evt) {
 		//scaleX(),skewY(),skewX(),scaleY(),translateX(),translateY()
-		scale = evt.scale;
-		underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
+		//scale = evt.scale;
+		//underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
 	});
 
 	overlay_canvas_hammer.on('tap', function(evt) {
