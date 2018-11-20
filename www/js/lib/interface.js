@@ -272,7 +272,6 @@ function bindEventHandlers() {
 		x_vertices.length = [];
 		y_vertices.length = [];
 
-		clear_prev_cursor_position();
 		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 
@@ -713,7 +712,6 @@ function clicked_annotation_list(id) {
 	var temp = local_stored_annotations.find(function(el) {
 		return el.id == id;
 	});
-	clear_prev_cursor_position();
 	draw_cursor_at_position(temp.x, temp.y, 1);
 }
 

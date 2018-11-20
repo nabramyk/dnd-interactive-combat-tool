@@ -95,7 +95,6 @@ function interfaceInitialization() {
 
 	hammer.on('tap', function(evt) {
 		console.log(evt);
-		//clear_prev_cursor_position();
 	});
 
 	hammer.on('pinch', function(evt) {

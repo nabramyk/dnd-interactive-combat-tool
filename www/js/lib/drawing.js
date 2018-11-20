@@ -129,21 +129,6 @@ function draw_temporary_item(element) {
 }
 
 /**
- * Clears the previous cursor position
- */
-function clear_prev_cursor_position() {
-	// overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
-
-	// if (selected_grid_x === -1 || selected_grid_y === -1)
-	// 	return;
-
-	// overlay_ctx.strokeStyle = grid_color;
-	// overlay_ctx.lineWidth = grid_line_width;
-
-	// overlay_ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + cursor_line_width, cursor_size * grid_size + cursor_line_width);
-}
-
-/**
  * Draws the cursor at the position and sets the global trackers
  *
  * @param {int} x
@@ -306,8 +291,6 @@ function canvasClicked(x, y) {
 		selected_grid_y = temp.y;
 		selected_element = temp;
 	}
-
-	clear_prev_cursor_position();
 
 	if (x_vertices.length > 0 && y_vertices.length) {
 		temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);

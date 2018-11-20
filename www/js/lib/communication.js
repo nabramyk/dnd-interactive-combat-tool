@@ -9,7 +9,6 @@ function bindSocketListeners() {
 			grid_count_width = msg.size.width;
 			resizeGridWidth(grid_count_width);
 
-			clear_prev_cursor_position();
 			selected_grid_x = -1;
 			selected_grid_y = -1;
 
@@ -59,22 +58,6 @@ function bindSocketListeners() {
 		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 	});
 
-	// socket.on('resize_height', function(msg) {
-	// 	if (grid_id != msg.grid_id) return;
-	// 	grid_count_height = msg.height;
-	// 	resizeGridHeight(grid_count_height);
-	// 	local_stored_grid_space = msg.elements;
-	// 	drawElements();
-	// });
-
-	// socket.on('resize_width', function(msg) {
-	// 	if (grid_id != msg.grid_id) return;
-	// 	grid_count_width = msg.width;
-	// 	resizeGridWidth(grid_count_width);
-	// 	local_stored_grid_space = msg.elements;
-	// 	drawElements();
-	// });
-
 	socket.on('resize', function(msg) {
 		if (grid_id != msg.grid_id) return;
 		grid_count_width = msg.size.width;
@@ -94,7 +77,6 @@ function bindSocketListeners() {
 		$("#reset_board_button").prop("disabled", false);
 		local_stored_grid_space.push(msg.element);
 		draw_item(local_stored_grid_space[local_stored_grid_space.length-1]);
-		//drawElements();
 		refresh_elements_list();
 	});
 
@@ -120,7 +102,6 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		//ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		var element = local_stored_grid_space[local_stored_grid_space.indexOf(
 				local_stored_grid_space.find(
 						function(el) {
@@ -131,7 +112,6 @@ function bindSocketListeners() {
 		element.x = msg.element.x;
 		element.y = msg.element.y;
 		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
-		//drawElements();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
@@ -224,14 +204,12 @@ function dragElement(client_x, client_y, page_x, page_y) {
 		"dest_x": pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
 		"dest_y": pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
 	}, function(msg) {
-		clear_prev_cursor_position();
 		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
 
 	$("#dragging_element_icon").css("top", page_y - (client_y % grid_size));
 	$("#dragging_element_icon").css("left", page_x - (client_x % grid_size));
 	temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-	clear_prev_cursor_position();
 	draw_cursor_at_position(pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
 }
 
@@ -265,7 +243,6 @@ function incremental_move_element(direction) {
 		"direction": direction,
 		"size": cursor_size
 	}, function(msg) {
-		clear_prev_cursor_position();
 		draw_cursor_at_position(msg.x, msg.y, msg.size);
 	});
 }
