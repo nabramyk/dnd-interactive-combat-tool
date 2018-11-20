@@ -52,3 +52,6 @@ var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 
 var hoverTimer, movementTimer;
+
+var group_grid, group_elements, group_overlay;
+var cursor;

@@ -501,7 +501,6 @@ function bindEventHandlers() {
 		$("#options_container").show();
 		$("#overlapping_side_container").show();
 		$("#overlapping_back_button").hide();
-		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 	});
 
@@ -618,7 +617,6 @@ function selectedMenuOption(option) {
 		break;
 	case "close":
 		$("#overlapping_side_container").hide();
-		$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 		break;
 	case "delete":
@@ -722,10 +720,7 @@ function clicked_annotation_list(id) {
 function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
-	grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	underlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
+	paper.view.setViewSize(screenWidth(), screenHeight());
 	drawScreen();
 	drawTopRuler();
 }
@@ -733,10 +728,7 @@ function resizeGridWidth(width) {
 function resizeGridHeight(height) {
 	grid_count_height = height;
 	$("#grid_size_vertical").val(grid_count_height);
-	grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	underlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
+	paper.view.setViewSize(screenWidth(), screenHeight());
 	drawScreen();
 	drawLeftRuler();
 }

@@ -52,39 +52,17 @@ function drawElements() {
  * @returns
  */
 function draw_item(element) {
-	ctx.save();
+	//ctx.save();
 	switch (element.shape) {
 	case "square":
 	case "rectangle":
-		ctx.fillStyle = "#" + element.color;
 		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
 		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-		ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
-		if(element.rotation != 0) {
-			ctx.beginPath();
-			console.log(element);
-			switch(element.rotation) {
-				case 1: 
-					x += JSON.parse(element.size.width) * grid_size - 2;
-					y += JSON.parse(element.size.height) * grid_size / 2;
-				break;
-				case 2: 
-					x += JSON.parse(element.size.width) * grid_size / 2;
-					y += 2;
-				break;
-				case 3: 
-					x += 2;
-					y += JSON.parse(element.size.height) * grid_size / 2;
-				break;
-				case 4: 
-					x += JSON.parse(element.size.width) * grid_size / 2;
-					y += JSON.parse(element.size.height) * grid_size - 2;
-				break;
-			}
-			ctx.fillStyle = "#FFFFFF";
-			ctx.arc(y, x, 2, 0, 2 * Math.PI);
-			ctx.fill();
-		}
+				
+		element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+		element.ele.fillColor = "#" + element.color;
+		group_elements.addChild(element.ele);
+
 		break;
 	case "circle":
 	case "oval":
@@ -112,7 +90,7 @@ function draw_item(element) {
 		ctx.stroke();
 		break;
 	}
-	ctx.restore();
+	//ctx.restore();
 }
 
 function draw_temporary_item(element) {
@@ -154,15 +132,15 @@ function draw_temporary_item(element) {
  * Clears the previous cursor position
  */
 function clear_prev_cursor_position() {
-	overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
+	// overlay_ctx.clearRect(0, 0, overlay_canvas.width, overlay_canvas.height);
 
-	if (selected_grid_x === -1 || selected_grid_y === -1)
-		return;
+	// if (selected_grid_x === -1 || selected_grid_y === -1)
+	// 	return;
 
-	overlay_ctx.strokeStyle = grid_color;
-	overlay_ctx.lineWidth = grid_line_width;
+	// overlay_ctx.strokeStyle = grid_color;
+	// overlay_ctx.lineWidth = grid_line_width;
 
-	overlay_ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + cursor_line_width, cursor_size * grid_size + cursor_line_width);
+	// overlay_ctx.clearRect(gridPoint2Pixel(selected_grid_x), gridPoint2Pixel(selected_grid_y), cursor_size * grid_size + cursor_line_width, cursor_size * grid_size + cursor_line_width);
 }
 
 /**
@@ -173,6 +151,12 @@ function clear_prev_cursor_position() {
  * @param {int} size
  */
 function draw_cursor_at_position(x, y, size) {
+
+	if(isUndefined(cursor)) {
+		cursor = paper.Shape.Rectangle(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size.width, grid_size * size.height);
+		cursor.strokeColor = grid_highlight;
+		group_overlay.addChild(cursor);
+	}
 
 	selected_grid_x = x;
 	selected_grid_y = y;
@@ -185,9 +169,9 @@ function draw_cursor_at_position(x, y, size) {
 		overlay_ctx.fill();
 		break;
 	default:
-		overlay_ctx.lineWidth = cursor_line_width;
-		overlay_ctx.strokeStyle = grid_highlight;
-		overlay_ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size.width, grid_size * size.height);
+		// overlay_ctx.lineWidth = cursor_line_width;
+		// overlay_ctx.strokeRect(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, grid_size * size.width, grid_size * size.height);
+		cursor.position = new paper.Point(gridPoint2Pixel(selected_grid_x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(selected_grid_y) + grid_line_width + (grid_size / 2));
 		cursor_size = size;
 	}
 
@@ -216,13 +200,14 @@ function draw_temporary_cursor_at_position(x, y, size) {
  * Function for drawing the grid board
  */
 function drawScreen() {
-	ctx2.lineWidth = grid_line_width;
-	ctx2.strokeStyle = grid_color;
 	for (var i = 0; i < grid_count_height; i++) {
 		for (var j = 0; j < grid_count_width; j++) {
-			ctx2.strokeRect(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+			var rect = paper.Shape.Rectangle(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+			rect.strokeColor = grid_color;
+			group_grid.addChild(rect);
 		}
 	}
+	paper.view.draw();
 }
 
 function drawPing(ping, _grid_id) {
@@ -301,6 +286,8 @@ function pingAnimation(ping, _grid_id) {
 }
 
 function canvasClicked(x, y) {
+	console.log("Canvas clicked");
+
 	$("#dragging_element_icon").remove();
 	selected_element = null;
 

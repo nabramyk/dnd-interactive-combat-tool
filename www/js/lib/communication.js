@@ -92,9 +92,9 @@ function bindSocketListeners() {
 			return;
 		}
 		$("#reset_board_button").prop("disabled", false);
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space.push(msg.element);
-		drawElements();
+		draw_item(local_stored_grid_space[local_stored_grid_space.length-1]);
+		//drawElements();
 		refresh_elements_list();
 	});
 
@@ -120,15 +120,18 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-		local_stored_grid_space[local_stored_grid_space.indexOf(
+		//ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+		var element = local_stored_grid_space[local_stored_grid_space.indexOf(
 				local_stored_grid_space.find(
 						function(el) {
 							return msg.element.id == el.id
 						}
 				)
-		)] = msg.element;
-		drawElements();
+		)];
+		element.x = msg.element.x;
+		element.y = msg.element.y;
+		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
+		//drawElements();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 

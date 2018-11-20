@@ -64,15 +64,11 @@ i {
 }
 
 #underlay_canvas {
-  z-index: 1;
+  z-index: 4;
 }
 
 #temporary_drawing_canvas {
   z-index: 3;
-}
-
-#overlay_canvas {
-  z-index: 4;
 }
 
 .menu_controls_button {
