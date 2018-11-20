@@ -31,9 +31,7 @@ function canvasApp() {
  * This function has A LOT of redundancy, needs major refactoring
  */
 function interfaceInitialization() {
-	grid_canvas = document.getElementById('grid_canvas');
 	underlay_canvas = document.getElementById('underlay_canvas');
-	temporary_drawing_canvas = document.getElementById('temporary_drawing_canvas');
 
 	$("#movement_controls").hide();
 	$("#reset_board_button").prop("disabled", true);
@@ -48,25 +46,12 @@ function interfaceInitialization() {
 
 	console.log(paper.project);
 
-	ctx2 = underlay_canvas.getContext('2d');
-
 	paper.view.setViewSize(screenWidth(), screenHeight());
-
-	//grid_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//grid_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	//$("#underlay_canvas").width(grid_size * grid_count_width + 2 * grid_line_width);
-	//$("#underlay_canvas").height(grid_size * grid_count_height + 2 * grid_line_width);
-	//overlay_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//overlay_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
-	//temporary_drawing_canvas.width = grid_size * grid_count_width + 2 * grid_line_width;
-	//temporary_drawing_canvas.height = grid_size * grid_count_height + 2 * grid_line_width;
 
 	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
 	cPosY = (window.innerHeight - underlay_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - underlay_canvas.height) / 2);
 
-	$('#grid_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 	$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
-	$('#temporary_drawing_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 
 	$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
 	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
@@ -81,9 +66,7 @@ function interfaceInitialization() {
 	hammer.on('pan', function(evt) {
 		cPosX += Math.ceil(evt.deltaX * 0.03);
 		cPosY += Math.ceil(evt.deltaY * 0.03);
-		$('#grid_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 		$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
-		$('#temporary_drawing_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 
 		$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
 		$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});

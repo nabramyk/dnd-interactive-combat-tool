@@ -30,60 +30,6 @@ function bindEventHandlers() {
 		});
 	});
 
-	//$("#overlay_canvas")
-	// .mousedown(function(evt) {
-	// 	canvasClicked(evt.offsetX, evt.offsetY);
-	// })
-	// .mousemove(function(evt) {
-	// 	clearPlayerName();
-	// 	clearTimeout(hoverTimer);
-	// 	local_stored_grid_space.forEach(function(el) {
-	// 		if (gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX &&
-	// 				gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY) {
-	// 			if (prehandledByTouchEvent) {
-	// 				prehandledByTouchEvent = false;
-	// 				return;
-	// 			}
-	// 			showPlayerName(evt.offsetX + $("#overlay_canvas").offset().left, evt.offsetY + $("#overlay_canvas").offset().top - 40, el.name);
-	// 		}
-	// 	});
-	// })
-	// .mouseleave(function(evt) {
-	// 	clearPlayerName();
-	// 	clearTimeout(hoverTimer);
-	// })
-	// .contextmenu(function(evt) {
-	// 	if (selected_grid_x == -1 && selected_grid_y == -1) return;
-	// 	clearPlayerName();
-	// 	evt.preventDefault();
-	// 	var temp = local_stored_grid_space.find(function(el) {
-	// 		return gridPoint2Pixel(el.x) < evt.offsetX && gridPoint2Pixel(el.x + el.size) > evt.offsetX && gridPoint2Pixel(el.y) < evt.offsetY && gridPoint2Pixel(el.y + el.size) > evt.offsetY;
-	// 	});
-	// 	showLongHoldMenu(evt.pageX - (evt.clientX % grid_size) - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size) + grid_size, evt.pageY - (evt.clientY % grid_size) - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size) + grid_size, (isUndefined(temp) ? -1 : temp.id));
-	// })
-	// .on('touchstart', function(evt) {
-	// 	prehandledByTouchEvent = true;
-	// 	var touch_x = evt.originalEvent.touches[0].clientX - $("#overlay_canvas").offset().left;
-	// 	var touch_y = evt.originalEvent.touches[0].clientY - $("#overlay_canvas").offset().top;
-	// 	canvasClicked(touch_x, touch_y);
-	// 	var temp = local_stored_grid_space.find(function(el) {
-	// 		return gridPoint2Pixel(el.x) < touch_x && gridPoint2Pixel(el.x + el.size) > touch_x && gridPoint2Pixel(el.y) < touch_y && gridPoint2Pixel(el.y + el.size) > touch_y;
-	// 	});
-	// 	holdTimer = window.setTimeout(function() {
-	// 		showLongHoldMenu(touch_x - (touch_x % grid_size) + grid_size + $("#overlay_canvas").offset().left, touch_y - (touch_y % grid_size) + $("#overlay_canvas").offset().top, isUndefined(temp) ? -1 : temp.id);
-	// 	}, 1000);
-	// 	return true;
-	// })
-	// .on('touchend', function(evt) {
-	// 	clearTimeout(holdTimer);
-	// 	return false;
-	// })
-	// .on('touchmove', function(evt) {
-	// 	clearPlayerName();
-	// 	clearTimeout(holdTimer);
-	// 	return true;
-	// })
-
 	$('#place_element_button').click(function() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {

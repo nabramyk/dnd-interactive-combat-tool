@@ -26,10 +26,7 @@ var grid_spaces_list = [];
 var x_vertices = [];
 var y_vertices = [];
 
-var grid_canvas, ctx,
-underlay_canvas, ctx2,
-overlay_canvas, overlay_ctx,
-temporary_drawing_canvas, temporary_drawing_ctx;
+var underlay_canvas;
 
 var mouse_down = false;
 var touch_start = false;
@@ -40,12 +37,8 @@ var socket;
 
 var movementInterval = 100;
 
-var ping_period = 10;
 var opacity_rate = 0.04;
 var cursor_line_width = 1;
-var ping_counter = 0;
-
-var local_stored_pings = [];
 
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';

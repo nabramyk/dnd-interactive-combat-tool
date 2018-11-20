@@ -70,10 +70,6 @@ function bindSocketListeners() {
 
 	socket.on('added_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		if (msg.element.category == "ping") {
-			drawPing(msg.element, msg.grid_id);
-			return;
-		}
 		$("#reset_board_button").prop("disabled", false);
 		local_stored_grid_space.push(msg.element);
 		draw_item(local_stored_grid_space[local_stored_grid_space.length-1]);
@@ -169,6 +165,10 @@ function bindSocketListeners() {
 		refresh_annotations_list();
 	});
 
+	socket.on('ping', function(msg) {
+		drawPing(msg);
+	});
+
 	socket.on('error_channel', function(msg) {
 		alert(msg.message);
 	});
@@ -189,7 +189,10 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 }
 
 function pingPosition() {
-	add_element_to_server("", selected_grid_x, selected_grid_y, "", "", "", "ping");
+	socket.emit('ping', {
+		position: cursor.position,
+		size: cursor.size
+	});
 }
 
 /**
