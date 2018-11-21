@@ -48,6 +48,8 @@ function bindSocketListeners() {
 			$("#options_movement_button").hide();
 
 			$("#loading_div").hide();
+			
+			grid_spaces_list = msg.spaces;
 		});
 
 	});
@@ -164,7 +166,8 @@ function bindSocketListeners() {
 		refresh_annotations_list();
 	});
 
-	socket.on('new_init', function(msg, fn) {
+	socket.on('new_init', function(_, fn) {
+		console.log(grid_spaces_list);
 		fn({
 			size: {
 				height: grid_count_height,

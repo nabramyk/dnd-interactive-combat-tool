@@ -47,14 +47,21 @@ io.on('connection', (socket) => {
 
 	socket.on('init', (_, fn) => {
 		try {
-			Object.keys(io.sockets.sockets).forEach(function(id) {
+			if(io.engine.clientsCount == 1) throw new Error();
+			Object.keys(io.sockets.sockets).some(function(id) {
+				
+				if(id == socket.id) {
+					return false;
+				}
+
 				io.sockets.sockets[id].emit('new_init', {}, (data) => {
-					fn(clutter.init(data));
-					return;
+					console.log(data);
+					fn(data);
+					return true;
 				});
 			})
 		} catch(e) {
-			fn(clutter.init());
+			fn(new ClutterInstance().init());
 			console.log(e);
 		}
 	});
@@ -91,15 +98,6 @@ io.on('connection', (socket) => {
 			msg.category,
 			isUndefined(msg.name) ? "object" : msg.name,
 			msg.rotation)});
-		// var output = clutter.addElement(msg);
-
-		// if(msg.category == "ping") {
-		// 	io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });  
-		// } else if(isUndefined(output)) {
-		// 	socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
-		// } else {
-		// 	io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
-		// }
 	});
 
 	socket.on('delete_element_on_server', (msg) => {
