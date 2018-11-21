@@ -70,11 +70,8 @@ io.on('connection', (socket) => {
 		io.emit('resize', clutter.resize(msg));
 	});
 
-	socket.on('move_element', (msg, fn) => {
-		var movedElement = clutter.moveElement(msg);
-		if(isUndefined(movedElement)) return;
-		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
+	socket.on('move_element', (msg) => {
+		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": msg });
 	});
 
 	socket.on('add_element_to_server', (msg) => {

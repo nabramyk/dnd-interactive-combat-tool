@@ -98,16 +98,18 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		var element = local_stored_grid_space[local_stored_grid_space.indexOf(
-				local_stored_grid_space.find(
-						function(el) {
-							return msg.element.id == el.id
-						}
-				)
-		)];
-		element.x = msg.element.x;
-		element.y = msg.element.y;
-		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
+		// var element = local_stored_grid_space[local_stored_grid_space.indexOf(
+		// 		local_stored_grid_space.find(
+		// 				function(el) {
+		// 					return msg.element.id == el.id
+		// 				}
+		// 		)
+		// )];
+		// element.x = msg.element.x;
+		// element.y = msg.element.y;
+		// element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
+		group_elements.children.find(function(el) { return el.id == msg.element.el_id}).position = new paper.Point(msg.element.x, msg.element.y);
+		
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
@@ -232,15 +234,23 @@ function delete_annotation_from_server(id) {
  *
  */
 function incremental_move_element(direction) {
-	socket.emit('move_element', {
-		"grid_id": grid_id,
-		"x": selected_grid_x,
-		"y": selected_grid_y,
-		"direction": direction,
-		"size": cursor_size
-	}, function(msg) {
-		draw_cursor_at_position(msg.x, msg.y, msg.size);
-	});
+	
+	var pos = new paper.Point(
+		(direction == "left") ? selected_grid_x - grid_size : ((direction == "right") ? selected_grid_x + grid_size : selected_grid_x), 
+		(direction == "up") ? selected_grid_y - grid_size : ((direction == "down") ? selected_grid_y + grid_size : selected_grid_y));
+
+	if(group_elements.hitTest(pos) == null) {
+		selected_element.item.position = pos;
+
+		console.log(selected_element.item.id);
+		socket.emit('move_element', {
+			"grid_id": grid_id,
+			"el_id": selected_element.item.id,
+			"x": selected_grid_x,
+			"y": selected_grid_y,
+			"size": cursor_size
+		});
+	}
 }
 
 function refresh_annotations_list() {

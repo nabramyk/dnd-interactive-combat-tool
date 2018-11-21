@@ -43,13 +43,15 @@ function draw_item(element) {
 	switch (element.shape) {
 	case "square":
 	case "rectangle":
-		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
-		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-				
-		element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+		element.ele = paper.Shape.Rectangle(
+			pixel2GridPoint(element.x), 
+			pixel2GridPoint(element.y), 
+			JSON.parse(element.size.width) * grid_size - cursor_line_width * 2,
+			JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+		element.ele.position = new paper.Point(element.x, element.y); //Setting the position here is relative to the center of the square rather than the top left
 		element.ele.fillColor = "#" + element.color;
 		
-		console.log(element.ele);
+		console.log(element);
 		group_elements.addChild(element.ele);
 
 		break;
