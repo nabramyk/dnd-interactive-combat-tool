@@ -77,17 +77,6 @@ io.on('connection', (socket) => {
 		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
 	});
 
-	socket.on('warp_element', (msg, fn) => {
-		var movedElement = clutter.warpElement(msg);
-		if (isUndefined(movedElement)) {
-			socket.emit('error_channel', { "message": "Somethings already there! " });
-			return;
-		}
-
-		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
-	});
-
 	socket.on('add_element_to_server', (msg) => {
 		io.emit('added_element', { "grid_id" : msg.grid_id, "element": new Element(0,
 			JSON.parse(msg.x),
@@ -144,14 +133,6 @@ io.on('connection', (socket) => {
 
 	socket.on('delete_annotation_from_server', (msg) => {
 		io.emit('deleted_annotation', clutter.deleteAnnotation(msg));
-	});
-
-	socket.on('undo', (msg) => {
-		clutter.undo(msg);
-	});
-
-	socket.on('redo', (msg) => {
-		clutter.redo(msg);
 	});
 
 	socket.on('ping_snd', (msg) => {
