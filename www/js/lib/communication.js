@@ -4,6 +4,7 @@ function bindSocketListeners() {
 		$("#lost_connection_div").hide();
 
 		socket.emit('init', {}, function(msg) {
+			console.log(msg);
 			grid_count_height = msg.size.height;
 			resizeGridHeight(grid_count_height);
 			grid_count_width = msg.size.width;
@@ -45,8 +46,6 @@ function bindSocketListeners() {
 			$("#options_copy_button").hide();
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
-
-			//interfaceInitialization();
 
 			$("#loading_div").hide();
 		});
@@ -165,7 +164,19 @@ function bindSocketListeners() {
 		refresh_annotations_list();
 	});
 
-	socket.on('ping', function(msg) {
+	socket.on('new_init', function(msg, fn) {
+		fn({
+			size: {
+				height: grid_count_height,
+				width: grid_count_width
+			},
+			spaces: grid_spaces_list,
+			elements: local_stored_grid_space,
+			annotations: local_stored_annotations
+		});
+	});
+
+	socket.on('ping_rcv', function(msg) {
 		drawPing(msg);
 	});
 
@@ -189,9 +200,10 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 }
 
 function pingPosition() {
-	socket.emit('ping', {
-		position: cursor.position,
-		size: cursor.size
+	socket.emit('ping_snd', {
+		"grid_id": grid_id,
+		"position": cursor.position,
+		"size": cursor.size
 	});
 }
 

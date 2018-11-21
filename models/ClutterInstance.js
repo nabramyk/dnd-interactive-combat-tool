@@ -69,10 +69,6 @@ module.exports = class ClutterInstance {
     }
 
     addElement(msg) {
-        if(msg.category == "ping") {
-            return new Element(0, JSON.parse(msg.x), JSON.parse(msg.y), "", "", "", "ping", "");
-        }
-
         var input = new Element(0,
 			JSON.parse(msg.x),
 			JSON.parse(msg.y),

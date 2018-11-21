@@ -44,8 +44,6 @@ function interfaceInitialization() {
 	group_elements = new paper.Group();
 	group_overlay = new paper.Group();
 
-	console.log(paper.project);
-
 	paper.view.setViewSize(screenWidth(), screenHeight());
 
 	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
@@ -77,7 +75,7 @@ function interfaceInitialization() {
 	});
 
 	hammer.on('tap', function(evt) {
-		console.log(evt);
+
 	});
 
 	hammer.on('pinch', function(evt) {
