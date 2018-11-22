@@ -492,7 +492,6 @@ function getContextMenu() {
 	$("#side_container_swap > *").hide();
 	$("#options_container").show();
 	$("#overlapping_side_container").show();
-	$(".drawing_canvas").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "300px"));
 	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
 
