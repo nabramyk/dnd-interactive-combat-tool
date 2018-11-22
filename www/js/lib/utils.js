@@ -5,7 +5,7 @@
  * @returns {int} a quantized grid point
  */
 function pixel2GridPoint(raw_location) {
-	return raw_location - (raw_location % grid_size) + ( grid_size / 2 ) + grid_line_width;
+	return 1 + (raw_location - (raw_location % grid_size)) / grid_size;
 }
 
 /**

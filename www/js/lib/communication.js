@@ -178,8 +178,8 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
 		"color": color,
-		"x": JSON.stringify(x),
-		"y": JSON.stringify(y),
+		"x": JSON.stringify(pixel2GridPoint(x)),
+		"y": JSON.stringify(pixel2GridPoint(y)),
 		"shape": shape,
 		"name": name,
 		"size": size,

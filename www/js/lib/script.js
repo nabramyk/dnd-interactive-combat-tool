@@ -72,8 +72,8 @@ function interfaceInitialization() {
 
 	paper.view.onMouseDown = function(event) {
 		selected_element = group_elements.hitTest(event.point);
-		selected_grid_x = pixel2GridPoint(event.point.x);
-		selected_grid_y = pixel2GridPoint(event.point.y);
+		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
+		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
 		if(selected_element != null) {
 
 		}
