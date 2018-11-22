@@ -57,11 +57,9 @@ function interfaceInitialization() {
 	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 
 	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
-	var underlay_canvas_hammer = new Hammer(document.getElementById('underlay_canvas'), null);
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
 	hammer.get('pinch').set({ enable: true });
-	//overlay_canvas_hammer.get('pinch').set({ enable: true });
 
 	hammer.on('pan', function(evt) {
 		cPosX += Math.ceil(evt.deltaX * 0.03);
@@ -72,32 +70,38 @@ function interfaceInitialization() {
 		$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 	});
 
-	hammer.on('swipe', function(evt) {
-		console.log(evt);
-	});
+	paper.view.onMouseDown = function(event) {
+		selected_element = group_elements.hitTest(event.point);
+		selected_grid_x = pixel2GridPoint(event.point.x);
+		selected_grid_y = pixel2GridPoint(event.point.y);
+		if(selected_element != null) {
 
-	hammer.on('tap', function(evt) {
-		console.log(evt);
-	});
+		}
 
-	hammer.on('pinch', function(evt) {
-		//scaleX(),skewY(),skewX(),scaleY(),translateX(),translateY()
-		//scale = evt.scale;
-		//underlay_canvas.style.transform = "matrix(" + scale + ",0,0," + scale + "," + cPosX + "," + cPosY + ")";
-	});
-
-	underlay_canvas_hammer.on('tap', function(evt) {
-		//alert(evt);
-		canvasClicked(evt.center.x - $("#underlay_canvas").offset().left, evt.center.y - $("#underlay_canvas").offset().top);
-	});
-
-	underlay_canvas_hammer.on('pinch', function(evt) {
-		console.log(evt);
-		//grid_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		//underlay_canvas.style.transform = "scale(" + underlay_canvas.width * evt.scale + "," + underlay_canvas.width * evt.scale +")";
-		//overlay_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-		//temporary_drawing_canvas.style.transform = "translate(" + cPosX + "px," + cPosY + "px)";
-	});
+		cursor_size = {"width": 1, "height": 1};
+		
+		if(isUndefined(cursor)) {
+			cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * cursor_size.width, grid_size * cursor_size.height);
+			cursor.strokeColor = grid_highlight;
+			group_overlay.addChild(cursor);
+		}
+	
+		switch ($('#selected_shape').val()) {
+		case "line":
+			// overlay_ctx.fillStyle = grid_highlight;
+			// overlay_ctx.beginPath();
+			// overlay_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
+			// overlay_ctx.fill();
+			break;
+		default:
+			cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+		}
+	
+		$("#move_to_x").val(selected_grid_x);
+		$("#move_to_y").val(selected_grid_y);
+		
+		updateSideMenuContent();
+	}
 
 	tab_row.on('pan', function(evt) {
 		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
