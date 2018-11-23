@@ -415,8 +415,12 @@ i {
 #overlapping_container_tab {
   position: absolute; 
   right: 0; 
-  top: 50%; 
-  height: 10%;
+  height: 100%;
+  z-index: 3;
+  background-color: #000000; 
+}
+
+#overlapping_container_open {
   color: white; 
   background-color: #345eb2; 
   border: none;

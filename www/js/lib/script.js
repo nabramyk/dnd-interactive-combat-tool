@@ -38,21 +38,23 @@ function interfaceInitialization() {
 	$("#start_new_line_button").hide();
 	$("#lost_connection_div").hide();
 
+	paper.setup(document.getElementById('ruler_left'));
+	paper.setup(document.getElementById('ruler_top'));
 	paper.setup(underlay_canvas);
 
 	group_grid = new paper.Group();
 	group_elements = new paper.Group();
 	group_overlay = new paper.Group();
 
-	console.log(paper.project);
+	console.log(paper.projects);
 
-	paper.view.setViewSize(screenWidth(), screenHeight());
+	paper.projects[2].activate();
+	paper.projects[2].view.setViewSize(screenWidth(), screenHeight());
 
 	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
 	cPosY = (window.innerHeight - underlay_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - underlay_canvas.height) / 2);
 
 	$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
-
 	$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
 	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 
@@ -107,8 +109,8 @@ function interfaceInitialization() {
 		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
 	});
 
-	drawTopRuler();
-	drawLeftRuler();
+	//drawTopRuler();
+	//drawLeftRuler();
 
 	drawScreen();
 }

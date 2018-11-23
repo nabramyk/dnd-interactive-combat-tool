@@ -441,7 +441,7 @@ function bindEventHandlers() {
 		}
 	});
 
-	$("#overlapping_container_tab").click(function(evt) {
+	$("#overlapping_container_open").click(function(evt) {
 		$("#side_container_swap > *").hide();
 		$("#options_container").show();
 		$("#overlapping_side_container").show();
