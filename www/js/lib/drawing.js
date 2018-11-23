@@ -48,18 +48,25 @@ function draw_item(element) {
 				
 		element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
 		element.ele.fillColor = "#" + element.color;
-		console.log(element.ele);
 		group_elements.addChild(element.ele);
 
 		break;
 	case "circle":
 	case "oval":
-		ctx.fillStyle = "#" + element.color;
+		// ctx.fillStyle = "#" + element.color;
+		// x = gridPoint2Pixel(element.x) + grid_line_width;
+		// y = gridPoint2Pixel(element.y) + grid_line_width;
+		// ctx.beginPath();
+		// ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size.width, element.size.height * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
+		// ctx.fill();
+
 		x = gridPoint2Pixel(element.x) + grid_line_width;
 		y = gridPoint2Pixel(element.y) + grid_line_width;
-		ctx.beginPath();
-		ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size.width, element.size.height * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-		ctx.fill();
+				
+		element.ele = paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
+		element.ele.position = new paper.Point(x + (grid_size / 2), y + (grid_size / 2));
+		element.ele.fillColor = "#" + element.color;
+		group_elements.addChild(element.ele);
 		break;
 	case "line":
 		ctx.strokeStyle = "#" + element.color;
@@ -145,6 +152,9 @@ function drawScreen() {
 	}
 }
 
+/**
+ * Draws the ping
+ */
 function drawPing(ping) {
 	group_overlay.addChild(paper.Shape.Circle({ 
 		center: [ping.position[1], ping.position[2]],

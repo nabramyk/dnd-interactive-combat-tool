@@ -22,7 +22,7 @@ function gridPoint2Pixel(grid_point) {
  * Determine if the value is undefined 
  *
  * @param value - input which may be undefined
- * @returns {boolean} Tru if undefined, false otherwise
+ * @returns {boolean} True if undefined, false otherwise
  */
 function isUndefined(value) {
 	return value === undefined;
