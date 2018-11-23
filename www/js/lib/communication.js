@@ -165,7 +165,7 @@ function bindSocketListeners() {
 		refresh_annotations_list();
 	});
 
-	socket.on('ping', function(msg) {
+	socket.on('ping_rcv', function(msg) {
 		drawPing(msg);
 	});
 
@@ -189,7 +189,7 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 }
 
 function pingPosition() {
-	socket.emit('ping', {
+	socket.emit('ping_snd', {
 		position: cursor.position,
 		size: cursor.size
 	});
@@ -241,12 +241,14 @@ function delete_annotation_from_server(id) {
 function incremental_move_element(direction) {
 	socket.emit('move_element', {
 		"grid_id": grid_id,
-		"x": selected_grid_x,
-		"y": selected_grid_y,
+		"x": pixel2GridPoint(selected_grid_x),
+		"y": pixel2GridPoint(selected_grid_y),
 		"direction": direction,
 		"size": cursor_size
 	}, function(msg) {
-		draw_cursor_at_position(msg.x, msg.y, msg.size);
+		selected_grid_x = gridPoint2Pixel(msg.x) + grid_size / 2 + grid_line_width;
+		selected_grid_y = gridPoint2Pixel(msg.y) + grid_size / 2 + grid_line_width;
+		cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
 	});
 }
 

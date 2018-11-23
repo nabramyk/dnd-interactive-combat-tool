@@ -136,8 +136,8 @@ io.on('connection', (socket) => {
 		clutter.redo(msg);
 	});
 
-	socket.on('ping', (msg) => {
-		io.emit('ping', msg);
+	socket.on('ping_snd', (msg) => {
+		io.emit('ping_rcv', msg);
 	})
 });
 

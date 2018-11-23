@@ -145,10 +145,10 @@ function drawScreen() {
 	}
 }
 
-function drawPing(ping, _grid_id) {
+function drawPing(ping) {
 	group_overlay.addChild(paper.Shape.Circle({ 
-		center: [ping.position._x, ping.position._y],
-		radius: ping.size._width / 2,
+		center: [ping.position[1], ping.position[2]],
+		radius: ping.size[1] / 2,
 		fillColor: "#f44242",
 		onFrame: function(event) {
 			if(event.count >= 100) {
