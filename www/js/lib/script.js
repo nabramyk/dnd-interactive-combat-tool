@@ -49,28 +49,28 @@ function interfaceInitialization() {
 	console.log(paper.projects);
 
 	paper.projects[2].activate();
-	paper.projects[2].view.setViewSize(screenWidth(), screenHeight());
+	paper.projects[2].view.setViewSize(window.innerWidth, window.innerHeight);
 
 	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
 	cPosY = (window.innerHeight - underlay_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - underlay_canvas.height) / 2);
 
-	$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
-	$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
-	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
+	//$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+	//$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
+	//$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
 
-	var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
+	//var hammer = new Hammer(document.getElementById('grid_canvas_scrolling_container'), null);
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
-	hammer.get('pinch').set({ enable: true });
+	// hammer.get('pinch').set({ enable: true });
 
-	hammer.on('pan', function(evt) {
-		cPosX += Math.ceil(evt.deltaX * 0.03);
-		cPosY += Math.ceil(evt.deltaY * 0.03);
-		$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
+	// hammer.on('pan', function(evt) {
+	// 	cPosX += Math.ceil(evt.deltaX * 0.03);
+	// 	cPosY += Math.ceil(evt.deltaY * 0.03);
+	// 	$('#underlay_canvas').css({transform : 'translate(' + cPosX + 'px,' + cPosY + 'px)'});
 
-		$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
-		$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
-	});
+	// 	$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
+	// 	$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
+	// });
 
 	paper.view.onMouseDown = function(event) {
 		selected_element = group_elements.hitTest(event.point);
@@ -105,12 +105,22 @@ function interfaceInitialization() {
 		updateSideMenuContent();
 	}
 
+	var toolPan = new paper.Tool();
+	toolPan.activate();
+
+	toolPan.onMouseDrag = function(event) {
+		paper.view.scrollBy(event.downPoint.subtract(event.point));
+		paper.view.update();
+	}
+
 	tab_row.on('pan', function(evt) {
 		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
 	});
 
 	//drawTopRuler();
 	//drawLeftRuler();
+
+	paper.view.autoUpdate = false;
 
 	drawScreen();
 }

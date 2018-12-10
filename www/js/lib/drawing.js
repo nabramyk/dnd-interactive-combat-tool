@@ -2,7 +2,7 @@
  * @fileoverview Should just handle all of the canvas drawing stuff
  */
 function drawTopRuler() {
-	paper.projects[1].view.setViewSize(grid_size * grid_count_width + 2 * grid_line_width, grid_size);
+	//paper.projects[1].view.setViewSize(grid_size * grid_count_width + 2 * grid_line_width, grid_size);
 	paper.projects[1].activate();
 	for (var i = 1; i <= grid_count_width; i++) {
 		var rect = paper.Shape.Rectangle((i - 1) * grid_size + grid_line_width, grid_line_width, grid_size, grid_size);
@@ -17,7 +17,7 @@ function drawTopRuler() {
 }
 
 function drawLeftRuler() {
-	paper.projects[0].view.setViewSize(grid_size, grid_size * grid_count_height + 2 * grid_line_width);
+	//paper.projects[0].view.setViewSize(grid_size, grid_size * grid_count_height + 2 * grid_line_width);
 	paper.projects[0].activate();
 	for (var i = 1; i <= grid_count_height; i++) {
 		var rect = paper.Shape.Rectangle(grid_line_width, (i - 1) * grid_size + grid_line_width, grid_size, grid_size);
@@ -112,6 +112,10 @@ function drawScreen() {
 			group_grid.addChild(rect);
 		}
 	}
+	console.log(group_grid);
+	group_grid.rasterize();
+	group_grid.removeChildren();
+	paper.view.update();
 }
 
 /**

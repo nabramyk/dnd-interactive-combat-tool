@@ -65,6 +65,8 @@ i {
 
 #underlay_canvas {
   z-index: 4;
+  width: 100%;
+  height: 100%;
 }
 
 #temporary_drawing_canvas {

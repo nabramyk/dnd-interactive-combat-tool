@@ -667,7 +667,7 @@ function clicked_annotation_list(id) {
 function resizeGridWidth(width) {
 	grid_count_width = width;
 	$("#grid_size_horizontal").val(grid_count_width);
-	paper.view.setViewSize(screenWidth(), screenHeight());
+	//paper.view.setViewSize(screenWidth(), screenHeight());
 	drawScreen();
 	drawTopRuler();
 }
@@ -675,7 +675,7 @@ function resizeGridWidth(width) {
 function resizeGridHeight(height) {
 	grid_count_height = height;
 	$("#grid_size_vertical").val(grid_count_height);
-	paper.view.setViewSize(screenWidth(), screenHeight());
+	//paper.view.setViewSize(screenWidth(), screenHeight());
 	drawScreen();
 	drawLeftRuler();
 }
