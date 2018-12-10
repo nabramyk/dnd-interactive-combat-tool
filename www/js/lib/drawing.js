@@ -4,11 +4,14 @@
 function drawTopRuler() {
 	paper.projects[1].view.setViewSize(grid_size * grid_count_width + 2 * grid_line_width, grid_size);
 	paper.projects[1].activate();
-	for (var i = 0; i < grid_count_width; i++) {
-		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+	for (var i = 1; i <= grid_count_width; i++) {
+		var rect = paper.Shape.Rectangle((i - 1) * grid_size + grid_line_width, grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
-		// var n = ctx2.measureText(i+1).width / 2;
-		// ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size / 1.5);
+
+		var text = new paper.PointText(new paper.Point(i * grid_size - (grid_size / 2), grid_size - (grid_size / 4)));
+		text.fillColor = 'black';
+		text.justification = 'center';
+		text.content = i;
 	}
 	paper.projects[2].activate();
 }
@@ -16,16 +19,14 @@ function drawTopRuler() {
 function drawLeftRuler() {
 	paper.projects[0].view.setViewSize(grid_size, grid_size * grid_count_height + 2 * grid_line_width);
 	paper.projects[0].activate();
-	for (var i = 0; i < grid_count_height; i++) {
-		// var n = ctx2.measureText(i+1).width / 2;
-		// ctx2.fillText(i + 1, grid_line_width + (grid_size / 2) - n, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - 6);
-		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+	for (var i = 1; i <= grid_count_height; i++) {
+		var rect = paper.Shape.Rectangle(grid_line_width, (i - 1) * grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
 
-		var text = new paper.PointText(new paper.Point(10,10));
+		var text = new paper.PointText(new paper.Point(grid_size / 2, i * grid_size - (grid_size / 4)));
 		text.fillColor = 'black';
 		text.justification = 'center';
-		text.content = "1";
+		text.content = i;
 	}
 	paper.projects[2].activate();
 }

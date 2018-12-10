@@ -274,7 +274,6 @@ i {
 }
 
 #editing_controls,#options_controls,#context_editing_controls,#context_annotation_controls {
-  width:160px;
   display:inline;
   position:absolute;
   z-index: 100;
@@ -315,7 +314,6 @@ i {
 
 #addition_tab {
   background: white;
-  height: 100%;
   border: none;
   min-width: 20px;
   max-width: 20%;
@@ -418,9 +416,6 @@ i {
   height: 100%;
   z-index: 3;
   background-color: red; 
-}
-
-#overlapping_container_open {
 }
 
 .toolbar_quick_access_button {
