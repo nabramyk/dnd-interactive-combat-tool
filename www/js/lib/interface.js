@@ -453,6 +453,10 @@ function bindEventHandlers() {
 		$("#overlapping_back_button").hide();
 		getContextMenu();
 	});
+
+	$("#tqa_ping").click(function(evt) {
+		pingPosition();
+	});
 }
 
 /**

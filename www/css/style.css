@@ -414,17 +414,24 @@ i {
 
 #overlapping_container_tab {
   position: absolute; 
-  right: 0; 
+  right: 0;
   height: 100%;
   z-index: 3;
-  background-color: #000000; 
+  background-color: red; 
 }
 
 #overlapping_container_open {
+}
+
+.toolbar_quick_access_button {
   color: white; 
   background-color: #345eb2; 
-  border: none;
-  font-size: 24px;
+  border-bottom: #8c8c8c;
+  border-left: none;
+  border-right: none;
+  height: 12.5%;
+  width: 100%;
+  font-size: 18px;
 }
 
 .back_button {
