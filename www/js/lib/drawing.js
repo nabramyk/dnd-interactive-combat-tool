@@ -41,7 +41,6 @@ function drawElements() {
 	local_stored_grid_space.forEach(function(el) {
 		draw_item(el);
 	});
-	paper.view.update();
 }
 
 /**
@@ -89,6 +88,8 @@ function draw_item(element) {
 		ctx.stroke();
 		break;
 	}
+	elementsraster = group_elements.rasterize();
+	group_elements.removeChildren();
 	paper.view.update();
 }
 
@@ -120,7 +121,7 @@ function drawScreen() {
 			group_grid.addChild(rect);
 		}
 	}
-	group_grid.rasterize();
+	gridraster = group_grid.rasterize();
 	group_grid.removeChildren();
 	paper.view.update();
 }
@@ -137,6 +138,7 @@ function drawPing(ping) {
 			if(event.count >= 100) {
 				this.remove();
 			}
+			paper.view.update();
 		}
 	}));
 }

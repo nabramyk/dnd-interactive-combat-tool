@@ -37,7 +37,7 @@ function interfaceInitialization() {
 	$("#reset_board_button").prop("disabled", true);
 	$("#start_new_line_button").hide();
 	$("#lost_connection_div").hide();
-	
+
 	paper.setup(underlay_canvas);
 
 	group_grid = new paper.Group();
@@ -46,10 +46,6 @@ function interfaceInitialization() {
 	group_left_ruler = new paper.Group();
 	group_top_ruler = new paper.Group();
 
-	console.log(paper.projects);
-
-	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
-	cPosY = (window.innerHeight - underlay_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - underlay_canvas.height) / 2);
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
 	paper.view.onMouseDown = function(event) {
