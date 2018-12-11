@@ -14,6 +14,7 @@ function drawTopRuler() {
 		text.content = i;
 		group_top_ruler.addChild(text);
 	}
+	try { toprulerraster.remove(); } catch(e) {};
 	toprulerraster = group_top_ruler.rasterize();
 	group_top_ruler.removeChildren();
 	paper.view.update();
@@ -32,6 +33,7 @@ function drawLeftRuler() {
 		text.content = i;
 		group_left_ruler.addChild(text);
 	}
+	try { leftrulerraster.remove(); } catch(e) {};
 	leftrulerraster = group_left_ruler.rasterize();
 	group_left_ruler.removeChildren();
 	paper.view.update();
@@ -121,6 +123,7 @@ function drawScreen() {
 			group_grid.addChild(rect);
 		}
 	}
+	try { gridraster.remove(); } catch(e) {};
 	gridraster = group_grid.rasterize();
 	group_grid.removeChildren();
 	paper.view.update();
