@@ -2,39 +2,46 @@
  * @fileoverview Should just handle all of the canvas drawing stuff
  */
 function drawTopRuler() {
-	//paper.projects[1].view.setViewSize(grid_size * grid_count_width + 2 * grid_line_width, grid_size);
-	paper.projects[1].activate();
 	for (var i = 1; i <= grid_count_width; i++) {
-		var rect = paper.Shape.Rectangle((i - 1) * grid_size + grid_line_width, grid_line_width, grid_size, grid_size);
+		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_top_ruler.addChild(rect);
 
-		var text = new paper.PointText(new paper.Point(i * grid_size - (grid_size / 2), grid_size - (grid_size / 4)));
+		var text = new paper.PointText(new paper.Point(i * grid_size + (grid_size / 2), grid_size - (grid_size / 4)));
 		text.fillColor = 'black';
 		text.justification = 'center';
 		text.content = i;
+		group_top_ruler.addChild(text);
 	}
-	paper.projects[2].activate();
+	toprulerraster = group_top_ruler.rasterize();
+	group_top_ruler.removeChildren();
+	paper.view.update();
 }
 
 function drawLeftRuler() {
-	//paper.projects[0].view.setViewSize(grid_size, grid_size * grid_count_height + 2 * grid_line_width);
-	paper.projects[0].activate();
 	for (var i = 1; i <= grid_count_height; i++) {
-		var rect = paper.Shape.Rectangle(grid_line_width, (i - 1) * grid_size + grid_line_width, grid_size, grid_size);
+		var rect = paper.Shape.Rectangle(grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_left_ruler.addChild(rect);
 
-		var text = new paper.PointText(new paper.Point(grid_size / 2, i * grid_size - (grid_size / 4)));
+		var text = new paper.PointText(new paper.Point(grid_size / 2, i * grid_size + (grid_size / 1.5)));
 		text.fillColor = 'black';
 		text.justification = 'center';
 		text.content = i;
+		group_left_ruler.addChild(text);
 	}
-	paper.projects[2].activate();
+	leftrulerraster = group_left_ruler.rasterize();
+	group_left_ruler.removeChildren();
+	paper.view.update();
 }
 
 function drawElements() {
 	local_stored_grid_space.forEach(function(el) {
 		draw_item(el);
 	});
+	paper.view.update();
 }
 
 /**
@@ -82,6 +89,7 @@ function draw_item(element) {
 		ctx.stroke();
 		break;
 	}
+	paper.view.update();
 }
 
 function draw_temporary_cursor_at_position(x, y, size) {
@@ -105,14 +113,13 @@ function draw_temporary_cursor_at_position(x, y, size) {
  * Function for drawing the grid board
  */
 function drawScreen() {
-	for (var i = 0; i < grid_count_height; i++) {
-		for (var j = 0; j < grid_count_width; j++) {
+	for (var i = 1; i <= grid_count_height; i++) {
+		for (var j = 1; j <= grid_count_width; j++) {
 			var rect = paper.Shape.Rectangle(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 			rect.strokeColor = grid_color;
 			group_grid.addChild(rect);
 		}
 	}
-	console.log(group_grid);
 	group_grid.rasterize();
 	group_grid.removeChildren();
 	paper.view.update();

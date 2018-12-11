@@ -38,18 +38,20 @@ function interfaceInitialization() {
 	$("#start_new_line_button").hide();
 	$("#lost_connection_div").hide();
 
-	paper.setup(document.getElementById('ruler_left'));
-	paper.setup(document.getElementById('ruler_top'));
+	//paper.setup(document.getElementById('ruler_left'));
+	//paper.setup(document.getElementById('ruler_top'));
 	paper.setup(underlay_canvas);
 
 	group_grid = new paper.Group();
 	group_elements = new paper.Group();
 	group_overlay = new paper.Group();
+	group_left_ruler = new paper.Group();
+	group_top_ruler = new paper.Group();
 
 	console.log(paper.projects);
 
-	paper.projects[2].activate();
-	paper.projects[2].view.setViewSize(window.innerWidth, window.innerHeight);
+	//paper.projects[2].activate();
+	//paper.projects[2].view.setViewSize(window.innerWidth, window.innerHeight);
 
 	cPosX = (window.innerWidth - underlay_canvas.width) < 0 ? 0 : Math.ceil((window.innerWidth - underlay_canvas.width) / 2);
 	cPosY = (window.innerHeight - underlay_canvas.height) < 60 ? 60 : Math.ceil((window.innerHeight - underlay_canvas.height) / 2);
@@ -103,6 +105,7 @@ function interfaceInitialization() {
 		$("#move_to_y").val(selected_grid_y);
 		
 		updateSideMenuContent();
+		paper.view.update();
 	}
 
 	var toolPan = new paper.Tool();
@@ -110,6 +113,12 @@ function interfaceInitialization() {
 
 	toolPan.onMouseDrag = function(event) {
 		paper.view.scrollBy(event.downPoint.subtract(event.point));
+		//$('#ruler_left').css({transform : 'translate(' + (cPosX - 20 < 0 ? 0 : cPosX - 20) + 'px,' + cPosY + 'px)'});
+		//$('#ruler_top').css({transform : 'translate(' + cPosX + 'px,' + (cPosY - 20 < 40 ? 40 : cPosY - 20) + 'px)'});
+		var point = paper.view.center._owner.topLeft;
+		leftrulerraster.position.x = (point.x > 0 ? point.x + 10 : 10);
+		toprulerraster.position.y = (point.y > -40 ? point.y + 50 : 10);
+		console.log(toprulerraster.position.y);
 		paper.view.update();
 	}
 
@@ -117,8 +126,8 @@ function interfaceInitialization() {
 		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
 	});
 
-	//drawTopRuler();
-	//drawLeftRuler();
+	drawTopRuler();
+	drawLeftRuler();
 
 	paper.view.autoUpdate = false;
 
