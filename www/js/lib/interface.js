@@ -212,13 +212,11 @@ function bindEventHandlers() {
 		}
 
 		for (var i = 1; i < x_vertices.length; i++) {
-			clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
+			//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
 		}
 
 		x_vertices.length = [];
 		y_vertices.length = [];
-
-		draw_cursor_at_position(selected_grid_x, selected_grid_y);
 	});
 
 	$("#drawing_controls_button").click(function() {

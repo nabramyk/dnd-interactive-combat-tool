@@ -69,10 +69,11 @@ function interfaceInitialization() {
 	
 		switch ($('#selected_shape').val()) {
 		case "line":
-			// overlay_ctx.fillStyle = grid_highlight;
-			// overlay_ctx.beginPath();
-			// overlay_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
-			// overlay_ctx.fill();
+			cursor.remove();
+			cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size/2), selected_grid_y - (grid_size/2)), 5);
+			cursor.fillColor = grid_highlight;
+			group_overlay.addChild(cursor);
+			console.log(cursor);
 			break;
 		default:
 			cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
