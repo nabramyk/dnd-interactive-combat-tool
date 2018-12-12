@@ -50,3 +50,4 @@ var group_grid, group_elements, group_overlay, group_left_ruler, group_top_ruler
 var cursor;
 
 var leftrulerraster, toprulerraster, gridraster, elementsraster;
+var isDragging = false;

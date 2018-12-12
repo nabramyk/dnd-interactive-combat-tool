@@ -48,10 +48,13 @@ function interfaceInitialization() {
 
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
-	paper.view.onMouseDown = function(event) {
+	paper.view.onClick = function(event) {
+		if(gridraster.hitTest(event.point) == null || isDragging) { return; }
 		selected_element = group_elements.hitTest(event.point);
+		
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
+
 		if(selected_element != null) {
 
 		}
@@ -86,11 +89,16 @@ function interfaceInitialization() {
 	toolPan.activate();
 
 	toolPan.onMouseDrag = function(event) {
+		isDragging = true;
 		paper.view.scrollBy(event.downPoint.subtract(event.point));
 		var point = paper.view.center._owner.topLeft;
 		leftrulerraster.position.x = (point.x > 0 ? point.x + 10 : 10);
 		toprulerraster.position.y = (point.y > -40 ? point.y + 50 : 10);
 		paper.view.update();
+	}
+
+	toolPan.onMouseUp = function(event) {
+		isDragging = false;
 	}
 
 	tab_row.on('pan', function(evt) {

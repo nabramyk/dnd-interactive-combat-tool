@@ -398,7 +398,6 @@ i {
 #side_container_swap {
   position: relative;
   display: block;
-  margin-top: 40px;
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 36px;
@@ -409,7 +408,6 @@ i {
   right: 0;
   height: 100%;
   z-index: 3;
-  background-color: red; 
 }
 
 .toolbar_quick_access_button {
@@ -425,9 +423,10 @@ i {
 
 .back_button {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
-  height: 100%;
+  height: 10%;
+  width: 100%;
   font-size: 24px;
   border: none;
   color: white;

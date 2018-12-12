@@ -43,6 +43,7 @@ function drawElements() {
 	local_stored_grid_space.forEach(function(el) {
 		draw_item(el);
 	});
+	
 }
 
 /**
@@ -90,6 +91,7 @@ function draw_item(element) {
 		ctx.stroke();
 		break;
 	}
+	try { elementsraster.remove() } catch(e) {};
 	elementsraster = group_elements.rasterize();
 	group_elements.removeChildren();
 	paper.view.update();

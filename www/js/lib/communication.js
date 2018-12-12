@@ -107,7 +107,8 @@ function bindSocketListeners() {
 		)];
 		element.x = msg.element.x;
 		element.y = msg.element.y;
-		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
+		//element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
+		drawElements();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
