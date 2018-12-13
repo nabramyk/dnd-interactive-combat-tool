@@ -376,39 +376,6 @@ function bindEventHandlers() {
 			"y": selected_grid_y
 		});
 	})
-	.on("mousedown", "#dragging_element_icon", function(evt) {
-		mouse_down = true;
-	})
-	.on("touchstart", "#dragging_element_icon", function(evt) {
-		touch_start = true;
-	})
-	.mousemove(function(evt) {
-		if (mouse_down) {
-			$("#dragging_element_icon").css("top", evt.clientY - (grid_size / 2));
-			$("#dragging_element_icon").css("left", evt.clientX - (grid_size / 2));
-			temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-			draw_temporary_cursor_at_position(evt.clientX - (evt.clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size - ($("#grid_canvas_scrolling_container").scrollLeft() % grid_size), evt.clientY - (evt.clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size - ($("#grid_canvas_scrolling_container").scrollTop() % grid_size), cursor_size);
-		}
-	})
-	.on("touchmove", "#dragging_element_icon", function(evt) {
-		if (touch_start) {
-			$("#dragging_element_icon").css("top", evt.originalEvent.touches[0].clientY - (grid_size / 2));
-			$("#dragging_element_icon").css("left", evt.originalEvent.touches[0].clientX - (grid_size / 2));
-			temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-			draw_temporary_cursor_at_position(evt.originalEvent.touches[0].clientX - (evt.originalEvent.touches[0].clientX % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size, evt.originalEvent.touches[0].clientY - (evt.originalEvent.touches[0].clientY % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size, cursor_size);
-		}
-	})
-	.on("mouseup", "#dragging_element_icon", function(evt) {
-		dragElement(evt.clientX, evt.clientY, evt.pageX, evt.pageY);
-		mouse_down = false;
-	})
-	.on("touchend", "#dragging_element_icon", function(evt) {
-		dragElement(evt.originalEvent.changedTouches[0].clientX,
-				evt.originalEvent.changedTouches[0].clientY,
-				evt.originalEvent.changedTouches[0].pageX,
-				evt.originalEvent.changedTouches[0].pageY);
-		touch_start = false;
-	})
 	.on('click', '#tab_row .grid-space-delete', function(evt) {
 		if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
 			socket.emit("delete_grid_space_from_server", {
@@ -452,7 +419,7 @@ function bindEventHandlers() {
 		getContextMenu();
 	});
 
-	$("#tqa_ping").click(function(evt) {
+	$("#tqa_ping").click(function() {
 		pingPosition();
 	});
 }
@@ -482,11 +449,6 @@ function composeAnnotationListRowElement(el) {
 	"<button id=\"element_row_edit\" onClick=\"editAnnotationRow(" + el.id + ")\">&#x270E;</button>" +
 	"<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
 	"</div>";
-}
-
-function showLongHoldMenu(x, y, id) {
-	if (id != -1) $("body").append("<span id=\"dragging_element_icon\" class=\"glyphicon popup_items\" style=\"position:absolute;top:" + (y - grid_size) + "px;left:" + (x - grid_size * 2) + "px;width:" + grid_size + "px;height:" + grid_size + "px;font-size: 18px;\">&#xe068;</span>");
-	getContextMenu();
 }
 
 function getContextMenu() {

@@ -96,23 +96,6 @@ function draw_item(element) {
 	}
 }
 
-function draw_temporary_cursor_at_position(x, y, size) {
-	switch ($('#selected_shape').val()) {
-	case "square":
-	case "circle":
-		temporary_drawing_ctx.lineWidth = cursor_line_width;
-		temporary_drawing_ctx.strokeStyle = "#b38f00";
-		temporary_drawing_ctx.strokeRect(x + grid_line_width, y + grid_line_width, grid_size * size, grid_size * size);
-		cursor_size = size;
-		break;
-	case "line":
-		temporary_drawing_ctx.fillStyle = grid_highlight;
-		temporary_drawing_ctx.beginPath();
-		temporary_drawing_ctx.arc(gridPoint2Pixel(selected_grid_x) + grid_line_width, gridPoint2Pixel(selected_grid_y) + grid_line_width, 5, 0, 2 * Math.PI);
-		temporary_drawing_ctx.fill();
-	}
-}
-
 /**
  * Function for drawing the grid board
  */
