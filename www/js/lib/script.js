@@ -46,6 +46,8 @@ function interfaceInitialization() {
 	group_left_ruler = new paper.Group();
 	group_top_ruler = new paper.Group();
 
+	line_path = new paper.Path();
+
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
 	paper.view.onClick = function(event) {
@@ -73,7 +75,14 @@ function interfaceInitialization() {
 			cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size/2), selected_grid_y - (grid_size/2)), 5);
 			cursor.fillColor = grid_highlight;
 			group_overlay.addChild(cursor);
-			console.log(cursor);
+			if(line_path.segments.length > 0) {
+				try { temp.remove(); } catch(e) {};
+				temp = new paper.Path(line_path.segments);
+				temp.add(cursor.position);
+				console.log(temp.segments);
+				temp.strokeColor = "#ff0000";
+				group_overlay.addChild(temp);
+			}
 			break;
 		default:
 			cursor.position = new paper.Point(selected_grid_x, selected_grid_y);

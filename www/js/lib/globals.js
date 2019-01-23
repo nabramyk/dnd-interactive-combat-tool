@@ -51,3 +51,4 @@ var cursor;
 
 var leftrulerraster, toprulerraster, gridraster, elementsraster;
 var isDragging = false;
+var line_path, temp;

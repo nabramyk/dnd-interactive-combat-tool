@@ -41,10 +41,12 @@ function bindEventHandlers() {
 				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(),  { "width" : $("#element_width").val(), "height" : $("#element_height").val() }, $("#element_category").val());
 				break;
 			case "line":
-				x_vertices.push(selected_grid_x);
-				y_vertices.push(selected_grid_y);
-				if (x_vertices.length === 1 && y_vertices.length === 1)
+				line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
+				if (line_path.segments.length > 0) {
 					$("#start_new_line_button").toggle();
+					line_path.strokeColor = "#ff0000";
+					group_overlay.addChild(line_path);
+				}
 				break;
 			}
 		} else {
