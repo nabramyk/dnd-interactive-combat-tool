@@ -52,15 +52,17 @@ i {
   width: 23%;
 }
 
-.drawing_canvas {
+#underlay_canvas {
+  z-index: 4;
+  width: 100%;
+  height: 100%;
   -webkit-user-select: none;
   position: absolute;
   top: 0;
   left: 0;
 }
 
-#underlay_canvas {
-  z-index: 4;
+#underlay_canvas[resize] {
   width: 100%;
   height: 100%;
 }
