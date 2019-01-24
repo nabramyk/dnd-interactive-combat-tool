@@ -34,33 +34,36 @@ function bindEventHandlers() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 			case "square":
-			case "circle":
-				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val());
+				var el = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * $("#element_size").val(), grid_size * $("#element_size").val());
+				el.fillColor = $("#element_color").val();
+				add_element_to_paper(el);
 				break;
-			case "rectangle":
-				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(),  { "width" : $("#element_width").val(), "height" : $("#element_height").val() }, $("#element_category").val());
+			case "circle":
+				var el = paper.Shape.Circle([selected_grid_x, selected_grid_y], (grid_size * $("#element_size").val()) / 2);
+				el.fillColor = $("#element_color").val();
+				add_element_to_paper(el);
 				break;
 			case "line":
 				line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
 				if (line_path.segments.length > 0) {
-					$("#start_new_line_button").toggle();
+					$("#start_new_line_button").show();
 					line_path.strokeColor = "#ff0000";
 					group_overlay.addChild(line_path);
 				}
 				break;
 			}
 		} else {
-			socket.emit('edit_element_on_server', {
-				"grid_id": grid_id,
-				"id": selected_element.id,
-				"name": $("#element_name").val(),
-				"shape": $("#selected_shape").val(),
-				"color": $("#element_color").val(),
-				"x": selected_element.x,
-				"y": selected_element.y,
-				"size": $("#element_size").val(),
-				"category": $("#element_category").val()
-			});
+			// socket.emit('edit_element_on_server', {
+			// 	"grid_id": grid_id,
+			// 	"id": selected_element.id,
+			// 	"name": $("#element_name").val(),
+			// 	"shape": $("#selected_shape").val(),
+			// 	"color": $("#element_color").val(),
+			// 	"x": selected_element.x,
+			// 	"y": selected_element.y,
+			// 	"size": $("#element_size").val(),
+			// 	"category": $("#element_category").val()
+			// });
 		}
 	});
 
@@ -103,18 +106,13 @@ function bindEventHandlers() {
 	});
 
 	$("#start_new_line_button").click(function() {
-		temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
+		var el = paper.Path.Line(line_path);
+		el.strokeColor = $("#element_color").val();
+		add_element_to_paper(el);
 
-		if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
-			x_vertices.push(selected_grid_x);
-			y_vertices.push(selected_grid_y);
-		}
-
-		if (x_vertices.length > 1 && y_vertices.length > 1)
-			add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), null, $("#element_size").val(), $("#element_category").val());
-
-		x_vertices = [];
-		y_vertices = [];
+		line_path.remove();
+		line_path.segments = [];
+		group_overlay.removeChildren();
 		$("#start_new_line_button").toggle();
 	});
 
