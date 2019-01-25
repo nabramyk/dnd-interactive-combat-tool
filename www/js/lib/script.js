@@ -57,9 +57,8 @@ function interfaceInitialization() {
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
 
-		if(selected_element != null) {
-
-		}
+		//TODO What happens when an element is selected?
+		if(selected_element != null) {}
 
 		cursor_size = {"width": 1, "height": 1};
 		
@@ -91,6 +90,11 @@ function interfaceInitialization() {
 		$("#move_to_x").val(selected_grid_x);
 		$("#move_to_y").val(selected_grid_y);
 		
+		console.log(cursor.position);
+
+		drawSelectedPositionTopRuler(Number(selected_grid_x));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y));
+
 		updateSideMenuContent();
 		paper.view.update();
 	}
