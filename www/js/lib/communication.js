@@ -4,10 +4,9 @@ function bindSocketListeners() {
 		$("#lost_connection_div").hide();
 
 		socket.emit('init', {}, function(msg) {
-			console.log(msg);
-			grid_count_height = msg.height;
+			grid_count_height = msg.size.height;
 			resizeGridHeight(grid_count_height);
-			grid_count_width = msg.width;
+			grid_count_width = msg.size.width;
 			resizeGridWidth(grid_count_width);
 
 			selected_grid_x = -1;
@@ -34,9 +33,9 @@ function bindSocketListeners() {
 				local_stored_grid_space = [];
 			}
 
-			// local_stored_annotations = msg.annotations;
-			// showAnnotations();
-			// refresh_annotations_list();
+			local_stored_annotations = msg.annotations;
+			showAnnotations();
+			refresh_annotations_list();
 
 			refresh_elements_list();
 
@@ -171,21 +170,6 @@ function bindSocketListeners() {
 		drawPing(msg);
 	});
 
-	socket.on('added_element_to_paper', function(msg) {
-		console.log(msg);
-		if(msg[0] == "Shape") {
-			if(msg[1].type == "rectangle") {
-				group_elements.addChild(paper.Shape.Rectangle(msg[1]));
-			} else {
-				group_elements.addChild(paper.Shape.Circle(msg[1]));
-			}
-		} else if(msg[0] == "Path") {
-			group_elements.addChild(paper.Path.Line(msg[1]));
-		}
-		console.log(group_elements);
-		paper.view.update();
-	});
-
 	socket.on('error_channel', function(msg) {
 		alert(msg.message);
 	});
@@ -203,10 +187,6 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 		"category": category,
 		"rotation": 1
 	});
-}
-
-function add_element_to_paper(el) {
-	socket.emit('add_element_to_paper', el);
 }
 
 function pingPosition() {

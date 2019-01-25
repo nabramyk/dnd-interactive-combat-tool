@@ -15,7 +15,6 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var isUndefined = require('./utils.js').isUndefined;
-var paper = require('paper');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -26,18 +25,6 @@ app.use(function (req, res, next) {
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
-
-paper.setup([0, 0]);
-paper.project.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
-paper.project.width = 1;
-paper.project.height = 1;
-paper.project.elements = [];
-
-paper.setup([0, 0]);
-paper.project.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
-paper.project.width = 1;
-paper.project.height = 1;
-paper.project.elements = [];
 
 //Define the main path to index.html, which will be automatically loaded when
 //the user visits for the
@@ -52,16 +39,14 @@ app.use('/js', express.static(__dirname + '/www/js'))
 //webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
+var clutter = new ClutterInstance();
+
 io.on('connection', (socket) => {
 	console.log("a user connected");
 
 	socket.on('init', (_, fn) => {
-		fn({ "name" : paper.projects[0].name,
-				"height" : paper.projects[0].height,
-				"width" : paper.projects[0].width,
-				"spaces" : paper.projects.map((el) => { return { "id": el.id, "name": el.name } }),
-				"elements" : paper.projects[0].elements
-	})});
+		fn(clutter.init());
+	});
 
 	socket.on('resize', (msg) => {
 		io.emit('resize', clutter.resize(msg));
@@ -96,11 +81,6 @@ io.on('connection', (socket) => {
 			io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
 		}
 	});
-
-	socket.on('add_element_to_paper', (msg) => {
-		console.log(msg);
-		io.emit('added_element_to_paper', msg);
-	})
 
 	socket.on('delete_element_on_server', (msg) => {
 		clutter.deleteElement(msg);
@@ -163,5 +143,5 @@ io.on('connection', (socket) => {
 
 //Main driver for booting up the server
 http.listen(8080, () => {
-	console.log("%s:%s", http.address().address, http.address().port);
-})
+	console.log("%s:%s", http.address().address, http.address().port)
+});
