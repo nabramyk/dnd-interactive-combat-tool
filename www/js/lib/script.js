@@ -90,8 +90,6 @@ function interfaceInitialization() {
 		$("#move_to_x").val(selected_grid_x);
 		$("#move_to_y").val(selected_grid_y);
 		
-		console.log(cursor.position);
-
 		drawSelectedPositionTopRuler(Number(selected_grid_x));
 		drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
