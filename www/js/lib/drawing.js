@@ -22,6 +22,8 @@ function drawTopRuler(pos) {
 }
 
 function drawSelectedPositionTopRuler(pos) {
+	var screen = paper.view.center._owner.topLeft; 
+
 	if(isUndefined(top_ruler_cursor)) {
 		top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
 		top_ruler_cursor.strokeColor = grid_color;
@@ -35,8 +37,8 @@ function drawSelectedPositionTopRuler(pos) {
 	}
 
 	top_ruler_number.content = ((pos - grid_line_width) / grid_size) - 0.5;
-	top_ruler_number.position = new paper.Point(pos, grid_size / 2);
-	top_ruler_cursor.position = new paper.Point(pos, grid_size / 2);
+	top_ruler_number.position = new paper.Point(pos, (screen.y > -40 ? screen.y + 50 : 10));
+	top_ruler_cursor.position = new paper.Point(pos, (screen.y > -40 ? screen.y + 50 : 10));
 
 	paper.view.update();
 }
@@ -61,6 +63,8 @@ function drawLeftRuler(pos) {
 }
 
 function drawSelectedPositionLeftRuler(pos) {
+	var screen = paper.view.center._owner.topLeft; 
+
 	if(isUndefined(left_ruler_cursor)) {
 		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, grid_size, grid_size);
 		left_ruler_cursor.strokeColor = grid_color;
@@ -73,11 +77,14 @@ function drawSelectedPositionLeftRuler(pos) {
 		leftrulerraster.addChild(left_ruler_number);
 	}
 
+	console.log(screen.x);
 	left_ruler_number.content = ((pos - grid_line_width) / grid_size) - 0.5;
-	left_ruler_number.position = new paper.Point(grid_size / 2, pos);
-	left_ruler_cursor.position = new paper.Point(grid_size / 2, pos);
+	left_ruler_number.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
+	left_ruler_cursor.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
 	left_ruler_number.bringToFront();
 
+	//console.log((point.x > 0 ? point.x + 10 : 10));
+	
 	paper.view.update();
 }
 
