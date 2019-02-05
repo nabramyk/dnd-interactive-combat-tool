@@ -342,6 +342,7 @@ i {
   background: white;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 150;
+  transition: 0.5s;
 }
 
 #options_container {

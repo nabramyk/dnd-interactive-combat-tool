@@ -77,13 +77,10 @@ function drawSelectedPositionLeftRuler(pos) {
 		leftrulerraster.addChild(left_ruler_number);
 	}
 
-	console.log(screen.x);
 	left_ruler_number.content = ((pos - grid_line_width) / grid_size) - 0.5;
 	left_ruler_number.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
 	left_ruler_cursor.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
 	left_ruler_number.bringToFront();
-
-	//console.log((point.x > 0 ? point.x + 10 : 10));
 	
 	paper.view.update();
 }
@@ -159,6 +156,7 @@ function drawScreen() {
 	try { gridraster.remove(); } catch(e) {};
 	gridraster = group_grid.rasterize();
 	group_grid.removeChildren();
+
 	paper.view.update();
 }
 

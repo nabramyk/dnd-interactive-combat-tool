@@ -132,4 +132,7 @@ function interfaceInitialization() {
 	paper.view.autoUpdate = false;
 
 	drawScreen();
+
+	var point = new paper.Point(0, 0);
+	paper.view.scrollBy(point.subtract(paper.view.center));
 }
