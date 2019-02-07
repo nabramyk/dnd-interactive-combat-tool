@@ -48,17 +48,17 @@ function interfaceInitialization() {
 
 	line_path = new paper.Path();
 
-	var tab_row = new Hammer(document.getElementById('tab_row'), null);
-
 	paper.view.onClick = function(event) {
 		if(gridraster.hitTest(event.point) == null || isDragging) { return; }
-		selected_element = group_elements.hitTest(event.point);
+		selected_element = elementsraster.hitTest(event.point);
 		
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
 
 		//TODO What happens when an element is selected?
-		if(selected_element != null) {}
+		if(selected_element != null) {
+			console.log(selected_element);
+		}
 
 		cursor_size = {"width": 1, "height": 1};
 		
@@ -121,10 +121,6 @@ function interfaceInitialization() {
 	toolPan.onMouseUp = function(event) {
 		isDragging = false;
 	}
-
-	tab_row.on('pan', function(evt) {
-		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
-	});
 
 	drawTopRuler();
 	drawLeftRuler();

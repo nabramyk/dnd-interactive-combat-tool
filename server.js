@@ -52,6 +52,18 @@ io.on('connection', (socket) => {
 		io.emit('resize', clutter.resize(msg));
 	});
 
+	socket.on('resize_width', (msg) => {
+		console.log(msg);
+		clutter.resizeWidth(msg);
+		io.emit('resize_width', msg);
+	});
+
+	socket.on('resize_height', (msg) => {
+		console.log(msg);
+		clutter.resizeHeight(msg);
+		io.emit('resize_height', msg);
+	});
+
 	socket.on('move_element', (msg, fn) => {
 		var movedElement = clutter.moveElement(msg);
 		if(isUndefined(movedElement)) return;
@@ -71,15 +83,13 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('add_element_to_server', (msg) => {
-		var output = clutter.addElement(msg);
+		console.log(msg);
+		clutter.addElement(msg);
+		io.emit('added_element', msg);
+	});
 
-		if(msg.category == "ping") {
-			io.emit('added_element', { "grid_id" : msg.grid_id, "element" : output });  
-		} else if(isUndefined(output)) {
-			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
-		} else {
-			io.emit('added_element', { "grid_id": msg.grid_id, "element": output });
-		}
+	socket.on('ping', (msg) => {
+		io.emit('ping', {});
 	});
 
 	socket.on('delete_element_on_server', (msg) => {
