@@ -52,13 +52,9 @@ function interfaceInitialization() {
 
 	paper.view.onClick = function(event) {
 		if(gridraster.hitTest(event.point) == null || isDragging) { return; }
-		selected_element = group_elements.hitTest(event.point);
 		
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
-
-		//TODO What happens when an element is selected?
-		if(selected_element != null) {}
 
 		cursor_size = {"width": 1, "height": 1};
 		
@@ -67,6 +63,18 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 			group_overlay.addChild(cursor);
 		}
+
+		//TODO What happens when an element is selected?
+		local_stored_grid_space.find(function(el) {
+			if(el.ele.hitTest(event.point)) {
+				console.log(el.ele.position);
+				cursor.remove();
+				cursor = paper.Shape.Rectangle(el.ele.position.x, el.ele.position.y, grid_size * el.size.width, grid_size * el.size.height);
+				cursor.strokeColor = grid_highlight;
+				group_overlay.addChild(cursor);
+				return true;
+			}
+		});
 	
 		switch ($('#selected_shape').val()) {
 		case "line":

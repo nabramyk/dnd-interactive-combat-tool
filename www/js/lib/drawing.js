@@ -139,7 +139,7 @@ function draw_item(element) {
 		}
 		ctx.stroke();
 		break;
-	}
+	}	
 }
 
 /**

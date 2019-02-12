@@ -72,7 +72,7 @@ function bindSocketListeners() {
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		local_stored_grid_space.push(msg.element);
-		draw_item(local_stored_grid_space[local_stored_grid_space.length-1]);
+		drawElements();
 		refresh_elements_list();
 	});
 

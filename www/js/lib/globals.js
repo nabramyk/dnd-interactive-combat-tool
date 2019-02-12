@@ -14,7 +14,7 @@ var selected_grid_x = -1;
 /** @global {int} selected_grid_y - y coordinate of the selected cursor position */
 var selected_grid_y = -1;
 
-var selected_element;
+var selected_element = null;
 
 /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
 var cursor_size = 1;
