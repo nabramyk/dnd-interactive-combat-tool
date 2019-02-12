@@ -9,17 +9,17 @@ function bindEventHandlers() {
 
 	$("#grid_size_vertical").change(function() {
 		grid_count_height = $("#grid_size_vertical").val();
-		socket.emit('resize_height', {
+		socket.emit('resize', {
 			"grid_id": grid_id,
-			"height": grid_count_height
+			"size": { "width": grid_count_width, "height": grid_count_height }
 		});
 	});
 
 	$("#grid_size_horizontal").change(function() {
 		grid_count_width = $("#grid_size_horizontal").val();
-		socket.emit('resize_width', {
+		socket.emit('resize', {
 			"grid_id": grid_id,
-			"width": grid_count_width
+			"size": { "width": grid_count_width, "height": grid_count_height }
 		});
 	});
 
@@ -32,23 +32,13 @@ function bindEventHandlers() {
 
 	$('#place_element_button').click(function() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
-			var item;
 			switch ($("#selected_shape").val()) {
 			case "square":
-				item = paper.Shape.Rectangle(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2), $("#element_size").val() * grid_size, $("#element_size").val() * grid_size);
-				item.fillColor = "#" + $("#element_color").val();
-				item.data.group = $("#element_category").val();
-				item.data.name = $("#element_name").val();
-				item.data.space = grid_id;
-				add_element_to_server(item);
-				break;
 			case "circle":
-				item = paper.Shape.Circle(selected_grid_x, selected_grid_y, $("#element_size").val() / 2);
-				item.fillColor = "#" + $("#element_color").val();
-				item.data.group = $("#element_category").val();
-				item.data.name = $("#element_name").val();
-				item.data.space = grid_id;
-				add_element_to_server(item);
+				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val());
+				break;
+			case "rectangle":
+				add_element_to_server($("#element_color").val(), selected_grid_x, selected_grid_y, $("#selected_shape").val(), $("#element_name").val(),  { "width" : $("#element_width").val(), "height" : $("#element_height").val() }, $("#element_category").val());
 				break;
 			case "line":
 				line_path.add(new paper.Point(cursor.position.x, cursor.position.y));

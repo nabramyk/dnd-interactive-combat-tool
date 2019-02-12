@@ -102,17 +102,26 @@ function drawElements() {
  * @returns
  */
 function draw_item(element) {
-	switch (element[1].type) {
-	case "rectangle":		
-		var ele = paper.Shape.Rectangle(element[1]);
-		ele.fillColor = element[1].fillColor;
-		group_elements.addChild(ele);
+	switch (element.shape) {
+	case "square":
+	case "rectangle":
+		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
+		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
+				
+		element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+		element.ele.fillColor = "#" + element.color;
+		group_elements.addChild(element.ele);
+
 		break;
-	case "circle":		
-		element[1].radius *= grid_size;
-		var ele = paper.Shape.Circle(element[1]);
-		ele.fillColor = element[1].fillColor;
-		group_elements.addChild(ele);
+	case "circle":
+	case "oval":
+		x = gridPoint2Pixel(element.x) + grid_line_width;
+		y = gridPoint2Pixel(element.y) + grid_line_width;
+				
+		element.ele = paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
+		element.ele.position = new paper.Point(x + (grid_size / 2), y + (grid_size / 2));
+		element.ele.fillColor = "#" + element.color;
+		group_elements.addChild(element.ele);
 		break;
 	case "line":
 		ctx.strokeStyle = "#" + element.color;
@@ -131,7 +140,6 @@ function draw_item(element) {
 		ctx.stroke();
 		break;
 	}
-	paper.view.update();
 }
 
 /**
