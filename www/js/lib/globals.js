@@ -25,6 +25,7 @@ var local_stored_annotations = [];
 var grid_spaces_list = [];
 var x_vertices = [];
 var y_vertices = [];
+var vertices = [];
 
 var underlay_canvas;
 

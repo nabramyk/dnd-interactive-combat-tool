@@ -179,8 +179,8 @@ function add_element_to_server(color, x, y, shape, name, size, category) {
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
 		"color": color,
-		"x": JSON.stringify(pixel2GridPoint(x)),
-		"y": JSON.stringify(pixel2GridPoint(y)),
+		"x": JSON.stringify(x),
+		"y": JSON.stringify(y),
 		"shape": shape,
 		"name": name,
 		"size": size,
@@ -194,27 +194,6 @@ function pingPosition() {
 		position: cursor.position,
 		size: cursor.size
 	});
-}
-
-/**
- * Move a selected element to the final dragged position
- *
- */
-function dragElement(client_x, client_y, page_x, page_y) {
-	socket.emit('warp_element', {
-		"grid_id": grid_id,
-		"x": selected_grid_x,
-		"y": selected_grid_y,
-		"dest_x": pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size),
-		"dest_y": pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size)
-	}, function(msg) {
-		draw_cursor_at_position(msg.x, msg.y, msg.size);
-	});
-
-	$("#dragging_element_icon").css("top", page_y - (client_y % grid_size));
-	$("#dragging_element_icon").css("left", page_x - (client_x % grid_size));
-	temporary_drawing_ctx.clearRect(0, 0, temporary_drawing_canvas.width, temporary_drawing_canvas.height);
-	draw_cursor_at_position(pixel2GridPoint(client_x - (client_x % grid_size) - $("#temporary_drawing_canvas").offset().left + grid_size), pixel2GridPoint(client_y - (client_y % grid_size) - $("#temporary_drawing_canvas").offset().top + grid_size), cursor_size);
 }
 
 /**
@@ -247,7 +226,6 @@ function incremental_move_element(direction) {
 		"direction": direction,
 		"size": cursor_size
 	}, function(msg) {
-		console.log(selected_element);
 		cursor.remove();
 		selected_grid_x = gridPoint2Pixel(msg.x) + grid_line_width;
 		selected_grid_y = gridPoint2Pixel(msg.y) + grid_line_width;

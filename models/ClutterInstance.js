@@ -83,6 +83,7 @@ module.exports = class ClutterInstance {
 			isUndefined(msg.name) ? "object" : msg.name,
 			msg.rotation);
 
+            console.log(msg);
 		return this.grid_space
 			.find((el) => { return el.id == msg.grid_id })
 			.addElementToGridSpace(input);

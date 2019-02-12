@@ -77,7 +77,6 @@ function interfaceInitialization() {
 					try { temp.remove(); } catch (e) { };
 					temp = new paper.Path(line_path.segments);
 					temp.add(cursor.position);
-					console.log(temp.segments);
 					temp.strokeColor = "#ff0000";
 					group_overlay.addChild(temp);
 				}

@@ -124,20 +124,7 @@ function draw_item(element) {
 		group_elements.addChild(element.ele);
 		break;
 	case "line":
-		ctx.strokeStyle = "#" + element.color;
-		ctx.lineWidth = element.size;
-		ctx.beginPath();
-		x = element.x.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		y = element.y.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
-		for (var i = 1; i < x.length; i++) {
-			ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
-		}
-		ctx.stroke();
+		console.log(element);
 		break;
 	}	
 }
