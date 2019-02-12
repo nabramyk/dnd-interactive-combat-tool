@@ -50,54 +50,55 @@ function interfaceInitialization() {
 
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
-	paper.view.onClick = function(event) {
-		if(gridraster.hitTest(event.point) == null || isDragging) { return; }
-		
-		selected_grid_x = event.point.x - (event.point.x % grid_size) + ( grid_size / 2 ) + grid_line_width;
-		selected_grid_y = event.point.y - (event.point.y % grid_size) + ( grid_size / 2 ) + grid_line_width;
+	paper.view.onClick = function (event) {
+		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
 
-		cursor_size = {"width": 1, "height": 1};
-		
-		if(isUndefined(cursor)) {
+		selected_grid_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
+		selected_grid_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
+
+		cursor_size = { "width": 1, "height": 1 };
+
+		if (isUndefined(cursor)) {
 			cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * cursor_size.width, grid_size * cursor_size.height);
 			cursor.strokeColor = grid_highlight;
-			group_overlay.addChild(cursor);
 		}
 
-		//TODO What happens when an element is selected?
-		local_stored_grid_space.find(function(el) {
-			if(el.ele.hitTest(event.point)) {
-				console.log(el.ele.position);
-				cursor.remove();
-				cursor = paper.Shape.Rectangle(el.ele.position.x, el.ele.position.y, grid_size * el.size.width, grid_size * el.size.height);
-				cursor.strokeColor = grid_highlight;
-				group_overlay.addChild(cursor);
-				return true;
-			}
+		selected_element = local_stored_grid_space.find(function (el) {
+			if (el.ele.hitTest(event.point)) return true;
 		});
-	
+
 		switch ($('#selected_shape').val()) {
-		case "line":
-			cursor.remove();
-			cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size/2), selected_grid_y - (grid_size/2)), 5);
-			cursor.fillColor = grid_highlight;
-			group_overlay.addChild(cursor);
-			if(line_path.segments.length > 0) {
-				try { temp.remove(); } catch(e) {};
-				temp = new paper.Path(line_path.segments);
-				temp.add(cursor.position);
-				console.log(temp.segments);
-				temp.strokeColor = "#ff0000";
-				group_overlay.addChild(temp);
-			}
-			break;
-		default:
-			cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+			case "line":
+				cursor.remove();
+				cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2)), 5);
+				cursor.fillColor = grid_highlight;
+				group_overlay.addChild(cursor);
+				if (line_path.segments.length > 0) {
+					try { temp.remove(); } catch (e) { };
+					temp = new paper.Path(line_path.segments);
+					temp.add(cursor.position);
+					console.log(temp.segments);
+					temp.strokeColor = "#ff0000";
+					group_overlay.addChild(temp);
+				}
+				break;
+			default:
+				cursor.remove();
+				if (!isUndefined(selected_element)) {
+					cursor = paper.Shape.Rectangle(0, 0, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
+					cursor.position = new paper.Point(selected_element.ele.position.x, selected_element.ele.position.y);
+					cursor.strokeColor = grid_highlight;
+				} else {
+					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
+					cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+					cursor.strokeColor = grid_highlight;
+				}
+				group_overlay.addChild(cursor);
 		}
-	
+
 		$("#move_to_x").val(selected_grid_x);
 		$("#move_to_y").val(selected_grid_y);
-		
+
 		drawSelectedPositionTopRuler(Number(selected_grid_x));
 		drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
@@ -109,29 +110,29 @@ function interfaceInitialization() {
 	toolPan.activate();
 
 	//Handles the redrawing on scrolling
-	toolPan.onMouseDrag = function(event) {
+	toolPan.onMouseDrag = function (event) {
 		isDragging = true;
 		paper.view.scrollBy(event.downPoint.subtract(event.point));
 		var point = paper.view.center._owner.topLeft;
 		leftrulerraster.position.x = (point.x > 0 ? point.x + 10 : 10);
 		toprulerraster.position.y = (point.y > -40 ? point.y + 50 : 10);
-		if(left_ruler_cursor != null) {
+		if (left_ruler_cursor != null) {
 			left_ruler_cursor.position.x = (point.x > 0 ? point.x + 10 : 10);
 			left_ruler_number.position.x = (point.x > 0 ? point.x + 10 : 10);
 		}
-		if(top_ruler_cursor != null) {
+		if (top_ruler_cursor != null) {
 			top_ruler_cursor.position.y = (point.y > -40 ? point.y + 50 : 10);
 			top_ruler_number.position.y = (point.y > -40 ? point.y + 50 : 10);
 		}
 		paper.view.update();
 	}
 
-	toolPan.onMouseUp = function(event) {
+	toolPan.onMouseUp = function (event) {
 		isDragging = false;
 	}
 
-	tab_row.on('pan', function(evt) {
-		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * ( evt.deltaX / $("#tab_row")[0].scrollWidth));
+	tab_row.on('pan', function (evt) {
+		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * (evt.deltaX / $("#tab_row")[0].scrollWidth));
 	});
 
 	drawTopRuler();

@@ -463,7 +463,7 @@ function getContextMenu() {
 
 function updateSideMenuContent() {
 	$("#options_add_or_edit_button").show();
-	if (selected_element === null) {
+	if (isUndefined(selected_element)) {
 		$("#options_add_or_edit_button").text("Add");
 		$("#options_copy_button").hide();
 		$("#options_paste_button").hide();

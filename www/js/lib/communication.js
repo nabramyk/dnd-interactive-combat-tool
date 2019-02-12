@@ -74,6 +74,7 @@ function bindSocketListeners() {
 		local_stored_grid_space.push(msg.element);
 		drawElements();
 		refresh_elements_list();
+		console.log(msg);
 	});
 
 	socket.on('added_elements', function(msg) {
@@ -107,7 +108,6 @@ function bindSocketListeners() {
 		)];
 		element.x = msg.element.x;
 		element.y = msg.element.y;
-		//element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + grid_line_width + (grid_size / 2), gridPoint2Pixel(element.y) + grid_line_width + (grid_size / 2));
 		drawElements();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
@@ -247,9 +247,14 @@ function incremental_move_element(direction) {
 		"direction": direction,
 		"size": cursor_size
 	}, function(msg) {
-		selected_grid_x = gridPoint2Pixel(msg.x) + grid_size / 2 + grid_line_width;
-		selected_grid_y = gridPoint2Pixel(msg.y) + grid_size / 2 + grid_line_width;
-		cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+		console.log(selected_element);
+		cursor.remove();
+		selected_grid_x = gridPoint2Pixel(msg.x) + grid_line_width;
+		selected_grid_y = gridPoint2Pixel(msg.y) + grid_line_width;
+		cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
+		cursor.strokeColor = grid_highlight;
+		group_overlay.addChild(cursor);
+		paper.view.update();
 	});
 }
 
