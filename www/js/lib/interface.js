@@ -106,15 +106,20 @@ function bindEventHandlers() {
 
 	$("#start_new_line_button").click(function () {
 		if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
-			x_vertices.push(selected_grid_x);
-			y_vertices.push(selected_grid_y);
+			x_vertices.push(pixel2GridPoint(selected_grid_x));
+			y_vertices.push(pixel2GridPoint(selected_grid_y));
 		}
 
-		console.log(x_vertices);
 		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width" : 0, "height" : 0 }, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
+
+		line_path = new paper.Path();
+
+		temp_line.remove();
+
+		paper.view.update();
 
 		$("#start_new_line_button").toggle();
 	});

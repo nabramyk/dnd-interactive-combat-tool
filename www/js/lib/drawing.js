@@ -124,7 +124,9 @@ function draw_item(element) {
 		group_elements.addChild(element.ele);
 		break;
 	case "line":
-		console.log(element);
+		element.ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
+		element.ele.strokeColor = "#" + element.color;
+		group_elements.addChild(element.ele);
 		break;
 	}	
 }

@@ -74,11 +74,11 @@ function interfaceInitialization() {
 				cursor.fillColor = grid_highlight;
 				group_overlay.addChild(cursor);
 				if (line_path.segments.length > 0) {
-					try { temp.remove(); } catch (e) { };
-					temp = new paper.Path(line_path.segments);
-					temp.add(cursor.position);
-					temp.strokeColor = "#ff0000";
-					group_overlay.addChild(temp);
+					try { temp_line.remove(); } catch (e) { };
+					temp_line = new paper.Path(line_path.segments);
+					temp_line.add(cursor.position);
+					temp_line.strokeColor = "#ff0000";
+					group_overlay.addChild(temp_line);
 				}
 				break;
 			default:
