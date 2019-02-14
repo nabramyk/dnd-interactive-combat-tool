@@ -33,7 +33,6 @@ function bindEventHandlers() {
 	$('#place_element_button').click(function () {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
-				case "square":
 				case "circle":
 					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val());
 					break;
@@ -45,7 +44,7 @@ function bindEventHandlers() {
 					x_vertices.push(pixel2GridPoint(selected_grid_x));
 					y_vertices.push(pixel2GridPoint(selected_grid_y));
 					if (line_path.segments.length > 0) {
-						$("#start_new_line_button").toggle();
+						$("#start_new_line_button").show();
 						line_path.strokeColor = "#ff0000";
 						group_overlay.addChild(line_path);
 					}

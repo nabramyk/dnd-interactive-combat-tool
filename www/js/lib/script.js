@@ -63,6 +63,10 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
+		local_stored_grid_space.find(function(el) {
+			console.log(el.ele.intersects(cursor));
+		});
+
 		selected_element = local_stored_grid_space.find(function (el) {
 			if (el.ele.hitTest(event.point)) return true;
 		});

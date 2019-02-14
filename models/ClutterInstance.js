@@ -69,10 +69,6 @@ module.exports = class ClutterInstance {
     }
 
     addElement(msg) {
-        if(msg.category == "ping") {
-            return new Element(0, JSON.parse(msg.x), JSON.parse(msg.y), "", "", "", "ping", "");
-        }
-
         var input = new Element(0,
 			JSON.parse(msg.x),
 			JSON.parse(msg.y),
@@ -82,8 +78,6 @@ module.exports = class ClutterInstance {
 			msg.category,
 			isUndefined(msg.name) ? "object" : msg.name,
 			msg.rotation);
-
-            console.log(msg);
 		return this.grid_space
 			.find((el) => { return el.id == msg.grid_id })
 			.addElementToGridSpace(input);
