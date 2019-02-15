@@ -88,6 +88,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('edit_element_on_server', (msg) => {
+		console.log(msg);
 		var temp = clutter.editElement(msg);
 		if(isUndefined(temp)) {
 			socket.emit('error_channel', {"message" : "Unable to modify element properties."});

@@ -116,15 +116,15 @@ i {
 #tab_row {
   position: absolute;
   width: 100%;
+  margin-right: 80px;
   top: 0;
   left: 0;
   height: 40px;
   max-height: 40px;
+  overflow-x: scroll;
   background: #b7b7b7;
   white-space: nowrap;
-  overflow: hidden;
   z-index: 2;
-  margin-bottom: 50px;
 }
 
 #ruler_left, #ruler_top {
@@ -286,6 +286,7 @@ i {
   border: none;
   min-width: 20px;
   max-width: 20%;
+  margin-right: 40px;
   margin: 2px;
   display: inline;
 }

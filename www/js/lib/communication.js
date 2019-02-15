@@ -46,8 +46,6 @@ function bindSocketListeners() {
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
 
-			//interfaceInitialization();
-
 			$("#loading_div").hide();
 		});
 
@@ -87,7 +85,6 @@ function bindSocketListeners() {
 
 	socket.on('removed_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		//ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) {
 			if(el.id == msg.element_id) {
 				el.ele.remove();
@@ -117,7 +114,6 @@ function bindSocketListeners() {
 	});
 
 	socket.on('edited_element', function(msg) {
-		console.log(msg);
 		if (msg.grid_id != grid_id) return;
 		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space[local_stored_grid_space.indexOf(

@@ -48,8 +48,6 @@ function interfaceInitialization() {
 
 	line_path = new paper.Path();
 
-	var tab_row = new Hammer(document.getElementById('tab_row'), null);
-
 	//What happens when the user clicks the canvas...
 	paper.view.onClick = function (event) {
 		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
@@ -136,10 +134,6 @@ function interfaceInitialization() {
 	toolPan.onMouseUp = function (event) {
 		isDragging = false;
 	}
-
-	tab_row.on('pan', function (evt) {
-		$("#tab_row").scrollLeft($("#tab_row").scrollLeft() - 50 * (evt.deltaX / $("#tab_row")[0].scrollWidth));
-	});
 
 	drawTopRuler();
 	drawLeftRuler();

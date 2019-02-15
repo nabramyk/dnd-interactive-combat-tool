@@ -57,7 +57,7 @@ function bindEventHandlers() {
 				"color": $("#element_color").val(),
 				"x": selected_element.x,
 				"y": selected_element.y,
-				"size": $("#element_size").val(),
+				"size": { "width": $("#element_size").val(), "height": $("#element_size").val() },
 				"category": $("#element_category").val()
 			});
 		}
@@ -107,7 +107,7 @@ function bindEventHandlers() {
 			y_vertices.push(pixel2GridPoint(selected_grid_y));
 		}
 
-		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width" : 0, "height" : 0 }, $("#element_category").val());
+		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
@@ -339,6 +339,21 @@ function bindEventHandlers() {
 				local_stored_annotations = [];
 				local_stored_pings = [];
 				$("#grid_name").val(msg.grid_space.name);
+
+				elementsraster.remove();
+				group_overlay.removeChildren();
+				try {
+					cursor.remove();
+					top_ruler_cursor.remove();
+					top_ruler_cursor = undefined;
+					left_ruler_cursor.remove();
+					left_ruler_cursor = undefined;
+					top_ruler_number.remove();
+					top_ruler_number = undefined;
+					left_ruler_number.remove();
+					left_ruler_number = undefined;
+				} catch (e) { }
+				paper.view.update();
 
 				if (msg.grid_space.elements.length !== 0) {
 					local_stored_grid_space = msg.grid_space.elements;

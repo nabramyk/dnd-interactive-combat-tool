@@ -24,6 +24,8 @@ function drawTopRuler(pos) {
 function drawSelectedPositionTopRuler(pos) {
 	var screen = paper.view.center._owner.topLeft; 
 
+	console.log(top_ruler_cursor);
+
 	if(isUndefined(top_ruler_cursor)) {
 		top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
 		top_ruler_cursor.strokeColor = grid_color;
