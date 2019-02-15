@@ -50,6 +50,7 @@ function interfaceInitialization() {
 
 	var tab_row = new Hammer(document.getElementById('tab_row'), null);
 
+	//What happens when the user clicks the canvas...
 	paper.view.onClick = function (event) {
 		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
 
@@ -63,9 +64,11 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
-		local_stored_grid_space.find(function(el) {
-			console.log(el.ele.intersects(cursor));
-		});
+		//Testing to see different methods of collision detection in the effort that we might be able to check on the client side rather than
+		//the server
+		// local_stored_grid_space.find(function(el) {
+		// 	console.log(el.ele.intersects(cursor));
+		// });
 
 		selected_element = local_stored_grid_space.find(function (el) {
 			if (el.ele.hitTest(event.point)) return true;
@@ -78,7 +81,7 @@ function interfaceInitialization() {
 				cursor.fillColor = grid_highlight;
 				group_overlay.addChild(cursor);
 				if (line_path.segments.length > 0) {
-					try { temp_line.remove(); } catch (e) { };
+					try { temp_line.remove(); } catch (e) { console.log(e) };
 					temp_line = new paper.Path(line_path.segments);
 					temp_line.add(cursor.position);
 					temp_line.strokeColor = "#ff0000";

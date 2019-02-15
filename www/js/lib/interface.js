@@ -45,8 +45,6 @@ function bindEventHandlers() {
 					y_vertices.push(pixel2GridPoint(selected_grid_y));
 					if (line_path.segments.length > 0) {
 						$("#start_new_line_button").show();
-						line_path.strokeColor = "#ff0000";
-						group_overlay.addChild(line_path);
 					}
 					break;
 			}
@@ -114,8 +112,8 @@ function bindEventHandlers() {
 		x_vertices = [];
 		y_vertices = [];
 
+		line_path.remove();
 		line_path = new paper.Path();
-
 		temp_line.remove();
 
 		paper.view.update();

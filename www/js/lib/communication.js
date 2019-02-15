@@ -74,7 +74,6 @@ function bindSocketListeners() {
 		local_stored_grid_space.push(msg.element);
 		drawElements();
 		refresh_elements_list();
-		console.log(msg);
 	});
 
 	socket.on('added_elements', function(msg) {
@@ -88,9 +87,14 @@ function bindSocketListeners() {
 
 	socket.on('removed_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+		//ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) {
-			return el.id == msg.element_id
+			if(el.id == msg.element_id) {
+				el.ele.remove();
+				return true;
+			} else {
+				return false;
+			}
 		}), 1);
 		drawElements();
 		$("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
@@ -232,6 +236,10 @@ function incremental_move_element(direction) {
 		cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
 		cursor.strokeColor = grid_highlight;
 		group_overlay.addChild(cursor);
+
+		drawSelectedPositionTopRuler(Number(selected_grid_x + grid_size / 2));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y + grid_size / 2));
+
 		paper.view.update();
 	});
 }
