@@ -115,7 +115,6 @@ function bindSocketListeners() {
 
 	socket.on('edited_element', function(msg) {
 		if (msg.grid_id != grid_id) return;
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space[local_stored_grid_space.indexOf(
 				local_stored_grid_space.find(
 						function(el) {

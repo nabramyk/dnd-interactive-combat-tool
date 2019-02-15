@@ -57,7 +57,7 @@ function bindEventHandlers() {
 				"color": $("#element_color").val(),
 				"x": selected_element.x,
 				"y": selected_element.y,
-				"size": { "width": $("#element_size").val(), "height": $("#element_size").val() },
+				"size": { "width": $("#element_width").val(), "height": $("#element_height").val() },
 				"category": $("#element_category").val()
 			});
 		}
@@ -376,17 +376,6 @@ function bindEventHandlers() {
 				$("#options_movement_button").hide();
 			});
 		})
-		.on('click', '#context_editing_controls_done', function (evt) {
-			socket.emit('edit_element_on_server', {
-				"grid_id": grid_id,
-				"id": $("#context_edit_element_id").val(),
-				"name": $("#context_edit_name").val(),
-				"type": $("#context_edit_shape").val(),
-				"color": $("#context_edit_color").val(),
-				"size": $("#context_edit_size").val(),
-				"category": $("#context_edit_category").val()
-			});
-		})
 		.on('click', '#context_annotation_controls_done', function (evt) {
 			socket.emit('add_annotation_to_server', {
 				"grid_id": grid_id,
@@ -524,7 +513,8 @@ function selectedMenuOption(option) {
 			$("#selected_shape").val(isAdd ? "square" : selected_element.shape);
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
 			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
-			$("#element_size").val(isAdd ? 1 : selected_element.size);
+			$("#element_width").val(isAdd ? 1 : selected_element.size.width);
+			$("#element_height").val(isAdd ? 1 : selected_element.size.height);
 			$("#element_category").val(isAdd ? "environment" : selected_element.category);
 			$("#element_name").val(isAdd ? "object" : selected_element.name);
 			$("#place_element_button").text(isAdd ? "Add" : "Submit");
@@ -592,7 +582,8 @@ function editElementRow(id) {
 	$("#selected_shape").val(selected_element.shape);
 	$("#element_color").val(selected_element.color);
 	$("#element_color_changer")[0].jscolor.fromString(selected_element.color);
-	$("#element_size").val(selected_element.size);
+	$("#element_width").val(selected_element.size.width);
+	$("#element_height").val(selected_element.size.height);
 	$("#element_category").val(selected_element.category);
 	$("#element_name").val(selected_element.name);
 
