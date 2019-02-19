@@ -235,6 +235,9 @@ function incremental_move_element(direction) {
 		drawSelectedPositionTopRuler(Number(selected_grid_x + grid_size / 2));
 		drawSelectedPositionLeftRuler(Number(selected_grid_y + grid_size / 2));
 
+		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
+		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
+		
 		paper.view.update();
 	});
 }

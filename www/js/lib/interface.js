@@ -202,6 +202,16 @@ function bindEventHandlers() {
 		});
 
 	$("#selected_shape").change(function (el) {
+		cursor.remove();
+		top_ruler_cursor.remove();
+		top_ruler_number.remove();
+		left_ruler_number.remove();
+		left_ruler_cursor.remove();
+		selected_element = null;
+		selected_grid_x = null;
+		selected_grid_y = null;
+		$('#place_element_button').prop('disabled', true);
+		paper.view.update();
 		switch ($("#selected_shape").val()) {
 			case 'line':
 				$('#place_element_button').html("Add Vertex");

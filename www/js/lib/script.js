@@ -51,6 +51,7 @@ function interfaceInitialization() {
 	//What happens when the user clicks the canvas...
 	paper.view.onClick = function (event) {
 		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
+		$('#place_element_button').prop('disabled', false);
 
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
@@ -100,8 +101,8 @@ function interfaceInitialization() {
 				group_overlay.addChild(cursor);
 		}
 
-		$("#move_to_x").val(selected_grid_x);
-		$("#move_to_y").val(selected_grid_y);
+		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
+		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
 
 		drawSelectedPositionTopRuler(Number(selected_grid_x));
 		drawSelectedPositionLeftRuler(Number(selected_grid_y));
