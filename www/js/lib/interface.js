@@ -64,31 +64,35 @@ function bindEventHandlers() {
 	});
 
 	$('#b_rotate_left').click(function () {
-		socket.emit('edit_element_on_server', {
-			"grid_id": grid_id,
-			"id": selected_element.id,
-			"name": selected_element.name,
-			"shape": selected_element.shape,
-			"color": selected_element.color,
-			"x": selected_element.x,
-			"y": selected_element.y,
-			"size": { "width": selected_element.size.height, "height": selected_element.size.width },
-			"category": selected_element.category
-		});
+		selected_element.ele.rotate(-90);
+		paper.view.update();
+		// socket.emit('edit_element_on_server', {
+		// 	"grid_id": grid_id,
+		// 	"id": selected_element.id,
+		// 	"name": selected_element.name,
+		// 	"shape": selected_element.shape,
+		// 	"color": selected_element.color,
+		// 	"x": selected_element.x,
+		// 	"y": selected_element.y,
+		// 	"size": { "width": selected_element.size.height, "height": selected_element.size.width },
+		// 	"category": selected_element.category
+		// });
 	});
 
 	$('#b_rotate_right').click(function () {
-		socket.emit('edit_element_on_server', {
-			"grid_id": grid_id,
-			"id": selected_element.id,
-			"name": selected_element.name,
-			"shape": selected_element.shape,
-			"color": selected_element.color,
-			"x": selected_element.x,
-			"y": selected_element.y,
-			"size": { "width": selected_element.size.height, "height": selected_element.size.width },
-			"category": selected_element.category
-		});
+		selected_element.ele.rotate(90);
+		paper.view.update();
+		// socket.emit('edit_element_on_server', {
+		// 	"grid_id": grid_id,
+		// 	"id": selected_element.id,
+		// 	"name": selected_element.name,
+		// 	"shape": selected_element.shape,
+		// 	"color": selected_element.color,
+		// 	"x": selected_element.x,
+		// 	"y": selected_element.y,
+		// 	"size": { "width": selected_element.size.height, "height": selected_element.size.width },
+		// 	"category": selected_element.category
+		// });
 	});
 
 	$('#reset_board_button').click(function () {
@@ -124,82 +128,22 @@ function bindEventHandlers() {
 	$("#move_inc_up")
 		.mousedown(function () {
 			incremental_move_element("up");
-			movementTimer = window.setInterval(function () {
-				incremental_move_element("up");
-			}, movementInterval);
 		})
-		.mouseup(function () {
-			window.clearInterval(movementTimer);
-		})
-		.on("touchstart", function (evt) {
-			incremental_move_element("up");
-			movementTimer = window.setInterval(function () {
-				incremental_move_element("up");
-			}, movementInterval);
-		})
-		.on("touchend", function (evt) {
-			window.clearInterval(movementTimer);
-		});
 
 	$("#move_inc_down")
 		.mousedown(function () {
 			incremental_move_element("down");
-			movementTimer = setInterval(function () {
-				incremental_move_element("down");
-			}, movementInterval);
 		})
-		.mouseup(function () {
-			clearInterval(movementTimer);
-		})
-		.on("touchstart", function (evt) {
-			incremental_move_element("down");
-			movementTimer = window.setInterval(function () {
-				incremental_move_element("down");
-			}, movementInterval);
-		})
-		.on("touchend", function (evt) {
-			window.clearInterval(movementTimer)
-		});
 
 	$("#move_inc_left")
 		.mousedown(function () {
 			incremental_move_element("left");
-			movementTimer = setInterval(function () {
-				incremental_move_element("left");
-			}, movementInterval);
 		})
-		.mouseup(function () {
-			clearInterval(movementTimer);
-		})
-		.on("touchstart", function (evt) {
-			incremental_move_element("left");
-			movementTimer = window.setInterval(function () {
-				incremental_move_element("left");
-			}, movementInterval);
-		})
-		.on("touchend", function (evt) {
-			window.clearInterval(movementTimer);
-		});
 
 	$("#move_inc_right")
 		.mousedown(function () {
 			incremental_move_element("right");
-			movementTimer = setInterval(function () {
-				incremental_move_element("right");
-			}, movementInterval);
 		})
-		.mouseup(function () {
-			clearInterval(movementTimer);
-		})
-		.on("touchstart", function (evt) {
-			incremental_move_element("right");
-			movementTimer = window.setInterval(function () {
-				incremental_move_element("right");
-			}, movementInterval);
-		})
-		.on("touchend", function (evt) {
-			window.clearInterval(movementTimer)
-		});
 
 	$("#selected_shape").change(function (el) {
 		cursor.remove();
