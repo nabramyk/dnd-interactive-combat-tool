@@ -350,7 +350,8 @@ function bindEventHandlers() {
 				local_stored_pings = [];
 				$("#grid_name").val(msg.grid_space.name);
 
-				elementsraster.remove();
+				//elementsraster.remove();
+				group_elements.removeChildren();
 				group_overlay.removeChildren();
 				try {
 					cursor.remove();

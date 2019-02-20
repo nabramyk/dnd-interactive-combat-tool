@@ -1,9 +1,9 @@
 function bindSocketListeners() {
 
-	socket.on('connect', function(msg) {
+	socket.on('connect', function (msg) {
 		$("#lost_connection_div").hide();
 
-		socket.emit('init', {}, function(msg) {
+		socket.emit('init', {}, function (msg) {
 			grid_count_height = msg.size.height;
 			resizeGridHeight(grid_count_height);
 			grid_count_width = msg.size.width;
@@ -19,7 +19,7 @@ function bindSocketListeners() {
 			grid_id = msg.spaces[0].id;
 			$("#grid_name").val(msg.spaces[0].name);
 
-			msg.spaces.forEach(function(el) {
+			msg.spaces.forEach(function (el) {
 				$("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">&times</button></div>").insertBefore("#addition_tab");
 			});
 
@@ -51,12 +51,12 @@ function bindSocketListeners() {
 
 	});
 
-	socket.on('disconnect', function() {
+	socket.on('disconnect', function () {
 		$("#lost_connection_div").show();
 		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 	});
 
-	socket.on('resize', function(msg) {
+	socket.on('resize', function (msg) {
 		if (grid_id != msg.grid_id) return;
 		grid_count_width = msg.size.width;
 		grid_count_height = msg.size.height;
@@ -66,7 +66,7 @@ function bindSocketListeners() {
 		drawElements();
 	});
 
-	socket.on('added_element', function(msg) {
+	socket.on('added_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		local_stored_grid_space.push(msg.element);
@@ -74,7 +74,7 @@ function bindSocketListeners() {
 		refresh_elements_list();
 	});
 
-	socket.on('added_elements', function(msg) {
+	socket.on('added_elements', function (msg) {
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
@@ -83,10 +83,10 @@ function bindSocketListeners() {
 		refresh_elements_list();
 	});
 
-	socket.on('removed_element', function(msg) {
+	socket.on('removed_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		local_stored_grid_space.splice(local_stored_grid_space.findIndex(function(el) {
-			if(el.id == msg.element_id) {
+		local_stored_grid_space.splice(local_stored_grid_space.findIndex(function (el) {
+			if (el.id == msg.element_id) {
 				el.ele.remove();
 				return true;
 			} else {
@@ -98,45 +98,49 @@ function bindSocketListeners() {
 		refresh_elements_list();
 	});
 
-	socket.on('move_element', function(msg) {
+	socket.on('move_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
 		var element = local_stored_grid_space[local_stored_grid_space.indexOf(
-				local_stored_grid_space.find(
-						function(el) {
-							return msg.element.id == el.id
-						}
-				)
+			local_stored_grid_space.find(
+				function (el) {
+					return msg.element.id == el.id
+				}
+			)
 		)];
+
 		element.x = msg.element.x;
 		element.y = msg.element.y;
-		drawElements();
+
+		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2) + grid_line_width, gridPoint2Pixel(element.y) + (grid_size / 2) + grid_line_width);
+		paper.view.update();
+
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
-	socket.on('edited_element', function(msg) {
+	socket.on('edited_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
 		local_stored_grid_space[local_stored_grid_space.indexOf(
-				local_stored_grid_space.find(
-						function(el) {
-							return msg.element.id == el.id
-						}
-				)
+			local_stored_grid_space.find(
+				function (el) {
+					return msg.element.id == el.id
+				}
+			)
 		)] = msg.element;
 		drawElements();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
-	socket.on('new_grid_space', function(msg) {
+	socket.on('new_grid_space', function (msg) {
 		$("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></div>").insertBefore("#addition_tab");
 	});
 
-	socket.on('reset_grid', function(msg) {
+	socket.on('reset_grid', function (msg) {
 		if (grid_id != msg.grid_id) return;
 		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 		local_stored_grid_space = [];
 	});
 
-	socket.on('delete_grid_space', function(msg) {
+	socket.on('delete_grid_space', function (msg) {
 		$("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
 		if (msg.grid_id == grid_id) {
 			alert("Well, someone decided that you don't need to be here anymore.");
@@ -145,11 +149,11 @@ function bindSocketListeners() {
 		}
 	});
 
-	socket.on('renaming_grid', function(msg) {
+	socket.on('renaming_grid', function (msg) {
 		$("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
 	});
 
-	socket.on('added_annotation', function(msg) {
+	socket.on('added_annotation', function (msg) {
 		if (grid_id != msg.grid_id) return;
 		local_stored_annotations.push(msg.annotation);
 		hideAnnotations();
@@ -157,19 +161,19 @@ function bindSocketListeners() {
 		refresh_annotations_list();
 	});
 
-	socket.on('deleted_annotation', function(msg) {
+	socket.on('deleted_annotation', function (msg) {
 		if (grid_id != msg.grid_id) return;
-		local_stored_annotations.splice(local_stored_annotations.findIndex(function(el) {
+		local_stored_annotations.splice(local_stored_annotations.findIndex(function (el) {
 			return el.id == msg.annotation_id
 		}), 1);
 		refresh_annotations_list();
 	});
 
-	socket.on('ping_rcv', function(msg) {
+	socket.on('ping_rcv', function (msg) {
 		drawPing(msg);
 	});
 
-	socket.on('error_channel', function(msg) {
+	socket.on('error_channel', function (msg) {
 		alert(msg.message);
 	});
 }
@@ -214,37 +218,68 @@ function delete_annotation_from_server(id) {
 	});
 }
 
+function determinePoint(dir, el) {
+	switch (dir) {
+		case "up": el.y++;
+		case "down": el.y--;
+		case "left": el.x--;
+		case "right": el.x++;
+	}
+	return el;
+}
+
+function collide(e1, e2) {
+	return e1.id != e2.id &&
+		e1.x < e2.x + e2.size.width &&
+		e1.x + e1.size.width > e2.x &&
+		e1.y < e2.y + e2.size.height &&
+		e1.y + e1.size.height > e2.y;
+}
+
 /**
  *
  */
 function incremental_move_element(direction) {
-	socket.emit('move_element', {
-		"grid_id": grid_id,
-		"x": pixel2GridPoint(selected_grid_x),
-		"y": pixel2GridPoint(selected_grid_y),
-		"direction": direction,
-		"size": cursor_size
-	}, function(msg) {
-		cursor.remove();
-		selected_grid_x = gridPoint2Pixel(msg.x) + grid_line_width;
-		selected_grid_y = gridPoint2Pixel(msg.y) + grid_line_width;
-		cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
+	var temp = determinePoint(direction, selected_element);
+	var out = local_stored_grid_space.find(function (el) { return collide(el, temp); });
+	console.log(out);
+	if (out == undefined) {
+		socket.emit('move_element', {
+			"grid_id": grid_id,
+			"x": pixel2GridPoint(selected_grid_x),
+			"y": pixel2GridPoint(selected_grid_y),
+			"direction": direction,
+			"size": cursor_size
+		}, function (msg) {
+			// cursor.remove();
+			// selected_grid_x = gridPoint2Pixel(msg.x) + grid_line_width;
+			// selected_grid_y = gridPoint2Pixel(msg.y) + grid_line_width;
+			// cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
+			// cursor.strokeColor = grid_highlight;
+			// group_overlay.addChild(cursor);
+
+			// drawSelectedPositionTopRuler(Number(selected_grid_x + grid_size / 2));
+			// drawSelectedPositionLeftRuler(Number(selected_grid_y + grid_size / 2));
+
+			// $("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
+			// $("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
+		});
+		//cursor.remove();
+		selected_grid_x = gridPoint2Pixel(temp.x) + grid_line_width;
+		selected_grid_y = gridPoint2Pixel(temp.y) + grid_line_width;
+		cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+		console.log(selected_grid_x, selected_grid_y);
+		console.log(cursor);
+		//cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
 		cursor.strokeColor = grid_highlight;
 		group_overlay.addChild(cursor);
-
-		drawSelectedPositionTopRuler(Number(selected_grid_x + grid_size / 2));
-		drawSelectedPositionLeftRuler(Number(selected_grid_y + grid_size / 2));
-
-		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
-		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
-		
 		paper.view.update();
-	});
+	}
 }
 
 function refresh_annotations_list() {
 	$("#annotations_list").empty();
-	local_stored_annotations.forEach(function(el) {
+	local_stored_annotations.forEach(function (el) {
 		$("#annotations_list").append(composeAnnotationListRowElement(el));
 	});
 	hideAnnotations();

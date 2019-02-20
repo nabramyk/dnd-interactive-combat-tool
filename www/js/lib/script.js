@@ -119,15 +119,15 @@ function interfaceInitialization() {
 		isDragging = true;
 		paper.view.scrollBy(event.downPoint.subtract(event.point));
 		var point = paper.view.center._owner.topLeft;
-		leftrulerraster.position.x = (point.x > 0 ? point.x + 10 : 10);
-		toprulerraster.position.y = (point.y > -40 ? point.y + 50 : 10);
+		leftrulerraster.position.x = (point.x > -20 ? point.x + 10 : -10);
+		toprulerraster.position.y = (point.y > -60 ? point.y + 50 : -10);
 		if (left_ruler_cursor != null) {
-			left_ruler_cursor.position.x = (point.x > 0 ? point.x + 10 : 10);
-			left_ruler_number.position.x = (point.x > 0 ? point.x + 10 : 10);
+			left_ruler_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
+			left_ruler_number.position.x = (point.x > -20 ? point.x + 10 : -10);
 		}
 		if (top_ruler_cursor != null) {
-			top_ruler_cursor.position.y = (point.y > -40 ? point.y + 50 : 10);
-			top_ruler_number.position.y = (point.y > -40 ? point.y + 50 : 10);
+			top_ruler_cursor.position.y = (point.y > -60 ? point.y + 50 : -10);
+			top_ruler_number.position.y = (point.y > -60 ? point.y + 50 : -10);
 		}
 		paper.view.update();
 	}

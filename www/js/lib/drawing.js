@@ -2,17 +2,17 @@
  * @fileoverview Should just handle all of the canvas drawing stuff
  */
 function drawTopRuler(pos) {
-	for (var i = 1; i <= grid_count_width; i++) {
-		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, grid_line_width, grid_size, grid_size);
+	for (var i = 0; i < grid_count_width; i++) {
+		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, 0 - grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
 		rect.fillColor = "#f5f5f5";
 		group_top_ruler.addChild(rect);
 		rect.sendToBack();
 
-		var text = new paper.PointText(new paper.Point(i * grid_size + (grid_size / 2), grid_size - (grid_size / 4)));
+		var text = new paper.PointText(new paper.Point(i * grid_size + (grid_size / 2), 0 - grid_size + (grid_size / 1.5)));
 		text.fillColor = 'black';
 		text.justification = 'center';
-		text.content = i;
+		text.content = i + 1;
 		group_top_ruler.addChild(text);
 	}
 	try { toprulerraster.remove(); } catch(e) {};
@@ -36,21 +36,21 @@ function drawSelectedPositionTopRuler(pos) {
 		toprulerraster.addChild(top_ruler_number);
 	}
 
-	top_ruler_number.content = ((pos - grid_line_width) / grid_size) - 0.5;
-	top_ruler_number.position = new paper.Point(pos, (screen.y > -40 ? screen.y + 50 : 10));
-	top_ruler_cursor.position = new paper.Point(pos, (screen.y > -40 ? screen.y + 50 : 10));
+	top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+	top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+	top_ruler_cursor.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
 
 	paper.view.update();
 }
 
 function drawLeftRuler(pos) {
-	for (var i = 1; i <= grid_count_height; i++) {
-		var rect = paper.Shape.Rectangle(grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+	for (var i = 0; i < grid_count_height; i++) {
+		var rect = paper.Shape.Rectangle(0 - grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
 		rect.fillColor = "#f5f5f5";
 		group_left_ruler.addChild(rect);
 
-		var text = new paper.PointText(new paper.Point(grid_size / 2, i * grid_size + (grid_size / 1.5)));
+		var text = new paper.PointText(new paper.Point(0 - grid_size / 2, i * grid_size + (grid_size / 1.5)));
 		text.fillColor = 'black';
 		text.justification = 'center';
 		text.content = i;
@@ -77,9 +77,9 @@ function drawSelectedPositionLeftRuler(pos) {
 		leftrulerraster.addChild(left_ruler_number);
 	}
 
-	left_ruler_number.content = ((pos - grid_line_width) / grid_size) - 0.5;
-	left_ruler_number.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
-	left_ruler_cursor.position = new paper.Point((screen.x > 0 ? screen.x + 10 : 10), pos);
+	left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+	left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
+	left_ruler_cursor.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
 	left_ruler_number.bringToFront();
 	
 	paper.view.update();
@@ -90,8 +90,8 @@ function drawElements() {
 		draw_item(el);
 	});
 	try { elementsraster.remove() } catch(e) {};
-	elementsraster = group_elements.rasterize();
-	group_elements.removeChildren();
+	//elementsraster = group_elements.rasterize();
+	//group_elements.removeChildren();
 	paper.view.update();
 }
 
@@ -135,8 +135,8 @@ function draw_item(element) {
  * Function for drawing the grid board
  */
 function drawScreen() {
-	for (var i = 1; i <= grid_count_height; i++) {
-		for (var j = 1; j <= grid_count_width; j++) {
+	for (var i = 0; i < grid_count_height; i++) {
+		for (var j = 0; j < grid_count_width; j++) {
 			var rect = paper.Shape.Rectangle(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 			rect.strokeColor = grid_color;
 			group_grid.addChild(rect);
