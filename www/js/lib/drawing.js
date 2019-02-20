@@ -53,7 +53,7 @@ function drawLeftRuler(pos) {
 		var text = new paper.PointText(new paper.Point(0 - grid_size / 2, i * grid_size + (grid_size / 1.5)));
 		text.fillColor = 'black';
 		text.justification = 'center';
-		text.content = i;
+		text.content = i + 1;
 		group_left_ruler.addChild(text);
 	}
 	try { leftrulerraster.remove(); } catch(e) {};

@@ -219,13 +219,14 @@ function delete_annotation_from_server(id) {
 }
 
 function determinePoint(dir, el) {
+	var out = Object.create(el);
 	switch (dir) {
-		case "up": el.y++;
-		case "down": el.y--;
-		case "left": el.x--;
-		case "right": el.x++;
+		case "up": out.y -= 1; break;
+		case "down": out.y += 1; break;
+		case "left": out.x -= 1; break;
+		case "right": out.x += 1;
 	}
-	return el;
+	return out;
 }
 
 function collide(e1, e2) {
@@ -242,7 +243,6 @@ function collide(e1, e2) {
 function incremental_move_element(direction) {
 	var temp = determinePoint(direction, selected_element);
 	var out = local_stored_grid_space.find(function (el) { return collide(el, temp); });
-	console.log(out);
 	if (out == undefined) {
 		socket.emit('move_element', {
 			"grid_id": grid_id,
@@ -250,28 +250,17 @@ function incremental_move_element(direction) {
 			"y": pixel2GridPoint(selected_grid_y),
 			"direction": direction,
 			"size": cursor_size
-		}, function (msg) {
-			// cursor.remove();
-			// selected_grid_x = gridPoint2Pixel(msg.x) + grid_line_width;
-			// selected_grid_y = gridPoint2Pixel(msg.y) + grid_line_width;
-			// cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
-			// cursor.strokeColor = grid_highlight;
-			// group_overlay.addChild(cursor);
+		}, function (msg) { console.log("TODO: incremental_move_element callback") });
 
-			// drawSelectedPositionTopRuler(Number(selected_grid_x + grid_size / 2));
-			// drawSelectedPositionLeftRuler(Number(selected_grid_y + grid_size / 2));
-
-			// $("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
-			// $("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
-		});
-		//cursor.remove();
-		selected_grid_x = gridPoint2Pixel(temp.x) + grid_line_width;
-		selected_grid_y = gridPoint2Pixel(temp.y) + grid_line_width;
+		selected_grid_x = gridPoint2Pixel(temp.x) + (grid_size / 2) + grid_line_width;
+		selected_grid_y = gridPoint2Pixel(temp.y) + (grid_size / 2) + grid_line_width;
+		
+		selected_element.x = temp.x;
+		selected_element.y = temp.y;
+		selected_element.ele.position = new paper.Point(selected_grid_x, selected_grid_y);
 		cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
-		console.log(selected_grid_x, selected_grid_y);
-		console.log(cursor);
-		//cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
 		cursor.strokeColor = grid_highlight;
+		
 		group_overlay.addChild(cursor);
 		paper.view.update();
 	}
