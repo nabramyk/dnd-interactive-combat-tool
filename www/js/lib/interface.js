@@ -34,10 +34,10 @@ function bindEventHandlers() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "circle":
-					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val());
+					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val(), {});
 					break;
 				case "rectangle":
-					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_height").val() }, $("#element_category").val());
+					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_height").val() }, $("#element_category").val(), {});
 					break;
 				case "line":
 					line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
@@ -111,7 +111,7 @@ function bindEventHandlers() {
 			y_vertices.push(pixel2GridPoint(selected_grid_y));
 		}
 
-		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
+		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val(), {});
 
 		x_vertices = [];
 		y_vertices = [];
@@ -486,7 +486,7 @@ function selectedMenuOption(option) {
 			copied_element.grid_id = grid_id;
 			break;
 		case "paste":
-			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
+			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category, {});
 			break;
 		case "close":
 			$("#overlapping_side_container").hide();

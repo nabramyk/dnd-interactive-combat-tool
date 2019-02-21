@@ -156,20 +156,13 @@ module.exports = class GridSpace {
 	 * @return {Element} the newly added element
 	 */
 	addElementToGridSpace(obj) {
-		if (this.hasElementAtPosition(obj.x, obj.y))
-			return undefined;
+		// if (this.hasElementAtPosition(obj.x, obj.y))
+		// 	return undefined;
 
-		var newElement = new Element(
-			this.elementIdCounter++,
-			obj.x,
-			obj.y,
-			obj.shape,
-			obj.color,
-			obj.size,
-			obj.category,
-			obj.name,
-			obj.rotation
-		);
+		console.log(obj);
+
+		obj.data.id = this.elementIdCounter++;
+		var newElement = new Element(obj);
 
 		this.elements.push(newElement);
 		this.history.push(new HistoryFrame("add", newElement));

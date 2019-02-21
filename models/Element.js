@@ -16,16 +16,8 @@
  */
 module.exports = class Element {
 
-    constructor(id, x, y, shape, color, size, category, name, rotation) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.shape = shape;
-        this.color = color;
-        this.size = size;
-        this.category = category;
-        this.name = name;
-        this.rotation = rotation;
+    constructor(el) {
+		this.el = el;
     }
 
 	/**

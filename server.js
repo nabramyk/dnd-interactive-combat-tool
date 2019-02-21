@@ -72,7 +72,6 @@ io.on('connection', (socket) => {
 
 	socket.on('add_element_to_server', (msg) => {
 		var output = clutter.addElement(msg);
-
 		if(isUndefined(output)) {
 			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
 		} else {
@@ -91,7 +90,7 @@ io.on('connection', (socket) => {
 		if(isUndefined(temp)) {
 			socket.emit('error_channel', {"message" : "Unable to modify element properties."});
 		} else {
-			io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
+			socket.broadcast.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
 		}
 	});
 
