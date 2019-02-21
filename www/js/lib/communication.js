@@ -63,10 +63,12 @@ function bindSocketListeners() {
 	});
 
 	socket.on('added_element', function (msg) {
+		console.log(msg);
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
-		local_stored_grid_space.push(msg.element);
-		drawElements();
+		draw_item(msg.element.el);
+		//local_stored_grid_space.push(msg.element);
+		//drawElements();
 		refresh_elements_list();
 	});
 
@@ -175,9 +177,13 @@ function bindSocketListeners() {
 }
 
 function add_element_to_server(color, x, y, shape, name, size, category, impl) {
+	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category});
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
-		"element": draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category})
+		"element": temp_new_ele
+	}, function(msg) {
+		temp_new_ele.data.id = msg.id;
+		console.log(group_elements);
 	});
 }
 
@@ -208,7 +214,7 @@ function delete_annotation_from_server(id) {
 }
 
 function determinePoint(dir, el) {
-	var out = Object.create(el);
+	var out = { "x" : pixel2GridPoint(el.item.position.x), "y" : pixel2GridPoint(el.item.position.y)};
 	switch (dir) {
 		case "up": out.y -= 1; break;
 		case "down": out.y += 1; break;
@@ -235,8 +241,7 @@ function incremental_move_element(direction) {
 	if (out == undefined) {
 		socket.emit('move_element', {
 			"grid_id": grid_id,
-			"x": pixel2GridPoint(selected_grid_x),
-			"y": pixel2GridPoint(selected_grid_y),
+			"id": selected_element.item.data.id,
 			"direction": direction,
 			"size": cursor_size
 		}, function (msg) { console.log("TODO: incremental_move_element callback") });
@@ -246,7 +251,7 @@ function incremental_move_element(direction) {
 		
 		selected_element.x = temp.x;
 		selected_element.y = temp.y;
-		selected_element.ele.position = new paper.Point(selected_grid_x, selected_grid_y);
+		selected_element.item.position = new paper.Point(selected_grid_x, selected_grid_y);
 		cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
 		cursor.strokeColor = grid_highlight;
 		

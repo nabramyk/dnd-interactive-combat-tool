@@ -34,7 +34,7 @@ function bindEventHandlers() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "circle":
-					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_size").val(), "height": $("#element_size").val() }, $("#element_category").val(), {});
+					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_width").val() }, $("#element_category").val(), {});
 					break;
 				case "rectangle":
 					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_height").val() }, $("#element_category").val(), {});
@@ -51,7 +51,7 @@ function bindEventHandlers() {
 		} else {
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
-				"id": selected_element.id,
+				"id": selected_element.item.data.id,
 				"name": $("#element_name").val(),
 				"shape": $("#selected_shape").val(),
 				"color": $("#element_color").val(),
@@ -425,7 +425,7 @@ function getContextMenu() {
 
 function updateSideMenuContent() {
 	$("#options_add_or_edit_button").show();
-	if (isUndefined(selected_element)) {
+	if (isUndefined(selected_element) || selected_element == null) {
 		$("#options_add_or_edit_button").text("Add");
 		$("#options_copy_button").hide();
 		$("#options_paste_button").hide();
@@ -495,7 +495,7 @@ function selectedMenuOption(option) {
 		case "delete":
 			socket.emit('delete_element_on_server', {
 				"grid_id": grid_id,
-				"element_id": selected_element.id
+				"element_id": selected_element.data.id
 			});
 			break;
 		case "annotate":

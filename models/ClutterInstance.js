@@ -53,7 +53,7 @@ module.exports = class ClutterInstance {
     }
 
     moveElement(msg) {
-		var movedElement = this.grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
+		var movedElement = this.grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.id, msg.direction);
         if (typeof movedElement === 'undefined') 
             return undefined;
         else 

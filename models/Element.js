@@ -16,9 +16,9 @@
  */
 module.exports = class Element {
 
-    constructor(el) {
+	constructor(el) {
 		this.el = el;
-    }
+	}
 
 	/**
 	 * Move the element 1 unit in a specific direction
@@ -28,7 +28,7 @@ module.exports = class Element {
 	 * @return {Element|undefine} This element at its new position, or undefined
 	 *         if it cannot move
 	 */
-    nudge(direction, gridSpace) {
+	nudge(direction, gridSpace) {
 		var moveToX = this.x, moveToY = this.y, moveToSize = this.size, moveToId = this.id;
 		switch (direction) {
 			case "right": // right
@@ -59,9 +59,9 @@ module.exports = class Element {
 	 */
 	warp(x, y, gridSpace) {
 		var moveToSize = this.size;
-        var moveToId = this.id;
+		var moveToId = this.id;
 
-        if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); })) {
+		if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); })) {
 			this.x = x;
 			this.y = y;
 

@@ -105,7 +105,15 @@ function draw_local_item(element) {
 			group_elements.addChild(ele);
 			paper.view.update();
 			break;
-		case "circle": break;
+		case "circle": 
+			ele = paper.Shape.Circle(gridPoint2Pixel(element.x) + cursor_line_width / 2, gridPoint2Pixel(element.y) + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
+			ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2), gridPoint2Pixel(element.y) + (grid_size / 2));
+			ele.fillColor = "#" + element.color;
+			ele.data.name = element.name;
+			ele.data.category = element.category;
+			group_elements.addChild(ele);
+			paper.view.update();
+			break;
 		case "line":
 			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
 			ele.strokeColor = "#" + element.color;
@@ -113,7 +121,6 @@ function draw_local_item(element) {
 			ele.data.category = element.category;
 			group_elements.addChild(ele);
 			paper.view.update();
-			console.log(element);
 		break;
 	}
 	return ele;
@@ -126,6 +133,7 @@ function draw_local_item(element) {
  * @returns
  */
 function draw_item(element) {
+	console.log(element);
 	switch (element.type) {
 		case "square":
 		case "rectangle":
@@ -135,7 +143,6 @@ function draw_item(element) {
 			// element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
 			// element.ele.fillColor = "#" + element.color;
 			// group_elements.addChild(element.ele);
-			console.log(element);
 			group_elements.addChild(paper.Shape.Rectangle(element));
 
 			break;
@@ -151,12 +158,12 @@ function draw_item(element) {
 
 			group_elements.addChild(paper.Shape.Circle(element));
 			break;
-		case "line":
+		default:
 			// element.ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
 			// element.ele.strokeColor = "#" + element.color;
 			// group_elements.addChild(element.ele);
 
-			group_elements.addChild(paper.Shape.Rectangle(element));
+			group_elements.addChild(new paper.Path(element));
 			break;
 	}
 	paper.view.update();

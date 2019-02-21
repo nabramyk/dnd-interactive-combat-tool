@@ -69,9 +69,8 @@ function interfaceInitialization() {
 		// 	console.log(el.ele.intersects(cursor));
 		// });
 
-		selected_element = local_stored_grid_space.find(function (el) {
-			if (el.ele.hitTest(event.point)) return true;
-		});
+		selected_element = group_elements.hitTest(event.point);
+		console.log(selected_element);
 
 		switch ($('#selected_shape').val()) {
 			case "line":
@@ -89,9 +88,9 @@ function interfaceInitialization() {
 				break;
 			default:
 				cursor.remove();
-				if (!isUndefined(selected_element)) {
-					cursor = paper.Shape.Rectangle(0, 0, grid_size * selected_element.size.width, grid_size * selected_element.size.height);
-					cursor.position = new paper.Point(selected_element.ele.position.x, selected_element.ele.position.y);
+				if (!isUndefined(selected_element) && selected_element != null) {
+					cursor = paper.Shape.Rectangle(0, 0, selected_element.item.size.width, selected_element.item.size.height);
+					cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 					cursor.strokeColor = grid_highlight;
 				} else {
 					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);

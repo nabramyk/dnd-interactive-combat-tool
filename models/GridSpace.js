@@ -159,8 +159,6 @@ module.exports = class GridSpace {
 		// if (this.hasElementAtPosition(obj.x, obj.y))
 		// 	return undefined;
 
-		console.log(obj);
-
 		obj.data.id = this.elementIdCounter++;
 		var newElement = new Element(obj);
 
@@ -254,9 +252,9 @@ module.exports = class GridSpace {
 	 *            direction - the direction to move the element
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
-	nudgeElement(x, y, direction) {
+	nudgeElement(id, direction) {
 		try {
-			return this.findElementByPosition(x, y).nudge(direction, this.elements);
+			return this.findElementById(id).nudge(direction, this.elements);
 		} catch (e) {
 			return undefined;
 		}
