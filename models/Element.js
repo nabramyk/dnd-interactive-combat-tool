@@ -29,29 +29,29 @@ module.exports = class Element {
 	 *         if it cannot move
 	 */
 	nudge(direction, gridSpace) {
-		var moveToX = this.x, moveToY = this.y, moveToSize = this.size, moveToId = this.id;
+		var moveToX = this.el.matrix[4], moveToY = this.el.matrix[5];
 		switch (direction) {
 			case "right": // right
-				moveToX++;
+				moveToX += 20;
 				break;
 			case "up": // up
-				moveToY--;
+				moveToY -= 20;
 				break;
 			case "left": // left
-				moveToX--;
+				moveToX -= 20;
 				break;
 			case "down": // down
-				moveToY++;
+				moveToY += 20;
 				break;
 		}
 
-		if (gridSpace.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, moveToId); }) === undefined) {
-			this.x = moveToX;
-			this.y = moveToY;
+		//if (gridSpace.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, moveToId); }) === undefined) {
+			this.el.matrix[4] = moveToX;
+			this.el.matrix[5] = moveToY;
 			return this;
-		} else {
-			return undefined;
-		}
+		//} else {
+		//	return undefined;
+		//}
 	};
 
 	/**

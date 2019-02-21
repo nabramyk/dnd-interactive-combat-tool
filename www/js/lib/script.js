@@ -70,7 +70,6 @@ function interfaceInitialization() {
 		// });
 
 		selected_element = group_elements.hitTest(event.point);
-		console.log(selected_element);
 
 		switch ($('#selected_shape').val()) {
 			case "line":

@@ -98,20 +98,9 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		var element = local_stored_grid_space[local_stored_grid_space.indexOf(
-			local_stored_grid_space.find(
-				function (el) {
-					return msg.element.id == el.id
-				}
-			)
-		)];
-
-		element.x = msg.element.x;
-		element.y = msg.element.y;
-
-		element.ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2) + grid_line_width, gridPoint2Pixel(element.y) + (grid_size / 2) + grid_line_width);
+		var element = group_elements.children.find(function(el) { return el.data.id == msg.element.el.data.id; });
+		element.matrix = msg.element.el.matrix;
 		paper.view.update();
-
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
 
@@ -183,7 +172,6 @@ function add_element_to_server(color, x, y, shape, name, size, category, impl) {
 		"element": temp_new_ele
 	}, function(msg) {
 		temp_new_ele.data.id = msg.id;
-		console.log(group_elements);
 	});
 }
 

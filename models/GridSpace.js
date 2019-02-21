@@ -70,7 +70,7 @@ module.exports = class GridSpace {
 	 *         undefined if no element with that id exists
 	 */
 	findElementById(id) {
-		return this.elements.find(function (el) { return el.id == id; })
+		return this.elements.find(function (el) { return el.el.data.id == id; })
 	};
 
 	/**
