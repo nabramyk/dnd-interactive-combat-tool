@@ -88,9 +88,13 @@ function interfaceInitialization() {
 			default:
 				cursor.remove();
 				if (!isUndefined(selected_element) && selected_element != null) {
-					cursor = paper.Shape.Rectangle(0, 0, selected_element.item.size.width, selected_element.item.size.height);
-					cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
-					cursor.strokeColor = grid_highlight;
+					if (selected_element.type == "stroke") {
+						console.log(selected_element);
+					} else {
+						cursor = paper.Shape.Rectangle(0, 0, selected_element.item.size.width, selected_element.item.size.height);
+						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
+						cursor.strokeColor = grid_highlight;
+					}
 				} else {
 					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
 					cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
