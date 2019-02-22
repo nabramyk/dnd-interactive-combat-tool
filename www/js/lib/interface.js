@@ -64,35 +64,13 @@ function bindEventHandlers() {
 	});
 
 	$('#b_rotate_left').click(function () {
-		selected_element.ele.rotate(-90);
+		selected_element.item.rotate(-90);
 		paper.view.update();
-		// socket.emit('edit_element_on_server', {
-		// 	"grid_id": grid_id,
-		// 	"id": selected_element.id,
-		// 	"name": selected_element.name,
-		// 	"shape": selected_element.shape,
-		// 	"color": selected_element.color,
-		// 	"x": selected_element.x,
-		// 	"y": selected_element.y,
-		// 	"size": { "width": selected_element.size.height, "height": selected_element.size.width },
-		// 	"category": selected_element.category
-		// });
 	});
 
 	$('#b_rotate_right').click(function () {
-		selected_element.ele.rotate(90);
+		selected_element.item.rotate(90);
 		paper.view.update();
-		// socket.emit('edit_element_on_server', {
-		// 	"grid_id": grid_id,
-		// 	"id": selected_element.id,
-		// 	"name": selected_element.name,
-		// 	"shape": selected_element.shape,
-		// 	"color": selected_element.color,
-		// 	"x": selected_element.x,
-		// 	"y": selected_element.y,
-		// 	"size": { "width": selected_element.size.height, "height": selected_element.size.width },
-		// 	"category": selected_element.category
-		// });
 	});
 
 	$('#reset_board_button').click(function () {
@@ -392,15 +370,15 @@ function bindEventHandlers() {
  * @return {string} An html element to display 
  */
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.id + ")\" id=" + el.id + ">" +
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.name + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.data.name + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.category + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.data.category + "<\p>" +
 		"</div>" +
-		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.id + ")\">&times</button>" +
+		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.data.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.data.id + ")\">&times</button>" +
 		"</div>";
 }
 
@@ -465,8 +443,8 @@ function selectedMenuOption(option) {
 			$("#selected_shape").val(isAdd ? "square" : selected_element.shape);
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
 			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
-			$("#element_width").val(isAdd ? 1 : selected_element.size.width);
-			$("#element_height").val(isAdd ? 1 : selected_element.size.height);
+			$("#element_width").val(isAdd ? 1 : selected_element.item.size.width);
+			$("#element_height").val(isAdd ? 1 : selected_element.item.size.height);
 			$("#element_category").val(isAdd ? "environment" : selected_element.category);
 			$("#element_name").val(isAdd ? "object" : selected_element.name);
 			$("#place_element_button").text(isAdd ? "Add" : "Submit");
@@ -556,7 +534,7 @@ function refresh_elements_list() {
 		$("#element_list").empty();
 		group_elements.children
 			.filter(function (el) {
-				return filter.indexOf(el.category) != -1
+				return filter.indexOf(el.data.category) != -1;
 			})
 			.forEach(function (el) {
 				$("#element_list").append(composeElementListRowElement(el))

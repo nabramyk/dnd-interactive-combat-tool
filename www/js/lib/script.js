@@ -70,7 +70,6 @@ function interfaceInitialization() {
 		// });
 
 		selected_element = group_elements.hitTest(event.point);
-		console.log(selected_element);
 
 		switch ($('#selected_shape').val()) {
 			case "line":
@@ -90,7 +89,7 @@ function interfaceInitialization() {
 				cursor.remove();
 				if (!isUndefined(selected_element) && selected_element != null) {
 					if (selected_element.type == "stroke") {
-						console.log(selected_element);
+						console.log("TODO: Handle selecting lines.");
 					} else {
 						cursor = paper.Shape.Rectangle(0, 0, selected_element.item.size.width, selected_element.item.size.height);
 						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
