@@ -58,7 +58,6 @@ function bindSocketListeners() {
 		grid_count_height = msg.size.height;
 		resizeGridWidth(grid_count_width);
 		resizeGridHeight(grid_count_height);
-		local_stored_grid_space = msg.elements;
 		drawElements();
 	});
 
@@ -67,8 +66,6 @@ function bindSocketListeners() {
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.element.el);
-		//local_stored_grid_space.push(msg.element);
-		//drawElements();
 		refresh_elements_list();
 	});
 
@@ -76,21 +73,23 @@ function bindSocketListeners() {
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-		local_stored_grid_space = local_stored_grid_space.concat(msg.element);
 		drawElements();
 		refresh_elements_list();
 	});
 
 	socket.on('removed_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		local_stored_grid_space.splice(local_stored_grid_space.findIndex(function (el) {
-			if (el.id == msg.element_id) {
-				el.ele.remove();
-				return true;
-			} else {
-				return false;
-			}
-		}), 1);
+
+		var temp = group_elements.children[group_elements.children.indexOf(
+			group_elements.children.find(
+				function (el) {
+					return msg.element_id == el.data.id;
+				}
+			)
+		)];
+		
+		temp.remove();
+
 		drawElements();
 		$("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
 		refresh_elements_list();
@@ -106,10 +105,10 @@ function bindSocketListeners() {
 
 	socket.on('edited_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		local_stored_grid_space[local_stored_grid_space.indexOf(
-			local_stored_grid_space.find(
+		group_elements.children[group_elements.children.indexOf(
+			group_elements.children.find(
 				function (el) {
-					return msg.element.id == el.id
+					return msg.element.id == el.id;
 				}
 			)
 		)] = msg.element;
@@ -123,8 +122,8 @@ function bindSocketListeners() {
 
 	socket.on('reset_grid', function (msg) {
 		if (grid_id != msg.grid_id) return;
-		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-		local_stored_grid_space = [];
+		group_elements.removeChildren();
+		paper.view.draw();
 	});
 
 	socket.on('delete_grid_space', function (msg) {
@@ -167,6 +166,7 @@ function bindSocketListeners() {
 
 function add_element_to_server(color, x, y, shape, name, size, category, impl) {
 	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category});
+	$("#reset_board_button").prop("disabled", false);
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
 		"element": temp_new_ele
@@ -225,7 +225,6 @@ function collide(e1, e2) {
  */
 function incremental_move_element(direction) {
 	var temp = determinePoint(direction, selected_element);
-	//var out = local_stored_grid_space.find(function (el) { return collide(el, temp); });
 	var out = undefined;
 	console.log(selected_element.item.matrix.tx);
 	if (out == undefined) {

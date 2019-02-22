@@ -86,9 +86,6 @@ function drawSelectedPositionLeftRuler(pos) {
 }
 
 function drawElements() {
-	local_stored_grid_space.forEach(function (el) {
-		draw_item(el);
-	});
 	try { elementsraster.remove() } catch (e) { };
 	//elementsraster = group_elements.rasterize();
 	//group_elements.removeChildren();

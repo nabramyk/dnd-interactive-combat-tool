@@ -289,14 +289,12 @@ function bindEventHandlers() {
 				grid_count_width = msg.grid_space.size.width;
 				resizeGridWidth(grid_count_width);
 				clearPlayerName();
-				local_stored_grid_space = [];
 				local_stored_annotations = [];
-				local_stored_pings = [];
 				$("#grid_name").val(msg.grid_space.name);
 
-				//elementsraster.remove();
 				group_elements.removeChildren();
 				group_overlay.removeChildren();
+
 				try {
 					cursor.remove();
 					top_ruler_cursor.remove();
@@ -311,7 +309,6 @@ function bindEventHandlers() {
 				paper.view.update();
 
 				if (msg.grid_space.elements.length !== 0) {
-					local_stored_grid_space = msg.grid_space.elements;
 					$("#reset_board_button").prop("disabled", false);
 					drawElements();
 				}
@@ -480,10 +477,7 @@ function selectedMenuOption(option) {
 			$("#movement_container").show();
 			break;
 		case "copy":
-			copied_element = local_stored_grid_space.find(function (el) {
-				return el.x == selected_grid_x && el.y == selected_grid_y;
-			});
-			copied_element.grid_id = grid_id;
+			console.log("TODO: Copy elements");
 			break;
 		case "paste":
 			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category, {});
@@ -493,9 +487,10 @@ function selectedMenuOption(option) {
 			$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 			break;
 		case "delete":
+			console.log(selected_element);
 			socket.emit('delete_element_on_server', {
 				"grid_id": grid_id,
-				"element_id": selected_element.data.id
+				"element_id": selected_element.item.data.id
 			});
 			break;
 		case "annotate":
@@ -527,9 +522,7 @@ function clearPlayerName() {
 }
 
 function editElementRow(id) {
-	selected_element = local_stored_grid_space.find(function (el) {
-		return el.id == id;
-	});
+	console.log("TODO: Find selected element");
 
 	$("#overlapping_container").hide();
 	$("#add_container").show();
@@ -561,7 +554,7 @@ function refresh_elements_list() {
 
 	if (filters.length !== 0) {
 		$("#element_list").empty();
-		local_stored_grid_space
+		group_elements.children
 			.filter(function (el) {
 				return filter.indexOf(el.category) != -1
 			})
