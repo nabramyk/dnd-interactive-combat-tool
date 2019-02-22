@@ -202,7 +202,7 @@ function delete_annotation_from_server(id) {
 }
 
 function determinePoint(dir, el) {
-	var out = { "x" : pixel2GridPoint(el.item.position.x), "y" : pixel2GridPoint(el.item.position.y)};
+	var out = { "x" : pixel2GridPoint(el.item.bounds.topLeft.x), "y" : pixel2GridPoint(el.item.bounds.topLeft.y)};
 	switch (dir) {
 		case "up": out.y -= 1; break;
 		case "down": out.y += 1; break;
@@ -226,7 +226,6 @@ function collide(e1, e2) {
 function incremental_move_element(direction) {
 	var temp = determinePoint(direction, selected_element);
 	var out = undefined;
-	console.log(selected_element.item.matrix.tx);
 	if (out == undefined) {
 		socket.emit('move_element', {
 			"grid_id": grid_id,
@@ -235,16 +234,12 @@ function incremental_move_element(direction) {
 			"size": cursor_size
 		}, function (msg) { console.log("TODO: incremental_move_element callback") });
 
-		selected_grid_x = gridPoint2Pixel(temp.x) + (grid_size / 2) + grid_line_width;
-		selected_grid_y = gridPoint2Pixel(temp.y) + (grid_size / 2) + grid_line_width;
+		selected_grid_x = gridPoint2Pixel(temp.x) + grid_line_width;
+		selected_grid_y = gridPoint2Pixel(temp.y) + grid_line_width;
 		
-		selected_element.item.matrix.tx = gridPoint2Pixel(temp.x) + (grid_size / 2) + grid_line_width;
-		selected_element.item.matrix.ty = gridPoint2Pixel(temp.y) + (grid_size / 2) + grid_line_width;
-		cursor.matrix.ty = gridPoint2Pixel(temp.y) + (grid_size / 2) + grid_line_width;
-		cursor.matrix.tx = gridPoint2Pixel(temp.x) + (grid_size / 2) + grid_line_width;
-		//selected_element.item.position = new paper.Point(selected_grid_x, selected_grid_y);
-		//cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
-		//cursor.strokeColor = grid_highlight;
+		var loc = new paper.Point(selected_grid_x, selected_grid_y);
+		selected_element.item.bounds.topLeft = loc;
+		cursor.bounds.topLeft = loc;
 		
 		group_overlay.addChild(cursor);
 		paper.view.update();

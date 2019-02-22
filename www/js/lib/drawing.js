@@ -99,6 +99,7 @@ function draw_local_item(element) {
 			ele.fillColor = "#" + element.color;
 			ele.data.name = element.name;
 			ele.data.category = element.category;
+			ele.pivot = paper.Shape.Rectangle.topLeft;
 			group_elements.addChild(ele);
 			paper.view.update();
 			break;
@@ -108,6 +109,7 @@ function draw_local_item(element) {
 			ele.fillColor = "#" + element.color;
 			ele.data.name = element.name;
 			ele.data.category = element.category;
+			ele.pivot = paper.Shape.Rectangle.topLeft;
 			group_elements.addChild(ele);
 			paper.view.update();
 			break;
@@ -130,7 +132,6 @@ function draw_local_item(element) {
  * @returns
  */
 function draw_item(element) {
-	console.log(element);
 	switch (element.type) {
 		case "square":
 		case "rectangle":

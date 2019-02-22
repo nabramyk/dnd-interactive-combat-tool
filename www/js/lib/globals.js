@@ -6,7 +6,7 @@ var grid_count_width = 0;
 var grid_count_height = 0;
 var grid_id = 0;
 
-var cPosX = 0, cPosY = 0, scale=1;
+var scale=1;
 
 /** @global {int} selected_grid_x - x coordinate of the selected cursor position */
 var selected_grid_x = -1;
