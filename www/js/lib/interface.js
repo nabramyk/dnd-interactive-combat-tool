@@ -477,7 +477,14 @@ function selectedMenuOption(option) {
 			console.log("TODO: Copy elements");
 			break;
 		case "paste":
-			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
+			add_element_to_server(copied_element.color, 
+				pixel2GridPoint(selected_grid_x), 
+				pixel2GridPoint(selected_grid_y), 
+				copied_element.shape, 
+				copied_element.name, 
+				copied_element.size, 
+				copied_element.category
+			);
 			break;
 		case "close":
 			$("#overlapping_side_container").hide();
