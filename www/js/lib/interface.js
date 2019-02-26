@@ -34,10 +34,28 @@ function bindEventHandlers() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "circle":
-					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_width").val() }, $("#element_category").val(), {});
+					add_element_to_server(
+						$("#element_color").val(), 
+						pixel2GridPoint(selected_grid_x), 
+						pixel2GridPoint(selected_grid_y), 
+						$("#selected_shape").val(), 
+						$("#element_name").val(), 
+						{ "width": $("#element_width").val(), 
+							"height": $("#element_width").val() }, 
+						$("#element_category").val()
+					);
 					break;
 				case "rectangle":
-					add_element_to_server($("#element_color").val(), pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), $("#selected_shape").val(), $("#element_name").val(), { "width": $("#element_width").val(), "height": $("#element_height").val() }, $("#element_category").val(), {});
+					add_element_to_server(
+						$("#element_color").val(), 
+						pixel2GridPoint(selected_grid_x), 
+						pixel2GridPoint(selected_grid_y), 
+						$("#selected_shape").val(), 
+						$("#element_name").val(), 
+						{ "width": $("#element_width").val(), 
+							"height": $("#element_height").val() }, 
+						$("#element_category").val()
+					);
 					break;
 				case "line":
 					line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
@@ -89,7 +107,7 @@ function bindEventHandlers() {
 			y_vertices.push(pixel2GridPoint(selected_grid_y));
 		}
 
-		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val(), {});
+		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
@@ -284,11 +302,10 @@ function bindEventHandlers() {
 					left_ruler_number.remove();
 					left_ruler_number = undefined;
 				} catch (e) { }
-				paper.view.update();
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
-					drawElements();
+					msg.grid_space.elements.forEach(function(el) { draw_item(el.el); });
 				}
 
 				if (msg.grid_space.annotations.length !== 0) {
@@ -304,6 +321,8 @@ function bindEventHandlers() {
 				$("#options_copy_button").hide();
 				$("#options_paste_button").hide();
 				$("#options_movement_button").hide();
+
+				paper.view.update();
 			});
 		})
 		.on('click', '#context_annotation_controls_done', function (evt) {
@@ -458,7 +477,7 @@ function selectedMenuOption(option) {
 			console.log("TODO: Copy elements");
 			break;
 		case "paste":
-			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category, {});
+			add_element_to_server(copied_element.color, pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y), copied_element.shape, copied_element.name, copied_element.size, copied_element.category);
 			break;
 		case "close":
 			$("#overlapping_side_container").hide();

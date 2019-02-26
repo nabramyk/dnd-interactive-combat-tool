@@ -25,6 +25,7 @@ function bindSocketListeners() {
 
 			$(".tab").first().addClass("active");
 
+			console.log(msg);
 			msg.elements.map(function(el) {
 				draw_item(el.el);
 			});
@@ -164,7 +165,7 @@ function bindSocketListeners() {
 	});
 }
 
-function add_element_to_server(color, x, y, shape, name, size, category, impl) {
+function add_element_to_server(color, x, y, shape, name, size, category) {
 	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category});
 	$("#reset_board_button").prop("disabled", false);
 	socket.emit('add_element_to_server', {
@@ -232,7 +233,9 @@ function incremental_move_element(direction) {
 			"id": selected_element.item.data.id,
 			"direction": direction,
 			"size": cursor_size
-		}, function (msg) { console.log("TODO: incremental_move_element callback") });
+		}, function (msg) { 
+			console.log("TODO: incremental_move_element callback") 
+		});
 
 		selected_grid_x = gridPoint2Pixel(temp.x) + grid_line_width;
 		selected_grid_y = gridPoint2Pixel(temp.y) + grid_line_width;

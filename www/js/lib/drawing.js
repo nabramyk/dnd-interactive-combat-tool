@@ -87,8 +87,6 @@ function drawSelectedPositionLeftRuler(pos) {
 
 function drawElements() {
 	try { elementsraster.remove() } catch (e) { };
-	//elementsraster = group_elements.rasterize();
-	//group_elements.removeChildren();
 	paper.view.update();
 }
 
@@ -135,32 +133,13 @@ function draw_item(element) {
 	switch (element.type) {
 		case "square":
 		case "rectangle":
-			// x = gridPoint2Pixel(element.x) + grid_line_width * 2;
-			// y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-
-			// element.ele = paper.Shape.Rectangle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
-			// element.ele.fillColor = "#" + element.color;
-			// group_elements.addChild(element.ele);
 			group_elements.addChild(paper.Shape.Rectangle(element));
-
 			break;
 		case "circle":
 		case "oval":
-			// x = gridPoint2Pixel(element.x) + grid_line_width;
-			// y = gridPoint2Pixel(element.y) + grid_line_width;
-
-			// element.ele = paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
-			// element.ele.position = new paper.Point(x + (grid_size / 2), y + (grid_size / 2));
-			// element.ele.fillColor = "#" + element.color;
-			// group_elements.addChild(element.ele);
-
 			group_elements.addChild(paper.Shape.Circle(element));
 			break;
 		default:
-			// element.ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
-			// element.ele.strokeColor = "#" + element.color;
-			// group_elements.addChild(element.ele);
-
 			group_elements.addChild(new paper.Path(element));
 			break;
 	}
