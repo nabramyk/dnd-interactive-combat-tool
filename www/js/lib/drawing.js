@@ -91,9 +91,10 @@ function drawElements() {
 }
 
 function draw_local_item(element) {
+	console.log(element);
 	switch (element.shape) {
 		case "rectangle":
-			ele = paper.Shape.Rectangle(gridPoint2Pixel(element.x) + cursor_line_width, gridPoint2Pixel(element.y) + cursor_line_width, JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
+			ele = paper.Shape.Rectangle(element.x + cursor_line_width, element.y + cursor_line_width, JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
 			ele.fillColor = "#" + element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
