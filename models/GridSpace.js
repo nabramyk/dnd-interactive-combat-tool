@@ -170,11 +170,7 @@ module.exports = class GridSpace {
 	};
 
 	mutateElementInGridSpace(obj) {
-		if (this.elements.find(function(el) { return el.collide(obj.x, obj.y, obj.size, obj.id); }) === undefined) {
-			return this.elements.find(function(el) { return el.id === obj.id }).mutate(obj);
-		} else {
-			return undefined;
-		}
+		return this.elements.find(function(el) { return obj.id == el.el.data.id; }).mutate(obj);
 	}
 
     /**

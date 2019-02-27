@@ -93,33 +93,25 @@ function drawElements() {
 function draw_local_item(element) {
 	switch (element.shape) {
 		case "rectangle":
-			ele = paper.Shape.Rectangle(gridPoint2Pixel(element.x) + cursor_line_width, gridPoint2Pixel(element.y), JSON.parse(element.size.width) * grid_size - cursor_line_width * 2, JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
+			ele = paper.Shape.Rectangle(gridPoint2Pixel(element.x) + cursor_line_width, gridPoint2Pixel(element.y) + cursor_line_width, JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
 			ele.fillColor = "#" + element.color;
-			ele.data.name = element.name;
-			ele.data.category = element.category;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
-			group_elements.addChild(ele);
-			paper.view.update();
 			break;
 		case "circle": 
 			ele = paper.Shape.Circle(gridPoint2Pixel(element.x) + cursor_line_width / 2, gridPoint2Pixel(element.y) + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
 			ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2), gridPoint2Pixel(element.y) + (grid_size / 2));
 			ele.fillColor = "#" + element.color;
-			ele.data.name = element.name;
-			ele.data.category = element.category;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
-			group_elements.addChild(ele);
-			paper.view.update();
 			break;
 		case "line":
 			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
 			ele.strokeColor = "#" + element.color;
-			ele.data.name = element.name;
-			ele.data.category = element.category;
-			group_elements.addChild(ele);
-			paper.view.update();
 		break;
 	}
+	ele.data.name = element.name;
+	ele.data.category = element.category;
+	group_elements.addChild(ele);
+	paper.view.update();
 	return ele;
 }
 

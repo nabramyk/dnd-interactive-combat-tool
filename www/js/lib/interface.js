@@ -67,17 +67,16 @@ function bindEventHandlers() {
 					break;
 			}
 		} else {
+			//TODO: change of shape?
+			selected_element.item.data.name = $("#element_name").val();
+			selected_element.item.data.category = $("#element_category").val();
+			selected_element.item.fillColor = "#" + $("#element_color").val();
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
 				"id": selected_element.item.data.id,
-				"name": $("#element_name").val(),
-				"shape": $("#selected_shape").val(),
-				"color": $("#element_color").val(),
-				"x": selected_element.x,
-				"y": selected_element.y,
-				"size": { "width": $("#element_width").val(), "height": $("#element_height").val() },
-				"category": $("#element_category").val()
+				"el": selected_element.item
 			});
+			paper.view.update();
 		}
 	});
 
@@ -221,15 +220,17 @@ function bindEventHandlers() {
 
 	$("#editing_controls_done").click(function () {
 
-		socket.emit('edit_element_on_server', {
-			"grid_id": grid_id,
-			"id": $("#edit_element_id").val(),
-			"name": $("#edit_name").val(),
-			"type": $("#edit_shape").val(),
-			"color": $("#edit_color").val(),
-			"size": $("#edit_size").val(),
-			"category": $("#edit_category").val()
-		});
+		console.log(selected_element);
+
+		// socket.emit('edit_element_on_server', {
+		// 	"grid_id": grid_id,
+		// 	"id": $("#edit_element_id").val(),
+		// 	"name": $("#edit_name").val(),
+		// 	"type": $("#edit_shape").val(),
+		// 	"color": $("#edit_color").val(),
+		// 	"size": $("#edit_size").val(),
+		// 	"category": $("#edit_category").val()
+		// });
 
 		removeEditMenu();
 	});
@@ -458,8 +459,16 @@ function selectedMenuOption(option) {
 			$("#overlapping_back_button").show();
 			$("#options_container").hide();
 			$("#add_container").show();
+
 			var isAdd = $("#options_add_or_edit_button").text() === "Add";
-			$("#selected_shape").val(isAdd ? "square" : selected_element.shape);
+			if(isAdd) { 
+				$("#selected_shape").show();
+				$("#rotate_controls_container").hide();
+				$("#selected_shape").val("square"); 
+			} else { 
+				$("#selected_shape").hide();
+				$("#rotate_controls_container").show();
+			}
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
 			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
 			$("#element_width").val(isAdd ? 1 : selected_element.item.size.width);
