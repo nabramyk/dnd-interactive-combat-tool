@@ -70,7 +70,7 @@ module.exports = class GridSpace {
 	 *         undefined if no element with that id exists
 	 */
 	findElementById(id) {
-		return this.elements.find(function (el) { return el.id == id; })
+		return this.elements.find(function (el) { return el.el.data.id == id; })
 	};
 
 	/**
@@ -156,20 +156,11 @@ module.exports = class GridSpace {
 	 * @return {Element} the newly added element
 	 */
 	addElementToGridSpace(obj) {
-		if (this.hasElementAtPosition(obj.x, obj.y))
-			return undefined;
+		// if (this.hasElementAtPosition(obj.x, obj.y))
+		// 	return undefined;
 
-		var newElement = new Element(
-			this.elementIdCounter++,
-			obj.x,
-			obj.y,
-			obj.shape,
-			obj.color,
-			obj.size,
-			obj.category,
-			obj.name,
-			obj.rotation
-		);
+		obj.data.id = this.elementIdCounter++;
+		var newElement = new Element(obj);
 
 		this.elements.push(newElement);
 		this.history.push(new HistoryFrame("add", newElement));
@@ -179,11 +170,7 @@ module.exports = class GridSpace {
 	};
 
 	mutateElementInGridSpace(obj) {
-		if (this.elements.find(function(el) { return el.collide(obj.x, obj.y, obj.size, obj.id); }) === undefined) {
-			return this.elements.find(function(el) { return el.id === obj.id }).mutate(obj);
-		} else {
-			return undefined;
-		}
+		return this.elements.find(function(el) { return obj.id == el.el.data.id; }).mutate(obj);
 	}
 
     /**
@@ -261,9 +248,9 @@ module.exports = class GridSpace {
 	 *            direction - the direction to move the element
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
-	nudgeElement(x, y, direction) {
+	nudgeElement(id, direction) {
 		try {
-			return this.findElementByPosition(x, y).nudge(direction, this.elements);
+			return this.findElementById(id).nudge(direction, this.elements);
 		} catch (e) {
 			return undefined;
 		}

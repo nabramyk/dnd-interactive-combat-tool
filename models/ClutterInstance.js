@@ -53,7 +53,7 @@ module.exports = class ClutterInstance {
     }
 
     moveElement(msg) {
-		var movedElement = this.grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.x, msg.y, msg.direction);
+		var movedElement = this.grid_space.find((el) => { return msg.grid_id == el.id }).nudgeElement(msg.id, msg.direction);
         if (typeof movedElement === 'undefined') 
             return undefined;
         else 
@@ -69,19 +69,9 @@ module.exports = class ClutterInstance {
     }
 
     addElement(msg) {
-        var input = new Element(0,
-			JSON.parse(msg.x),
-			JSON.parse(msg.y),
-			msg.shape,
-			msg.color,
-			{ "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) },
-			msg.category,
-			isUndefined(msg.name) ? "object" : msg.name,
-			msg.rotation);
-
 		return this.grid_space
 			.find((el) => { return el.id == msg.grid_id })
-			.addElementToGridSpace(input);
+			.addElementToGridSpace(msg.element[1]);
     }
 
     deleteElement(msg) {
@@ -89,9 +79,6 @@ module.exports = class ClutterInstance {
     }
 
     editElement(msg) {
-        msg.size = { "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) };
-		msg.x = JSON.parse(msg.x);
-        msg.y = JSON.parse(msg.y);
         return this.grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg);
     }
 

@@ -16,17 +16,9 @@
  */
 module.exports = class Element {
 
-    constructor(id, x, y, shape, color, size, category, name, rotation) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.shape = shape;
-        this.color = color;
-        this.size = size;
-        this.category = category;
-        this.name = name;
-        this.rotation = rotation;
-    }
+	constructor(el) {
+		this.el = el;
+	}
 
 	/**
 	 * Move the element 1 unit in a specific direction
@@ -36,30 +28,30 @@ module.exports = class Element {
 	 * @return {Element|undefine} This element at its new position, or undefined
 	 *         if it cannot move
 	 */
-    nudge(direction, gridSpace) {
-		var moveToX = this.x, moveToY = this.y, moveToSize = this.size, moveToId = this.id;
+	nudge(direction, gridSpace) {
+		var moveToX = this.el.matrix[4], moveToY = this.el.matrix[5];
 		switch (direction) {
 			case "right": // right
-				moveToX++;
+				moveToX += 20;
 				break;
 			case "up": // up
-				moveToY--;
+				moveToY -= 20;
 				break;
 			case "left": // left
-				moveToX--;
+				moveToX -= 20;
 				break;
 			case "down": // down
-				moveToY++;
+				moveToY += 20;
 				break;
 		}
 
-		if (gridSpace.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, moveToId); }) === undefined) {
-			this.x = moveToX;
-			this.y = moveToY;
+		//if (gridSpace.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, moveToId); }) === undefined) {
+			this.el.matrix[4] = moveToX;
+			this.el.matrix[5] = moveToY;
 			return this;
-		} else {
-			return undefined;
-		}
+		//} else {
+		//	return undefined;
+		//}
 	};
 
 	/**
@@ -67,9 +59,9 @@ module.exports = class Element {
 	 */
 	warp(x, y, gridSpace) {
 		var moveToSize = this.size;
-        var moveToId = this.id;
+		var moveToId = this.id;
 
-        if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); })) {
+		if (gridSpace.elements.find(function (el) { return el.collide(x, y, moveToSize, moveToId); })) {
 			this.x = x;
 			this.y = y;
 
@@ -84,13 +76,11 @@ module.exports = class Element {
 	 * 
 	 */
 	mutate(modifiedElement) {
+		console.log(modifiedElement);
 
-		this.shape = modifiedElement.shape;
-		this.name = modifiedElement.name;
-		this.category = modifiedElement.category;
-		this.color = modifiedElement.color;
-		this.size = modifiedElement.size;
-		return this;
+		this.el = modifiedElement.el[1];
+
+		return this.el;
 	}
 
 	/**

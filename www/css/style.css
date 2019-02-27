@@ -52,23 +52,19 @@ i {
   width: 23%;
 }
 
-.drawing_canvas {
+#underlay_canvas {
+  z-index: 4;
+  width: 100%;
+  height: 100%;
   -webkit-user-select: none;
   position: absolute;
   top: 0;
   left: 0;
 }
 
-#grid_canvas {
-  z-index: 2;
-}
-
-#underlay_canvas {
-  z-index: 4;
-}
-
-#temporary_drawing_canvas {
-  z-index: 3;
+#underlay_canvas[resize] {
+  width: 100%;
+  height: 100%;
 }
 
 .menu_controls_button {
@@ -120,20 +116,20 @@ i {
 #tab_row {
   position: absolute;
   width: 100%;
+  margin-right: 80px;
   top: 0;
   left: 0;
   height: 40px;
   max-height: 40px;
+  overflow-x: scroll;
   background: #b7b7b7;
   white-space: nowrap;
-  overflow: hidden;
   z-index: 2;
-  margin-bottom: 50px;
 }
 
 #ruler_left, #ruler_top {
   position: fixed;
-  background: whitesmoke;
+  background: #f5f5f5;
 }
 
 #grid_size_vertical,
@@ -167,7 +163,7 @@ i {
 
 .menu_item {
   width: 100%;
-  height: 100%;
+  height: 12.5%;
   display: inline-block;
   position: relative;
 }
@@ -236,33 +232,6 @@ i {
   outline: none;
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-  height: 100%;
-}
-
-.dropdown_content {
-  position: absolute;
-  display: none;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.dropdown_content button {
-  width: 100%;
-}
-
-.dropdown_content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
 .dropbtn {
   background-color: #345eb2;
   color: white;
@@ -274,7 +243,6 @@ i {
 }
 
 #editing_controls,#options_controls,#context_editing_controls,#context_annotation_controls {
-  width:160px;
   display:inline;
   position:absolute;
   z-index: 100;
@@ -315,10 +283,10 @@ i {
 
 #addition_tab {
   background: white;
-  height: 100%;
   border: none;
   min-width: 20px;
   max-width: 20%;
+  margin-right: 40px;
   margin: 2px;
   display: inline;
 }
@@ -375,6 +343,7 @@ i {
   background: white;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 150;
+  transition: 0.5s;
 }
 
 #options_container {
@@ -406,7 +375,6 @@ i {
 #side_container_swap {
   position: relative;
   display: block;
-  margin-top: 40px;
   overflow-y: scroll;
   height: 100%;
   padding-bottom: 36px;
@@ -414,20 +382,28 @@ i {
 
 #overlapping_container_tab {
   position: absolute; 
-  right: 0; 
-  top: 50%; 
-  height: 10%;
+  right: 0;
+  height: 100%;
+  z-index: 3;
+}
+
+.toolbar_quick_access_button {
   color: white; 
   background-color: #345eb2; 
-  border: none;
-  font-size: 24px;
+  border-bottom: #8c8c8c;
+  border-left: none;
+  border-right: none;
+  height: 12.5%;
+  width: 100%;
+  font-size: 18px;
 }
 
 .back_button {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
-  height: 100%;
+  height: 10%;
+  width: 100%;
   font-size: 24px;
   border: none;
   color: white;

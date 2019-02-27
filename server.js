@@ -8,7 +8,6 @@
 "use strict";
 
 const ClutterInstance = require("./models/ClutterInstance.js");
-const Element = require("./models/Element.js");
 
 var app = require('express')();
 var express = require('express');
@@ -46,44 +45,41 @@ io.on('connection', (socket) => {
 	console.log("a user connected");
 
 	socket.on('init', (_, fn) => {
-		try {
-			if(io.engine.clientsCount == 1) throw new Error();
-			Object.keys(io.sockets.sockets).some(function(id) {
-				
-				if(id == socket.id) {
-					return false;
-				}
-
-				io.sockets.sockets[id].emit('new_init', {}, (data) => {
-					console.log(data);
-					fn(data);
-					return true;
-				});
-			})
-		} catch(e) {
-			fn(new ClutterInstance().init());
-			console.log(e);
-		}
+		fn(clutter.init());
 	});
 
 	socket.on('resize', (msg) => {
 		io.emit('resize', clutter.resize(msg));
 	});
 
-	socket.on('move_element', (msg) => {
-		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": msg });
+	socket.on('move_element', (msg, fn) => {
+		var movedElement = clutter.moveElement(msg);
+		if(isUndefined(movedElement)) return;
+		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		console.log(movedElement);
+		fn({});
 	});
 
-	socket.on('add_element_to_server', (msg) => {
-		io.emit('added_element', { "grid_id" : msg.grid_id, "element": new Element(0,
-			JSON.parse(msg.x),
-			JSON.parse(msg.y),
-			msg.shape,
-			msg.color,
-			{ "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) },
-			msg.category,
-			isUndefined(msg.name) ? "object" : msg.name,
-			msg.rotation)});
+	socket.on('warp_element', (msg, fn) => {
+		var movedElement = clutter.warpElement(msg);
+		if (isUndefined(movedElement)) {
+			socket.emit('error_channel', { "message": "Somethings already there! " });
+			return;
+		}
+
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size }); 
+	});
+
+	socket.on('add_element_to_server', (msg, fn) => {
+		var output = clutter.addElement(msg);
+		console.log(output);
+		if(isUndefined(output)) {
+			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
+		} else {
+			socket.broadcast.emit('added_element', { "grid_id": msg.grid_id, "element": output });
+			fn({ "id" : output.el.data.id }); //Return the id of the newly created element to the user who created it
+		}
 	});
 
 	socket.on('delete_element_on_server', (msg) => {
@@ -96,7 +92,7 @@ io.on('connection', (socket) => {
 		if(isUndefined(temp)) {
 			socket.emit('error_channel', {"message" : "Unable to modify element properties."});
 		} else {
-			io.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
+			socket.broadcast.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
 		}
 	});
 
@@ -130,6 +126,14 @@ io.on('connection', (socket) => {
 
 	socket.on('delete_annotation_from_server', (msg) => {
 		io.emit('deleted_annotation', clutter.deleteAnnotation(msg));
+	});
+
+	socket.on('undo', (msg) => {
+		clutter.undo(msg);
+	});
+
+	socket.on('redo', (msg) => {
+		clutter.redo(msg);
 	});
 
 	socket.on('ping_snd', (msg) => {

@@ -1,36 +1,118 @@
 /**
  * @fileoverview Should just handle all of the canvas drawing stuff
  */
-function drawTopRuler() {
-	var ruler_top = document.getElementById("ruler_top");
-	ruler_top.width = grid_size * grid_count_width + 2 * grid_line_width;
-	ruler_top.height = grid_size;
-	var ctx2 = ruler_top.getContext("2d");
-	ctx2.font = "10px Arial";
+function drawTopRuler(pos) {
 	for (var i = 0; i < grid_count_width; i++) {
-		var n = ctx2.measureText(i+1).width / 2;
-		ctx2.fillText(i + 1, grid_line_width + (grid_size * i) + (grid_size / 2) - n, grid_size / 1.5);
-		ctx2.strokeRect(i * grid_size + grid_line_width, 0, grid_size, grid_size);
+		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, 0 - grid_size + grid_line_width, grid_size, grid_size);
+		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_top_ruler.addChild(rect);
+		rect.sendToBack();
+
+		var text = new paper.PointText(new paper.Point(i * grid_size + (grid_size / 2), 0 - grid_size + (grid_size / 1.5)));
+		text.fillColor = 'black';
+		text.justification = 'center';
+		text.content = i + 1;
+		group_top_ruler.addChild(text);
 	}
+	try { toprulerraster.remove(); } catch (e) { };
+	toprulerraster = group_top_ruler.rasterize();
+	group_top_ruler.removeChildren();
+	paper.view.update();
 }
 
-function drawLeftRuler() {
-	var ruler_left = document.getElementById("ruler_left");
-	ruler_left.height = grid_size * grid_count_height + 2 * grid_line_width;
-	ruler_left.width = grid_size;
-	var ctx2 = ruler_left.getContext("2d");
-	ctx2.font = "10px Arial";
-	for (var i = 0; i < grid_count_height; i++) {
-		var n = ctx2.measureText(i+1).width / 2;
-		ctx2.fillText(i + 1, grid_line_width + (grid_size / 2) - n, 10 + grid_line_width + (grid_size * i) + (grid_size / 2) - 6);
-		ctx2.strokeRect(0, i * grid_size + grid_line_width, grid_size, grid_size);
+function drawSelectedPositionTopRuler(pos) {
+	var screen = paper.view.center._owner.topLeft;
+
+	if (isUndefined(top_ruler_cursor)) {
+		top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
+		top_ruler_cursor.strokeColor = grid_color;
+		top_ruler_cursor.fillColor = grid_highlight;
+		toprulerraster.addChild(top_ruler_cursor);
+
+		top_ruler_number = new paper.PointText(new paper.Point(pos, grid_size - (grid_size / 4)));
+		top_ruler_number.fillColor = 'white';
+		top_ruler_number.justification = 'center';
+		toprulerraster.addChild(top_ruler_number);
 	}
+
+	top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+	top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+	top_ruler_cursor.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+
+	paper.view.update();
+}
+
+function drawLeftRuler(pos) {
+	for (var i = 0; i < grid_count_height; i++) {
+		var rect = paper.Shape.Rectangle(0 - grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_left_ruler.addChild(rect);
+
+		var text = new paper.PointText(new paper.Point(0 - grid_size / 2, i * grid_size + (grid_size / 1.5)));
+		text.fillColor = 'black';
+		text.justification = 'center';
+		text.content = i + 1;
+		group_left_ruler.addChild(text);
+	}
+	try { leftrulerraster.remove(); } catch (e) { };
+	leftrulerraster = group_left_ruler.rasterize();
+	group_left_ruler.removeChildren();
+	paper.view.update();
+}
+
+function drawSelectedPositionLeftRuler(pos) {
+	var screen = paper.view.center._owner.topLeft;
+
+	if (isUndefined(left_ruler_cursor)) {
+		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, grid_size, grid_size);
+		left_ruler_cursor.strokeColor = grid_color;
+		left_ruler_cursor.fillColor = grid_highlight;
+		leftrulerraster.addChild(left_ruler_cursor);
+
+		left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos));
+		left_ruler_number.fillColor = 'white';
+		left_ruler_number.justification = 'center';
+		leftrulerraster.addChild(left_ruler_number);
+	}
+
+	left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+	left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
+	left_ruler_cursor.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
+	left_ruler_number.bringToFront();
+
+	paper.view.update();
 }
 
 function drawElements() {
-	local_stored_grid_space.forEach(function(el) {
-		draw_item(el);
-	});
+	try { elementsraster.remove() } catch (e) { };
+	paper.view.update();
+}
+
+function draw_local_item(element) {
+	switch (element.shape) {
+		case "rectangle":
+			ele = paper.Shape.Rectangle(gridPoint2Pixel(element.x) + cursor_line_width, gridPoint2Pixel(element.y) + cursor_line_width, JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
+			ele.fillColor = "#" + element.color;
+			ele.pivot = paper.Shape.Rectangle.topLeft;
+			break;
+		case "circle": 
+			ele = paper.Shape.Circle(gridPoint2Pixel(element.x) + cursor_line_width / 2, gridPoint2Pixel(element.y) + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
+			ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2), gridPoint2Pixel(element.y) + (grid_size / 2));
+			ele.fillColor = "#" + element.color;
+			ele.pivot = paper.Shape.Rectangle.topLeft;
+			break;
+		case "line":
+			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
+			ele.strokeColor = "#" + element.color;
+		break;
+	}
+	ele.data.name = element.name;
+	ele.data.category = element.category;
+	group_elements.addChild(ele);
+	paper.view.update();
+	return ele;
 }
 
 /**
@@ -40,82 +122,21 @@ function drawElements() {
  * @returns
  */
 function draw_item(element) {
-	switch (element.shape) {
-	case "square":
-	case "rectangle":
-		element.ele = paper.Shape.Rectangle(
-			pixel2GridPoint(element.x), 
-			pixel2GridPoint(element.y), 
-			JSON.parse(element.size.width) * grid_size - cursor_line_width * 2,
-			JSON.parse(element.size.height) * grid_size - cursor_line_width * 2);
-		element.ele.position = new paper.Point(element.x, element.y); //Setting the position here is relative to the center of the square rather than the top left
-		element.ele.fillColor = "#" + element.color;
-		
-		console.log(element);
-		group_elements.addChild(element.ele);
-
-		break;
-	case "circle":
-	case "oval":
-		ctx.fillStyle = "#" + element.color;
-		x = gridPoint2Pixel(element.x) + grid_line_width;
-		y = gridPoint2Pixel(element.y) + grid_line_width;
-		ctx.beginPath();
-		ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size.width, element.size.height * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-		ctx.fill();
-		break;
-	case "line":
-		ctx.strokeStyle = "#" + element.color;
-		ctx.lineWidth = element.size;
-		ctx.beginPath();
-		x = element.x.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		y = element.y.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
-		for (var i = 1; i < x.length; i++) {
-			ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
-		}
-		ctx.stroke();
-		break;
-	}
-}
-
-function draw_temporary_item(element) {
 	switch (element.type) {
-	case "square":
-		temporary_drawing_ctx.fillStyle = "#" + element.color;
-		x = gridPoint2Pixel(element.x) + grid_line_width * 2;
-		y = gridPoint2Pixel(element.y) + grid_line_width * 2;
-		temporary_drawing_ctx.fillRect(x + cursor_line_width / 2, y + cursor_line_width / 2, element.size * grid_size - cursor_line_width * 2, element.size * grid_size - cursor_line_width * 2);
-		break;
-	case "circle":
-		temporary_drawing_ctx.fillStyle = "#" + element.color;
-		x = gridPoint2Pixel(element.x) + grid_line_width;
-		y = gridPoint2Pixel(element.y) + grid_line_width;
-		temporary_drawing_ctx.beginPath();
-		temporary_drawing_ctx.arc(x + (grid_size / 2) * element.size, y + (grid_size / 2) * element.size, element.size * (grid_size / 2) - grid_line_width, 0, 2 * Math.PI);
-		temporary_drawing_ctx.fill();
-		break;
-	case "line":
-		temporary_drawing_ctx.strokeStyle = "#" + element.color;
-		temporary_drawing_ctx.lineWidth = element.size;
-		temporary_drawing_ctx.beginPath();
-		x = element.x.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		y = element.y.map(function(e) {
-			return gridPoint2Pixel(e)
-		});
-		temporary_drawing_ctx.moveTo(x[0] + grid_line_width, y[0] + grid_line_width);
-		for (var i = 1; i < x.length; i++) {
-			temporary_drawing_ctx.lineTo(x[i] + grid_line_width, y[i] + grid_line_width);
-		}
-		temporary_drawing_ctx.stroke();
-		break;
+		case "square":
+		case "rectangle":
+			group_elements.addChild(paper.Shape.Rectangle(element));
+			break;
+		case "circle":
+		case "oval":
+			group_elements.addChild(paper.Shape.Circle(element));
+			break;
+		default:
+			group_elements.addChild(new paper.Path(element));
+			break;
 	}
+	paper.view.update();
+	return element;
 }
 
 /**
@@ -129,22 +150,26 @@ function drawScreen() {
 			group_grid.addChild(rect);
 		}
 	}
+	try { gridraster.remove(); } catch (e) { };
+	gridraster = group_grid.rasterize();
+	group_grid.removeChildren();
+
+	paper.view.update();
 }
 
 /**
- * Draw a temporary item at a position
- * @param {*} ping 
+ * Draws the ping
  */
 function drawPing(ping) {
-	if(ping.grid_id != grid_id) return;
-	group_overlay.addChild(paper.Shape.Circle({ 
+	group_overlay.addChild(paper.Shape.Circle({
 		center: [ping.position[1], ping.position[2]],
 		radius: ping.size[1] / 2,
 		fillColor: "#f44242",
-		onFrame: function(event) {
-			if(event.count >= 100) {
+		onFrame: function (event) {
+			if (event.count >= 100) {
 				this.remove();
 			}
+			paper.view.update();
 		}
 	}));
 }

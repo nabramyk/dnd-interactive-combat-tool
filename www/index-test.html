@@ -31,52 +31,35 @@
     </button>
   </div>
 
-  <canvas id="ruler_left"></canvas>
-  <canvas id="ruler_top"></canvas>
-
   <div id="grid_canvas_scrolling_container">
     <canvas id="underlay_canvas" class="drawing_canvas"></canvas>
   </div>
 
   <div id="overlapping_side_container">
-    
-    <div style="display: block; position: absolute; top: 0; left: 0; background-color: #262626; width: 200px; height: 40px;">
-      <button id="overlapping_back_button" class="back_button">&laquo;</button>
-      <h5 style="color: #b7b7b7; position: absolute; right: 0; margin-right: 8px;">
-        Clutter v1.0.0
-      </h5>
-    </div>
-    
     <div id="side_container_swap">
       <div id="options_container" style="display: none;">
-        <button id="options_lists_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('lists')">Lists</button>
-        <button id="options_grid_space_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('grid_space')">Grid Space</button>
-        <button id="options_add_or_edit_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('add_or_edit')">Add</button>
-        <button id="options_annotate_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('annotate')">Annotate</button>
-        <button id="options_delete_button" class="menu_item destructive" style="height: 10%;" onclick="selectedMenuOption('delete')">Delete</button>
-        <button id="options_copy_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('copy')">Copy</button>
-        <button id="options_paste_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('paste')">Paste</button>
-        <button id="options_movement_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('movement')">Movement</button>
-        <button id="options_ping_position" class="menu_item" style="height: 10%;" onclick="pingPosition()">Ping!</button>
-        <button id="options_close_button" class="menu_item" style="height: 10%;" onclick="selectedMenuOption('close')">Close</button>
+        <button id="options_lists_button" class="menu_item" onclick="selectedMenuOption('lists')">Lists</button>
+        <button id="options_grid_space_button" class="menu_item" onclick="selectedMenuOption('grid_space')">Grid Space</button>
+        <button id="options_add_or_edit_button" class="menu_item" onclick="selectedMenuOption('add_or_edit')">Add</button>
+        <button id="options_annotate_button" class="menu_item" onclick="selectedMenuOption('annotate')">Annotate</button>
+        <button id="options_delete_button" class="menu_item destructive" onclick="selectedMenuOption('delete')">Delete</button>
+        <button id="options_copy_button" class="menu_item" onclick="selectedMenuOption('copy')">Copy</button>
+        <button id="options_paste_button" class="menu_item" onclick="selectedMenuOption('paste')">Paste</button>
+        <button id="options_movement_button" class="menu_item" onclick="selectedMenuOption('movement')">Movement</button>
+        <button id="options_ping_position" class="menu_item" onclick="pingPosition()">Ping!</button>
+        <button id="options_close_button" class="menu_item" onclick="selectedMenuOption('close')">Close</button>
       </div>
       
       <div id="add_container" style="display: none; width: 200px;">
         <select id="selected_shape" class="menu_item">
-					<option value="square">Square</option>
           <option value="rectangle">Rectangle</option>
 					<option value="circle">Circle</option>
-          <option value="oval">Oval</option>
 					<option value="line">Line</option>
 				</select><br>
         <input name="elementcolor" id="element_color" type="hidden" value="000000">
         <button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
 
         <div style="display: inline-block;">
-          <label for="element_size" style="width: 50px; margin-left: auto; margin-right: auto;">Size</label>
-          <br>
-          <input type="number" id="element_size" class="menu_item" value=1>
-          
           <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
           <br>
           <input type="number" id="element_width" class="menu_item" value=1>
@@ -90,7 +73,7 @@
           <input type="number" id="element_depth" class="menu_item" value=1>
         </div>
 
-        <div style="display: inline-block;">
+        <div id="rotate_controls_container" style="display: inline-block;">
           Rotate
           <button id="b_rotate_left" class="menu_item">&#8634;</button>
           <button id="b_rotate_right" class="menu_item">&#8635;</button>
@@ -220,11 +203,21 @@
         <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
       </div>
     </div>
+
+    <button id="overlapping_back_button" class="back_button">&laquo;</button>
+
   </div>
   
-  <button id="overlapping_container_tab">
-    &laquo;
-  </button>
+  <div id="overlapping_container_tab">
+    <button id="tqa_add" class="toolbar_quick_access_button">&oplus;</button><br>
+    <button id="tqa_delete" class="toolbar_quick_access_button">&otimes;</button><br>
+    <button id="tqa_copy" class="toolbar_quick_access_button">&#10064;</button><br>
+    <button id="tqa_ping" class="toolbar_quick_access_button">&#10061;</button><br>
+    <button id="tqa_annotate" class="toolbar_quick_access_button">&#182;</button><br>
+    <button id="tqa_list" class="toolbar_quick_access_button">&forall;</button><br>
+    <button id="tqa_move" class="toolbar_quick_access_button">&#9816;</button><br>
+    <button id="overlapping_container_open" class="toolbar_quick_access_button">&laquo;</button>
+  </div>
 
   <div id="lost_connection_div">
     <h2 id="lost_connection_text"></h2>
@@ -232,6 +225,12 @@
 
   <div id="loading_div">
   <div class="loader"></div>
+  </div>
+
+  <div style="display: block; position: absolute; bottom: 0; left: 0; background-color: #262626; width: 100%; height: 25px;">
+      <h5 style="color: #b7b7b7; position: absolute; left: 0; margin-left: 8px; margin-top: 5px;">
+          Clutter v1.0.0
+        </h5>
   </div>
 </body>
 

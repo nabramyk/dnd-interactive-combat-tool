@@ -22,7 +22,7 @@ function gridPoint2Pixel(grid_point) {
  * Determine if the value is undefined 
  *
  * @param value - input which may be undefined
- * @returns {boolean} Tru if undefined, false otherwise
+ * @returns {boolean} True if undefined, false otherwise
  */
 function isUndefined(value) {
 	return value === undefined;
@@ -38,4 +38,4 @@ function error_report(status, error) {
 }
 
 var screenWidth = function() { return grid_size * grid_count_width + 2 * grid_line_width; };
-var screenHeight = function() { return grid_size * grid_count_height + 2 * grid_line_width; }
+var screenHeight = function() { return grid_size * grid_count_height + 2 * grid_line_width; };
