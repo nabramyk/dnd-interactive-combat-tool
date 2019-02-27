@@ -34,17 +34,6 @@ function bindEventHandlers() {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {
 				case "circle":
-					add_element_to_server(
-						$("#element_color").val(), 
-						pixel2GridPoint(selected_grid_x), 
-						pixel2GridPoint(selected_grid_y), 
-						$("#selected_shape").val(), 
-						$("#element_name").val(), 
-						{ "width": $("#element_width").val(), 
-							"height": $("#element_width").val() }, 
-						$("#element_category").val()
-					);
-					break;
 				case "rectangle":
 					add_element_to_server(
 						$("#element_color").val(), 
@@ -53,7 +42,7 @@ function bindEventHandlers() {
 						$("#selected_shape").val(), 
 						$("#element_name").val(), 
 						{ "width": $("#element_width").val(), 
-							"height": $("#element_height").val() }, 
+							"height": $("#element_width").val() }, 
 						$("#element_category").val()
 					);
 					break;
@@ -68,9 +57,17 @@ function bindEventHandlers() {
 			}
 		} else {
 			//TODO: change of shape?
+			console.log(selected_element.item);
+
+			var p = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 			selected_element.item.data.name = $("#element_name").val();
 			selected_element.item.data.category = $("#element_category").val();
 			selected_element.item.fillColor = "#" + $("#element_color").val();
+			selected_element.item.size.width = $("#element_width").val() * grid_size - cursor_line_width;
+			selected_element.item.size.height = $("#element_height").val() * grid_size - cursor_line_width;
+			//selected_element.item.bounds.topLeft = p;
+
+			selected_element.item.position = p;
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
 				"id": selected_element.item.data.id,
@@ -216,23 +213,6 @@ function bindEventHandlers() {
 
 	$("#element_list_btn").click(function () {
 		$("#element_list_dropdown").toggle();
-	});
-
-	$("#editing_controls_done").click(function () {
-
-		console.log(selected_element);
-
-		// socket.emit('edit_element_on_server', {
-		// 	"grid_id": grid_id,
-		// 	"id": $("#edit_element_id").val(),
-		// 	"name": $("#edit_name").val(),
-		// 	"type": $("#edit_shape").val(),
-		// 	"color": $("#edit_color").val(),
-		// 	"size": $("#edit_size").val(),
-		// 	"category": $("#edit_category").val()
-		// });
-
-		removeEditMenu();
 	});
 
 	$("#randomize").click(function () {
@@ -471,10 +451,10 @@ function selectedMenuOption(option) {
 			}
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
 			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
-			$("#element_width").val(isAdd ? 1 : selected_element.item.size.width);
-			$("#element_height").val(isAdd ? 1 : selected_element.item.size.height);
-			$("#element_category").val(isAdd ? "environment" : selected_element.category);
-			$("#element_name").val(isAdd ? "object" : selected_element.name);
+			$("#element_width").val(isAdd ? 1 : pixel2GridPoint(selected_element.item.size.width));
+			$("#element_height").val(isAdd ? 1 : pixel2GridPoint(selected_element.item.size.height));
+			$("#element_category").val(isAdd ? "environment" : selected_element.item.data.category);
+			$("#element_name").val(isAdd ? "object" : selected_element.item.data.name);
 			$("#place_element_button").text(isAdd ? "Add" : "Submit");
 			break;
 		case "movement":

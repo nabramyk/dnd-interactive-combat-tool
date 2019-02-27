@@ -78,15 +78,9 @@ module.exports = class Element {
 	mutate(modifiedElement) {
 		console.log(modifiedElement);
 
-		this.el = modifiedElement;
+		this.el = modifiedElement.el[1];
 
-		// this.shape = modifiedElement.shape;
-		// this.name = modifiedElement.name;
-		// this.category = modifiedElement.category;
-		// this.color = modifiedElement.color;
-		// this.size = modifiedElement.size;
-
-		return this;
+		return this.el;
 	}
 
 	/**

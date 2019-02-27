@@ -25,7 +25,6 @@ function bindSocketListeners() {
 
 			$(".tab").first().addClass("active");
 
-			console.log(msg);
 			msg.elements.map(function(el) {
 				draw_item(el.el);
 			});

@@ -79,7 +79,6 @@ module.exports = class ClutterInstance {
     }
 
     editElement(msg) {
-        msg.size = { "width" : JSON.parse(msg.size.width), "height" : JSON.parse(msg.size.height) };
         return this.grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg);
     }
 
