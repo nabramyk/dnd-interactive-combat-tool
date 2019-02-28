@@ -105,15 +105,14 @@ function bindSocketListeners() {
 
 	socket.on('edited_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		group_elements.children[group_elements.children.indexOf(
-			group_elements.children.find(
-				function (el) {
-					return msg.element.id == el.id;
-				}
-			)
-		)] = msg.element;
-		drawElements();
-		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
+
+		var element = group_elements.children.find(function (el) { return msg.element.data.id == el.data.id; });
+		element.fillColor = msg.element.fillColor;
+		element.matrix = msg.element.matrix;
+		element.data = msg.element.data;
+
+		paper.view.update();
+		$("#element_list>#" + element.data.id).replaceWith(composeElementListRowElement(element));
 	});
 
 	socket.on('new_grid_space', function (msg) {
