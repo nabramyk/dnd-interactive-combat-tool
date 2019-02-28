@@ -59,15 +59,10 @@ function bindEventHandlers() {
 			//TODO: change of shape?
 			console.log(selected_element.item);
 
-			var p = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 			selected_element.item.data.name = $("#element_name").val();
 			selected_element.item.data.category = $("#element_category").val();
 			selected_element.item.fillColor = "#" + $("#element_color").val();
-			selected_element.item.size.width = $("#element_width").val() * grid_size - cursor_line_width;
-			selected_element.item.size.height = $("#element_height").val() * grid_size - cursor_line_width;
-			selected_element.item.bounds.topLeft = p;
 
-			//selected_element.item.position = p;
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
 				"id": selected_element.item.data.id,
@@ -77,15 +72,8 @@ function bindEventHandlers() {
 		}
 	});
 
-	$('#b_rotate_left').click(function () {
-		selected_element.item.rotate(-90);
-		paper.view.update();
-	});
-
-	$('#b_rotate_right').click(function () {
-		selected_element.item.rotate(90);
-		paper.view.update();
-	});
+	$('#b_rotate_left').click(function () { rotateElement(-90); });
+	$('#b_rotate_right').click(function () { rotateElement(90); });
 
 	$('#reset_board_button').click(function () {
 		if (confirm("This will delete EVERYTHING on the board.\nAre you sure you want to do this?")) {
@@ -445,14 +433,14 @@ function selectedMenuOption(option) {
 				$("#selected_shape").show();
 				$("#rotate_controls_container").hide();
 				$("#selected_shape").val("square");
-				$("#element_width").val(1).show();
-				$("#element_height").val(1).show();
+				$("#dimensions_container").show();
+				$("#element_width").val(1);
+				$("#element_height").val(1);
 				$("#element_depth").show();
 			} else {
 				$("#selected_shape").hide();
 				$("#rotate_controls_container").show();
-				$("#element_width").hide();
-				$("#element_height").hide();
+				$("#dimensions_container").hide();
 				$("#element_depth").hide();
 			}
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
@@ -591,4 +579,19 @@ function resizeGridHeight(height) {
 	$("#grid_size_vertical").val(grid_count_height);
 	drawScreen();
 	drawLeftRuler();
+}
+
+function rotateElement(angle) {
+	if(selected_element.item.size.width == selected_element.item.size.height) return;
+	if(stored_edited_element_bounds == null) stored_edited_element_bounds = selected_element.item.bounds;
+
+	selected_element.item.rotate(angle, stored_edited_element_bounds.topLeft);
+	cursor.rotate(angle, stored_edited_element_bounds.topLeft);
+	paper.view.update();
+
+	socket.emit('edit_element_on_server', {
+		"grid_id": grid_id,
+		"id": selected_element.item.data.id,
+		"el": selected_element.item
+	});
 }

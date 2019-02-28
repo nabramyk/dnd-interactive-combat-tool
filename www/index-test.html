@@ -55,11 +55,12 @@
           <option value="rectangle">Rectangle</option>
 					<option value="circle">Circle</option>
 					<option value="line">Line</option>
-				</select><br>
+        </select><br>
+        
         <input name="elementcolor" id="element_color" type="hidden" value="000000">
         <button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
 
-        <div style="display: inline-block;">
+        <div id="dimensions_container" class="sidebar_container">
           <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
           <br>
           <input type="number" id="element_width" class="menu_item" value=1>
@@ -68,9 +69,11 @@
           <br>
           <input type="number" id="element_height" class="menu_item" value=1>
           
+          <!-- Uncomment at some point if isometric layouts become a thing 
           <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
           <br>
           <input type="number" id="element_depth" class="menu_item" value=1>
+          -->
         </div>
 
         <div id="rotate_controls_container" style="display: inline-block;">

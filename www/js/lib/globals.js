@@ -52,4 +52,4 @@ var cursor, top_ruler_cursor, left_ruler_cursor, top_ruler_number, left_ruler_nu
 var leftrulerraster, toprulerraster, gridraster, elementsraster;
 var isDragging = false;
 var line_path, temp;
-var temp_line;
+var temp_line, stored_edited_element_bounds;

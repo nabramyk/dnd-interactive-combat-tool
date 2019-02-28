@@ -70,6 +70,7 @@ function interfaceInitialization() {
 		// });
 
 		selected_element = group_elements.hitTest(event.point);
+		stored_edited_element_bounds = null;
 
 		switch ($('#selected_shape').val()) {
 			case "line":
@@ -91,7 +92,7 @@ function interfaceInitialization() {
 					if (selected_element.type == "stroke") {
 						console.log("TODO: Handle selecting lines.");
 					} else {
-						cursor = paper.Shape.Rectangle(0, 0, selected_element.item.size.width, selected_element.item.size.height);
+						cursor = paper.Shape.Rectangle(selected_element.item.bounds);
 						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 						cursor.strokeColor = grid_highlight;
 					}

@@ -224,6 +224,7 @@ function collide(e1, e2) {
  *
  */
 function incremental_move_element(direction) {
+	stored_edited_element_bounds = null;
 	var temp = determinePoint(direction, selected_element.item);
 	if (selected_element != undefined) {
 		socket.emit('move_element', {
@@ -235,8 +236,8 @@ function incremental_move_element(direction) {
 			console.log("TODO: incremental_move_element callback")
 		});
 
-		selected_grid_x = temp.x - (grid_size / 2) + grid_line_width;
-		selected_grid_y = temp.y - (grid_size / 2) + grid_line_width;
+		selected_grid_x = temp.x - (grid_size / 2);
+		selected_grid_y = temp.y - (grid_size / 2);
 
 		var loc = new paper.Point(selected_grid_x, selected_grid_y);
 		selected_element.item.bounds.topLeft = loc;

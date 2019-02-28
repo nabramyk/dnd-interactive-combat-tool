@@ -306,11 +306,15 @@ i {
   padding-bottom: 200px;
 }
 
+#sidebar_container {
+  display: inline-block;
+}
+
 #annotation_list_container {
-	  position: relative;
+	position: relative;
   width: 100%;
   height: 100%;
-	  padding-bottom: 200px;
+  padding-bottom: 200px;
 }
 
 .grid_canvas_annotation {
