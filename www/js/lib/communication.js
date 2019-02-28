@@ -202,14 +202,12 @@ function delete_annotation_from_server(id) {
 }
 
 function determinePoint(dir, el) {
-	var out = { "x" : pixel2GridPoint(el.item.bounds.topLeft.x), "y" : pixel2GridPoint(el.item.bounds.topLeft.y)};
-	console.log(el.item.bounds.topLeft.x);
-	console.log("out:", out);
+	var out = { "x" : pixel2GridPoint(el.bounds.topLeft.x), "y" : pixel2GridPoint(el.bounds.topLeft.y)};
 	switch (dir) {
-		case "up": out.y -= 1; break;
-		case "down": out.y += 1; break;
-		case "left": out.x -= 1; break;
-		case "right": out.x += 1;
+		case "up": out.y -= grid_size; break;
+		case "down": out.y += grid_size; break;
+		case "left": out.x -= grid_size; break;
+		case "right": out.x += grid_size;
 	}
 	return out;
 }
@@ -226,9 +224,8 @@ function collide(e1, e2) {
  *
  */
 function incremental_move_element(direction) {
-	var temp = determinePoint(direction, selected_element);
-	var out = undefined;
-	if (out == undefined) {
+	var temp = determinePoint(direction, selected_element.item);
+	if (selected_element != undefined) {
 		socket.emit('move_element', {
 			"grid_id": grid_id,
 			"id": selected_element.item.data.id,
@@ -238,10 +235,8 @@ function incremental_move_element(direction) {
 			console.log("TODO: incremental_move_element callback")
 		});
 
-		selected_grid_x = temp.x * grid_size + grid_line_width;
-		selected_grid_y = temp.y * grid_size + grid_line_width;
-
-		console.log(temp);
+		selected_grid_x = temp.x - (grid_size / 2) + grid_line_width;
+		selected_grid_y = temp.y - (grid_size / 2) + grid_line_width;
 
 		var loc = new paper.Point(selected_grid_x, selected_grid_y);
 		selected_element.item.bounds.topLeft = loc;
