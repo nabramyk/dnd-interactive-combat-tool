@@ -42,7 +42,7 @@ function bindEventHandlers() {
 						$("#selected_shape").val(),
 						$("#element_name").val(),
 						{ "width": $("#element_width").val(),
-							"height": $("#element_width").val() },
+							"height": $("#element_height").val() },
 						$("#element_category").val()
 					);
 					break;
@@ -65,9 +65,9 @@ function bindEventHandlers() {
 			selected_element.item.fillColor = "#" + $("#element_color").val();
 			selected_element.item.size.width = $("#element_width").val() * grid_size - cursor_line_width;
 			selected_element.item.size.height = $("#element_height").val() * grid_size - cursor_line_width;
-			//selected_element.item.bounds.topLeft = p;
+			selected_element.item.bounds.topLeft = p;
 
-			selected_element.item.position = p;
+			//selected_element.item.position = p;
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
 				"id": selected_element.item.data.id,
@@ -445,14 +445,18 @@ function selectedMenuOption(option) {
 				$("#selected_shape").show();
 				$("#rotate_controls_container").hide();
 				$("#selected_shape").val("square");
+				$("#element_width").val(1).show();
+				$("#element_height").val(1).show();
+				$("#element_depth").show();
 			} else {
 				$("#selected_shape").hide();
 				$("#rotate_controls_container").show();
+				$("#element_width").hide();
+				$("#element_height").hide();
+				$("#element_depth").hide();
 			}
 			$("#element_color").val(isAdd ? "000000" : selected_element.color);
 			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
-			$("#element_width").val(isAdd ? 1 : pixel2GridPoint(selected_element.item.size.width));
-			$("#element_height").val(isAdd ? 1 : pixel2GridPoint(selected_element.item.size.height));
 			$("#element_category").val(isAdd ? "environment" : selected_element.item.data.category);
 			$("#element_name").val(isAdd ? "object" : selected_element.item.data.name);
 			$("#place_element_button").text(isAdd ? "Add" : "Submit");
