@@ -87,7 +87,7 @@ function bindSocketListeners() {
 				}
 			)
 		)];
-		
+
 		temp.remove();
 
 		drawElements();
@@ -203,6 +203,8 @@ function delete_annotation_from_server(id) {
 
 function determinePoint(dir, el) {
 	var out = { "x" : pixel2GridPoint(el.item.bounds.topLeft.x), "y" : pixel2GridPoint(el.item.bounds.topLeft.y)};
+	console.log(el.item.bounds.topLeft.x);
+	console.log("out:", out);
 	switch (dir) {
 		case "up": out.y -= 1; break;
 		case "down": out.y += 1; break;
@@ -232,17 +234,19 @@ function incremental_move_element(direction) {
 			"id": selected_element.item.data.id,
 			"direction": direction,
 			"size": cursor_size
-		}, function (msg) { 
-			console.log("TODO: incremental_move_element callback") 
+		}, function (msg) {
+			console.log("TODO: incremental_move_element callback")
 		});
 
-		selected_grid_x = gridPoint2Pixel(temp.x) + grid_line_width;
-		selected_grid_y = gridPoint2Pixel(temp.y) + grid_line_width;
-		
+		selected_grid_x = temp.x * grid_size + grid_line_width;
+		selected_grid_y = temp.y * grid_size + grid_line_width;
+
+		console.log(temp);
+
 		var loc = new paper.Point(selected_grid_x, selected_grid_y);
 		selected_element.item.bounds.topLeft = loc;
 		cursor.bounds.topLeft = loc;
-		
+
 		group_overlay.addChild(cursor);
 		paper.view.update();
 	}

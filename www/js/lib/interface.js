@@ -36,13 +36,13 @@ function bindEventHandlers() {
 				case "circle":
 				case "rectangle":
 					add_element_to_server(
-						$("#element_color").val(), 
-						pixel2GridPoint(selected_grid_x), 
-						pixel2GridPoint(selected_grid_y), 
-						$("#selected_shape").val(), 
-						$("#element_name").val(), 
-						{ "width": $("#element_width").val(), 
-							"height": $("#element_width").val() }, 
+						$("#element_color").val(),
+						pixel2GridPoint(selected_grid_x),
+						pixel2GridPoint(selected_grid_y),
+						$("#selected_shape").val(),
+						$("#element_name").val(),
+						{ "width": $("#element_width").val(),
+							"height": $("#element_width").val() },
 						$("#element_category").val()
 					);
 					break;
@@ -367,7 +367,7 @@ function bindEventHandlers() {
  * Create an HTML DOM element
  *
  * @param {Element} el -
- * @return {string} An html element to display 
+ * @return {string} An html element to display
  */
 function composeElementListRowElement(el) {
 	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
@@ -441,11 +441,11 @@ function selectedMenuOption(option) {
 			$("#add_container").show();
 
 			var isAdd = $("#options_add_or_edit_button").text() === "Add";
-			if(isAdd) { 
+			if(isAdd) {
 				$("#selected_shape").show();
 				$("#rotate_controls_container").hide();
-				$("#selected_shape").val("square"); 
-			} else { 
+				$("#selected_shape").val("square");
+			} else {
 				$("#selected_shape").hide();
 				$("#rotate_controls_container").show();
 			}
@@ -466,12 +466,12 @@ function selectedMenuOption(option) {
 			console.log("TODO: Copy elements");
 			break;
 		case "paste":
-			add_element_to_server(copied_element.color, 
-				pixel2GridPoint(selected_grid_x), 
-				pixel2GridPoint(selected_grid_y), 
-				copied_element.shape, 
-				copied_element.name, 
-				copied_element.size, 
+			add_element_to_server(copied_element.color,
+				pixel2GridPoint(selected_grid_x),
+				pixel2GridPoint(selected_grid_y),
+				copied_element.shape,
+				copied_element.name,
+				copied_element.size,
 				copied_element.category
 			);
 			break;
@@ -480,7 +480,6 @@ function selectedMenuOption(option) {
 			$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 			break;
 		case "delete":
-			console.log(selected_element);
 			socket.emit('delete_element_on_server', {
 				"grid_id": grid_id,
 				"element_id": selected_element.item.data.id

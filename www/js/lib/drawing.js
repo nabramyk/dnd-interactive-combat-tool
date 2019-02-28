@@ -91,14 +91,13 @@ function drawElements() {
 }
 
 function draw_local_item(element) {
-	console.log(element);
 	switch (element.shape) {
 		case "rectangle":
-			ele = paper.Shape.Rectangle(element.x + cursor_line_width, element.y + cursor_line_width, JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
+			ele = paper.Shape.Rectangle(element.x + cursor_line_width - (grid_size/2), element.y + cursor_line_width - (grid_size/2), JSON.parse(element.size.width) * grid_size - cursor_line_width, JSON.parse(element.size.height) * grid_size - cursor_line_width);
 			ele.fillColor = "#" + element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
-		case "circle": 
+		case "circle":
 			ele = paper.Shape.Circle(gridPoint2Pixel(element.x) + cursor_line_width / 2, gridPoint2Pixel(element.y) + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
 			ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2), gridPoint2Pixel(element.y) + (grid_size / 2));
 			ele.fillColor = "#" + element.color;
@@ -117,7 +116,7 @@ function draw_local_item(element) {
 }
 
 /**
- * Draws the input element to the canvas 
+ * Draws the input element to the canvas
  *
  * @param {Element} element
  * @returns
