@@ -107,8 +107,10 @@ function interfaceInitialization() {
 		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
 		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
 
-		drawSelectedPositionTopRuler(Number(selected_grid_x));
-		drawSelectedPositionLeftRuler(Number(selected_grid_y));
+		//console.log(selected_element.item.size.width / grid_size);
+
+		drawSelectedPositionTopRuler(Number(selected_grid_x), (selected_element == null) ? 1 : selected_element.item.size.width / grid_size);
+		drawSelectedPositionLeftRuler(Number(selected_grid_y), (selected_element == null) ? 1 : selected_element.item.size.height / grid_size);
 
 		updateSideMenuContent();
 		paper.view.update();

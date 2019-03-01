@@ -21,7 +21,7 @@ function drawTopRuler(pos) {
 	paper.view.update();
 }
 
-function drawSelectedPositionTopRuler(pos) {
+function drawSelectedPositionTopRuler(pos, width) {
 	var screen = paper.view.center._owner.topLeft;
 
 	if (isUndefined(top_ruler_cursor)) {
@@ -62,11 +62,14 @@ function drawLeftRuler(pos) {
 	paper.view.update();
 }
 
-function drawSelectedPositionLeftRuler(pos) {
+function drawSelectedPositionLeftRuler(pos, height) {
 	var screen = paper.view.center._owner.topLeft;
 
+	var temp_height = (selected_element == null) ? grid_size : selected_element.item.size.height;
+	var temp_width = (selected_element == null) ? grid_size : selected_element.item.size.width;
+
 	if (isUndefined(left_ruler_cursor)) {
-		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, grid_size, grid_size);
+		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
 		left_ruler_cursor.strokeColor = grid_color;
 		left_ruler_cursor.fillColor = grid_highlight;
 		leftrulerraster.addChild(left_ruler_cursor);
@@ -77,9 +80,15 @@ function drawSelectedPositionLeftRuler(pos) {
 		leftrulerraster.addChild(left_ruler_number);
 	}
 
+	left_ruler_cursor.size.height = temp_height;
+	left_ruler_cursor.size.width = temp_width;
+
 	left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
 	left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
-	left_ruler_cursor.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
+	// left_ruler_number.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width, pos - (grid_size / 2));
+	left_ruler_cursor.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width, 
+														(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
+
 	left_ruler_number.bringToFront();
 
 	paper.view.update();
@@ -98,13 +107,13 @@ function draw_local_item(element) {
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "circle":
-			ele = paper.Shape.Circle(gridPoint2Pixel(element.x) + cursor_line_width / 2, gridPoint2Pixel(element.y) + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
-			ele.position = new paper.Point(gridPoint2Pixel(element.x) + (grid_size / 2), gridPoint2Pixel(element.y) + (grid_size / 2));
+			ele = paper.Shape.Circle(element.x + cursor_line_width / 2, element.y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
+			ele.bounds.topLeft = new paper.Point(element.x - (grid_size / 2), element.y - (grid_size / 2));
 			ele.fillColor = "#" + element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "line":
-			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(gridPoint2Pixel(v), gridPoint2Pixel(element.y[i])) }));
+			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(v, element.y[i]) }));
 			ele.strokeColor = "#" + element.color;
 		break;
 	}

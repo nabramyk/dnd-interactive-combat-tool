@@ -242,6 +242,9 @@ function incremental_move_element(direction) {
 		selected_element.item.bounds.topLeft = loc;
 		cursor.bounds.topLeft = loc;
 
+		drawSelectedPositionTopRuler(Number(selected_grid_x + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.width));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.height));
+
 		group_overlay.addChild(cursor);
 		paper.view.update();
 	}

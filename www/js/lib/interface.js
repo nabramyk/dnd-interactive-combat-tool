@@ -48,8 +48,8 @@ function bindEventHandlers() {
 					break;
 				case "line":
 					line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
-					x_vertices.push(pixel2GridPoint(selected_grid_x));
-					y_vertices.push(pixel2GridPoint(selected_grid_y));
+					x_vertices.push(cursor.position.x);
+					y_vertices.push(cursor.position.y);
 					if (line_path.segments.length > 0) {
 						$("#start_new_line_button").show();
 					}
@@ -87,8 +87,8 @@ function bindEventHandlers() {
 
 	$("#start_new_line_button").click(function () {
 		if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
-			x_vertices.push(pixel2GridPoint(selected_grid_x));
-			y_vertices.push(pixel2GridPoint(selected_grid_y));
+			x_vertices.push(cursor.position.x);
+			y_vertices.push(cursor.position.y);
 		}
 
 		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
@@ -204,9 +204,9 @@ function bindEventHandlers() {
 	});
 
 	$("#randomize").click(function () {
-		socket.emit('randomize', {
-			"grid_id": grid_id
-		});
+		// socket.emit('randomize', {
+		// 	"grid_id": grid_id
+		// });
 	});
 
 	$(".element_filter").click(function () {
