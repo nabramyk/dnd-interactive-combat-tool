@@ -47,7 +47,7 @@ var grid_line_width = 0.5;
 var hoverTimer, movementTimer;
 
 var group_grid, group_elements, group_overlay, group_left_ruler, group_top_ruler, group_bottom_ruler, group_right_ruler;
-var cursor, top_ruler_cursor, left_ruler_cursor, top_ruler_number, left_ruler_number;
+var cursor, top_ruler_cursor, left_ruler_cursor, bottom_ruler_cursor, right_ruler_cursor, top_ruler_number, left_ruler_number, bottom_ruler_number, right_ruler_number;
 
 var leftrulerraster, toprulerraster, bottomrulerraster, rightrulerraster, gridraster, elementsraster;
 var isDragging = false;

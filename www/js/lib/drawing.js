@@ -79,7 +79,7 @@ function drawSelectedPositionLeftRuler(pos) {
 	var screen = paper.view.center._owner.topLeft;
 
 	var temp_height = (selected_element == null) ? grid_size : selected_element.item.size.height;
-	var temp_width = (selected_element == null) ? grid_size : selected_element.item.size.width;
+	var temp_width = grid_size;
 
 	if (isUndefined(left_ruler_cursor)) {
 		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
@@ -90,18 +90,32 @@ function drawSelectedPositionLeftRuler(pos) {
 		left_ruler_number.fillColor = 'white';
 		left_ruler_number.justification = 'center';
 		leftrulerraster.addChild(left_ruler_number);
+
+		right_ruler_cursor = left_ruler_cursor.clone();
+		right_ruler_number = left_ruler_number.clone();
+
+		rightrulerraster.addChild(right_ruler_cursor);
+		rightrulerraster.addChild(right_ruler_number);
 	}
 
 	left_ruler_cursor.size.height = temp_height;
 	left_ruler_cursor.size.width = temp_width;
 
+	right_ruler_cursor.size.height = temp_height;
+	right_ruler_cursor.size.width = temp_width;
+
 	left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
 	left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
-	// left_ruler_number.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width, pos - (grid_size / 2));
 	left_ruler_cursor.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width, 
 														(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
 
+	right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
+	right_ruler_number.position = new paper.Point((grid_count_width * grid_size) + grid_size / 2, pos);
+	right_ruler_cursor.bounds.topLeft = new paper.Point((grid_count_width * grid_size), 
+														(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
+
 	left_ruler_number.bringToFront();
+	right_ruler_number.bringToFront();
 
 	paper.view.update();
 }
@@ -134,7 +148,6 @@ function drawBottomRuler() {
  * Right ruler goes grid height...1 from top to bottom
  */
 function drawRightRuler() {
-	console.log((grid_count_width * grid_size) + grid_line_width);
 	for (var i = 0; i < grid_count_height; i++) {
 		var rect = paper.Shape.Rectangle((grid_count_width * grid_size) + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
