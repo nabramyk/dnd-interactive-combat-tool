@@ -1,7 +1,11 @@
 /**
  * @fileoverview Should just handle all of the canvas drawing stuff
  */
-function drawTopRuler(pos) {
+
+/**
+ * Top ruler goes 1...[grid width] from left to right
+ */
+function drawTopRuler() {
 	for (var i = 0; i < grid_count_width; i++) {
 		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, 0 - grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
@@ -18,15 +22,20 @@ function drawTopRuler(pos) {
 	try { toprulerraster.remove(); } catch (e) { };
 	toprulerraster = group_top_ruler.rasterize();
 	group_top_ruler.removeChildren();
+	toprulerraster.sendToBack();
 	paper.view.update();
 }
 
-function drawSelectedPositionTopRuler(pos, width) {
+/**
+ * 
+ * @param {*} pos 
+ * @param {*} width 
+ */
+function drawSelectedPositionTopRuler(pos) {
 	var screen = paper.view.center._owner.topLeft;
 
 	if (isUndefined(top_ruler_cursor)) {
 		top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
-		top_ruler_cursor.strokeColor = grid_color;
 		top_ruler_cursor.fillColor = grid_highlight;
 		toprulerraster.addChild(top_ruler_cursor);
 
@@ -43,7 +52,10 @@ function drawSelectedPositionTopRuler(pos, width) {
 	paper.view.update();
 }
 
-function drawLeftRuler(pos) {
+/**
+ * Left ruler goes 1...grid height from top to bottom
+ */
+function drawLeftRuler() {
 	for (var i = 0; i < grid_count_height; i++) {
 		var rect = paper.Shape.Rectangle(0 - grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 		rect.strokeColor = grid_color;
@@ -59,10 +71,11 @@ function drawLeftRuler(pos) {
 	try { leftrulerraster.remove(); } catch (e) { };
 	leftrulerraster = group_left_ruler.rasterize();
 	group_left_ruler.removeChildren();
+	leftrulerraster.sendToBack();
 	paper.view.update();
 }
 
-function drawSelectedPositionLeftRuler(pos, height) {
+function drawSelectedPositionLeftRuler(pos) {
 	var screen = paper.view.center._owner.topLeft;
 
 	var temp_height = (selected_element == null) ? grid_size : selected_element.item.size.height;
@@ -70,7 +83,6 @@ function drawSelectedPositionLeftRuler(pos, height) {
 
 	if (isUndefined(left_ruler_cursor)) {
 		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
-		left_ruler_cursor.strokeColor = grid_color;
 		left_ruler_cursor.fillColor = grid_highlight;
 		leftrulerraster.addChild(left_ruler_cursor);
 
@@ -91,6 +103,54 @@ function drawSelectedPositionLeftRuler(pos, height) {
 
 	left_ruler_number.bringToFront();
 
+	paper.view.update();
+}
+
+/**
+ * Bottom ruler goes grid width...1 from left to right
+ */
+function drawBottomRuler() {
+	for (var i = 0; i < grid_count_width; i++) {
+		var rect = paper.Shape.Rectangle(i * grid_size + grid_line_width, (grid_count_height * grid_size) + grid_line_width, grid_size, grid_size);
+		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_bottom_ruler.addChild(rect);
+		rect.sendToBack();
+
+		var text = new paper.PointText(new paper.Point(i * grid_size + (grid_size / 2), (grid_count_height * grid_size) + (grid_size / 1.5)));
+		text.fillColor = 'black';
+		text.justification = 'center';
+		text.content = grid_count_width - i;
+		group_bottom_ruler.addChild(text);
+	}
+	try { bottomrulerraster.remove(); } catch (e) { };
+	bottomrulerraster = group_bottom_ruler.rasterize();
+	group_bottom_ruler.removeChildren();
+	bottomrulerraster.sendToBack();
+	paper.view.update();
+}
+
+/**
+ * Right ruler goes grid height...1 from top to bottom
+ */
+function drawRightRuler() {
+	console.log((grid_count_width * grid_size) + grid_line_width);
+	for (var i = 0; i < grid_count_height; i++) {
+		var rect = paper.Shape.Rectangle((grid_count_width * grid_size) + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
+		rect.strokeColor = grid_color;
+		rect.fillColor = "#f5f5f5";
+		group_right_ruler.addChild(rect);
+
+		var text = new paper.PointText(new paper.Point((grid_count_width * grid_size) + grid_size / 2, i * grid_size + (grid_size / 1.5)));
+		text.fillColor = 'black';
+		text.justification = 'center';
+		text.content = grid_count_height - i;
+		group_right_ruler.addChild(text);
+	}
+	try { rightrulerraster.remove(); } catch (e) { };
+	rightrulerraster = group_right_ruler.rasterize();
+	group_right_ruler.removeChildren();
+	rightrulerraster.sendToBack();
 	paper.view.update();
 }
 

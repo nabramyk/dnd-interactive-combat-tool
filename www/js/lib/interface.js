@@ -572,6 +572,8 @@ function resizeGridWidth(width) {
 	$("#grid_size_horizontal").val(grid_count_width);
 	drawScreen();
 	drawTopRuler();
+	drawBottomRuler();
+	drawRightRuler();
 }
 
 function resizeGridHeight(height) {
@@ -579,6 +581,8 @@ function resizeGridHeight(height) {
 	$("#grid_size_vertical").val(grid_count_height);
 	drawScreen();
 	drawLeftRuler();
+	drawRightRuler();
+	drawBottomRuler();
 }
 
 function rotateElement(angle) {

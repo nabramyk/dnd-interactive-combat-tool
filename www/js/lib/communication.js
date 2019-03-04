@@ -4,6 +4,8 @@ function bindSocketListeners() {
 		$("#lost_connection_div").hide();
 
 		socket.emit('init', {}, function (msg) {
+			group_elements.removeChildren();
+
 			grid_count_height = msg.size.height;
 			resizeGridHeight(grid_count_height);
 			grid_count_width = msg.size.width;

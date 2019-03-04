@@ -45,6 +45,8 @@ function interfaceInitialization() {
 	group_overlay = new paper.Group();
 	group_left_ruler = new paper.Group();
 	group_top_ruler = new paper.Group();
+	group_bottom_ruler = new paper.Group();
+	group_right_ruler = new paper.Group();
 
 	line_path = new paper.Path();
 
@@ -107,10 +109,8 @@ function interfaceInitialization() {
 		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
 		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
 
-		//console.log(selected_element.item.size.width / grid_size);
-
-		drawSelectedPositionTopRuler(Number(selected_grid_x), (selected_element == null) ? 1 : selected_element.item.size.width / grid_size);
-		drawSelectedPositionLeftRuler(Number(selected_grid_y), (selected_element == null) ? 1 : selected_element.item.size.height / grid_size);
+		drawSelectedPositionTopRuler(Number(selected_grid_x));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
 		updateSideMenuContent();
 		paper.view.update();
@@ -140,9 +140,6 @@ function interfaceInitialization() {
 	toolPan.onMouseUp = function (event) {
 		isDragging = false;
 	}
-
-	drawTopRuler();
-	drawLeftRuler();
 
 	paper.view.autoUpdate = false;
 
