@@ -192,6 +192,21 @@ function draw_local_item(element) {
 	}
 	ele.data.name = element.name;
 	ele.data.category = element.category;
+	
+	var t;
+
+	ele.onMouseEnter = function(event) { 
+		t = new paper.PointText(this.position);
+		t.content = this.data.name;
+		group_overlay.addChild(t);
+		paper.view.update();
+	}
+	
+	ele.onMouseLeave = function(event) { 
+		t.remove();
+		paper.view.update();
+	}
+	
 	group_elements.addChild(ele);
 	paper.view.update();
 	return ele;
@@ -207,16 +222,33 @@ function draw_item(element) {
 	switch (element.type) {
 		case "square":
 		case "rectangle":
-			group_elements.addChild(paper.Shape.Rectangle(element));
+			ele = paper.Shape.Rectangle(element);
 			break;
 		case "circle":
 		case "oval":
-			group_elements.addChild(paper.Shape.Circle(element));
+			ele = paper.Shape.Circle(element);
 			break;
 		default:
-			group_elements.addChild(new paper.Path(element));
+			ele = new paper.Path(element);
 			break;
 	}
+	
+	var t;
+	ele.onMouseEnter = function(event) { 
+		console.log(event);
+		t = new paper.PointText(this.position);
+		//t.content = this.data.name;
+		//group_overlay.addChild(t);
+		//paper.view.update();
+	}
+
+	ele.onMouseLeave = function(event) {
+		console.log(event);
+		//t.remove();
+		//paper.view.update();
+	}
+	
+	group_elements.addChild(ele);
 	paper.view.update();
 	return element;
 }
