@@ -53,3 +53,4 @@ var leftrulerraster, toprulerraster, bottomrulerraster, rightrulerraster, gridra
 var isDragging = false;
 var line_path, temp;
 var temp_line, stored_edited_element_bounds;
+var t, b;

@@ -193,17 +193,20 @@ function draw_local_item(element) {
 	ele.data.name = element.name;
 	ele.data.category = element.category;
 	
-	var t;
-
+	var t, b;
 	ele.onMouseEnter = function(event) { 
-		t = new paper.PointText(this.position);
+		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
-		group_overlay.addChild(t);
+		b = paper.Shape.Rectangle(t.bounds);
+		b.fillColor = 'white';
+		b.strokeColor = "black";
+		group_overlay.addChildren([b, t]);
 		paper.view.update();
 	}
-	
-	ele.onMouseLeave = function(event) { 
+
+	ele.onMouseLeave = function(event) {
 		t.remove();
+		b.remove();
 		paper.view.update();
 	}
 	
@@ -233,19 +236,23 @@ function draw_item(element) {
 			break;
 	}
 	
-	var t;
-	ele.onMouseEnter = function(event) { 
-		console.log(event);
-		t = new paper.PointText(this.position);
-		//t.content = this.data.name;
-		//group_overlay.addChild(t);
-		//paper.view.update();
+	ele.onMouseEnter = function() { 
+		t = new paper.PointText(this.position.x, this.bounds.top - 10);
+		t.content = this.data.name;
+		t.pivot = paper.Shape.Rectangle.topLeft;
+		b = paper.Shape.Rectangle(t.bounds);
+		b.size.width += 10;
+		b.size.height += 10;
+		b.fillColor = 'white';
+		b.strokeColor = "black";
+		group_overlay.addChildren([b, t]);
+		paper.view.update();
 	}
 
-	ele.onMouseLeave = function(event) {
-		console.log(event);
-		//t.remove();
-		//paper.view.update();
+	ele.onMouseLeave = function() {
+		t.remove();
+		b.remove();
+		paper.view.update();
 	}
 	
 	group_elements.addChild(ele);
