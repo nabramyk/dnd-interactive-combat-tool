@@ -4,6 +4,8 @@ function bindSocketListeners() {
 		$("#lost_connection_div").hide();
 
 		socket.emit('init', {}, function (msg) {
+			$("#loading_div").show();
+
 			group_elements.removeChildren();
 
 			grid_count_height = msg.size.height;
@@ -101,6 +103,10 @@ function bindSocketListeners() {
 		if (msg.grid_id != grid_id) return;
 		var element = group_elements.children.find(function(el) { return el.data.id == msg.element.el.data.id; });
 		element.matrix = msg.element.el.matrix;
+		if (selected_element != null && element === selected_element.item) {
+			selected_element = null;
+			eraseCursor();
+		}
 		paper.view.update();
 		$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
 	});
@@ -246,6 +252,9 @@ function incremental_move_element(direction) {
 
 		drawSelectedPositionTopRuler(Number(selected_grid_x + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.width));
 		drawSelectedPositionLeftRuler(Number(selected_grid_y + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.height));
+
+		t.remove();
+		b.remove();
 
 		group_overlay.addChild(cursor);
 		paper.view.update();

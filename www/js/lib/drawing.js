@@ -193,18 +193,20 @@ function draw_local_item(element) {
 	ele.data.name = element.name;
 	ele.data.category = element.category;
 	
-	var t, b;
-	ele.onMouseEnter = function(event) { 
+	ele.onMouseEnter = function() { 
 		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
+		t.pivot = paper.Shape.Rectangle.topLeft;
 		b = paper.Shape.Rectangle(t.bounds);
+		b.size.width += 10;
+		b.size.height += 10;
 		b.fillColor = 'white';
 		b.strokeColor = "black";
 		group_overlay.addChildren([b, t]);
 		paper.view.update();
 	}
 
-	ele.onMouseLeave = function(event) {
+	ele.onMouseLeave = function() {
 		t.remove();
 		b.remove();
 		paper.view.update();
@@ -293,4 +295,16 @@ function drawPing(ping) {
 			paper.view.update();
 		}
 	}));
+}
+
+function eraseCursor() {
+	cursor.remove();
+	top_ruler_cursor.remove();
+	left_ruler_cursor.remove();
+	//bottom_ruler_cursor.remove();
+	right_ruler_cursor.remove();
+	top_ruler_number.remove();
+	left_ruler_number.remove();
+	//bottom_ruler_number.remove();
+	right_ruler_number.remove();
 }
