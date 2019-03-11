@@ -81,18 +81,12 @@ function drawSelectedPositionLeftRuler(pos) {
 	var temp_height = (selected_element == null) ? grid_size : selected_element.item.size.height;
 	var temp_width = grid_size;
 
-	if (isUndefined(left_ruler_cursor)) {
+	if (isUndefined(leftcursorraster)) {
 		left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
 		left_ruler_cursor.fillColor = grid_highlight;
 		leftrulerraster.addChild(left_ruler_cursor);
 
-		left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos));
-		left_ruler_number.fillColor = 'white';
-		left_ruler_number.justification = 'center';
-		leftrulerraster.addChild(left_ruler_number);
-
 		right_ruler_cursor = left_ruler_cursor.clone();
-		right_ruler_number = left_ruler_number.clone();
 
 		rightrulerraster.addChild(right_ruler_cursor);
 		rightrulerraster.addChild(right_ruler_number);
@@ -104,18 +98,32 @@ function drawSelectedPositionLeftRuler(pos) {
 	right_ruler_cursor.size.height = temp_height;
 	right_ruler_cursor.size.width = temp_width;
 
-	left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
-	left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
-	left_ruler_cursor.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width, 
-														(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
+	left_ruler_cursor.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width,
+		(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
 
-	right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
-	right_ruler_number.position = new paper.Point((grid_count_width * grid_size) + grid_size / 2, pos);
-	right_ruler_cursor.bounds.topLeft = new paper.Point((grid_count_width * grid_size), 
-														(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
+	right_ruler_cursor.bounds.topLeft = new paper.Point((grid_count_width * grid_size),
+		(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
 
-	left_ruler_number.bringToFront();
-	right_ruler_number.bringToFront();
+
+	for (var i = 0; i < selected_element.item.size.height / grid_size; i++) {
+		var left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
+		left_ruler_number.fillColor = 'white';
+		left_ruler_number.justification = 'center';
+
+		var right_ruler_number = left_ruler_number.clone();
+
+		left_ruler_number.content = ((selected_element.item.bounds.top - 0.5) / grid_size) + i + 1;
+		left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
+
+		right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
+		right_ruler_number.position = new paper.Point((grid_count_width * grid_size) + grid_size / 2, selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
+
+		leftrulerraster.addChild(left_ruler_number);
+		rightrulerraster.addChild(right_ruler_number);
+
+		left_ruler_number.bringToFront();
+		right_ruler_number.bringToFront();
+	}
 
 	paper.view.update();
 }
@@ -175,7 +183,7 @@ function drawElements() {
 function draw_local_item(element) {
 	switch (element.shape) {
 		case "rectangle":
-			ele = paper.Shape.Rectangle(element.x - (grid_size/2), element.y - (grid_size/2), JSON.parse(element.size.width) * grid_size, JSON.parse(element.size.height) * grid_size);
+			ele = paper.Shape.Rectangle(element.x - (grid_size / 2), element.y - (grid_size / 2), JSON.parse(element.size.width) * grid_size, JSON.parse(element.size.height) * grid_size);
 			ele.fillColor = "#" + element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
@@ -186,14 +194,14 @@ function draw_local_item(element) {
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "line":
-			ele = new paper.Path(element.x.map(function(v, i) { return new paper.Point(v, element.y[i]) }));
+			ele = new paper.Path(element.x.map(function (v, i) { return new paper.Point(v, element.y[i]) }));
 			ele.strokeColor = "#" + element.color;
-		break;
+			break;
 	}
 	ele.data.name = element.name;
 	ele.data.category = element.category;
-	
-	ele.onMouseEnter = function() { 
+
+	ele.onMouseEnter = function () {
 		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
@@ -206,12 +214,12 @@ function draw_local_item(element) {
 		paper.view.update();
 	}
 
-	ele.onMouseLeave = function() {
+	ele.onMouseLeave = function () {
 		t.remove();
 		b.remove();
 		paper.view.update();
 	}
-	
+
 	group_elements.addChild(ele);
 	paper.view.update();
 	return ele;
@@ -237,8 +245,8 @@ function draw_item(element) {
 			ele = new paper.Path(element);
 			break;
 	}
-	
-	ele.onMouseEnter = function() { 
+
+	ele.onMouseEnter = function () {
 		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
@@ -251,12 +259,12 @@ function draw_item(element) {
 		paper.view.update();
 	}
 
-	ele.onMouseLeave = function() {
+	ele.onMouseLeave = function () {
 		t.remove();
 		b.remove();
 		paper.view.update();
 	}
-	
+
 	group_elements.addChild(ele);
 	paper.view.update();
 	return element;
@@ -298,13 +306,18 @@ function drawPing(ping) {
 }
 
 function eraseCursor() {
-	cursor.remove();
-	top_ruler_cursor.remove();
-	left_ruler_cursor.remove();
-	//bottom_ruler_cursor.remove();
-	right_ruler_cursor.remove();
-	top_ruler_number.remove();
-	left_ruler_number.remove();
-	//bottom_ruler_number.remove();
-	right_ruler_number.remove();
+	try {
+		cursor.remove();
+		top_ruler_cursor.remove();
+		top_ruler_cursor = undefined;
+		left_ruler_cursor.remove();
+		left_ruler_cursor = undefined;
+		//bottom_ruler_cursor.remove();
+		right_ruler_cursor.remove();
+		right_ruler_cursor = undefined;
+		top_ruler_number.remove();
+		left_ruler_number.remove();
+		//bottom_ruler_number.remove();
+		right_ruler_number.remove();
+	} catch (e) { }
 }

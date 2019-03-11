@@ -47,6 +47,7 @@ function interfaceInitialization() {
 	group_top_ruler = new paper.Group();
 	group_bottom_ruler = new paper.Group();
 	group_right_ruler = new paper.Group();
+	group_left_cursor = new paper.Group();
 
 	line_path = new paper.Path();
 

@@ -260,17 +260,7 @@ function bindEventHandlers() {
 				group_elements.removeChildren();
 				group_overlay.removeChildren();
 
-				try {
-					cursor.remove();
-					top_ruler_cursor.remove();
-					top_ruler_cursor = undefined;
-					left_ruler_cursor.remove();
-					left_ruler_cursor = undefined;
-					top_ruler_number.remove();
-					top_ruler_number = undefined;
-					left_ruler_number.remove();
-					left_ruler_number = undefined;
-				} catch (e) { }
+				eraseCursor();
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
