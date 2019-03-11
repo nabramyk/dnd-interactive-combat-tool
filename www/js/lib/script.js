@@ -48,6 +48,7 @@ function interfaceInitialization() {
 	group_bottom_ruler = new paper.Group();
 	group_right_ruler = new paper.Group();
 	group_left_cursor = new paper.Group();
+	group_right_cursor = new paper.Group();
 
 	line_path = new paper.Path();
 
@@ -129,7 +130,7 @@ function interfaceInitialization() {
 		toprulerraster.position.y = (point.y > -60 ? point.y + 50 : -10);
 		if (left_ruler_cursor != null) {
 			left_ruler_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
-			left_ruler_number.position.x = (point.x > -20 ? point.x + 10 : -10);
+			//left_ruler_number.position.x = (point.x > -20 ? point.x + 10 : -10);
 		}
 		if (top_ruler_cursor != null) {
 			top_ruler_cursor.position.y = (point.y > -60 ? point.y + 50 : -10);
