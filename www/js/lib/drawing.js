@@ -22,7 +22,7 @@ function drawTopRuler() {
 	try { toprulerraster.remove(); } catch (e) { };
 	toprulerraster = group_top_ruler.rasterize();
 	group_top_ruler.removeChildren();
-	toprulerraster.sendToBack();
+	toprulerraster.bringToFront();
 	paper.view.update();
 }
 
@@ -32,22 +32,94 @@ function drawTopRuler() {
  * @param {*} width 
  */
 function drawSelectedPositionTopRuler(pos) {
+	// var screen = paper.view.center._owner.topLeft;
+
+	// if (isUndefined(top_ruler_cursor)) {
+	// 	top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
+	// 	top_ruler_cursor.fillColor = grid_highlight;
+	// 	toprulerraster.addChild(top_ruler_cursor);
+
+	// 	top_ruler_number = new paper.PointText(new paper.Point(pos, grid_size - (grid_size / 4)));
+	// 	top_ruler_number.fillColor = 'white';
+	// 	top_ruler_number.justification = 'center';
+	// 	toprulerraster.addChild(top_ruler_number);
+	// }
+
+	// top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+	// top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+	// top_ruler_cursor.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+
+	// paper.view.update();
+
 	var screen = paper.view.center._owner.topLeft;
 
-	if (isUndefined(top_ruler_cursor)) {
-		top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
-		top_ruler_cursor.fillColor = grid_highlight;
-		toprulerraster.addChild(top_ruler_cursor);
+	var temp_width = (selected_element == null) ? grid_size : selected_element.item.size.width;
+	var temp_height = grid_size;
 
-		top_ruler_number = new paper.PointText(new paper.Point(pos, grid_size - (grid_size / 4)));
-		top_ruler_number.fillColor = 'white';
-		top_ruler_number.justification = 'center';
-		toprulerraster.addChild(top_ruler_number);
+	group_top_cursor.removeChildren();
+	group_bottom_cursor.removeChildren();
+
+	top_ruler_cursor = paper.Shape.Rectangle(selected_grid_x, grid_line_width, 0, 0);
+	top_ruler_cursor.fillColor = grid_highlight;
+
+	bottom_ruler_cursor = top_ruler_cursor.clone();
+
+	group_top_cursor.addChild(top_ruler_cursor);
+	group_bottom_cursor.addChild(bottom_ruler_cursor);
+
+	top_ruler_cursor.size.height = temp_height;
+	top_ruler_cursor.size.width = temp_width;
+
+	bottom_ruler_cursor.size.height = temp_height;
+	bottom_ruler_cursor.size.width = temp_width;
+
+	top_ruler_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
+												(screen.y > -60 ? screen.y + 50 : -10) - (grid_size / 2) + grid_line_width);
+
+	bottom_ruler_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
+												(grid_count_height * grid_size));
+
+	if (selected_element != null) {
+		for (var i = 0; i < selected_element.item.size.width / grid_size; i++) {
+			var top_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
+			top_ruler_number.fillColor = 'white';
+			top_ruler_number.justification = 'center';
+
+			var bottom_ruler_number = top_ruler_number.clone();
+
+			top_ruler_number.content = ((selected_element.item.bounds.left - 0.5) / grid_size) + i + 1;
+			top_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (screen.y > -60 ? screen.y + 50 : -10));
+
+			bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
+			bottom_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (grid_count_width * grid_size) + grid_size / 2);
+
+			group_top_cursor.addChild(top_ruler_number);
+			group_bottom_cursor.addChild(bottom_ruler_number);
+
+			top_ruler_number.bringToFront();
+			bottom_ruler_number.bringToFront();
+
+			group_top_cursor.bringToFront();
+			group_bottom_cursor.bringToFront();
+		}
+	} else {
+		var top_ruler_number = new paper.PointText(new paper.Point(pos + (i * grid_size), grid_size));
+		top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+		top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
+
+		var bottom_ruler_number = top_ruler_number.clone();
+		bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
+		bottom_ruler_number.position = new paper.Point(pos, (grid_count_height * grid_size) + grid_size / 2);
+
+		group_top_cursor.addChild(top_ruler_number);
+		group_bottom_cursor.addChild(bottom_ruler_number);
+
+		top_ruler_number.bringToFront();
+		bottom_ruler_number.bringToFront();
+
+		group_top_cursor.bringToFront();
+		group_bottom_cursor.bringToFront();
 	}
-
-	top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
-	top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
-	top_ruler_cursor.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
 
 	paper.view.update();
 }
@@ -71,7 +143,7 @@ function drawLeftRuler() {
 	try { leftrulerraster.remove(); } catch (e) { };
 	leftrulerraster = group_left_ruler.rasterize();
 	group_left_ruler.removeChildren();
-	leftrulerraster.sendToBack();
+	leftrulerraster.bringToFront();
 	paper.view.update();
 }
 
@@ -88,9 +160,6 @@ function drawSelectedPositionLeftRuler(pos) {
 	left_ruler_cursor.fillColor = grid_highlight;
 
 	right_ruler_cursor = left_ruler_cursor.clone();
-
-	//rightrulerraster.addChild(right_ruler_cursor);
-	//rightrulerraster.addChild(right_ruler_number);
 
 	group_left_cursor.addChild(left_ruler_cursor);
 	group_right_cursor.addChild(right_ruler_cursor);
@@ -130,6 +199,23 @@ function drawSelectedPositionLeftRuler(pos) {
 			group_left_cursor.bringToFront();
 			group_right_cursor.bringToFront();
 		}
+	} else {
+		var left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
+		left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+		left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
+
+		var right_ruler_number = left_ruler_number.clone();
+		right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
+		right_ruler_number.position = new paper.Point((grid_count_width * grid_size) + grid_size / 2, pos);
+
+		group_left_cursor.addChild(left_ruler_number);
+		group_right_cursor.addChild(right_ruler_number);
+
+		left_ruler_number.bringToFront();
+		right_ruler_number.bringToFront();
+
+		group_left_cursor.bringToFront();
+		group_right_cursor.bringToFront();
 	}
 
 	paper.view.update();
@@ -155,7 +241,7 @@ function drawBottomRuler() {
 	try { bottomrulerraster.remove(); } catch (e) { };
 	bottomrulerraster = group_bottom_ruler.rasterize();
 	group_bottom_ruler.removeChildren();
-	bottomrulerraster.sendToBack();
+	bottomrulerraster.bringToFront();
 	paper.view.update();
 }
 
@@ -178,7 +264,7 @@ function drawRightRuler() {
 	try { rightrulerraster.remove(); } catch (e) { };
 	rightrulerraster = group_right_ruler.rasterize();
 	group_right_ruler.removeChildren();
-	rightrulerraster.sendToBack();
+	rightrulerraster.bringToFront();
 	paper.view.update();
 }
 

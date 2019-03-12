@@ -49,6 +49,8 @@ function interfaceInitialization() {
 	group_right_ruler = new paper.Group();
 	group_left_cursor = new paper.Group();
 	group_right_cursor = new paper.Group();
+	group_top_cursor = new paper.Group();
+	group_bottom_cursor = new paper.Group();
 
 	line_path = new paper.Path();
 
@@ -56,6 +58,11 @@ function interfaceInitialization() {
 	paper.view.onClick = function (event) {
 		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
 		$('#place_element_button').prop('disabled', false);
+
+		try {
+			t.remove();
+			b.remove();
+		} catch(e) {};
 
 		selected_grid_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
 		selected_grid_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
@@ -134,7 +141,7 @@ function interfaceInitialization() {
 		}
 		if (top_ruler_cursor != null) {
 			top_ruler_cursor.position.y = (point.y > -60 ? point.y + 50 : -10);
-			top_ruler_number.position.y = (point.y > -60 ? point.y + 50 : -10);
+			//top_ruler_number.position.y = (point.y > -60 ? point.y + 50 : -10);
 		}
 		paper.view.update();
 	}
