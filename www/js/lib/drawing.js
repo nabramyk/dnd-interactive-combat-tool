@@ -32,51 +32,25 @@ function drawTopRuler() {
  * @param {*} width 
  */
 function drawSelectedPositionTopRuler(pos) {
-	// var screen = paper.view.center._owner.topLeft;
-
-	// if (isUndefined(top_ruler_cursor)) {
-	// 	top_ruler_cursor = paper.Shape.Rectangle(pos + (grid_size / 2), grid_line_width, grid_size, grid_size);
-	// 	top_ruler_cursor.fillColor = grid_highlight;
-	// 	toprulerraster.addChild(top_ruler_cursor);
-
-	// 	top_ruler_number = new paper.PointText(new paper.Point(pos, grid_size - (grid_size / 4)));
-	// 	top_ruler_number.fillColor = 'white';
-	// 	top_ruler_number.justification = 'center';
-	// 	toprulerraster.addChild(top_ruler_number);
-	// }
-
-	// top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
-	// top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
-	// top_ruler_cursor.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
-
-	// paper.view.update();
-
 	var screen = paper.view.center._owner.topLeft;
-
-	var temp_width = (selected_element == null) ? grid_size : selected_element.item.size.width;
-	var temp_height = grid_size;
 
 	group_top_cursor.removeChildren();
 	group_bottom_cursor.removeChildren();
 
 	top_ruler_cursor = paper.Shape.Rectangle(selected_grid_x, grid_line_width, 0, 0);
 	top_ruler_cursor.fillColor = grid_highlight;
+	top_ruler_cursor.size.height = grid_size;
+	top_ruler_cursor.size.width = (selected_element == null) ? grid_size : selected_element.item.size.width;
 
 	bottom_ruler_cursor = top_ruler_cursor.clone();
 
 	group_top_cursor.addChild(top_ruler_cursor);
 	group_bottom_cursor.addChild(bottom_ruler_cursor);
 
-	top_ruler_cursor.size.height = temp_height;
-	top_ruler_cursor.size.width = temp_width;
-
-	bottom_ruler_cursor.size.height = temp_height;
-	bottom_ruler_cursor.size.width = temp_width;
-
-	top_ruler_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
+	group_top_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
 												(screen.y > -60 ? screen.y + 50 : -10) - (grid_size / 2) + grid_line_width);
 
-	bottom_ruler_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
+	group_bottom_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
 												(grid_count_height * grid_size));
 
 	if (selected_element != null) {
@@ -103,7 +77,10 @@ function drawSelectedPositionTopRuler(pos) {
 			group_bottom_cursor.bringToFront();
 		}
 	} else {
-		var top_ruler_number = new paper.PointText(new paper.Point(pos + (i * grid_size), grid_size));
+		var top_ruler_number = new paper.PointText(grid_size, new paper.Point(pos + (i * grid_size)));
+		top_ruler_number.fillColor = 'white';
+		top_ruler_number.justification = 'center';
+		
 		top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
 		top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
 
@@ -150,30 +127,23 @@ function drawLeftRuler() {
 function drawSelectedPositionLeftRuler(pos) {
 	var screen = paper.view.center._owner.topLeft;
 
-	var temp_height = (selected_element == null) ? grid_size : selected_element.item.size.height;
-	var temp_width = grid_size;
-
 	group_left_cursor.removeChildren();
 	group_right_cursor.removeChildren();
 
-	left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
+	var left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
 	left_ruler_cursor.fillColor = grid_highlight;
+	left_ruler_cursor.size.height = (selected_element == null) ? grid_size : selected_element.item.size.height;
+	left_ruler_cursor.size.width = grid_size;
 
-	right_ruler_cursor = left_ruler_cursor.clone();
+	var right_ruler_cursor = left_ruler_cursor.clone();
 
 	group_left_cursor.addChild(left_ruler_cursor);
 	group_right_cursor.addChild(right_ruler_cursor);
 
-	left_ruler_cursor.size.height = temp_height;
-	left_ruler_cursor.size.width = temp_width;
-
-	right_ruler_cursor.size.height = temp_height;
-	right_ruler_cursor.size.width = temp_width;
-
-	left_ruler_cursor.bounds.topLeft = new paper.Point((screen.x > -10 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width,
+	group_left_cursor.bounds.topLeft = new paper.Point((screen.x > -20 ? screen.x + 10 : -10) - (grid_size / 2) + grid_line_width,
 		(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
 
-	right_ruler_cursor.bounds.topLeft = new paper.Point((grid_count_width * grid_size),
+	group_right_cursor.bounds.topLeft = new paper.Point((grid_count_width * grid_size),
 		(selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top);
 
 	if (selected_element != null) {
@@ -200,7 +170,10 @@ function drawSelectedPositionLeftRuler(pos) {
 			group_right_cursor.bringToFront();
 		}
 	} else {
-		var left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
+		var left_ruler_number = new paper.PointText(new paper.Point(grid_size, 0));
+		left_ruler_number.fillColor = 'white';
+		left_ruler_number.justification = 'center';
+
 		left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
 		left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
 
@@ -295,6 +268,7 @@ function draw_local_item(element) {
 	ele.data.category = element.category;
 
 	ele.onMouseEnter = function () {
+		if(isDragging) return;
 		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
@@ -340,6 +314,7 @@ function draw_item(element) {
 	}
 
 	ele.onMouseEnter = function () {
+		if(isDragging) return;
 		t = new paper.PointText(this.position.x, this.bounds.top - 10);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
