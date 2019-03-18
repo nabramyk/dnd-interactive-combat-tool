@@ -1,6 +1,6 @@
-/** 
- * @author Nathan Abramyk 
- * @version 1.0.0 
+/**
+ * @author Nathan Abramyk
+ * @version 1.0.0
  */
 window.addEventListener('load', eventWindowLoaded, false);
 
@@ -135,8 +135,10 @@ function interfaceInitialization() {
 		var point = paper.view.center._owner.topLeft;
 		leftrulerraster.position.x = (point.x > -20 ? point.x + 10 : -10);
 		group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
-		toprulerraster.position.y = (point.y > -60 ? point.y + 50 : -10);
-		group_top_cursor.position.y = (point.y > -60 ? point.y + 50 : -10);
+		toprulerraster.position.y = (point.y > -20 ? point.y + 10 : -10);
+		group_top_cursor.position.y = (point.y > -20 ? point.y + 10 : -10);
+		bottomrulerraster.position.y = (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size/2));
+		group_bottom_cursor.position.y = (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size/2));
 		paper.view.update();
 	}
 

@@ -27,9 +27,9 @@ function drawTopRuler() {
 }
 
 /**
- * 
- * @param {*} pos 
- * @param {*} width 
+ *
+ * @param {*} pos
+ * @param {*} width
  */
 function drawSelectedPositionTopRuler(pos) {
 	var screen = paper.view.center._owner.topLeft;
@@ -51,7 +51,7 @@ function drawSelectedPositionTopRuler(pos) {
 												(screen.y > -60 ? screen.y + 50 : -10) - (grid_size / 2) + grid_line_width);
 
 	group_bottom_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
-												(grid_count_height * grid_size));
+												(paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 40 : grid_count_height * grid_size));
 
 	if (selected_element != null) {
 		for (var i = 0; i < selected_element.item.size.width / grid_size; i++) {
@@ -65,7 +65,7 @@ function drawSelectedPositionTopRuler(pos) {
 			top_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (screen.y > -60 ? screen.y + 50 : -10));
 
 			bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
-			bottom_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (grid_count_width * grid_size) + grid_size / 2);
+			bottom_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size / 2)));
 
 			group_top_cursor.addChild(top_ruler_number);
 			group_bottom_cursor.addChild(bottom_ruler_number);
@@ -80,13 +80,13 @@ function drawSelectedPositionTopRuler(pos) {
 		var top_ruler_number = new paper.PointText(grid_size, new paper.Point(pos + (i * grid_size)));
 		top_ruler_number.fillColor = 'white';
 		top_ruler_number.justification = 'center';
-		
+
 		top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
 		top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
 
 		var bottom_ruler_number = top_ruler_number.clone();
 		bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
-		bottom_ruler_number.position = new paper.Point(pos, (grid_count_height * grid_size) + grid_size / 2);
+		bottom_ruler_number.position = new paper.Point(pos, (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size / 2)));
 
 		group_top_cursor.addChild(top_ruler_number);
 		group_bottom_cursor.addChild(bottom_ruler_number);
