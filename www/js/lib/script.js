@@ -133,12 +133,24 @@ function interfaceInitialization() {
 		isDragging = true;
 		paper.view.scrollBy(event.downPoint.subtract(event.point));
 		var point = paper.view.center._owner.topLeft;
+		
+		//Stick the left ruler to the left side of the canvas when reaching scrolling overflow
 		leftrulerraster.position.x = (point.x > -20 ? point.x + 10 : -10);
 		group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
+
+		//Stick the top ruler to the top of the canvas when reaching scrolling overflow
 		toprulerraster.position.y = (point.y > -20 ? point.y + 10 : -10);
 		group_top_cursor.position.y = (point.y > -20 ? point.y + 10 : -10);
-		bottomrulerraster.position.y = (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size/2));
-		group_bottom_cursor.position.y = (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size/2));
+
+		//Stick the bottom ruler to the bottom of the canvas when reaching overflow
+		bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1) ? paper.view.center._owner.bottom - (grid_size / 2) : grid_count_height * grid_size + (grid_size/2));
+		group_bottom_cursor.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1) ? paper.view.center._owner.bottom - (grid_size / 2) : grid_count_height * grid_size + (grid_size/2));
+		
+		//Stick the right ruler to the right of the canvas when reaching overflow
+		rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) ? paper.view.center._owner.right - (grid_size / 2) : grid_count_width * grid_size + (grid_size/2));
+		group_right_cursor.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) ? paper.view.center._owner.right - (grid_size / 2) : grid_count_width * grid_size + (grid_size/2));
+		
+		console.log(grid_count_width);
 		paper.view.update();
 	}
 
