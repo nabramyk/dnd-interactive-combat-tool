@@ -324,11 +324,7 @@ function bindEventHandlers() {
 	});
 
 	$("#overlapping_container_open").click(function (evt) {
-		$("#side_container_swap > *").hide();
-		$("#options_container").show();
-		$("#overlapping_side_container").show();
-		$("#overlapping_back_button").hide();
-		$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
+		$("#overlapping_container_tab").toggleClass('active');
 	});
 
 	$("#overlapping_back_button").click(function (evt) {
