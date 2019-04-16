@@ -323,7 +323,7 @@ function bindEventHandlers() {
 		}
 	});
 
-	$("#overlapping_container_open").click(function (evt) {
+	$("#overlapping_container_open").click(function () {
 		$("#overlapping_container_tab").toggleClass('active');
 	});
 

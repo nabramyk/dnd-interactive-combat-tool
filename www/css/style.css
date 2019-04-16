@@ -250,10 +250,6 @@ i {
   border: none;
 }
 
-.active {
-  background-color: white;
-}
-
 #addition_tab {
   background: white;
   border: none;
@@ -356,11 +352,16 @@ i {
   z-index: 3;
   min-width: 50px;
   max-width: 50px;
-  margin-right: -30px !important;
+  transition: all 0.3s;
 }
 
-#overlapping_container_tab .active {
+#overlapping_container_tab.active {
   right: 50px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: stretch;
 }
 
 .toolbar_quick_access_button {

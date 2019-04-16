@@ -21,230 +21,235 @@
   <link rel="stylesheet" type="text/css" href="/css/style.css">
 
   <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-
-  <!-- jQuery library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- Popper JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-
-  <!-- Latest compiled JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 </head>
 
 <body>
   <div class="container-fluid">
-  <div class="column">
-    <div id="tab_row">
-      <button id="addition_tab">
-        +
-      </button>
-    </div>
-
-    <canvas id="underlay_canvas" class="drawing_canvas"></canvas>
-
-    <div id="footer">
-      <h5 id="version_number">Clutter v1.0.0</h5>
-    </div>
-  </div>
-
-  <div id="overlapping_container_tab">
-    <button id="tqa_add" class="toolbar_quick_access_button">&oplus;</button><br>
-    <button id="tqa_delete" class="toolbar_quick_access_button">&otimes;</button><br>
-    <button id="tqa_copy" class="toolbar_quick_access_button">&#10064;</button><br>
-    <button id="tqa_ping" class="toolbar_quick_access_button">&#10061;</button><br>
-    <button id="tqa_annotate" class="toolbar_quick_access_button">&#182;</button><br>
-    <button id="tqa_list" class="toolbar_quick_access_button">&forall;</button><br>
-    <button id="tqa_move" class="toolbar_quick_access_button">&#9816;</button><br>
-    <button id="overlapping_container_open" class="toolbar_quick_access_button">&laquo;</button>
-  </div>
-
-  <div id="overlapping_side_container" class="column">
-    <div id="side_container_swap">
-      <div id="options_container" style="display: none;">
-        <button id="options_lists_button" class="menu_item" onclick="selectedMenuOption('lists')">Lists</button>
-        <button id="options_grid_space_button" class="menu_item" onclick="selectedMenuOption('grid_space')">Grid Space</button>
-        <button id="options_add_or_edit_button" class="menu_item" onclick="selectedMenuOption('add_or_edit')">Add</button>
-        <button id="options_annotate_button" class="menu_item" onclick="selectedMenuOption('annotate')">Annotate</button>
-        <button id="options_delete_button" class="menu_item destructive" onclick="selectedMenuOption('delete')">Delete</button>
-        <button id="options_copy_button" class="menu_item" onclick="selectedMenuOption('copy')">Copy</button>
-        <button id="options_paste_button" class="menu_item" onclick="selectedMenuOption('paste')">Paste</button>
-        <button id="options_movement_button" class="menu_item" onclick="selectedMenuOption('movement')">Movement</button>
-        <button id="options_ping_position" class="menu_item" onclick="pingPosition()">Ping!</button>
-        <button id="options_close_button" class="menu_item" onclick="selectedMenuOption('close')">Close</button>
+    <div class="column">
+      <div id="tab_row">
+        <button id="addition_tab">
+          +
+        </button>
       </div>
 
-      <div id="add_container" style="display: none; width: 200px;">
-        <select id="selected_shape" class="menu_item">
-          <option value="rectangle">Rectangle</option>
-					<option value="circle">Circle</option>
-					<option value="line">Line</option>
-        </select><br>
+      <canvas id="underlay_canvas" class="drawing_canvas"></canvas>
 
-        <input name="elementcolor" id="element_color" type="hidden" value="000000">
-        <button id="element_color_changer" class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+      <div id="footer">
+        <h5 id="version_number">Clutter v1.0.0</h5>
+      </div>
+    </div>
 
-        <div id="dimensions_container" class="sidebar_container">
-          <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
-          <br>
-          <input type="number" id="element_width" class="menu_item" value=1>
+    <div class="wrapper">
+      <div id="overlapping_container_tab">
+        <button id="tqa_add" class="toolbar_quick_access_button">&oplus;</button><br>
+        <button id="tqa_delete" class="toolbar_quick_access_button">&otimes;</button><br>
+        <button id="tqa_copy" class="toolbar_quick_access_button">&#10064;</button><br>
+        <button id="tqa_ping" class="toolbar_quick_access_button">&#10061;</button><br>
+        <button id="tqa_annotate" class="toolbar_quick_access_button">&#182;</button><br>
+        <button id="tqa_list" class="toolbar_quick_access_button">&forall;</button><br>
+        <button id="tqa_move" class="toolbar_quick_access_button">&#9816;</button><br>
+        <button id="overlapping_container_open" class="toolbar_quick_access_button">&laquo;</button>
+      </div>
+    </div>
 
-          <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
-          <br>
-          <input type="number" id="element_height" class="menu_item" value=1>
 
-          <!-- Uncomment at some point if isometric layouts become a thing
+    <div id="overlapping_side_container" class="column">
+      <div id="side_container_swap">
+        <div id="options_container" style="display: none;">
+          <button id="options_lists_button" class="menu_item" onclick="selectedMenuOption('lists')">Lists</button>
+          <button id="options_grid_space_button" class="menu_item" onclick="selectedMenuOption('grid_space')">Grid
+            Space</button>
+          <button id="options_add_or_edit_button" class="menu_item"
+            onclick="selectedMenuOption('add_or_edit')">Add</button>
+          <button id="options_annotate_button" class="menu_item"
+            onclick="selectedMenuOption('annotate')">Annotate</button>
+          <button id="options_delete_button" class="menu_item destructive"
+            onclick="selectedMenuOption('delete')">Delete</button>
+          <button id="options_copy_button" class="menu_item" onclick="selectedMenuOption('copy')">Copy</button>
+          <button id="options_paste_button" class="menu_item" onclick="selectedMenuOption('paste')">Paste</button>
+          <button id="options_movement_button" class="menu_item"
+            onclick="selectedMenuOption('movement')">Movement</button>
+          <button id="options_ping_position" class="menu_item" onclick="pingPosition()">Ping!</button>
+          <button id="options_close_button" class="menu_item" onclick="selectedMenuOption('close')">Close</button>
+        </div>
+
+        <div id="add_container" style="display: none; width: 200px;">
+          <select id="selected_shape" class="menu_item">
+            <option value="rectangle">Rectangle</option>
+            <option value="circle">Circle</option>
+            <option value="line">Line</option>
+          </select><br>
+
+          <input name="elementcolor" id="element_color" type="hidden" value="000000">
+          <button id="element_color_changer"
+            class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+
+          <div id="dimensions_container" class="sidebar_container">
+            <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
+            <br>
+            <input type="number" id="element_width" class="menu_item" value=1>
+
+            <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
+            <br>
+            <input type="number" id="element_height" class="menu_item" value=1>
+
+            <!-- Uncomment at some point if isometric layouts become a thing
           <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
           <br>
           <input type="number" id="element_depth" class="menu_item" value=1>
           -->
-        </div>
+          </div>
 
-        <div id="rotate_controls_container" style="display: inline-block;">
-          Rotate
-          <button id="b_rotate_left" class="menu_item">&#8634;</button>
-          <button id="b_rotate_right" class="menu_item">&#8635;</button>
-        </div>
+          <div id="rotate_controls_container" style="display: inline-block;">
+            Rotate
+            <button id="b_rotate_left" class="menu_item">&#8634;</button>
+            <button id="b_rotate_right" class="menu_item">&#8635;</button>
+          </div>
 
-        <div style="display: inline-block;">
-          <label for="element_category">Category</label>
+          <div style="display: inline-block;">
+            <label for="element_category">Category</label>
+            <br>
+            <select id="element_category" class="menu_item">
+              <option value="environment">Environment</option>
+              <option value="player">Player</option>
+              <option value="enemy">Enemy</option>
+              <option value="npc">NPC</option>
+            </select>
+          </div>
+
+          <div style="display: inline-block;">
+            <label for="element_name">Name</label>
+            <br>
+            <input type="text" id="element_name" class="menu_item">
+          </div>
           <br>
-          <select id="element_category" class="menu_item">
-						<option value="environment">Environment</option>
-						<option value="player">Player</option>
-						<option value="enemy">Enemy</option>
-						<option value="npc">NPC</option>
-					</select>
-        </div>
 
-        <div style="display: inline-block;">
-          <label for="element_name">Name</label>
+          <div id="vertices_list" style="display: inline-block;">
+
+          </div>
+
+          <button id="place_element_button" class="menu_item">Add</button>
           <br>
-          <input type="text" id="element_name" class="menu_item">
-        </div>
-        <br>
-
-        <div id="vertices_list" style="display: inline-block;">
-
+          <button id="start_new_line_button" class="menu_item">Start New Line</button>
         </div>
 
-        <button id="place_element_button" class="menu_item">Add</button>
-        <br>
-        <button id="start_new_line_button" class="menu_item">Start New Line</button>
-      </div>
-
-      <div id="grid_space_container" style="display: none; width: 200px;">
-        <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
-        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-        <label for="grid_size_horizontal">Width Size</label><br>
-        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-        <label for="grid_name">Name</label>
-        <input id="grid_name" name="grid_name" type="text" class="menu_item">
-        <button id="randomize">Randomize</button>
-        <button id="reset_board_button" class="destructive">Reset Board</button>
-      </div>
-
-      <div id="movement_container" style="display: none; width: 200px;">
-        <div>
-          <label for="move_to_x">X</label>
-          <input type="number" id="move_to_x" class="menu_item">
+        <div id="grid_space_container" style="display: none; width: 200px;">
+          <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
+          <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+          <label for="grid_size_horizontal">Width Size</label><br>
+          <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+          <label for="grid_name">Name</label>
+          <input id="grid_name" name="grid_name" type="text" class="menu_item">
+          <button id="randomize">Randomize</button>
+          <button id="reset_board_button" class="destructive">Reset Board</button>
         </div>
-        <label for="move_to_y">Y:</label>
-        <input type="number" id="move_to_y" class="menu_item">
-        <button id="move_button">Move</button>
-        <br>
-        <table id="incremental_movement_control_container">
-          <tr>
-            <td>
+
+        <div id="movement_container" style="display: none; width: 200px;">
+          <div>
+            <label for="move_to_x">X</label>
+            <input type="number" id="move_to_x" class="menu_item">
+          </div>
+          <label for="move_to_y">Y:</label>
+          <input type="number" id="move_to_y" class="menu_item">
+          <button id="move_button">Move</button>
+          <br>
+          <table id="incremental_movement_control_container">
+            <tr>
+              <td>
               <td>
                 <button id="move_inc_up" class="incr_move_button">
-									<i class="arrow up"></i>
-								</button>
+                  <i class="arrow up"></i>
+                </button>
               </td>
-          </tr>
-          <tr>
-            <td>
-              <button id="move_inc_left" class="incr_move_button">
-									<i class="arrow left"></i>
-								</button>
-            </td>
-            <td>
+            </tr>
+            <tr>
+              <td>
+                <button id="move_inc_left" class="incr_move_button">
+                  <i class="arrow left"></i>
+                </button>
+              </td>
+              <td>
               <td>
                 <button id="move_inc_right" class="incr_move_button">
-									<i class="arrow right"></i>
-								</button>
+                  <i class="arrow right"></i>
+                </button>
               </td>
-          </tr>
-          <tr>
-            <td>
+            </tr>
+            <tr>
+              <td>
               <td>
                 <button id="move_inc_down" class="incr_move_button">
-									<i class="arrow down"></i>
-								</button>
+                  <i class="arrow down"></i>
+                </button>
               </td>
-          </tr>
-        </table>
-      </div>
+            </tr>
+          </table>
+        </div>
 
-      <div id="overlapping_container" style="display: none; width: 200px;">
-        <button id="list_header_elements" class="list_header">
-              Elements
-            </button>
-        <button id="list_header_annotations" class="list_header">
-              Annotations
-            </button>
-        <div id="element_list_container" class="">
-          <div style="display: inline;">
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-              <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+        <div id="overlapping_container" style="display: none; width: 200px;">
+          <button id="list_header_elements" class="list_header">
+            Elements
+          </button>
+          <button id="list_header_annotations" class="list_header">
+            Annotations
+          </button>
+          <div id="element_list_container" class="">
+            <div style="display: inline;">
+              <div style="display: block;">
+                <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+                <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+              </div>
+              <div style="display: block;">
+                <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
+                  !checked>
+                <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+              </div>
+              <div style="display: block;">
+                <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+                <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+              </div>
+              <div style="display: block;">
+                <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+                <label for="element_list_filter_player" class="element_filter_label">Player</label>
+              </div>
             </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment" !checked>
-              <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-              <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-              <label for="element_list_filter_player" class="element_filter_label">Player</label>
-            </div>
+            <div id="element_list"></div>
           </div>
-          <div id="element_list"></div>
+          <div id="annotations_list_container">
+            <input type="checkbox" id="annotations_display">
+            <label for="annotations_display">Highlight on map</label>
+            <div id="annotations_list" class=""></div>
+          </div>
         </div>
-        <div id="annotations_list_container">
-          <input type="checkbox" id="annotations_display">
-          <label for="annotations_display">Highlight on map</label>
-          <div id="annotations_list" class=""></div>
+
+        <div id="annotations_container" style="display: none; width: 200px;">
+          <label for="annotation_title">Title</label><br>
+          <textarea id="annotation_title"></textarea><br>
+          <label for="annotation_content">Content</label><br>
+          <textarea id="annotation_content"></textarea><br>
+          <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
+          <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
         </div>
       </div>
 
-      <div id="annotations_container" style="display: none; width: 200px;">
-        <label for="annotation_title">Title</label><br>
-        <textarea id="annotation_title"></textarea><br>
-        <label for="annotation_content">Content</label><br>
-        <textarea id="annotation_content"></textarea><br>
-        <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
-        <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
-      </div>
+      <button id="overlapping_back_button" class="back_button">&laquo;</button>
+
     </div>
 
-    <button id="overlapping_back_button" class="back_button">&laquo;</button>
+    <div id="lost_connection_div">
+      <h2 id="lost_connection_text"></h2>
+    </div>
 
+    <div id="loading_div">
+      <div class="loader"></div>
+    </div>
   </div>
 
-  <div id="lost_connection_div">
-    <h2 id="lost_connection_text"></h2>
-  </div>
 
-  <div id="loading_div">
-    <div class="loader"></div>
-  </div>
-</div>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
 
 </html>
