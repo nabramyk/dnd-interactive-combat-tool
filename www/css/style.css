@@ -47,12 +47,12 @@ i {
   width: 23%;
 }
 
-#underlay_canvas {
+canvas {
   z-index: -1;
   -webkit-user-select: none;
 }
 
-#underlay_canvas[resize] {
+canvas[resize] {
   width: 100%;
   height: 100%;
 }
@@ -93,10 +93,10 @@ i {
 }
 
 #tab_row {
-  width: 100%;
   overflow-x: scroll;
   background: #b7b7b7;
   display: block;
+  margin-right: 100px;
   white-space: nowrap;
   z-index: 2;
 }
@@ -361,7 +361,7 @@ a, a:hover, a:focus {
 
 #content {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   padding-right: 100px;
 }
 
@@ -400,7 +400,6 @@ a, a:hover, a:focus {
   display: block;
   background-color: #262626;
   width: 100%;
-  bottom: 0px;
 }
 
 #version_number {

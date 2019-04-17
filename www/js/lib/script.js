@@ -31,7 +31,7 @@ function canvasApp() {
  * This function has A LOT of redundancy, needs major refactoring
  */
 function interfaceInitialization() {
-	underlay_canvas = document.getElementById('underlay_canvas');
+	underlay_canvas = document.getElementById('canvas');
 
 	$("#movement_controls").hide();
 	$("#reset_board_button").prop("disabled", true);

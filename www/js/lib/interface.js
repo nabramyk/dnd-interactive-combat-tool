@@ -4,6 +4,10 @@
  */
 function bindEventHandlers() {
 
+	$("#sidebar").mCustomScrollbar({
+		theme: "minimal"
+	});
+
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
@@ -41,8 +45,10 @@ function bindEventHandlers() {
 						pixel2GridPoint(selected_grid_y),
 						$("#selected_shape").val(),
 						$("#element_name").val(),
-						{ "width": $("#element_width").val(),
-							"height": $("#element_height").val() },
+						{
+							"width": $("#element_width").val(),
+							"height": $("#element_height").val()
+						},
 						$("#element_category").val()
 					);
 					break;
@@ -264,7 +270,7 @@ function bindEventHandlers() {
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
-					msg.grid_space.elements.forEach(function(el) { draw_item(el.el); });
+					msg.grid_space.elements.forEach(function (el) { draw_item(el.el); });
 				}
 
 				if (msg.grid_space.annotations.length !== 0) {
@@ -415,7 +421,7 @@ function selectedMenuOption(option) {
 			$("#add_container").show();
 
 			var isAdd = $("#options_add_or_edit_button").text() === "Add";
-			if(isAdd) {
+			if (isAdd) {
 				$("#selected_shape").show();
 				$("#rotate_controls_container").hide();
 				$("#selected_shape").val("square");
@@ -572,8 +578,8 @@ function resizeGridHeight(height) {
 }
 
 function rotateElement(angle) {
-	if(selected_element.item.size.width == selected_element.item.size.height) return;
-	if(stored_edited_element_bounds == null) stored_edited_element_bounds = selected_element.item.bounds;
+	if (selected_element.item.size.width == selected_element.item.size.height) return;
+	if (stored_edited_element_bounds == null) stored_edited_element_bounds = selected_element.item.bounds;
 
 	selected_element.item.rotate(angle, stored_edited_element_bounds.topLeft);
 	cursor.rotate(angle, stored_edited_element_bounds.topLeft);
