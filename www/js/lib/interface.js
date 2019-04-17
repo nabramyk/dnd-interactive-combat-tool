@@ -324,7 +324,7 @@ function bindEventHandlers() {
 	});
 
 	$("#overlapping_container_open").click(function () {
-		$("#overlapping_container_tab").toggleClass('active');
+		$("#sidebar").toggleClass('active');
 	});
 
 	$("#overlapping_back_button").click(function (evt) {

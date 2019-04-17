@@ -1,3 +1,7 @@
+html, body {
+  height: 100%;
+}
+
 button {
   -webkit-appearance: none;
 }
@@ -45,10 +49,7 @@ i {
 
 #underlay_canvas {
   z-index: -1;
-  width: 100%;
-  height: auto;
   -webkit-user-select: none;
-  display: block;
 }
 
 #underlay_canvas[resize] {
@@ -91,22 +92,8 @@ i {
   width: 100%;
 }
 
-#header_row {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  max-height: 40px;
-  background: #262626;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 4;
-}
-
 #tab_row {
   width: 100%;
-  height: 40px;
-  max-height: 40px;
   overflow-x: scroll;
   background: #b7b7b7;
   display: block;
@@ -343,34 +330,51 @@ i {
   padding-bottom: 36px;
 }
 
-#overlapping_container_tab {
+#sidebar {
   display: block;
   position: fixed;
   right: 0;
   top: 0;
-  height: 100vh;
+  min-height: 100vh;
   z-index: 3;
-  min-width: 50px;
-  max-width: 50px;
+  min-width: 100px;
+  max-width: 100px;
+  transition: all 0.3s;
+  background: #345eb2;
+}
+
+#sidebar ul li a {
+  padding: 10px;
+  font-size: 1.1em;
+  display: block;
+}
+
+#sidebar.active {
+  right: 50px;
+}
+
+a, a:hover, a:focus {
+  color: inherit;
+  text-decoration: none;
   transition: all 0.3s;
 }
 
-#overlapping_container_tab.active {
-  right: 50px;
+#content {
+  width: 100%;
+  height: 100%;
+  padding-right: 100px;
 }
 
 .wrapper {
   display: flex;
+  width: 100%;
+  height: 100vh;
   align-items: stretch;
 }
 
 .toolbar_quick_access_button {
   color: white;
   background-color: #345eb2;
-  border-bottom: #8c8c8c;
-  border-left: none;
-  border-right: none;
-  height: 12.5%;
   width: 100%;
   font-size: 18px;
 }
@@ -396,7 +400,6 @@ i {
   display: block;
   background-color: #262626;
   width: 100%;
-  height: 25px;
   bottom: 0px;
 }
 

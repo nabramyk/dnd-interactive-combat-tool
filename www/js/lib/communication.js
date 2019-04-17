@@ -124,7 +124,7 @@ function bindSocketListeners() {
 	});
 
 	socket.on('new_grid_space', function (msg) {
-		$("<div class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></div>").insertBefore("#addition_tab");
+		$("<li class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></li>").insertBefore("#addition_tab");
 	});
 
 	socket.on('reset_grid', function (msg) {
