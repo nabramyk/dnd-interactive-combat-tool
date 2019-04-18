@@ -133,16 +133,24 @@ function interfaceInitialization() {
 		group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
 
 		//Stick the top ruler to the top of the canvas when reaching scrolling overflow
-		toprulerraster.position.y = (point.y > -20 ? point.y + 10 : -10);
-		group_top_cursor.position.y = (point.y > -20 ? point.y + 10 : -10);
+		toprulerraster.position.y = (point.y > -65 ? point.y + 55 : -10);
+		group_top_cursor.position.y = (point.y > -65 ? point.y + 55 : -10);
 
 		//Stick the bottom ruler to the bottom of the canvas when reaching overflow
-		bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1) ? paper.view.center._owner.bottom - (grid_size / 2) : grid_count_height * grid_size + (grid_size/2));
-		group_bottom_cursor.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1) ? paper.view.center._owner.bottom - (grid_size / 2) : grid_count_height * grid_size + (grid_size/2));
+		bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1)
+			? paper.view.center._owner.bottom - (grid_size / 2)
+			: grid_count_height * grid_size + (grid_size / 2));
+		group_bottom_cursor.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1)
+			? paper.view.center._owner.bottom - (grid_size / 2)
+			: grid_count_height * grid_size + (grid_size / 2));
 
 		//Stick the right ruler to the right of the canvas when reaching overflow
-		rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) ? paper.view.center._owner.right - (grid_size / 2) : grid_count_width * grid_size + (grid_size/2));
-		group_right_cursor.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) ? paper.view.center._owner.right - (grid_size / 2) : grid_count_width * grid_size + (grid_size/2));
+		rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1)
+			? paper.view.center._owner.right - (grid_size / 2)
+			: grid_count_width * grid_size + (grid_size / 2));
+		group_right_cursor.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1)
+			? paper.view.center._owner.right - (grid_size / 2) 
+			: grid_count_width * grid_size + (grid_size / 2));
 
 		paper.view.update();
 	}
@@ -158,7 +166,7 @@ function interfaceInitialization() {
 	var point = new paper.Point(0, 0);
 	paper.view.scrollBy(point.subtract(paper.view.center));
 
-	window.addEventListener('resize', function(evt) {
+	window.addEventListener('resize', function (evt) {
 		paper.view.update();
 	});
 }
