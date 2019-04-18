@@ -28,50 +28,16 @@
 </head>
 
 <body>
-  <div id="content container">
+  <div id="content">
     <ul id="tab_row" class="nav nav-tabs">
       <li id="addition_tab">+</li>
     </ul>
 
     <canvas id="canvas" class="" resize="true"></canvas>
-
-    <div id="footer" class="">
-      <h5 id="version_number">Clutter v1.0.0</h5>
-    </div>
   </div>
 
   <ul id="sidebar" class="list-unstyled components">
-    <li id="tqa_add" class="dropdown-toggle"><a>&oplus; Add</a></li>
-    <li id="tqa_delete" class="dropdown-toggle">&otimes; Delete</li>
-    <li id="tqa_copy" class="dropdown-toggle">&#10064; Copy</li>
-    <li id="tqa_ping" class="dropdown-toggle">&#10061; Ping</li>
-    <li id="tqa_annotate" class="dropdown-toggle">&#182; Annotate</li>
-    <li id="tqa_list" class="dropdown-toggle">&forall; List</li>
-    <li id="tqa_move" class="dropdown-toggle">&#9816; Move</li>
-    <li id="overlapping_container_open" class="">&laquo; Close</li>
-  </ul>
-
-
-  <div id="overlapping_side_container" class="column">
-    <div id="side_container_swap">
-      <div id="options_container" style="display: none;">
-        <button id="options_lists_button" class="menu_item" onclick="selectedMenuOption('lists')">Lists</button>
-        <button id="options_grid_space_button" class="menu_item" onclick="selectedMenuOption('grid_space')">Grid
-          Space</button>
-        <button id="options_add_or_edit_button" class="menu_item"
-          onclick="selectedMenuOption('add_or_edit')">Add</button>
-        <button id="options_annotate_button" class="menu_item"
-          onclick="selectedMenuOption('annotate')">Annotate</button>
-        <button id="options_delete_button" class="menu_item destructive"
-          onclick="selectedMenuOption('delete')">Delete</button>
-        <button id="options_copy_button" class="menu_item" onclick="selectedMenuOption('copy')">Copy</button>
-        <button id="options_paste_button" class="menu_item" onclick="selectedMenuOption('paste')">Paste</button>
-        <button id="options_movement_button" class="menu_item"
-          onclick="selectedMenuOption('movement')">Movement</button>
-        <button id="options_ping_position" class="menu_item" onclick="pingPosition()">Ping!</button>
-        <button id="options_close_button" class="menu_item" onclick="selectedMenuOption('close')">Close</button>
-      </div>
-
+    <li id="tqa_add" class="dropdown-toggle"><a>&oplus; Add</a>
       <div id="add_container" style="display: none; width: 200px;">
         <select id="selected_shape" class="menu_item">
           <option value="rectangle">Rectangle</option>
@@ -93,10 +59,10 @@
           <input type="number" id="element_height" class="menu_item" value=1>
 
           <!-- Uncomment at some point if isometric layouts become a thing
-          <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
-          <br>
-          <input type="number" id="element_depth" class="menu_item" value=1>
-          -->
+            <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
+            <br>
+            <input type="number" id="element_depth" class="menu_item" value=1>
+            -->
         </div>
 
         <div id="rotate_controls_container" style="display: inline-block;">
@@ -131,18 +97,58 @@
         <br>
         <button id="start_new_line_button" class="menu_item">Start New Line</button>
       </div>
-
-      <div id="grid_space_container" style="display: none; width: 200px;">
-        <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
-        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-        <label for="grid_size_horizontal">Width Size</label><br>
-        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-        <label for="grid_name">Name</label>
-        <input id="grid_name" name="grid_name" type="text" class="menu_item">
-        <button id="randomize">Randomize</button>
-        <button id="reset_board_button" class="destructive">Reset Board</button>
+    </li>
+    <li id="tqa_delete" class="">&otimes; Delete</li>
+    <li id="tqa_copy" class="">&#10064; Copy</li>
+    <li id="tqa_ping" class="">&#10061; Ping</li>
+    <li id="tqa_annotate" class="dropdown-toggle"><a>&#182; Annotate</a>
+      <div id="annotations_container" style="display: none; width: 200px;">
+        <label for="annotation_title">Title</label><br>
+        <textarea id="annotation_title"></textarea><br>
+        <label for="annotation_content">Content</label><br>
+        <textarea id="annotation_content"></textarea><br>
+        <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
+        <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
       </div>
-
+    </li>
+    <li id="tqa_list" class="dropdown-toggle"><a>&forall; List</a>
+      <div id="overlapping_container" style="display: none; width: 200px;">
+        <button id="list_header_elements" class="list_header">
+          Elements
+        </button>
+        <button id="list_header_annotations" class="list_header">
+          Annotations
+        </button>
+        <div id="element_list_container" class="">
+          <div style="display: inline;">
+            <div style="display: block;">
+              <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+              <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+            </div>
+            <div style="display: block;">
+              <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
+                !checked>
+              <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+            </div>
+            <div style="display: block;">
+              <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+              <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+            </div>
+            <div style="display: block;">
+              <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+              <label for="element_list_filter_player" class="element_filter_label">Player</label>
+            </div>
+          </div>
+          <div id="element_list"></div>
+        </div>
+        <div id="annotations_list_container">
+          <input type="checkbox" id="annotations_display">
+          <label for="annotations_display">Highlight on map</label>
+          <div id="annotations_list" class=""></div>
+        </div>
+      </div>
+    </li>
+    <li id="tqa_move" class="dropdown-toggle"><a>&#9816; Move</a>
       <div id="movement_container" style="display: none; width: 200px;">
         <div>
           <label for="move_to_x">X</label>
@@ -184,56 +190,21 @@
           </tr>
         </table>
       </div>
-
-      <div id="overlapping_container" style="display: none; width: 200px;">
-        <button id="list_header_elements" class="list_header">
-          Elements
-        </button>
-        <button id="list_header_annotations" class="list_header">
-          Annotations
-        </button>
-        <div id="element_list_container" class="">
-          <div style="display: inline;">
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-              <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
-                !checked>
-              <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-              <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-              <label for="element_list_filter_player" class="element_filter_label">Player</label>
-            </div>
-          </div>
-          <div id="element_list"></div>
-        </div>
-        <div id="annotations_list_container">
-          <input type="checkbox" id="annotations_display">
-          <label for="annotations_display">Highlight on map</label>
-          <div id="annotations_list" class=""></div>
-        </div>
+    </li>
+    <li id="grid_space" class="dropdown-toggle"><a>Grid Space</a>
+      <div id="grid_space_container" style="display: none; width: 200px;">
+        <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
+        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+        <label for="grid_size_horizontal">Width Size</label><br>
+        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+        <label for="grid_name">Name</label>
+        <input id="grid_name" name="grid_name" type="text" class="menu_item">
+        <button id="randomize">Randomize</button>
+        <button id="reset_board_button" class="destructive">Reset Board</button>
       </div>
-
-      <div id="annotations_container" style="display: none; width: 200px;">
-        <label for="annotation_title">Title</label><br>
-        <textarea id="annotation_title"></textarea><br>
-        <label for="annotation_content">Content</label><br>
-        <textarea id="annotation_content"></textarea><br>
-        <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
-        <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
-      </div>
-    </div>
-
-    <button id="overlapping_back_button" class="back_button">&laquo;</button>
-
-  </div>
+    </li>
+    <li id="overlapping_container_open" class="">&laquo; Close</li>
+  </ul>
 
   <div id="lost_connection_div">
     <h2 id="lost_connection_text"></h2>

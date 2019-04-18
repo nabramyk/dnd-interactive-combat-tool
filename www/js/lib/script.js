@@ -74,12 +74,6 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
-		//Testing to see different methods of collision detection in the effort that we might be able to check on the client side rather than
-		//the server
-		// local_stored_grid_space.find(function(el) {
-		// 	console.log(el.ele.intersects(cursor));
-		// });
-
 		selected_element = group_elements.hitTest(event.point);
 		stored_edited_element_bounds = null;
 
@@ -163,4 +157,8 @@ function interfaceInitialization() {
 
 	var point = new paper.Point(0, 0);
 	paper.view.scrollBy(point.subtract(paper.view.center));
+
+	window.addEventListener('resize', function(evt) {
+		paper.view.update();
+	});
 }
