@@ -133,8 +133,8 @@ function interfaceInitialization() {
 		group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
 
 		//Stick the top ruler to the top of the canvas when reaching scrolling overflow
-		toprulerraster.position.y = (point.y > -65 ? point.y + 55 : -10);
-		group_top_cursor.position.y = (point.y > -65 ? point.y + 55 : -10);
+		toprulerraster.position.y = (point.y >-20 ? point.y + 10 : -10);
+		group_top_cursor.position.y = (point.y > -20 ? point.y + 10 : -10);
 
 		//Stick the bottom ruler to the bottom of the canvas when reaching overflow
 		bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1)

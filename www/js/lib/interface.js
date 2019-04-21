@@ -307,36 +307,9 @@ function bindEventHandlers() {
 			}
 		});
 
-	$("#grid_canvas").focus();
-	$(document).keydown(function (e) {
-		switch (e.which) {
-			case 37:
-				e.preventDefault();
-				$("#move_inc_left").mousedown().mouseup();
-				break;
-			case 38:
-				e.preventDefault();
-				$("#move_inc_up").mousedown().mouseup();
-				break;
-			case 39:
-				e.preventDefault();
-				$("#move_inc_right").mousedown().mouseup();
-				break;
-			case 40:
-				e.preventDefault();
-				$("#move_inc_down").mousedown().mouseup();
-				break;
-		}
-	});
-
-	$("#overlapping_container_open").click(function () {
-		$("#sidebar").toggleClass('active');
-	});
-
-	$("#overlapping_back_button").click(function (evt) {
-		$("#overlapping_back_button").hide();
-		getContextMenu();
-	});
+		$("#overlapping_container_open").click(function () {
+			$("#sidebar").toggleClass('active');
+		});
 
 	$("#tqa_ping").click(function () {
 		pingPosition();
