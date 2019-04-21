@@ -33,70 +33,91 @@
       <li id="addition_tab">+</li>
     </ul>
 
-    <canvas id="canvas" class="" resize="true"></canvas>
+    <canvas id="canvas" resize="true"></canvas>
   </div>
 
   <ul id="sidebar" class="list-unstyled components">
-    <li id="tqa_add" class="dropdown-toggle"><a>&oplus; Add</a>
-      <div id="add_container" style="display: none; width: 200px;">
-        <select id="selected_shape" class="menu_item">
-          <option value="rectangle">Rectangle</option>
-          <option value="circle">Circle</option>
-          <option value="line">Line</option>
-        </select><br>
+    <li id="tqa_add" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
+      <a href="#add_container" data-toggle="collapse" aria-expanded="false">&oplus; Add</a>
+      <ul id="add_container" class="collapse list-unstyled">
+        <li>
+          <select id="selected_shape" class="menu_item">
+            <option value="rectangle">Rectangle</option>
+            <option value="circle">Circle</option>
+            <option value="line">Line</option>
+          </select>
+        </li>
 
-        <input name="elementcolor" id="element_color" type="hidden" value="000000">
-        <button id="element_color_changer"
-          class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+        <li>
+          <input name="elementcolor" id="element_color" type="hidden" value="000000">
+        </li>
 
-        <div id="dimensions_container" class="sidebar_container">
-          <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
-          <br>
-          <input type="number" id="element_width" class="menu_item" value=1>
+        <li>
+          <button id="element_color_changer"
+            class="jscolor {valueElement:'element_color', width: 500, height: 350} menu_item">Element Color</button>
+        </li>
 
-          <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
-          <br>
-          <input type="number" id="element_height" class="menu_item" value=1>
+        <li>
+          <div id="dimensions_container" class="sidebar_container">
+            <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
+            <br>
+            <input type="number" id="element_width" class="menu_item" value=1>
 
-          <!-- Uncomment at some point if isometric layouts become a thing
+            <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
+            <br>
+            <input type="number" id="element_height" class="menu_item" value=1>
+
+            <!-- Uncomment at some point if isometric layouts become a thing
             <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
             <br>
             <input type="number" id="element_depth" class="menu_item" value=1>
             -->
-        </div>
+          </div>
+        </li>
 
-        <div id="rotate_controls_container" style="display: inline-block;">
-          Rotate
-          <button id="b_rotate_left" class="menu_item">&#8634;</button>
-          <button id="b_rotate_right" class="menu_item">&#8635;</button>
-        </div>
+        <li>
+          <div id="rotate_controls_container" style="display: inline-block;">
+            Rotate
+            <button id="b_rotate_left" class="menu_item">&#8634;</button>
+            <button id="b_rotate_right" class="menu_item">&#8635;</button>
+          </div>
+        </li>
 
-        <div style="display: inline-block;">
-          <label for="element_category">Category</label>
-          <br>
-          <select id="element_category" class="menu_item">
-            <option value="environment">Environment</option>
-            <option value="player">Player</option>
-            <option value="enemy">Enemy</option>
-            <option value="npc">NPC</option>
-          </select>
-        </div>
+        <li>
+          <div style="display: inline-block;">
+            <label for="element_category">Category</label>
+            <br>
+            <select id="element_category" class="menu_item">
+              <option value="environment">Environment</option>
+              <option value="player">Player</option>
+              <option value="enemy">Enemy</option>
+              <option value="npc">NPC</option>
+            </select>
+          </div>
+        </li>
 
-        <div style="display: inline-block;">
-          <label for="element_name">Name</label>
-          <br>
-          <input type="text" id="element_name" class="menu_item">
-        </div>
-        <br>
+        <li>
+          <div style="display: inline-block;">
+            <label for="element_name">Name</label>
+            <br>
+            <input type="text" id="element_name" class="menu_item">
+          </div>
+        </li>
 
-        <div id="vertices_list" style="display: inline-block;">
+        <li>
+          <div id="vertices_list" style="display: inline-block;">
 
-        </div>
+          </div>
+        </li>
 
-        <button id="place_element_button" class="menu_item">Add</button>
-        <br>
-        <button id="start_new_line_button" class="menu_item">Start New Line</button>
-      </div>
+        <li>
+          <button id="place_element_button" class="menu_item">Add</button>
+        </li>
+
+        <li>
+          <button id="start_new_line_button" class="menu_item">Start New Line</button>
+        </li>
+      </ul>
     </li>
     <li id="tqa_delete" class="">&otimes; Delete</li>
     <li id="tqa_copy" class="">&#10064; Copy</li>
@@ -191,17 +212,28 @@
         </table>
       </div>
     </li>
-    <li id="grid_space" class="dropdown-toggle"><a>Grid Space</a>
-      <div id="grid_space_container" style="display: none; width: 200px;">
-        <label for="grid_size_vertical" style="text-align: center;">Height Size</label><br>
-        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-        <label for="grid_size_horizontal">Width Size</label><br>
-        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-        <label for="grid_name">Name</label>
-        <input id="grid_name" name="grid_name" type="text" class="menu_item">
-        <button id="randomize">Randomize</button>
-        <button id="reset_board_button" class="destructive">Reset Board</button>
-      </div>
+    <li id="grid_space" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
+      <a href="#grid_space_container" data-toggle="collapse" aria-expanded="false">Grid Space</a>
+      <ul id="grid_space_container" class="collapse list-unstyled">
+        <li>
+          <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
+          <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+        </li>
+        <li>
+          <label for="grid_size_horizontal">Width Size</label>
+          <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+        </li>
+        <li>
+          <label for="grid_name">Name</label>
+          <input id="grid_name" name="grid_name" type="text" class="menu_item">
+        </li>
+        <li>
+          <button id="randomize">Randomize</button>
+        </li>
+        <li>
+          <button id="reset_board_button" class="destructive">Reset Board</button>
+        </li>
+      </ul>
     </li>
     <li id="overlapping_container_open" class="">&laquo; Close</li>
   </ul>
