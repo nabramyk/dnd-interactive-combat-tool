@@ -326,6 +326,10 @@ canvas[resize] {
   right: 0px;
 }
 
+.tab.active {
+  background: white;
+}
+
 #content {
   width: 100%;
   height: 100%;

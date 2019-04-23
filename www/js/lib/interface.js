@@ -131,6 +131,28 @@ function bindEventHandlers() {
 			incremental_move_element("right");
 		})
 
+	$("#grid_canvas").focus();
+	$(document).keydown(function (e) {
+		switch (e.which) {
+			case 37:
+				e.preventDefault();
+				$("#move_inc_left").mousedown().mouseup();
+				break;
+			case 38:
+				e.preventDefault();
+				$("#move_inc_up").mousedown().mouseup();
+				break;
+			case 39:
+				e.preventDefault();
+				$("#move_inc_right").mousedown().mouseup();
+				break;
+			case 40:
+				e.preventDefault();
+				$("#move_inc_down").mousedown().mouseup();
+				break;
+		}
+	});
+
 	$("#selected_shape").change(function (el) {
 		cursor.remove();
 		top_ruler_cursor.remove();
@@ -280,13 +302,6 @@ function bindEventHandlers() {
 				refresh_elements_list();
 				refresh_annotations_list();
 
-				$("#options_add_or_edit_button").hide();
-				$("#options_annotate_button").hide();
-				$("#options_delete_button").hide();
-				$("#options_copy_button").hide();
-				$("#options_paste_button").hide();
-				$("#options_movement_button").hide();
-
 				paper.view.update();
 			});
 		})
@@ -307,9 +322,9 @@ function bindEventHandlers() {
 			}
 		});
 
-		$("#overlapping_container_open").click(function () {
-			$("#sidebar").toggleClass('active');
-		});
+	$("#overlapping_container_open").click(function () {
+		$("#sidebar").toggleClass('active');
+	});
 
 	$("#tqa_ping").click(function () {
 		pingPosition();
