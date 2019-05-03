@@ -37,6 +37,44 @@
   </div>
 
   <ul id="sidebar" class="list-unstyled components">
+      <li id="tqa_list" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
+          <a href="#list_container" data-toggle="collapse" aria-expanded="false">&forall; List</a>
+          <ul id="list_container" class="collapse list-unstyled">
+            <button id="list_header_elements" class="list_header">
+              Elements
+            </button>
+            <button id="list_header_annotations" class="list_header">
+              Annotations
+            </button>
+            <div id="element_list_container" class="">
+              <div style="display: inline;">
+                <div style="display: block;">
+                  <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+                  <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+                </div>
+                <div style="display: block;">
+                  <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
+                    !checked>
+                  <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+                </div>
+                <div style="display: block;">
+                  <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+                  <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+                </div>
+                <div style="display: block;">
+                  <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+                  <label for="element_list_filter_player" class="element_filter_label">Player</label>
+                </div>
+              </div>
+              <div id="element_list"></div>
+            </div>
+            <div id="annotations_list_container">
+              <input type="checkbox" id="annotations_display">
+              <label for="annotations_display">Highlight on map</label>
+              <div id="annotations_list" class=""></div>
+            </div>
+          </ul>
+        </li>
     <li id="tqa_add" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
       <a href="#add_container" data-toggle="collapse" aria-expanded="false">&oplus; Add</a>
       <ul id="add_container" class="collapse list-unstyled">
@@ -122,55 +160,20 @@
     <li id="tqa_delete" class="">&otimes; Delete</li>
     <li id="tqa_copy" class="">&#10064; Copy</li>
     <li id="tqa_ping" class="">&#10061; Ping</li>
-    <li id="tqa_annotate" class="dropdown-toggle"><a>&#182; Annotate</a>
-      <div id="annotations_container" style="display: none; width: 200px;">
+    <li id="tqa_annotate" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
+      <a href="#annotations_container" data-toggle="collapse" aria-expanded="false">&#182; Annotate</a>
+      <ul id="annotations_container" class="collapse list-unstyled">
         <label for="annotation_title">Title</label><br>
         <textarea id="annotation_title"></textarea><br>
         <label for="annotation_content">Content</label><br>
         <textarea id="annotation_content"></textarea><br>
         <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
         <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
-      </div>
+      </ul>
     </li>
-    <li id="tqa_list" class="dropdown-toggle"><a>&forall; List</a>
-      <div id="overlapping_container" style="display: none; width: 200px;">
-        <button id="list_header_elements" class="list_header">
-          Elements
-        </button>
-        <button id="list_header_annotations" class="list_header">
-          Annotations
-        </button>
-        <div id="element_list_container" class="">
-          <div style="display: inline;">
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-              <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
-                !checked>
-              <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-              <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-            </div>
-            <div style="display: block;">
-              <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-              <label for="element_list_filter_player" class="element_filter_label">Player</label>
-            </div>
-          </div>
-          <div id="element_list"></div>
-        </div>
-        <div id="annotations_list_container">
-          <input type="checkbox" id="annotations_display">
-          <label for="annotations_display">Highlight on map</label>
-          <div id="annotations_list" class=""></div>
-        </div>
-      </div>
-    </li>
-    <li id="tqa_move" class="dropdown-toggle"><a>&#9816; Move</a>
-      <div id="movement_container" style="display: none; width: 200px;">
+    <li id="tqa_move" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
+      <a href="#movement_container" data-toggle="collapse" aria-expanded="false">&#9816; Move</a>
+      <ul id="movement_container" class="collapse list-unstyled">
         <div>
           <label for="move_to_x">X</label>
           <input type="number" id="move_to_x" class="menu_item">
@@ -210,7 +213,7 @@
             </td>
           </tr>
         </table>
-      </div>
+      </ul>
     </li>
     <li id="grid_space" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
       <a href="#grid_space_container" data-toggle="collapse" aria-expanded="false">Grid Space</a>

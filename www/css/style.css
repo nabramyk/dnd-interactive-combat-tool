@@ -68,6 +68,10 @@ canvas[resize] {
   border: solid black 2px;
 }
 
+.collapse {
+  background: white;
+}
+
 .element_list_row {
   border-bottom: solid black 1px;
   background: white;
