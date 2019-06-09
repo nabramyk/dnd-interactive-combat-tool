@@ -41,8 +41,8 @@
       <h3>Clutter</h3>
     </div>
     <ul class="list-unstyled components">
-      <li id="tqa_list" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">
-        <a href="#list_container" data-toggle="collapse" aria-expanded="false">&forall; List</a>
+      <li id="tqa_list">
+        <a href="#list_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&forall; List</a>
         <ul id="list_container" class="collapse list-unstyled">
           <button id="list_header_elements" class="list_header">
             Elements
@@ -79,8 +79,8 @@
           </div>
         </ul>
       </li>
-      <li id="tqa_add" data-toggle="collapse" aria-expanded="false">
-        <a href="#add_container" data-toggle="collapse" aria-expanded="false">&oplus; Add</a>
+      <li id="tqa_add">
+        <a href="#add_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&oplus; Add</a>
         <ul id="add_container" class="collapse list-unstyled">
           <li>
             <select id="selected_shape" class="menu_item">
@@ -161,11 +161,8 @@
           </li>
         </ul>
       </li>
-      <li id="tqa_delete">&otimes; Delete</li>
-      <li id="tqa_copy">&#10064; Copy</li>
-      <li id="tqa_ping">&#10061; Ping</li>
-      <li id="tqa_annotate"data-toggle="collapse" aria-expanded="false">
-        <a href="#annotations_container" data-toggle="collapse" aria-expanded="false">&#182; Annotate</a>
+      <li id="tqa_annotate">
+        <a href="#annotations_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&#182; Annotate</a>
         <ul id="annotations_container" class="collapse list-unstyled">
           <label for="annotation_title">Title</label><br>
           <textarea id="annotation_title"></textarea><br>
@@ -175,8 +172,8 @@
           <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
         </ul>
       </li>
-      <li id="tqa_move" data-toggle="collapse" aria-expanded="false">
-        <a href="#movement_container" data-toggle="collapse" aria-expanded="false">&#9816; Move</a>
+      <li id="tqa_move">
+        <a href="#movement_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&#9816; Move</a>
         <ul id="movement_container" class="collapse list-unstyled">
           <div>
             <label for="move_to_x">X</label>
@@ -219,8 +216,8 @@
           </table>
         </ul>
       </li>
-      <li id="grid_space" data-toggle="collapse" aria-expanded="false">
-        <a href="#grid_space_container" data-toggle="collapse" aria-expanded="false">Grid Space</a>
+      <li id="grid_space">
+        <a href="#grid_space_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Grid Space</a>
         <ul id="grid_space_container" class="collapse list-unstyled">
           <li>
             <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
@@ -242,7 +239,10 @@
           </li>
         </ul>
       </li>
-      <li id="overlapping_container_open" class="">&laquo; Close</li>
+      <li id="tqa_delete"><a>&otimes; Delete</a></li>
+      <li id="tqa_copy"><a>&#10064; Copy</a></li>
+      <li id="tqa_ping"><a>&#10061; Ping</a></li>
+      <li id="overlapping_container_open" class=""><a>&laquo; Close</a></li>
     </ul>
   </nav>
 
@@ -253,7 +253,6 @@
   <div id="loading_div">
     <div class="loader"></div>
   </div>
-
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

@@ -270,12 +270,12 @@ function bindEventHandlers() {
 	});
 
 	$(document)
-		.on('click', '#tab_row .grid-name', function (evt) {
+		.on('click', '#tab_row .grid-name', function () {
 			$(".tab").removeClass("active");
 			$(this).parent().addClass("active");
-			grid_id = $(this).val();
+			grid_id = Number($(this).attr('id'));
 			socket.emit('request_grid_space', {
-				"id": $(this).val()
+				"id": grid_id
 			}, function (msg) {
 				grid_count_height = msg.grid_space.size.height;
 				resizeGridHeight(grid_count_height);
@@ -317,7 +317,7 @@ function bindEventHandlers() {
 		.on('click', '#tab_row .grid-space-delete', function (evt) {
 			if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
 				socket.emit("delete_grid_space_from_server", {
-					"grid_id": $(this).val()
+					"grid_id": $(this).attr('id')
 				});
 			}
 		});

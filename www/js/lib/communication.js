@@ -24,7 +24,7 @@ function bindSocketListeners() {
 			$("#grid_name").val(msg.spaces[0].name);
 
 			msg.spaces.forEach(function (el) {
-				$("<div class=\"tab\"><button class=\"grid-name\" value=\"" + el.id + "\">" + el.name + "</button><button class=\"grid-space-delete\" value=\"" + el.id + "\">&times</button></div>").insertBefore("#addition_tab");
+				$("<div class=\"tab\"><a class=\"grid-name\" id=\"" + el.id + "\">" + el.name + "</a><a class=\"grid-space-delete\" id=\"" + el.id + "\">&times</a></div>").insertBefore("#addition_tab");
 			});
 
 			$(".tab").first().addClass("active");
@@ -124,7 +124,7 @@ function bindSocketListeners() {
 	});
 
 	socket.on('new_grid_space', function (msg) {
-		$("<li class=\"tab\"><button class=\"grid-name\" value=\"" + msg.id + "\">" + msg.name + "</button><button class=\"grid-space-delete\" value=\"" + msg.id + "\">&times</button></li>").insertBefore("#addition_tab");
+		$("<li class=\"tab\"><a class=\"grid-name\" id=\"" + msg.id + "\">" + msg.name + "</a><a class=\"grid-space-delete\" id=\"" + msg.id + "\">&times</a></li>").insertBefore("#addition_tab");
 	});
 
 	socket.on('reset_grid', function (msg) {
@@ -134,7 +134,7 @@ function bindSocketListeners() {
 	});
 
 	socket.on('delete_grid_space', function (msg) {
-		$("button[class=\"grid-space-delete\"][value=\"" + msg.grid_id + "\"]").parent().remove();
+		$("a[class=\"grid-space-delete\"][id=\"" + msg.grid_id + "\"]").parent().remove();
 		if (msg.grid_id == grid_id) {
 			alert("Well, someone decided that you don't need to be here anymore.");
 			ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
