@@ -326,6 +326,10 @@ function bindEventHandlers() {
 		$("#sidebar").toggleClass('active');
 	});
 
+	$("#overlapping_container_close").click(function () {
+		$("#sidebar").toggleClass('active');
+	});
+
 	$("#tqa_ping").click(function () {
 		pingPosition();
 	});
@@ -448,8 +452,6 @@ function selectedMenuOption(option) {
 			);
 			break;
 		case "close":
-			$("#overlapping_side_container").hide();
-			$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "200px" : "0px"));
 			break;
 		case "delete":
 			socket.emit('delete_element_on_server', {
