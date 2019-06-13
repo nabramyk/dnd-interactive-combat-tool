@@ -24,7 +24,7 @@ function bindSocketListeners() {
 			$("#grid_name").val(msg.spaces[0].name);
 
 			msg.spaces.forEach(function (el) {
-				$("<div class=\"tab\"><a class=\"grid-name\" id=\"" + el.id + "\">" + el.name + "</a><a class=\"grid-space-delete\" id=\"" + el.id + "\">&times</a></div>").insertBefore("#addition_tab");
+				generateGridTab(el.id, el.name);
 			});
 
 			$(".tab").first().addClass("active");
@@ -124,7 +124,7 @@ function bindSocketListeners() {
 	});
 
 	socket.on('new_grid_space', function (msg) {
-		$("<li class=\"tab\"><a class=\"grid-name\" id=\"" + msg.id + "\">" + msg.name + "</a><a class=\"grid-space-delete\" id=\"" + msg.id + "\">&times</a></li>").insertBefore("#addition_tab");
+		generateGridTab(msg.id, msg.name)
 	});
 
 	socket.on('reset_grid', function (msg) {

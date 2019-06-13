@@ -328,6 +328,11 @@ function bindEventHandlers() {
 
 	$("#overlapping_container_close").click(function () {
 		$("#sidebar").toggleClass('active');
+		$(".dropdown-toggle").attr('aria-expanded', function (i, attr) {
+			console.log("here");
+			return 'false';
+		});
+		$(".collapse").removeClass("show");
 	});
 
 	$("#tqa_ping").click(function () {
@@ -580,4 +585,10 @@ function rotateElement(angle) {
 		"id": selected_element.item.data.id,
 		"el": selected_element.item
 	});
+}
+
+function generateGridTab(id, name) {
+	$("<li class=\"tab\"><a class=\"grid-name\" id=\"" + id + "\">" 
+	+ name + "</a><a class=\"grid-space-delete\" id=\"" 
+	+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
 }
