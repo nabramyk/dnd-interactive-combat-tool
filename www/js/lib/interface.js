@@ -186,51 +186,6 @@ function bindEventHandlers() {
 		y_vertices.length = [];
 	});
 
-	$("#drawing_controls_button").click(function () {
-		$("#drawing_controls").toggle();
-		$("#movement_controls").hide();
-		$("#settings_controls").hide();
-		$("#editing_controls").hide();
-	});
-
-	$("#movement_controls_button").click(function () {
-		$("#movement_controls").toggle();
-		$("#drawing_controls").hide();
-		$("#settings_controls").hide();
-		$("#editing_controls").hide();
-	});
-
-	$("#settings_controls_button").click(function () {
-		$("#settings_controls").toggle();
-		$("#drawing_controls").hide();
-		$("#movement_controls").hide();
-		$("#editing_controls").hide();
-	});
-
-	$("#grid_down").click(function () {
-		$("#grid_space_dropdown").toggle();
-	});
-
-	$("#drawing_controls_btn").click(function () {
-		$("#drawing_controls").toggle();
-	});
-
-	$("#editing_controls_btn").click(function () {
-		$("#editing_controls").toggle();
-	});
-
-	$("#movement_controls_btn").click(function () {
-		$("#movement_controls").toggle();
-	});
-
-	$("#settings_controls_btn").click(function () {
-		$("#settings_controls").toggle();
-	});
-
-	$("#element_list_btn").click(function () {
-		$("#element_list_dropdown").toggle();
-	});
-
 	$("#randomize").click(function () {
 		// socket.emit('randomize', {
 		// 	"grid_id": grid_id
@@ -338,6 +293,28 @@ function bindEventHandlers() {
 	$("#tqa_ping").click(function () {
 		pingPosition();
 	});
+
+	$("#tqa_copy").click(function () {
+		copied_element = selected_element;
+	});
+
+	$("#tqa_delete").click(function () {
+		if($("#paste_delete").text == "Delete") {
+			add_element_to_server(copied_element.color,
+				pixel2GridPoint(selected_grid_x),
+				pixel2GridPoint(selected_grid_y),
+				copied_element.shape,
+				copied_element.name,
+				copied_element.size,
+				copied_element.category
+			);
+		} else {
+			socket.emit('delete_element_on_server', {
+				"grid_id": grid_id,
+				"element_id": selected_element.item.data.id
+			});
+		}
+	});
 }
 
 /**
@@ -378,17 +355,46 @@ function getContextMenu() {
 function updateSideMenuContent() {
 	$("#options_add_or_edit_button").show();
 	if (isUndefined(selected_element) || selected_element == null) {
-		$("#options_add_or_edit_button").text("Add");
-		$("#options_copy_button").hide();
+		if(copied_element != null) {
+			$("#paste_delete").text("Paste");
+			$("#paste_delete").show();
+		} else {
+			$("#paste_delete").hide();
+		}
+		$("#add_edit").text("Add");
+		$("#tqa_copy").hide();
 		$("#options_paste_button").hide();
-		$("#options_delete_button").hide();
 		$("#options_movement_button").hide();
+
+		//Erase the editable info
+		$("#selected_shape").val("rectangle");
+		$("#element_width").val(1);
+		$("#element_height").val(1);
+		$("#element_depth").show();
+
+		$("#element_color").val("000000");
+		$("#element_color_changer")[0].jscolor.fromString("#000000");
+		$("#element_category").val("environment");
+		$("#element_name").val("object");
+		$("#place_element_button").text("Add");
 	} else {
-		$("#options_add_or_edit_button").text("Edit");
+		$("#add_edit").text("Edit");
 		$("#options_copy_button").show();
 		$("#options_paste_button").show();
-		$("#options_delete_button").show();
+		if(copied_element != null) {
+			$("#paste_delete").text("Delete");
+			$("#paste_delete").show();
+		}
 		$("#options_movement_button").show();
+
+		//Populate the editable info
+		$("#rotate_controls_container").show();
+
+		$("#element_color").val(selected_element.color);
+		$("#element_color_changer")[0].jscolor.fromString("#" + selected_element.color);
+		$("#element_category").val(selected_element.item.data.category);
+		$("#element_name").val(selected_element.item.data.name);
+		$("#place_element_button").text("Submit");
 	}
 
 	if (copied_element === null) {
@@ -398,78 +404,6 @@ function updateSideMenuContent() {
 	}
 
 	$("#options_annotate_button").show();
-}
-
-function selectedMenuOption(option) {
-	switch (option) {
-		case "lists":
-			$("#overlapping_back_button").show();
-			$("#options_container").hide();
-			$("#overlapping_container").show();
-			break;
-		case "grid_space":
-			$("#overlapping_back_button").show();
-			$("#options_container").hide();
-			$("#grid_space_container").show();
-			break;
-		case "add_or_edit":
-			$("#overlapping_back_button").show();
-			$("#options_container").hide();
-			$("#add_container").show();
-
-			var isAdd = $("#options_add_or_edit_button").text() === "Add";
-			if (isAdd) {
-				$("#selected_shape").show();
-				$("#rotate_controls_container").hide();
-				$("#selected_shape").val("square");
-				$("#dimensions_container").show();
-				$("#element_width").val(1);
-				$("#element_height").val(1);
-				$("#element_depth").show();
-			} else {
-				$("#selected_shape").hide();
-				$("#rotate_controls_container").show();
-				$("#dimensions_container").hide();
-				$("#element_depth").hide();
-			}
-			$("#element_color").val(isAdd ? "000000" : selected_element.color);
-			$("#element_color_changer")[0].jscolor.fromString(isAdd ? "#000000" : "#" + selected_element.color);
-			$("#element_category").val(isAdd ? "environment" : selected_element.item.data.category);
-			$("#element_name").val(isAdd ? "object" : selected_element.item.data.name);
-			$("#place_element_button").text(isAdd ? "Add" : "Submit");
-			break;
-		case "movement":
-			$("#overlapping_back_button").show();
-			$("#options_container").hide();
-			$("#movement_container").show();
-			break;
-		case "copy":
-			console.log("TODO: Copy elements");
-			break;
-		case "paste":
-			add_element_to_server(copied_element.color,
-				pixel2GridPoint(selected_grid_x),
-				pixel2GridPoint(selected_grid_y),
-				copied_element.shape,
-				copied_element.name,
-				copied_element.size,
-				copied_element.category
-			);
-			break;
-		case "close":
-			break;
-		case "delete":
-			socket.emit('delete_element_on_server', {
-				"grid_id": grid_id,
-				"element_id": selected_element.item.data.id
-			});
-			break;
-		case "annotate":
-			$("#overlapping_back_button").show();
-			$("#options_container").hide();
-			$("#annotations_container").show();
-			break;
-	}
 }
 
 function showAnnotations() {

@@ -44,7 +44,7 @@
     </div>
     <ul class="list-unstyled components">
       <li id="tqa_list">
-        <a href="#list_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&forall; List</a>
+        <a href="#list_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">List</a>
         <ul id="list_container" class="collapse list-unstyled">
           <button id="list_header_elements" class="list_header">
             Elements
@@ -82,7 +82,7 @@
         </ul>
       </li>
       <li id="tqa_add">
-        <a href="#add_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&oplus; Add</a>
+        <a id="add_edit" href="#add_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Add</a>
         <ul id="add_container" class="collapse list-unstyled">
           <li>
             <select id="selected_shape" class="menu_item">
@@ -164,7 +164,7 @@
         </ul>
       </li>
       <li id="tqa_annotate">
-        <a href="#annotations_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&#182; Annotate</a>
+        <a href="#annotations_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Annotate</a>
         <ul id="annotations_container" class="collapse list-unstyled">
           <label for="annotation_title">Title</label><br>
           <textarea id="annotation_title"></textarea><br>
@@ -175,7 +175,7 @@
         </ul>
       </li>
       <li id="tqa_move">
-        <a href="#movement_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">&#9816; Move</a>
+        <a href="#movement_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Move</a>
         <ul id="movement_container" class="collapse list-unstyled">
           <div>
             <label for="move_to_x">X</label>
@@ -241,9 +241,9 @@
           </li>
         </ul>
       </li>
-      <li id="tqa_delete"><a href="javascript:;">&otimes; Delete</a></li>
-      <li id="tqa_copy"><a href="javascript:;">&#10064; Copy</a></li>
-      <li id="tqa_ping"><a href="javascript:;">&#10061; Ping</a></li>
+      <li id="tqa_delete"><a id="paste_delete" href="javascript:;">Delete</a></li>
+      <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
+      <li id="tqa_ping"><a href="javascript:;">Ping</a></li>
       <li id="overlapping_container_close"><a href="javascript:;">&laquo; Close</a></li>
     </ul>
   </nav>
