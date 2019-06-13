@@ -225,9 +225,9 @@ function bindEventHandlers() {
 	});
 
 	$(document)
-		.on('click', '#tab_row .grid-name', function () {
+		.on('click', '#tab_row .tab', function () {
 			$(".tab").removeClass("active");
-			$(this).parent().addClass("active");
+			$(this).addClass("active");
 			grid_id = Number($(this).attr('id'));
 			socket.emit('request_grid_space', {
 				"id": grid_id
@@ -522,7 +522,7 @@ function rotateElement(angle) {
 }
 
 function generateGridTab(id, name) {
-	$("<li class=\"tab\"><a class=\"grid-name\" id=\"" + id + "\">" 
+	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">" 
 	+ name + "</a><a class=\"grid-space-delete\" id=\"" 
 	+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
 }
