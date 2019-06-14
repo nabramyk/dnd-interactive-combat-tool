@@ -143,7 +143,7 @@ function bindSocketListeners() {
 	});
 
 	socket.on('renaming_grid', function (msg) {
-		$("button[class=\"grid-name\"][value=\"" + msg.grid_id + "\"]").text(msg.grid_name);
+		$("li[class~=\"tab\"][id=\"" + msg.grid_id + "\"] > a[class=\"grid-name\"]").text(msg.grid_name);
 	});
 
 	socket.on('added_annotation', function (msg) {

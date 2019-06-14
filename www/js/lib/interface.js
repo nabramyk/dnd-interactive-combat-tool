@@ -284,7 +284,6 @@ function bindEventHandlers() {
 	$("#overlapping_container_close").click(function () {
 		$("#sidebar").toggleClass('active');
 		$(".dropdown-toggle").attr('aria-expanded', function (i, attr) {
-			console.log("here");
 			return 'false';
 		});
 		$(".collapse").removeClass("show");
