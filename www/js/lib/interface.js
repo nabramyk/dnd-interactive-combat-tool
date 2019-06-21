@@ -294,19 +294,42 @@ function bindEventHandlers() {
 	});
 
 	$("#tqa_copy").click(function () {
-		copied_element = selected_element;
+		copied_element = selected_element.item;
 	});
 
-	$("#tqa_delete").click(function () {
-		if($("#paste_delete").text == "Delete") {
-			add_element_to_server(copied_element.color,
-				pixel2GridPoint(selected_grid_x),
-				pixel2GridPoint(selected_grid_y),
-				copied_element.shape,
-				copied_element.name,
-				copied_element.size,
-				copied_element.category
-			);
+	$("#tqa_paste_delete").click(function () {
+		if($("#paste_delete").text() == "Paste") {
+			var newEl = copied_element.clone();
+			newEl.position = new paper.Point(pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y));
+
+			newEl.onMouseEnter = function () {
+				if(isDragging) return;
+				t = new paper.PointText(this.position.x, this.bounds.top - 10);
+				t.content = this.data.name;
+				t.pivot = paper.Shape.Rectangle.topLeft;
+				b = paper.Shape.Rectangle(t.bounds);
+				b.size.width += 10;
+				b.size.height += 10;
+				b.fillColor = 'white';
+				b.strokeColor = "black";
+				group_overlay.addChildren([b, t]);
+				paper.view.update();
+			}
+		
+			newEl.onMouseLeave = function () {
+				t.remove();
+				b.remove();
+				paper.view.update();
+			}
+
+			paper.view.update();
+
+			socket.emit('add_element_to_server', {
+				"grid_id": grid_id,
+				"element": newEl
+			}, function(msg) {
+				newEl.data.id = msg.id;
+			});
 		} else {
 			socket.emit('delete_element_on_server', {
 				"grid_id": grid_id,
@@ -378,19 +401,19 @@ function updateSideMenuContent() {
 		$("#place_element_button").text("Add");
 	} else {
 		$("#add_edit").text("Edit");
-		$("#options_copy_button").show();
+		$("#tqa_copy").show();
 		$("#options_paste_button").show();
-		if(copied_element != null) {
-			$("#paste_delete").text("Delete");
-			$("#paste_delete").show();
-		}
+		
+		$("#paste_delete").text("Delete");
+		$("#paste_delete").show();
+
 		$("#options_movement_button").show();
 
 		//Populate the editable info
 		$("#rotate_controls_container").show();
 
-		$("#element_color").val(selected_element.color);
-		$("#element_color_changer")[0].jscolor.fromString("#" + selected_element.color);
+		$("#element_color").val(selected_element.item.fillColor.toCSS(true));
+		$("#element_color_changer")[0].jscolor.fromString(selected_element.item.fillColor.toCSS(true));
 		$("#element_category").val(selected_element.item.data.category);
 		$("#element_name").val(selected_element.item.data.name);
 		$("#place_element_button").text("Submit");
