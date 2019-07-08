@@ -55,10 +55,10 @@ i {
 canvas {
   width: 100%;
   height: 100%;
-  margin-bottom: -6px;
-  margin-top: -6px;
-  display: inline-block;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  position: fixed;
+  z-index: 1;
   -webkit-user-select: none;
 }
 
@@ -113,6 +113,7 @@ canvas[resize] {
   z-index: 2;
   width: 100%;
   display: inline-block;
+  position: fixed;
 }
 
 #grid_size_vertical,
@@ -243,6 +244,7 @@ canvas[resize] {
   width: 30px;
   right: 0;
   top: 0;
+  z-index: 4;
   background: #345eb2;
 }
 
@@ -311,13 +313,12 @@ p {
 }
 
 #sidebar {
-  display: inline-block;
   position: fixed;
   right: -200px;
   top: 0;
   min-height: 100vh;
   max-height: 100vh;
-  z-index: 3;
+  z-index: 4;
   min-width: 200px;
   max-width: 200px;
   transition: all 0.3s;
