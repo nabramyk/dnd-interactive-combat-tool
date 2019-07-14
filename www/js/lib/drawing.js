@@ -47,8 +47,8 @@ function drawSelectedPositionTopRuler(pos) {
 	group_top_cursor.addChild(top_ruler_cursor);
 	group_bottom_cursor.addChild(bottom_ruler_cursor);
 
-	group_top_cursor.bounds.topLeft = new paper.Point((selected_element == null) ? selected_grid_x - (grid_size / 2) : selected_element.item.bounds.left,
-												(screen.y > -60 ? screen.y + 50 : -10) - (grid_size / 2) + grid_line_width);
+	group_top_cursor.position = new paper.Point((selected_element == null) ? selected_grid_x : selected_element.item.position.x,
+												toprulerraster.position.y);
 
 	group_bottom_cursor.position.y = bottomrulerraster.position.y;
 
@@ -58,13 +58,12 @@ function drawSelectedPositionTopRuler(pos) {
 			top_ruler_number.fillColor = 'white';
 			top_ruler_number.justification = 'center';
 
-			var bottom_ruler_number = top_ruler_number.clone();
-
 			top_ruler_number.content = ((selected_element.item.bounds.left - 0.5) / grid_size) + i + 1;
-			top_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (screen.y > -60 ? screen.y + 50 : -10));
+			top_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), toprulerraster.position.y);
 
+			var bottom_ruler_number = top_ruler_number.clone();
 			bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
-			bottom_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), (paper.view.center._owner.bottomRight.y < paper.view.size.height + 10 ? paper.view.center._owner.bottomRight.y - 30 : grid_count_height * grid_size + (grid_size / 2)));
+			bottom_ruler_number.position.y = bottomrulerraster.position.y;
 
 			group_top_cursor.addChild(top_ruler_number);
 			group_bottom_cursor.addChild(bottom_ruler_number);
@@ -140,7 +139,7 @@ function drawSelectedPositionLeftRuler(pos) {
 	group_right_cursor.addChild(right_ruler_cursor);
 
 	group_left_cursor.position = new paper.Point(leftrulerraster.position.x,
-		((selected_element == null) ? selected_grid_y - (grid_size / 2) : selected_element.item.bounds.top) + 10 );
+		((selected_element == null) ? selected_grid_y : selected_element.item.position.y));
 
 	group_right_cursor.position.x = rightrulerraster.position.x;
 
@@ -150,13 +149,12 @@ function drawSelectedPositionLeftRuler(pos) {
 			left_ruler_number.fillColor = 'white';
 			left_ruler_number.justification = 'center';
 
-			var right_ruler_number = left_ruler_number.clone();
-
 			left_ruler_number.content = ((selected_element.item.bounds.top - 0.5) / grid_size) + i + 1;
-			left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
+			left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.item.position.y + (i * grid_size));
 
+			var right_ruler_number = left_ruler_number.clone();
 			right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
-			right_ruler_number.position = new paper.Point((grid_count_width * grid_size) + grid_size / 2, selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
+			right_ruler_number.position.x = rightrulerraster.position.x;
 
 			group_left_cursor.addChild(left_ruler_number);
 			group_right_cursor.addChild(right_ruler_number);

@@ -51,10 +51,10 @@ function bindSocketListeners() {
 
 	});
 
-	socket.on('disconnect', function () {
-		$("#lost_connection_div").show();
-		$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
-	});
+	// socket.on('disconnect', function () {
+	// 	$("#lost_connection_div").show();
+	// 	$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
+	// });
 
 	socket.on('resize', function (msg) {
 		if (grid_id != msg.grid_id) return;
