@@ -246,18 +246,18 @@ function draw_local_item(element) {
 	switch (element.shape) {
 		case "rectangle":
 			ele = paper.Shape.Rectangle(element.x - (grid_size / 2), element.y - (grid_size / 2), JSON.parse(element.size.width) * grid_size, JSON.parse(element.size.height) * grid_size);
-			ele.fillColor = "#" + element.color;
+			ele.fillColor = element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "circle":
 			ele = paper.Shape.Circle(element.x + cursor_line_width / 2, element.y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
 			ele.bounds.topLeft = new paper.Point(element.x - (grid_size / 2), element.y - (grid_size / 2));
-			ele.fillColor = "#" + element.color;
+			ele.fillColor = element.color;
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "line":
 			ele = new paper.Path(element.x.map(function (v, i) { return new paper.Point(v, element.y[i]) }));
-			ele.strokeColor = "#" + element.color;
+			ele.strokeColor = element.color;
 			break;
 	}
 	ele.data.name = element.name;

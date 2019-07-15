@@ -8,6 +8,8 @@ function bindEventHandlers() {
 		theme: "minimal"
 	});
 
+	$("#element_color").spectrum();
+
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
@@ -40,7 +42,7 @@ function bindEventHandlers() {
 				case "circle":
 				case "rectangle":
 					add_element_to_server(
-						$("#element_color").val(),
+						$("#element_color").spectrum("get").toHexString(),
 						pixel2GridPoint(selected_grid_x),
 						pixel2GridPoint(selected_grid_y),
 						$("#selected_shape").val(),
@@ -67,7 +69,7 @@ function bindEventHandlers() {
 
 			selected_element.item.data.name = $("#element_name").val();
 			selected_element.item.data.category = $("#element_category").val();
-			selected_element.item.fillColor = "#" + $("#element_color").val();
+			selected_element.item.fillColor = $("#element_color").spectrum("get").toHexString();
 
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
@@ -97,7 +99,7 @@ function bindEventHandlers() {
 			y_vertices.push(cursor.position.y);
 		}
 
-		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").val(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
+		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").spectrum("get").toHexString(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
 
 		x_vertices = [];
 		y_vertices = [];
@@ -394,8 +396,7 @@ function updateSideMenuContent() {
 		$("#element_height").val(1);
 		$("#element_depth").show();
 
-		$("#element_color").val("000000");
-		$("#element_color_changer")[0].jscolor.fromString("#000000");
+		$("#element_color").spectrum("set", "#000000");
 		$("#element_category").val("environment");
 		$("#element_name").val("object");
 		$("#place_element_button").text("Add");
@@ -412,8 +413,7 @@ function updateSideMenuContent() {
 		//Populate the editable info
 		$("#rotate_controls_container").show();
 
-		$("#element_color").val(selected_element.item.fillColor.toCSS(true));
-		$("#element_color_changer")[0].jscolor.fromString(selected_element.item.fillColor.toCSS(true));
+		$("#element_color").spectrum("set", selected_element.item.fillColor.toCSS(true));
 		$("#element_category").val(selected_element.item.data.category);
 		$("#element_name").val(selected_element.item.data.name);
 		$("#place_element_button").text("Submit");
@@ -455,8 +455,7 @@ function editElementRow(id) {
 	$("#add_container").show();
 
 	$("#selected_shape").val(selected_element.shape);
-	$("#element_color").val(selected_element.color);
-	$("#element_color_changer")[0].jscolor.fromString(selected_element.color);
+	$("#element_color").spectrum("set", selected_element.color);
 	$("#element_width").val(selected_element.size.width);
 	$("#element_height").val(selected_element.size.height);
 	$("#element_category").val(selected_element.category);
