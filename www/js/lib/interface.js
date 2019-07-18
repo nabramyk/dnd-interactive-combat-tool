@@ -65,13 +65,15 @@ function bindEventHandlers() {
 			}
 		} else {
 			//TODO: change of shape?
-			console.log(selected_element.item);
+
+			var bounds = selected_element.item.bounds;
 
 			selected_element.item.data.name = $("#element_name").val();
 			selected_element.item.data.category = $("#element_category").val();
 			selected_element.item.fillColor = $("#element_color").spectrum("get").toHexString();
 			selected_element.item.size.width = $("#element_width").val() * grid_size;
 			selected_element.item.size.height = $("#element_height").val() * grid_size;
+			selected_element.item.bounds.topLeft = bounds.topLeft;
 
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
@@ -350,15 +352,15 @@ function bindEventHandlers() {
  * @return {string} An html element to display
  */
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.element.data.id + ")\" id=" + el.element.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.data.name + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.element.data.name + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.data.category + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.element.data.category + "<\p>" +
 		"</div>" +
-		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.data.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.data.id + ")\">&times</button>" +
+		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.element.data.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.element.data.id + ")\">&times</button>" +
 		"</div>";
 }
 

@@ -66,7 +66,6 @@ function bindSocketListeners() {
 	});
 
 	socket.on('added_element', function (msg) {
-		console.log(msg);
 		if (msg.grid_id != grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.element.el);
@@ -114,10 +113,14 @@ function bindSocketListeners() {
 	socket.on('edited_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
 
-		var element = group_elements.children.find(function (el) { return msg.element.data.id == el.data.id; });
+		var element = group_elements.getItem({ data: { id: msg.element.data.id } });
+		var bounds = element.bounds;
+
 		element.fillColor = msg.element.fillColor;
 		element.matrix = msg.element.matrix;
 		element.data = msg.element.data;
+		element.size = msg.element.size;
+		element.bounds.topLeft = bounds.topLeft;
 
 		paper.view.update();
 		$("#element_list>#" + element.data.id).replaceWith(composeElementListRowElement(element));

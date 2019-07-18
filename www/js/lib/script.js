@@ -100,7 +100,6 @@ function interfaceInitialization() {
 						cursor = paper.Shape.Rectangle(selected_element.item.bounds);
 						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 						cursor.strokeColor = grid_highlight;
-						console.log(selected_element);
 					}
 				} else {
 					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
