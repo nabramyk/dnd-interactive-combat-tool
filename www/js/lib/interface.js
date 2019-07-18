@@ -70,6 +70,8 @@ function bindEventHandlers() {
 			selected_element.item.data.name = $("#element_name").val();
 			selected_element.item.data.category = $("#element_category").val();
 			selected_element.item.fillColor = $("#element_color").spectrum("get").toHexString();
+			selected_element.item.size.width = $("#element_width").val() * grid_size;
+			selected_element.item.size.height = $("#element_height").val() * grid_size;
 
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
@@ -416,6 +418,8 @@ function updateSideMenuContent() {
 		$("#element_color").spectrum("set", selected_element.item.fillColor.toCSS(true));
 		$("#element_category").val(selected_element.item.data.category);
 		$("#element_name").val(selected_element.item.data.name);
+		$("#element_width").val(selected_element.item.size.width / grid_size);
+		$("#element_height").val(selected_element.item.size.height / grid_size);
 		$("#place_element_button").text("Submit");
 	}
 

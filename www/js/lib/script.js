@@ -100,6 +100,7 @@ function interfaceInitialization() {
 						cursor = paper.Shape.Rectangle(selected_element.item.bounds);
 						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
 						cursor.strokeColor = grid_highlight;
+						console.log(selected_element);
 					}
 				} else {
 					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
@@ -147,7 +148,7 @@ function interfaceInitialization() {
 			? paper.view.center._owner.right - (grid_size / 2) - 30
 			: grid_count_width * grid_size + (grid_size / 2));
 		
-		group_right_cursor.position.x = rightrulerraster.position.x; //TODO this line is causing problems
+		group_right_cursor.position.x = rightrulerraster.position.x;
 
 		paper.view.update();
 	}

@@ -51,6 +51,7 @@ function drawSelectedPositionTopRuler(pos) {
 												toprulerraster.position.y);
 
 	group_bottom_cursor.position.y = bottomrulerraster.position.y;
+	group_bottom_cursor.position.x = group_top_cursor.position.x;
 
 	if (selected_element != null) {
 		for (var i = 0; i < selected_element.item.size.width / grid_size; i++) {
@@ -128,7 +129,7 @@ function drawSelectedPositionLeftRuler(pos) {
 	group_left_cursor.removeChildren();
 	group_right_cursor.removeChildren();
 
-	var left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, selected_grid_y, 0, 0);
+	var left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, 0, 0);
 	left_ruler_cursor.fillColor = grid_highlight;
 	left_ruler_cursor.size.height = (selected_element == null) ? grid_size : selected_element.item.size.height;
 	left_ruler_cursor.size.width = grid_size;
@@ -142,15 +143,16 @@ function drawSelectedPositionLeftRuler(pos) {
 		((selected_element == null) ? selected_grid_y : selected_element.item.position.y));
 
 	group_right_cursor.position.x = rightrulerraster.position.x;
+	group_right_cursor.position.y = group_left_cursor.position.y;
 
 	if (selected_element != null) {
 		for (var i = 0; i < selected_element.item.size.height / grid_size; i++) {
-			var left_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
+			var left_ruler_number = new paper.PointText(new paper.Point(grid_size, group_left_cursor.position + (i * grid_size)));
 			left_ruler_number.fillColor = 'white';
 			left_ruler_number.justification = 'center';
 
 			left_ruler_number.content = ((selected_element.item.bounds.top - 0.5) / grid_size) + i + 1;
-			left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.item.position.y + (i * grid_size));
+			left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
 
 			var right_ruler_number = left_ruler_number.clone();
 			right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
