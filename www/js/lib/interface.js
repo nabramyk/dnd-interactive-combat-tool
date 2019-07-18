@@ -352,15 +352,16 @@ function bindEventHandlers() {
  * @return {string} An html element to display
  */
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.element.data.id + ")\" id=" + el.element.data.id + ">" +
+	console.log(el.el);
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.el.data.id + ")\" id=" + el.el.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.element.data.name + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.el.data.name + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.element.data.category + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.el.data.category + "<\p>" +
 		"</div>" +
-		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.element.data.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.element.data.id + ")\">&times</button>" +
+		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.el.data.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.el.data.id + ")\">&times</button>" +
 		"</div>";
 }
 
