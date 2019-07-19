@@ -102,7 +102,7 @@ function bindSocketListeners() {
 		if (msg.grid_id != grid_id) return;
 		var element = group_elements.children.find(function(el) { return el.data.id == msg.element.el.data.id; });
 		element.matrix = msg.element.el.matrix;
-		if (selected_element != null && element === selected_element.item) {
+		if (selected_element != null && element === selected_element) {
 			selected_element = null;
 			eraseCursor();
 		}
@@ -235,11 +235,12 @@ function collide(e1, e2) {
  */
 function incremental_move_element(direction) {
 	stored_edited_element_bounds = null;
-	var temp = determinePoint(direction, selected_element.item);
 	if (selected_element != undefined) {
+		var temp = determinePoint(direction, selected_element);
+
 		socket.emit('move_element', {
 			"grid_id": grid_id,
-			"id": selected_element.item.data.id,
+			"id": selected_element.data.id,
 			"direction": direction,
 			"size": cursor_size
 		}, function (msg) {
@@ -250,14 +251,17 @@ function incremental_move_element(direction) {
 		selected_grid_y = temp.y - (grid_size / 2);
 
 		var loc = new paper.Point(selected_grid_x, selected_grid_y);
-		selected_element.item.bounds.topLeft = loc;
+		selected_element.bounds.topLeft = loc;
 		cursor.bounds.topLeft = loc;
 
-		drawSelectedPositionTopRuler(Number(selected_grid_x + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.width));
-		drawSelectedPositionLeftRuler(Number(selected_grid_y + (grid_size / 2)), pixel2GridPoint(selected_element.item.size.height));
+		drawSelectedPositionTopRuler(Number(selected_grid_x + (grid_size / 2)), pixel2GridPoint(selected_element.size.width));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y + (grid_size / 2)), pixel2GridPoint(selected_element.size.height));
 
-		t.remove();
-		b.remove();
+		try {
+			t.remove();
+			b.remove();
+		} catch (e) { }
+
 
 		group_overlay.addChild(cursor);
 		paper.view.update();

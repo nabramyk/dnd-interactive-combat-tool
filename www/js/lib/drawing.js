@@ -37,30 +37,30 @@ function drawSelectedPositionTopRuler(pos) {
 	group_top_cursor.removeChildren();
 	group_bottom_cursor.removeChildren();
 
-	top_ruler_cursor = paper.Shape.Rectangle(selected_grid_x, grid_line_width, 0, 0);
+	var top_ruler_cursor = paper.Shape.Rectangle(selected_grid_x, grid_line_width, 0, 0);
 	top_ruler_cursor.fillColor = grid_highlight;
 	top_ruler_cursor.size.height = grid_size;
-	top_ruler_cursor.size.width = (selected_element == null) ? grid_size : selected_element.item.size.width;
+	top_ruler_cursor.size.width = (selected_element == null) ? grid_size : selected_element.size.width;
 
-	bottom_ruler_cursor = top_ruler_cursor.clone();
+	var bottom_ruler_cursor = top_ruler_cursor.clone();
 
 	group_top_cursor.addChild(top_ruler_cursor);
 	group_bottom_cursor.addChild(bottom_ruler_cursor);
 
-	group_top_cursor.position = new paper.Point((selected_element == null) ? selected_grid_x : selected_element.item.position.x,
+	group_top_cursor.position = new paper.Point((selected_element == null) ? selected_grid_x : selected_element.position.x,
 												toprulerraster.position.y);
 
 	group_bottom_cursor.position.y = bottomrulerraster.position.y;
 	group_bottom_cursor.position.x = group_top_cursor.position.x;
 
 	if (selected_element != null) {
-		for (var i = 0; i < selected_element.item.size.width / grid_size; i++) {
+		for (var i = 0; i < selected_element.size.width / grid_size; i++) {
 			var top_ruler_number = new paper.PointText(new paper.Point(grid_size, pos + (i * grid_size)));
 			top_ruler_number.fillColor = 'white';
 			top_ruler_number.justification = 'center';
 
-			top_ruler_number.content = ((selected_element.item.bounds.left - 0.5) / grid_size) + i + 1;
-			top_ruler_number.position = new paper.Point(selected_element.item.bounds.left + (i * grid_size) + (grid_size / 2), toprulerraster.position.y);
+			top_ruler_number.content = ((selected_element.bounds.left - 0.5) / grid_size) + i + 1;
+			top_ruler_number.position = new paper.Point(selected_element.bounds.left + (i * grid_size) + (grid_size / 2), toprulerraster.position.y);
 
 			var bottom_ruler_number = top_ruler_number.clone();
 			bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
@@ -131,7 +131,7 @@ function drawSelectedPositionLeftRuler(pos) {
 
 	var left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, 0, 0);
 	left_ruler_cursor.fillColor = grid_highlight;
-	left_ruler_cursor.size.height = (selected_element == null) ? grid_size : selected_element.item.size.height;
+	left_ruler_cursor.size.height = (selected_element == null) ? grid_size : selected_element.size.height;
 	left_ruler_cursor.size.width = grid_size;
 
 	var right_ruler_cursor = left_ruler_cursor.clone();
@@ -140,19 +140,19 @@ function drawSelectedPositionLeftRuler(pos) {
 	group_right_cursor.addChild(right_ruler_cursor);
 
 	group_left_cursor.position = new paper.Point(leftrulerraster.position.x,
-		((selected_element == null) ? selected_grid_y : selected_element.item.position.y));
+		((selected_element == null) ? selected_grid_y : selected_element.position.y));
 
 	group_right_cursor.position.x = rightrulerraster.position.x;
 	group_right_cursor.position.y = group_left_cursor.position.y;
 
 	if (selected_element != null) {
-		for (var i = 0; i < selected_element.item.size.height / grid_size; i++) {
+		for (var i = 0; i < selected_element.size.height / grid_size; i++) {
 			var left_ruler_number = new paper.PointText(new paper.Point(grid_size, group_left_cursor.position + (i * grid_size)));
 			left_ruler_number.fillColor = 'white';
 			left_ruler_number.justification = 'center';
 
-			left_ruler_number.content = ((selected_element.item.bounds.top - 0.5) / grid_size) + i + 1;
-			left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.item.bounds.top + (i * grid_size) + (grid_size / 2));
+			left_ruler_number.content = ((selected_element.bounds.top - 0.5) / grid_size) + i + 1;
+			left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.bounds.top + (i * grid_size) + (grid_size / 2));
 
 			var right_ruler_number = left_ruler_number.clone();
 			right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
@@ -287,7 +287,9 @@ function draw_local_item(element) {
 
 	group_elements.addChild(ele);
 	selected_element = ele;
+	console.log(selected_element);
 
+	draw_cursor();
 	drawSelectedPositionTopRuler(Number(selected_grid_x));
 	drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
@@ -316,8 +318,8 @@ function draw_cursor() {
 				if (selected_element.type == "stroke") {
 					console.log("TODO: Handle selecting lines.");
 				} else {
-					cursor = paper.Shape.Rectangle(selected_element.item.bounds);
-					cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
+					cursor = paper.Shape.Rectangle(selected_element.bounds);
+					cursor.position = new paper.Point(selected_element.position.x, selected_element.position.y);
 					cursor.strokeColor = grid_highlight;
 				}
 			} else {
@@ -413,16 +415,12 @@ function drawPing(ping) {
 function eraseCursor() {
 	try {
 		cursor.remove();
-		top_ruler_cursor.remove();
-		top_ruler_cursor = undefined;
-		left_ruler_cursor.remove();
-		left_ruler_cursor = undefined;
-		//bottom_ruler_cursor.remove();
-		right_ruler_cursor.remove();
-		right_ruler_cursor = undefined;
-		top_ruler_number.remove();
-		left_ruler_number.remove();
-		//bottom_ruler_number.remove();
-		right_ruler_number.remove();
-	} catch (e) { }
+
+		group_top_cursor.removeChildren();
+		group_left_cursor.removeChildren();		
+		group_bottom_cursor.removeChildren();
+		group_right_cursor.removeChildren();		
+	} catch (e) {
+		console.log(e);
+	}
 }

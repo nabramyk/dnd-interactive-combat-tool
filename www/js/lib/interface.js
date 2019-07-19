@@ -66,14 +66,14 @@ function bindEventHandlers() {
 		} else {
 			//TODO: change of shape?
 
-			var bounds = selected_element.item.bounds;
+			var bounds = selected_element.bounds;
 
-			selected_element.item.data.name = $("#element_name").val();
-			selected_element.item.data.category = $("#element_category").val();
-			selected_element.item.fillColor = $("#element_color").spectrum("get").toHexString();
-			selected_element.item.size.width = $("#element_width").val() * grid_size;
-			selected_element.item.size.height = $("#element_height").val() * grid_size;
-			selected_element.item.bounds.topLeft = bounds.topLeft;
+			selected_element.data.name = $("#element_name").val();
+			selected_element.data.category = $("#element_category").val();
+			selected_element.fillColor = $("#element_color").spectrum("get").toHexString();
+			selected_element.size.width = $("#element_width").val() * grid_size;
+			selected_element.size.height = $("#element_height").val() * grid_size;
+			selected_element.bounds.topLeft = bounds.topLeft;
 
 			draw_cursor();
 			drawSelectedPositionTopRuler(Number(selected_grid_x));
@@ -81,8 +81,8 @@ function bindEventHandlers() {
 
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
-				"id": selected_element.item.data.id,
-				"el": selected_element.item
+				"id": selected_element.data.id,
+				"el": selected_element
 			});
 			paper.view.update();
 		}
@@ -164,11 +164,7 @@ function bindEventHandlers() {
 	});
 
 	$("#selected_shape").change(function (el) {
-		cursor.remove();
-		top_ruler_cursor.remove();
-		top_ruler_number.remove();
-		left_ruler_number.remove();
-		left_ruler_cursor.remove();
+		eraseCursor();
 		selected_element = null;
 		selected_grid_x = null;
 		selected_grid_y = null;
@@ -304,7 +300,7 @@ function bindEventHandlers() {
 	});
 
 	$("#tqa_copy").click(function () {
-		copied_element = selected_element.item;
+		copied_element = selected_element;
 	});
 
 	$("#tqa_paste_delete").click(function () {
@@ -343,8 +339,10 @@ function bindEventHandlers() {
 		} else {
 			socket.emit('delete_element_on_server', {
 				"grid_id": grid_id,
-				"element_id": selected_element.item.data.id
+				"element_id": selected_element.data.id
 			});
+			eraseCursor();
+			selected_element = null;
 		}
 	});
 }
@@ -422,11 +420,11 @@ function updateSideMenuContent() {
 		//Populate the editable info
 		$("#rotate_controls_container").show();
 
-		$("#element_color").spectrum("set", selected_element.item.fillColor.toCSS(true));
-		$("#element_category").val(selected_element.item.data.category);
-		$("#element_name").val(selected_element.item.data.name);
-		$("#element_width").val(selected_element.item.size.width / grid_size);
-		$("#element_height").val(selected_element.item.size.height / grid_size);
+		$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
+		$("#element_category").val(selected_element.data.category);
+		$("#element_name").val(selected_element.data.name);
+		$("#element_width").val(selected_element.size.width / grid_size);
+		$("#element_height").val(selected_element.size.height / grid_size);
 		$("#place_element_button").text("Submit");
 	}
 
@@ -539,17 +537,17 @@ function resizeGridHeight(height) {
 }
 
 function rotateElement(angle) {
-	if (selected_element.item.size.width == selected_element.item.size.height) return;
-	if (stored_edited_element_bounds == null) stored_edited_element_bounds = selected_element.item.bounds;
+	if (selected_element.size.width == selected_element.size.height) return;
+	if (stored_edited_element_bounds == null) stored_edited_element_bounds = selected_element.bounds;
 
-	selected_element.item.rotate(angle, stored_edited_element_bounds.topLeft);
+	selected_element.rotate(angle, stored_edited_element_bounds.topLeft);
 	cursor.rotate(angle, stored_edited_element_bounds.topLeft);
 	paper.view.update();
 
 	socket.emit('edit_element_on_server', {
 		"grid_id": grid_id,
-		"id": selected_element.item.data.id,
-		"el": selected_element.item
+		"id": selected_element.data.id,
+		"el": selected_element
 	});
 }
 

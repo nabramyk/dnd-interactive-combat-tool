@@ -74,7 +74,12 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
-		selected_element = group_elements.hitTest(event.point);
+		try { 
+			selected_element = group_elements.hitTest(event.point).item; 
+		} catch (e) {
+			selected_element = null;
+		}
+
 		stored_edited_element_bounds = null;
 
 		draw_cursor();
