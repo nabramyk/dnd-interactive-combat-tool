@@ -75,6 +75,10 @@ function bindEventHandlers() {
 			selected_element.item.size.height = $("#element_height").val() * grid_size;
 			selected_element.item.bounds.topLeft = bounds.topLeft;
 
+			draw_cursor();
+			drawSelectedPositionTopRuler(Number(selected_grid_x));
+			drawSelectedPositionLeftRuler(Number(selected_grid_y));
+
 			socket.emit('edit_element_on_server', {
 				"grid_id": grid_id,
 				"id": selected_element.item.data.id,

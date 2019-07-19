@@ -77,37 +77,7 @@ function interfaceInitialization() {
 		selected_element = group_elements.hitTest(event.point);
 		stored_edited_element_bounds = null;
 
-		switch ($('#selected_shape').val()) {
-			case "line":
-				cursor.remove();
-				cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2)), 5);
-				cursor.fillColor = grid_highlight;
-				group_overlay.addChild(cursor);
-				if (line_path.segments.length > 0) {
-					try { temp_line.remove(); } catch (e) { console.log(e) };
-					temp_line = new paper.Path(line_path.segments);
-					temp_line.add(cursor.position);
-					temp_line.strokeColor = "#ff0000";
-					group_overlay.addChild(temp_line);
-				}
-				break;
-			default:
-				cursor.remove();
-				if (!isUndefined(selected_element) && selected_element != null) {
-					if (selected_element.type == "stroke") {
-						console.log("TODO: Handle selecting lines.");
-					} else {
-						cursor = paper.Shape.Rectangle(selected_element.item.bounds);
-						cursor.position = new paper.Point(selected_element.item.position.x, selected_element.item.position.y);
-						cursor.strokeColor = grid_highlight;
-					}
-				} else {
-					cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
-					cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
-					cursor.strokeColor = grid_highlight;
-				}
-				group_overlay.addChild(cursor);
-		}
+		draw_cursor();
 
 		$("#move_to_x").val(pixel2GridPoint(selected_grid_x) - 1);
 		$("#move_to_y").val(pixel2GridPoint(selected_grid_y) - 1);
