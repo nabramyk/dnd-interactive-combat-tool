@@ -143,22 +143,23 @@ function bindEventHandlers() {
 
 	$("#grid_canvas").focus();
 	$(document).keydown(function (e) {
-		switch (e.which) {
-			case 37:
-				e.preventDefault();
-				$("#move_inc_left").mousedown().mouseup();
+		e.preventDefault();
+		console.log("key: " + e.key + ", which: " + e.which);
+		switch (e.key) {
+			case "ArrowLeft":
+				$("#move_inc_left").click();
 				break;
-			case 38:
-				e.preventDefault();
-				$("#move_inc_up").mousedown().mouseup();
+			case "ArrowUp":
+				$("#move_inc_up").click();
 				break;
-			case 39:
-				e.preventDefault();
-				$("#move_inc_right").mousedown().mouseup();
+			case "ArrowRight":
+				$("#move_inc_right").click();
 				break;
-			case 40:
-				e.preventDefault();
-				$("#move_inc_down").mousedown().mouseup();
+			case "ArrowDown":
+				$("#move_inc_down").click();
+				break;
+			case "p" || "P":
+				$("#tqa_ping").click();
 				break;
 		}
 	});
@@ -354,7 +355,6 @@ function bindEventHandlers() {
  * @return {string} An html element to display
  */
 function composeElementListRowElement(el) {
-	console.log(el.el);
 	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.el.data.id + ")\" id=" + el.el.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
 		"<p style=\"font-size: smaller;\">" + el.el.data.name + "<\p>" +
@@ -385,7 +385,7 @@ function getContextMenu() {
 
 function updateSideMenuContent() {
 	$("#options_add_or_edit_button").show();
-	if (isUndefined(selected_element) || selected_element == null) {
+	if ((isUndefined(selected_element) || selected_element == null) && line_path.segments.length == 0 && $('#selected_shape').val() != "line") {
 		if(copied_element != null) {
 			$("#paste_delete").text("Paste");
 			$("#paste_delete").show();
@@ -407,6 +407,8 @@ function updateSideMenuContent() {
 		$("#element_category").val("environment");
 		$("#element_name").val("object");
 		$("#place_element_button").text("Add");
+	} else if ($('#selected_shape').val() == "line") {
+		console.log("TODO: Handling line segments");
 	} else {
 		$("#add_edit").text("Edit");
 		$("#tqa_copy").show();

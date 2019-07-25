@@ -262,7 +262,6 @@ function incremental_move_element(direction) {
 			b.remove();
 		} catch (e) { }
 
-
 		group_overlay.addChild(cursor);
 		paper.view.update();
 	}
