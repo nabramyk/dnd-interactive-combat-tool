@@ -141,6 +141,7 @@ function bindEventHandlers() {
 			incremental_move_element("right");
 		})
 
+	//Hotkeys go here!
 	$("#grid_canvas").focus();
 	$(document).keydown(function (e) {
 		e.preventDefault();
@@ -158,8 +159,11 @@ function bindEventHandlers() {
 			case "ArrowDown":
 				$("#move_inc_down").click();
 				break;
-			case "p" || "P":
+			case "p": case "P":
 				$("#tqa_ping").click();
+				break;
+			case "o": case "O":
+				$("#overlapping_container_open").click();
 				break;
 		}
 	});
