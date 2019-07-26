@@ -37,6 +37,10 @@ function drawSelectedPositionTopRuler(pos) {
 	group_top_cursor.removeChildren();
 	group_bottom_cursor.removeChildren();
 
+	if (selected_element != null && isUndefined(selected_element.shape)) {
+		return;
+	}
+
 	var top_ruler_cursor = paper.Shape.Rectangle(selected_grid_x, grid_line_width, 0, 0);
 	top_ruler_cursor.fillColor = grid_highlight;
 	top_ruler_cursor.size.height = grid_size;
@@ -128,6 +132,10 @@ function drawSelectedPositionLeftRuler(pos) {
 
 	group_left_cursor.removeChildren();
 	group_right_cursor.removeChildren();
+
+	if (selected_element != null && isUndefined(selected_element.shape)) {
+		return;
+	}
 
 	var left_ruler_cursor = paper.Shape.Rectangle(grid_line_width, pos, 0, 0);
 	left_ruler_cursor.fillColor = grid_highlight;
@@ -260,6 +268,7 @@ function draw_local_item(element) {
 		case "line":
 			ele = new paper.Path(element.x.map(function (v, i) { return new paper.Point(v, element.y[i]) }));
 			ele.strokeColor = element.color;
+			ele.strokeWidth = element.thickness;
 			break;
 	}
 	ele.data.name = element.name;
@@ -287,7 +296,6 @@ function draw_local_item(element) {
 
 	group_elements.addChild(ele);
 	selected_element = ele;
-	console.log(selected_element);
 
 	draw_cursor();
 	drawSelectedPositionTopRuler(Number(selected_grid_x));
@@ -298,6 +306,11 @@ function draw_local_item(element) {
 }
 
 function draw_cursor() {
+	console.log($("#sidebar").hasClass("active"));
+	if($("#sidebar").hasClass("active")) {
+
+	}
+
 	switch ($('#selected_shape').val()) {
 		case "line":
 			cursor.remove();

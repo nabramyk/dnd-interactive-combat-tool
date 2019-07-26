@@ -107,7 +107,17 @@ function bindEventHandlers() {
 			y_vertices.push(cursor.position.y);
 		}
 
-		if (x_vertices.length > 1 && y_vertices.length > 1) add_element_to_server($("#element_color").spectrum("get").toHexString(), x_vertices, y_vertices, $("#selected_shape").val(), $("#element_name").val(), { "width": 0, "height": 0 }, $("#element_category").val());
+		if (x_vertices.length > 1 && y_vertices.length > 1) { 
+			add_element_to_server($("#element_color").spectrum("get").toHexString(), 
+			x_vertices, 
+			y_vertices, 
+			$("#selected_shape").val(), 
+			$("#element_name").val(), 
+			{ "width": 0, "height": 0 }, 
+			$("#element_category").val(),
+			$("#outline_thickness").val()
+			);
+		}
 
 		x_vertices = [];
 		y_vertices = [];
@@ -144,27 +154,31 @@ function bindEventHandlers() {
 	//Hotkeys go here!
 	$("#grid_canvas").focus();
 	$(document).keydown(function (e) {
-		e.preventDefault();
-		console.log("key: " + e.key + ", which: " + e.which);
-		switch (e.key) {
-			case "ArrowLeft":
-				$("#move_inc_left").click();
-				break;
-			case "ArrowUp":
-				$("#move_inc_up").click();
-				break;
-			case "ArrowRight":
-				$("#move_inc_right").click();
-				break;
-			case "ArrowDown":
-				$("#move_inc_down").click();
-				break;
-			case "p": case "P":
-				$("#tqa_ping").click();
-				break;
-			case "o": case "O":
-				$("#overlapping_container_open").click();
-				break;
+		if (e.altKey) {
+			console.log(e.which);
+			//e.preventDefault();
+			switch (e.which) {
+				case 8:
+					// Delete
+				case 37:
+					$("#move_inc_left").mousedown().mouseup();
+					break;
+				case 38:
+					$("#move_inc_up").mousedown().mouseup();
+					break;
+				case 39:
+					$("#move_inc_right").mousedown().mouseup();
+					break;
+				case 40:
+					$("#move_inc_down").mousedown().mouseup();
+					break;
+				case 80:
+					$("#tqa_ping").mousedown().mouseup();
+					break;
+				case 79:
+					$("#overlapping_container_open").mousedown().mouseup();
+					break;
+			}
 		}
 	});
 
@@ -309,12 +323,12 @@ function bindEventHandlers() {
 	});
 
 	$("#tqa_paste_delete").click(function () {
-		if($("#paste_delete").text() == "Paste") {
+		if ($("#paste_delete").text() == "Paste") {
 			var newEl = copied_element.clone();
 			newEl.position = new paper.Point(pixel2GridPoint(selected_grid_x), pixel2GridPoint(selected_grid_y));
 
 			newEl.onMouseEnter = function () {
-				if(isDragging) return;
+				if (isDragging) return;
 				t = new paper.PointText(this.position.x, this.bounds.top - 10);
 				t.content = this.data.name;
 				t.pivot = paper.Shape.Rectangle.topLeft;
@@ -326,7 +340,7 @@ function bindEventHandlers() {
 				group_overlay.addChildren([b, t]);
 				paper.view.update();
 			}
-		
+
 			newEl.onMouseLeave = function () {
 				t.remove();
 				b.remove();
@@ -338,7 +352,7 @@ function bindEventHandlers() {
 			socket.emit('add_element_to_server', {
 				"grid_id": grid_id,
 				"element": newEl
-			}, function(msg) {
+			}, function (msg) {
 				newEl.data.id = msg.id;
 			});
 		} else {
@@ -359,15 +373,15 @@ function bindEventHandlers() {
  * @return {string} An html element to display
  */
 function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.el.data.id + ")\" id=" + el.el.data.id + ">" +
+	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.el.data.name + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.data.name + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.el.data.category + "<\p>" +
+		"<p style=\"font-size: smaller;\">" + el.data.category + "<\p>" +
 		"</div>" +
-		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.el.data.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.el.data.id + ")\">&times</button>" +
+		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.data.id + ")\">&#x270E;</button>" +
+		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.data.id + ")\">&times</button>" +
 		"</div>";
 }
 
@@ -390,7 +404,7 @@ function getContextMenu() {
 function updateSideMenuContent() {
 	$("#options_add_or_edit_button").show();
 	if ((isUndefined(selected_element) || selected_element == null) && line_path.segments.length == 0 && $('#selected_shape').val() != "line") {
-		if(copied_element != null) {
+		if (copied_element != null) {
 			$("#paste_delete").text("Paste");
 			$("#paste_delete").show();
 		} else {
@@ -417,7 +431,7 @@ function updateSideMenuContent() {
 		$("#add_edit").text("Edit");
 		$("#tqa_copy").show();
 		$("#options_paste_button").show();
-		
+
 		$("#paste_delete").text("Delete");
 		$("#paste_delete").show();
 
@@ -426,11 +440,16 @@ function updateSideMenuContent() {
 		//Populate the editable info
 		$("#rotate_controls_container").show();
 
-		$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
+		if (selected_element.shape != null) {
+			$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
+			$("#element_width").val(selected_element.size.width / grid_size);
+			$("#element_height").val(selected_element.size.height / grid_size);
+		} else {
+			$("#element_color").spectrum("set", selected_element.strokeColor.toCSS(true));
+		}
+
 		$("#element_category").val(selected_element.data.category);
 		$("#element_name").val(selected_element.data.name);
-		$("#element_width").val(selected_element.size.width / grid_size);
-		$("#element_height").val(selected_element.size.height / grid_size);
 		$("#place_element_button").text("Submit");
 	}
 
@@ -558,7 +577,7 @@ function rotateElement(angle) {
 }
 
 function generateGridTab(id, name) {
-	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">" 
-	+ name + "</a><a class=\"grid-space-delete\" id=\"" 
-	+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
+	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">"
+		+ name + "</a><a class=\"grid-space-delete\" id=\""
+		+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
 }

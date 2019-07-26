@@ -174,8 +174,8 @@ function bindSocketListeners() {
 	});
 }
 
-function add_element_to_server(color, x, y, shape, name, size, category) {
-	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category});
+function add_element_to_server(color, x, y, shape, name, size, category, thickness = 1) {
+	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category, "thickness" : thickness});
 	$("#reset_board_button").prop("disabled", false);
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
