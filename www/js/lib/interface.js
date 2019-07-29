@@ -156,27 +156,27 @@ function bindEventHandlers() {
 	$(document).keydown(function (e) {
 		if (e.altKey) {
 			console.log(e.which);
-			//e.preventDefault();
+			e.preventDefault();
 			switch (e.which) {
 				case 8:
 					// Delete
 				case 37:
-					$("#move_inc_left").mousedown().mouseup();
+					$("#move_inc_left").click();
 					break;
 				case 38:
-					$("#move_inc_up").mousedown().mouseup();
+					$("#move_inc_up").click();
 					break;
 				case 39:
-					$("#move_inc_right").mousedown().mouseup();
+					$("#move_inc_right").click();
 					break;
 				case 40:
-					$("#move_inc_down").mousedown().mouseup();
+					$("#move_inc_down").click();
 					break;
 				case 80:
-					$("#tqa_ping").mousedown().mouseup();
+					$("#tqa_ping").click();
 					break;
 				case 79:
-					$("#overlapping_container_open").mousedown().mouseup();
+					$("#overlapping_container_open").click();
 					break;
 			}
 		}
