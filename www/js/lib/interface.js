@@ -161,16 +161,16 @@ function bindEventHandlers() {
 				case 8:
 					// Delete
 				case 37:
-					$("#move_inc_left").click();
+					incremental_move_element("left");
 					break;
 				case 38:
-					$("#move_inc_up").click();
+					incremental_move_element("up");
 					break;
 				case 39:
-					$("#move_inc_right").click();
+					incremental_move_element("right");
 					break;
 				case 40:
-					$("#move_inc_down").click();
+					incremental_move_element("down");
 					break;
 				case 80:
 					$("#tqa_ping").click();
@@ -375,10 +375,10 @@ function bindEventHandlers() {
 function composeElementListRowElement(el) {
 	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
 		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.data.name + "<\p>" +
+		"<p style=\"font-size: smaller; color: #000000;\">" + el.data.name + "<\p>" +
 		"</div>" +
 		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller;\">" + el.data.category + "<\p>" +
+		"<p style=\"font-size: smaller; color: #000000;\">" + el.data.category + "<\p>" +
 		"</div>" +
 		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.data.id + ")\">&#x270E;</button>" +
 		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.data.id + ")\">&times</button>" +
