@@ -285,6 +285,7 @@ function draw_local_item(element) {
 		b.fillColor = 'white';
 		b.strokeColor = "black";
 		group_overlay.addChildren([b, t]);
+		group_overlay.bringToFront();
 		paper.view.update();
 	}
 
@@ -376,6 +377,7 @@ function draw_item(element) {
 		b.fillColor = 'white';
 		b.strokeColor = "black";
 		group_overlay.addChildren([b, t]);
+		group_overlay.bringToFront();
 		paper.view.update();
 	}
 

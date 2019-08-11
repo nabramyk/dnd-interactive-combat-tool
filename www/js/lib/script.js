@@ -42,7 +42,6 @@ function interfaceInitialization() {
 
 	group_grid = new paper.Group();
 	group_elements = new paper.Group();
-	group_overlay = new paper.Group();
 	group_left_ruler = new paper.Group();
 	group_top_ruler = new paper.Group();
 	group_bottom_ruler = new paper.Group();
@@ -51,6 +50,7 @@ function interfaceInitialization() {
 	group_right_cursor = new paper.Group();
 	group_top_cursor = new paper.Group();
 	group_bottom_cursor = new paper.Group();
+	group_overlay = new paper.Group();
 
 	line_path = new paper.Path();
 
