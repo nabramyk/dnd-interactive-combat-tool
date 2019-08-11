@@ -216,9 +216,9 @@ module.exports = class GridSpace {
 	 * @returns {Element} The removed element
 	 */
 	removeElementFromGridSpace(id) {
-		var ind = this.elements.findIndex(function (el) { return el.id === id; });
+		var ind = this.elements.findIndex(function (el) { return el.el.data.id === id; });
 		var return_element = this.elements[ind];
-		this.elements.splice(ind, 1);
+		this.elements = this.elements.filter(function (el) { return el.el.data.id != id; });
 
 		this.history.push(new HistoryFrame("remove", return_element));
 		this.temporaryHistory = [];
