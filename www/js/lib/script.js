@@ -56,6 +56,7 @@ function interfaceInitialization() {
 
 	//What happens when the user clicks the canvas...
 	paper.view.onClick = function (event) {
+		if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") { return; }
 		if (gridraster.hitTest(event.point) == null || isDragging) { return; }
 		$('#place_element_button').prop('disabled', false);
 
@@ -74,8 +75,8 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
-		try { 
-			selected_element = group_elements.hitTest(event.point).item; 
+		try {
+			selected_element = group_elements.hitTest(event.point).item;
 		} catch (e) {
 			selected_element = null;
 		}
@@ -99,35 +100,56 @@ function interfaceInitialization() {
 
 	//Handles the redrawing on scrolling
 	toolPan.onMouseDrag = function (event) {
-		isDragging = true;
-		paper.view.scrollBy(event.downPoint.subtract(event.point));
-		var point = paper.view.center._owner.topLeft;
+		if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") {
+			if(temp_line == null) {
+				temp_line = new paper.Path({ strokeColor: $("#element_color").spectrum("get").toHexString() })
+				temp_line.moveTo(event.point);
+				x_vertices.push(event.point.x);
+				y_vertices.push(event.point.y);
+				temp_line.fullySelected = true;
+			} else {
+				temp_line.lineTo(event.point);
+				x_vertices.push(event.point.x);
+				y_vertices.push(event.point.y);
+				temp_line.smooth();
+			}
 
-		//Stick the left ruler to the left side of the canvas when reaching scrolling overflow
-		leftrulerraster.position.x = (point.x > -20 ? point.x + 10 : -10);
-		group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
+			$("#start_new_line_button").show();
+		} else {
+			isDragging = true;
+			paper.view.scrollBy(event.downPoint.subtract(event.point));
+			var point = paper.view.center._owner.topLeft;
 
-		//Stick the top ruler to the top of the canvas when reaching scrolling overflow
-		toprulerraster.position.y = (point.y > -64 ? point.y + 54 : -10);
-		group_top_cursor.position.y = (point.y > -64 ? point.y + 54 : -10);
+			//Stick the left ruler to the left side of the canvas when reaching scrolling overflow
+			leftrulerraster.position.x = (point.x > -20 ? point.x + 10 : -10);
+			group_left_cursor.position.x = (point.x > -20 ? point.x + 10 : -10);
 
-		//Stick the bottom ruler to the bottom of the canvas when reaching overflow
-		bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1)
-			? paper.view.center._owner.bottom - (grid_size / 2)
-			: grid_count_height * grid_size + (grid_size / 2));
-		group_bottom_cursor.position.y = bottomrulerraster.position.y;
+			//Stick the top ruler to the top of the canvas when reaching scrolling overflow
+			toprulerraster.position.y = (point.y > -64 ? point.y + 54 : -10);
+			group_top_cursor.position.y = (point.y > -64 ? point.y + 54 : -10);
 
-		//Stick the right ruler to the right of the canvas when reaching overflow
-		rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) + 30
-			? paper.view.center._owner.right - (grid_size / 2) - 30
-			: grid_count_width * grid_size + (grid_size / 2));
-		
-		group_right_cursor.position.x = rightrulerraster.position.x;
+			//Stick the bottom ruler to the bottom of the canvas when reaching overflow
+			bottomrulerraster.position.y = (paper.view.center._owner.bottom < grid_size * (Number(grid_count_height) + 1)
+				? paper.view.center._owner.bottom - (grid_size / 2)
+				: grid_count_height * grid_size + (grid_size / 2));
+			group_bottom_cursor.position.y = bottomrulerraster.position.y;
 
+			//Stick the right ruler to the right of the canvas when reaching overflow
+			rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) + 30
+				? paper.view.center._owner.right - (grid_size / 2) - 30
+				: grid_count_width * grid_size + (grid_size / 2));
+
+			group_right_cursor.position.x = rightrulerraster.position.x;
+
+		}
 		paper.view.update();
 	}
 
 	toolPan.onMouseUp = function (event) {
+		try {
+			temp_line.simplify();
+			paper.view.update();
+		} catch(e) {}
 		isDragging = false;
 	}
 

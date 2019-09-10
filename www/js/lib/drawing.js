@@ -266,6 +266,7 @@ function draw_local_item(element) {
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "line":
+		case "freehand":
 			ele = new paper.Path(element.x.map(function (v, i) { return new paper.Point(v, element.y[i]) }));
 			ele.strokeColor = element.color;
 			ele.strokeWidth = element.thickness;
