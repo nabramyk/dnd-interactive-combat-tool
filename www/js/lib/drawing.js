@@ -252,28 +252,37 @@ function drawElements() {
 	paper.view.update();
 }
 
-function draw_local_item(element) {
-	switch (element.shape) {
+function draw_local_item() {
+	var x = pixel2GridPoint(selected_grid_x)
+	var y = pixel2GridPoint(selected_grid_y)
+
+	var w = $("#element_width").val()
+	var h = $("#element_height").val()
+
+	switch ($("#selected_shape").val()) {
 		case "rectangle":
-			ele = paper.Shape.Rectangle(element.x - (grid_size / 2), element.y - (grid_size / 2), JSON.parse(element.size.width) * grid_size, JSON.parse(element.size.height) * grid_size);
-			ele.fillColor = element.color;
+			ele = paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(w) * grid_size, JSON.parse(h) * grid_size);
+			ele.fillColor = $("#element_color").spectrum("get").toHexString();
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "circle":
-			ele = paper.Shape.Circle(element.x + cursor_line_width / 2, element.y + cursor_line_width / 2, JSON.parse(element.size.width) * (grid_size / 2));
-			ele.bounds.topLeft = new paper.Point(element.x - (grid_size / 2), element.y - (grid_size / 2));
-			ele.fillColor = element.color;
+			ele = paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(w) * (grid_size / 2));
+			ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
+			ele.fillColor = $("#element_color").spectrum("get").toHexString();
 			ele.pivot = paper.Shape.Rectangle.topLeft;
 			break;
 		case "line":
 		case "freehand":
-			ele = new paper.Path(element.x.map(function (v, i) { return new paper.Point(v, element.y[i]) }));
-			ele.strokeColor = element.color;
-			ele.strokeWidth = element.thickness;
+			ele = temp_line.clone();
+			ele.fullySelected = false;
+			temp_line.remove();
+			ele.strokeColor = $("#element_color").spectrum("get").toHexString();
+			ele.strokeWidth = 1;
 			break;
 	}
-	ele.data.name = element.name;
-	ele.data.category = element.category;
+
+	ele.data.name = $("#element_name").val();
+	ele.data.category = $("#element_category").val();
 
 	ele.onMouseEnter = function () {
 		if(isDragging) return;
@@ -313,9 +322,12 @@ function draw_cursor() {
 
 	}
 
+	try {
+		cursor.remove();
+	} catch(e) {}
+
 	switch ($('#selected_shape').val()) {
 		case "line":
-			cursor.remove();
 			cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2)), 5);
 			cursor.fillColor = grid_highlight;
 			group_overlay.addChild(cursor);
@@ -328,7 +340,6 @@ function draw_cursor() {
 			}
 			break;
 		default:
-			cursor.remove();
 			if (!isUndefined(selected_element) && selected_element != null) {
 				if (selected_element.type == "stroke") {
 					console.log("TODO: Handle selecting lines.");

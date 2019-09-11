@@ -41,18 +41,8 @@ function bindEventHandlers() {
 			switch ($("#selected_shape").val()) {
 				case "circle":
 				case "rectangle":
-					add_element_to_server(
-						$("#element_color").spectrum("get").toHexString(),
-						pixel2GridPoint(selected_grid_x),
-						pixel2GridPoint(selected_grid_y),
-						$("#selected_shape").val(),
-						$("#element_name").val(),
-						{
-							"width": $("#element_width").val(),
-							"height": $("#element_height").val()
-						},
-						$("#element_category").val()
-					);
+				case "freehand":
+					add_element_to_server();
 					break;
 				case "line":
 					line_path.add(new paper.Point(cursor.position.x, cursor.position.y));
@@ -61,9 +51,6 @@ function bindEventHandlers() {
 					if (line_path.segments.length > 0) {
 						$("#start_new_line_button").show();
 					}
-					break;
-				case "freehand":
-
 					break;
 			}
 		} else {

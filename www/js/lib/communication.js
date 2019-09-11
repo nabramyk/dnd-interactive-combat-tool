@@ -29,8 +29,9 @@ function bindSocketListeners() {
 
 			$(".tab").first().addClass("active");
 
+			console.log(msg.elements);
 			msg.elements.map(function(el) {
-				draw_item(el.el);
+				draw_item(el);
 			});
 
 			local_stored_annotations = msg.annotations;
@@ -174,8 +175,8 @@ function bindSocketListeners() {
 	});
 }
 
-function add_element_to_server(color, x, y, shape, name, size, category, thickness = 1) {
-	var temp_new_ele = draw_local_item({ "color" : color, "x" : x, "y" : y, "shape": shape, "name" : name, "size": size, "category" : category, "thickness" : thickness});
+function add_element_to_server() {
+	var temp_new_ele = draw_local_item();
 	$("#reset_board_button").prop("disabled", false);
 	socket.emit('add_element_to_server', {
 		"grid_id": grid_id,
