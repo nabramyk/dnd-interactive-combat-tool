@@ -276,8 +276,6 @@ function draw_local_item() {
 			ele = temp_line.clone();
 			ele.fullySelected = false;
 			temp_line.remove();
-			ele.strokeColor = $("#element_color").spectrum("get").toHexString();
-			ele.strokeWidth = 1;
 			break;
 	}
 

@@ -101,20 +101,26 @@ function interfaceInitialization() {
 	//Handles the redrawing on scrolling
 	toolPan.onMouseDrag = function (event) {
 		if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") {
-			if(temp_line == null) {
-				temp_line = new paper.Path({ strokeColor: $("#element_color").spectrum("get").toHexString() })
-				temp_line.moveTo(event.point);
-				x_vertices.push(event.point.x);
-				y_vertices.push(event.point.y);
-				temp_line.fullySelected = true;
-			} else {
-				temp_line.lineTo(event.point);
-				x_vertices.push(event.point.x);
-				y_vertices.push(event.point.y);
-				temp_line.smooth();
-			}
+			if (gridraster.hitTest(event.point) != null) {
+				if (temp_line == null) {
+					temp_line = new paper.Path({
+						strokeColor: $("#element_color").spectrum("get").toHexString(),
+						strokeWidth: $("#outline_thickness").val()
+					})
+					temp_line.moveTo(event.point);
+					x_vertices.push(event.point.x);
+					y_vertices.push(event.point.y);
+					temp_line.fullySelected = true;
+				} else {
+					temp_line.lineTo(event.point);
+					x_vertices.push(event.point.x);
+					y_vertices.push(event.point.y);
+					temp_line.smooth();
+				}
 
-			$("#start_new_line_button").show();
+				$("#start_new_line_button").show();
+				$("#element_erase").show();
+			}
 		} else {
 			isDragging = true;
 			paper.view.scrollBy(event.downPoint.subtract(event.point));
@@ -149,12 +155,11 @@ function interfaceInitialization() {
 		try {
 			temp_line.simplify();
 			paper.view.update();
-		} catch(e) {}
+		} catch (e) { }
 		isDragging = false;
 	}
 
 	paper.view.autoUpdate = false;
-
 	drawScreen();
 
 	var point = new paper.Point(0, 0);
