@@ -439,6 +439,7 @@ function updateSideMenuContent() {
 			$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
 			$("#element_width").val(selected_element.size.width / grid_size);
 			$("#element_height").val(selected_element.size.height / grid_size);
+			$("#zindex").val();
 		} else {
 			$("#element_color").spectrum("set", selected_element.strokeColor.toCSS(true));
 		}

@@ -167,7 +167,7 @@ module.exports = class GridSpace {
 	};
 
 	mutateElementInGridSpace(obj) {
-		return this.elements.find(function(el) { return obj.id == el.el.data.id; }).mutate(obj);
+		return this.elements.find(function(el) { return obj.id == el.data.id; }).mutate(obj);
 	}
 
     /**
