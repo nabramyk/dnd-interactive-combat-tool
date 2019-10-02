@@ -75,6 +75,8 @@ function interfaceInitialization() {
 			cursor.strokeColor = grid_highlight;
 		}
 
+		if(selected_element != null) selected_element.selected = false;
+
 		try {
 			selected_element = group_elements.hitTest(event.point).item;
 		} catch (e) {

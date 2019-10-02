@@ -339,19 +339,14 @@ function draw_cursor() {
 			break;
 		default:
 			if (!isUndefined(selected_element) && selected_element != null) {
-				if (selected_element.type == "stroke") {
-					console.log("TODO: Handle selecting lines.");
-				} else {
-					cursor = paper.Shape.Rectangle(selected_element.bounds);
-					cursor.position = new paper.Point(selected_element.position.x, selected_element.position.y);
-					cursor.strokeColor = grid_highlight;
-				}
+				selected_element.selected = true;
+				selected_element.selectedColor = grid_highlight;
 			} else {
 				cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
 				cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
 				cursor.strokeColor = grid_highlight;
+				group_overlay.addChild(cursor);
 			}
-			group_overlay.addChild(cursor);
 	}
 }
 
@@ -376,9 +371,9 @@ function draw_item(element) {
 			break;
 	}
 
-	ele.onMouseEnter = function () {
+	ele.onMouseEnter = function (evt) {
 		if(isDragging) return;
-		t = new paper.PointText(this.position.x, this.bounds.top - 10);
+		t = new paper.PointText(evt.point.x, evt.point.y - 20);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
 		b = paper.Shape.Rectangle(t.bounds);
@@ -386,14 +381,22 @@ function draw_item(element) {
 		b.size.height += 10;
 		b.fillColor = 'white';
 		b.strokeColor = "black";
-		group_overlay.addChildren([b, t]);
-		group_overlay.bringToFront();
+		//group_overlay.addChildren([b, t]);
+		//group_overlay.bringToFront();
+		t.bringToFront();
+		b.bringToFront();
 		paper.view.update();
 	}
 
 	ele.onMouseLeave = function () {
 		t.remove();
 		b.remove();
+		paper.view.update();
+	}
+
+	ele.onMouseMove = function (evt) {
+		t.position = new paper.Point(evt.point.x, evt.point.y - 20);
+		b.position = new paper.Point(evt.point.x, evt.point.y - 20);
 		paper.view.update();
 	}
 
