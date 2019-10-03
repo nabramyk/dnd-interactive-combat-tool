@@ -282,9 +282,9 @@ function draw_local_item() {
 	ele.data.name = $("#element_name").val();
 	ele.data.category = $("#element_category").val();
 
-	ele.onMouseEnter = function () {
+	ele.onMouseEnter = function (evt) {
 		if(isDragging) return;
-		t = new paper.PointText(this.position.x, this.bounds.top - 10);
+		t = new paper.PointText(evt.point.x, evt.point.y - 20);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
 		b = paper.Shape.Rectangle(t.bounds);
@@ -292,8 +292,8 @@ function draw_local_item() {
 		b.size.height += 10;
 		b.fillColor = 'white';
 		b.strokeColor = "black";
-		group_overlay.addChildren([b, t]);
-		group_overlay.bringToFront();
+		b.bringToFront();
+		t.bringToFront();
 		paper.view.update();
 	}
 
@@ -303,8 +303,16 @@ function draw_local_item() {
 		paper.view.update();
 	}
 
+	ele.onMouseMove = function (evt) {
+		t.position = new paper.Point(evt.point.x, evt.point.y - 20);
+		b.position = new paper.Point(evt.point.x, evt.point.y - 20);
+		paper.view.update();
+	}
+
 	group_elements.addChild(ele);
 	selected_element = ele;
+
+	ele.selected = false;
 
 	draw_cursor();
 	drawSelectedPositionTopRuler(Number(selected_grid_x));
@@ -381,10 +389,8 @@ function draw_item(element) {
 		b.size.height += 10;
 		b.fillColor = 'white';
 		b.strokeColor = "black";
-		//group_overlay.addChildren([b, t]);
-		//group_overlay.bringToFront();
-		t.bringToFront();
 		b.bringToFront();
+		t.bringToFront();
 		paper.view.update();
 	}
 
@@ -399,6 +405,8 @@ function draw_item(element) {
 		b.position = new paper.Point(evt.point.x, evt.point.y - 20);
 		paper.view.update();
 	}
+
+	ele.selected = false;
 
 	group_elements.addChild(ele);
 	paper.view.update();
