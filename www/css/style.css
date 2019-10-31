@@ -206,18 +206,6 @@ canvas[resize] {
   outline: none;
 }
 
-.popup_items {
-  position: absolute;
-  display: inline;
-  background: white;
-  border: 1px solid #262626;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select:none;
-  user-select:none;
-  -o-user-select:none;
-}
-
 .tab {
   background-color: #dddddd;
   border: none;
@@ -234,20 +222,14 @@ canvas[resize] {
 }
 
 #overlapping_container_open {
-  position: fixed;
   height: 100%;
   width: 30px;
-  right: 0;
-  top: 0;
   z-index: 4;
   background: #345eb2;
 }
 
 #overlapping_container_open > a {
   height: 100%;
-  position: absolute;
-  top: 50%;
-  right: 25%;
   color: white;
   font-size: xx-large;
 }
@@ -309,7 +291,7 @@ p {
 
 #sidebar {
   position: fixed;
-  right: -200px;
+  right: -170px;
   top: 0;
   min-height: 100vh;
   max-height: 100vh;
