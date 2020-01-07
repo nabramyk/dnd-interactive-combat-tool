@@ -288,14 +288,15 @@ function bindEventHandlers() {
 				"x": selected_grid_x,
 				"y": selected_grid_y
 			});
-		})
-		.on('click', '#tab_row .grid-space-delete', function (evt) {
-			if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
-				socket.emit("delete_grid_space_from_server", {
-					"grid_id": $(this).attr('id')
-				});
-			}
 		});
+
+	$("#delete_board_button").click(function () {
+		if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
+			socket.emit("delete_grid_space_from_server", {
+				"grid_id": grid_id
+			});
+		}
+	});
 
 	$("#overlapping_container_open").click(function () {
 		$("#sidebar").toggleClass('active');
@@ -315,6 +316,30 @@ function bindEventHandlers() {
 
 	$("#tqa_copy").click(function () {
 		copied_element = selected_element;
+	});
+
+	$("#add_edit").click(function () {
+		$("#add_container").toggleClass('active');
+	});
+
+	$("#add_container_close").click(function () {
+		$("#add_container").toggleClass('active');
+	});
+	
+	$("#list").click(function () {
+		$("#list_container").toggleClass('active');
+	});
+
+	$("#list_container_close").click(function () {
+		$("#list_container").toggleClass('active');
+	});
+
+	$("#grid_space").click(function() {
+		$("#grid_space_container").toggleClass('active');
+	});
+
+	$("#grid_space_container_close").click(function() {
+		$("#grid_space_container").toggleClass('active');
 	});
 
 	$("#tqa_paste_delete").click(function () {
@@ -573,7 +598,5 @@ function rotateElement(angle) {
 }
 
 function generateGridTab(id, name) {
-	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">"
-		+ name + "</a><a class=\"grid-space-delete\" id=\""
-		+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
+	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">" + name + "</li>").insertBefore("#addition_tab");
 }

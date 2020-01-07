@@ -36,131 +36,18 @@
     <canvas id="canvas" resize="true"></canvas>
   </div>
 
+  <div id="overlapping_container_open"><a>&laquo;</a></div>
+
   <nav id="sidebar">
-    <div id="overlapping_container_open"><a>&laquo;</a></div>
     <div class="sidebar-header">
       <h3>Clutter</h3>
     </div>
     <ul class="list-unstyled components">
-      <li id="tqa_list">
-        <a href="#list_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">List</a>
-        <ul id="list_container" class="collapse list-unstyled">
-          <button id="list_header_elements" class="list_header">
-            Elements
-          </button>
-          <button id="list_header_annotations" class="list_header">
-            Annotations
-          </button>
-          <div id="element_list_container" class="">
-            <div style="display: inline;">
-              <div style="display: block;">
-                <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-                <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-              </div>
-              <div style="display: block;">
-                <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
-                  !checked>
-                <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-              </div>
-              <div style="display: block;">
-                <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-                <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-              </div>
-              <div style="display: block;">
-                <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
-                <label for="element_list_filter_player" class="element_filter_label">Player</label>
-              </div>
-            </div>
-            <div id="element_list"></div>
-          </div>
-          <div id="annotations_list_container">
-            <input type="checkbox" id="annotations_display">
-            <label for="annotations_display">Highlight on map</label>
-            <div id="annotations_list" class=""></div>
-          </div>
-        </ul>
-      </li>
-      <li id="tqa_add">
-        <button id="add_edit" class="dropdown-toggle">Add</button>
-      </li>
-      <li id="tqa_annotate">
-        <a href="#annotations_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Annotate</a>
-        <ul id="annotations_container" class="collapse list-unstyled">
-          <label for="annotation_title">Title</label><br>
-          <textarea id="annotation_title"></textarea><br>
-          <label for="annotation_content">Content</label><br>
-          <textarea id="annotation_content"></textarea><br>
-          <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
-          <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
-        </ul>
-      </li>
-      <li id="tqa_move">
-        <a href="#movement_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Move</a>
-        <ul id="movement_container" class="collapse list-unstyled">
-          <div>
-            <label for="move_to_x">X</label>
-            <input type="number" id="move_to_x" class="menu_item">
-          </div>
-          <label for="move_to_y">Y:</label>
-          <input type="number" id="move_to_y" class="menu_item">
-          <button id="move_button">Move</button>
-          <br>
-          <table id="incremental_movement_control_container">
-            <tr>
-              <td>
-              <td>
-                <button id="move_inc_up" class="incr_move_button">
-                  <i class="arrow up"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <button id="move_inc_left" class="incr_move_button">
-                  <i class="arrow left"></i>
-                </button>
-              </td>
-              <td>
-              <td>
-                <button id="move_inc_right" class="incr_move_button">
-                  <i class="arrow right"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-              <td>
-                <button id="move_inc_down" class="incr_move_button">
-                  <i class="arrow down"></i>
-                </button>
-              </td>
-            </tr>
-          </table>
-        </ul>
-      </li>
-      <li id="grid_space">
-        <a href="#grid_space_container" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Grid Space</a>
-        <ul id="grid_space_container" class="collapse list-unstyled">
-          <li>
-            <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
-            <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
-          </li>
-          <li>
-            <label for="grid_size_horizontal">Width Size</label>
-            <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
-          </li>
-          <li>
-            <label for="grid_name">Name</label>
-            <input id="grid_name" name="grid_name" type="text" class="menu_item">
-          </li>
-          <li>
-            <button id="randomize">Randomize</button>
-          </li>
-          <li>
-            <button id="reset_board_button" class="destructive">Reset Board</button>
-          </li>
-        </ul>
-      </li>
+      <li id="tqa_list"><a id="list" href="javascript:;">List</a></li>
+      <li id="tqa_add"><a id="add_edit" href="javascript:;">Add</a></li>
+      <li id="tqa_annotate"><a href="javascript:;">Annotate</a></li>
+      <li id="tqa_move"><a href="javascript:;">Move</a></li>
+      <li><a id="grid_space" href="javascript:;">Grid Space<a></li>
       <li id="tqa_paste_delete"><a id="paste_delete" href="javascript:;">Delete</a></li>
       <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
       <li id="tqa_ping"><a href="javascript:;">Ping</a></li>
@@ -169,7 +56,53 @@
     </ul>
   </nav>
 
+  <!-- SECTION START -->
+  <!-- Sidebar Containers -->
+
+  <ul id="list_container" class="sidebar list-unstyled">
+    <li>
+      <button id="list_container_close" class="menu_item">x</button>
+    </li>
+    <button id="list_header_elements" class="list_header">
+      Elements
+    </button>
+    <button id="list_header_annotations" class="list_header">
+      Annotations
+    </button>
+    <div id="element_list_container" class="">
+      <div style="display: inline;">
+        <div style="display: block;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
+          <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
+        </div>
+        <div style="display: block;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_environment" value="environment"
+            !checked>
+          <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
+        </div>
+        <div style="display: block;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
+          <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
+        </div>
+        <div style="display: block;">
+          <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player" checked>
+          <label for="element_list_filter_player" class="element_filter_label">Player</label>
+        </div>
+      </div>
+      <div id="element_list"></div>
+    </div>
+    <div id="annotations_list_container">
+      <input type="checkbox" id="annotations_display">
+      <label for="annotations_display">Highlight on map</label>
+      <div id="annotations_list" class=""></div>
+    </div>
+  </ul>
+
   <ul id="add_container" class="sidebar list-unstyled">
+    <li>
+      <button id="add_container_close" class="menu_item">x</button>
+    </li>
+
     <li>
       <select id="selected_shape" class="menu_item">
         <option value="rectangle">Rectangle</option>
@@ -260,6 +193,87 @@
       <button id="element_erase" class="menu_item">Cancel</button>
     </li>
   </ul>
+
+  <ul id="annotations_container" class="sidebar list-unstyled">
+    <label for="annotation_title">Title</label><br>
+    <textarea id="annotation_title"></textarea><br>
+    <label for="annotation_content">Content</label><br>
+    <textarea id="annotation_content"></textarea><br>
+    <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
+    <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
+  </ul>
+
+  <ul id="movement_container" class="sidebar list-unstyled">
+    <div>
+      <label for="move_to_x">X</label>
+      <input type="number" id="move_to_x" class="menu_item">
+    </div>
+    <label for="move_to_y">Y:</label>
+    <input type="number" id="move_to_y" class="menu_item">
+    <button id="move_button">Move</button>
+    <br>
+    <table id="incremental_movement_control_container">
+      <tr>
+        <td>
+        <td>
+          <button id="move_inc_up" class="incr_move_button">
+            <i class="arrow up"></i>
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="move_inc_left" class="incr_move_button">
+            <i class="arrow left"></i>
+          </button>
+        </td>
+        <td>
+        <td>
+          <button id="move_inc_right" class="incr_move_button">
+            <i class="arrow right"></i>
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+        <td>
+          <button id="move_inc_down" class="incr_move_button">
+            <i class="arrow down"></i>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </ul>
+
+  <ul id="grid_space_container" class="sidebar list-unstyled">
+    <li>
+      <button id="grid_space_container_close" class="menu_item">x</button>
+    </li>
+    <li>
+      <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
+      <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+    </li>
+    <li>
+      <label for="grid_size_horizontal">Width Size</label>
+      <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+    </li>
+    <li>
+      <label for="grid_name">Name</label>
+      <input id="grid_name" name="grid_name" type="text" class="menu_item">
+    </li>
+    <li>
+      <button id="randomize">Randomize</button>
+    </li>
+    <li>
+      <button id="reset_board_button" class="destructive">Reset Board</button>
+    </li>
+    <li>
+      <button id="delete_board_button" class="destructive">Delete Board</button>
+    </li>
+  </ul>
+
+  <!-- Sidebar Containers -->
+  <!-- SECTION END -->
 
   <div id="lost_connection_div">
     <h2 id="lost_connection_text"></h2>

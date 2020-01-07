@@ -143,8 +143,8 @@ function interfaceInitialization() {
 			group_bottom_cursor.position.y = bottomrulerraster.position.y;
 
 			//Stick the right ruler to the right of the canvas when reaching overflow
-			rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1) + 30
-				? paper.view.center._owner.right - (grid_size / 2) - 30
+			rightrulerraster.position.x = (paper.view.center._owner.right < grid_size * (Number(grid_count_width) + 1)
+				? paper.view.center._owner.right - (grid_size / 2)
 				: grid_count_width * grid_size + (grid_size / 2));
 
 			group_right_cursor.position.x = rightrulerraster.position.x;
