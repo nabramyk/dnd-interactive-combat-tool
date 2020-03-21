@@ -264,10 +264,11 @@ function bindEventHandlers() {
 				group_overlay.removeChildren();
 
 				eraseCursor();
+				console.log(msg);
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
-					msg.grid_space.elements.forEach(function (el) { draw_item(el.el); });
+					msg.grid_space.elements.forEach(function (el) { draw_item(el); });
 				}
 
 				if (msg.grid_space.annotations.length !== 0) {
