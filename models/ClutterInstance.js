@@ -79,7 +79,7 @@ module.exports = class ClutterInstance {
     }
 
     editElement(msg) {
-        return this.grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg);
+        return this.grid_space.find((el) => { return el.id == msg.grid_id }).mutateElementInGridSpace(msg.el);
     }
 
     randomize(msg) {

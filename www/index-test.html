@@ -46,7 +46,7 @@
       <li id="tqa_list"><a id="list" href="javascript:;">List</a></li>
       <li id="tqa_add"><a id="add_edit" href="javascript:;">Add</a></li>
       <li id="tqa_annotate"><a href="javascript:;">Annotate</a></li>
-      <li id="tqa_move"><a href="javascript:;">Move</a></li>
+      <li id="tqa_move"><a id="move" href="javascript:;">Move</a></li>
       <li><a id="grid_space" href="javascript:;">Grid Space<a></li>
       <li id="tqa_paste_delete"><a id="paste_delete" href="javascript:;">Delete</a></li>
       <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
@@ -177,7 +177,6 @@
 
     <li>
       <div id="vertices_list" style="display: inline-block;">
-
       </div>
     </li>
 
@@ -204,45 +203,57 @@
   </ul>
 
   <ul id="movement_container" class="sidebar list-unstyled">
-    <div>
-      <label for="move_to_x">X</label>
-      <input type="number" id="move_to_x" class="menu_item">
-    </div>
-    <label for="move_to_y">Y:</label>
-    <input type="number" id="move_to_y" class="menu_item">
-    <button id="move_button">Move</button>
-    <br>
-    <table id="incremental_movement_control_container">
-      <tr>
-        <td>
-        <td>
-          <button id="move_inc_up" class="incr_move_button">
-            <i class="arrow up"></i>
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <button id="move_inc_left" class="incr_move_button">
-            <i class="arrow left"></i>
-          </button>
-        </td>
-        <td>
-        <td>
-          <button id="move_inc_right" class="incr_move_button">
-            <i class="arrow right"></i>
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-        <td>
-          <button id="move_inc_down" class="incr_move_button">
-            <i class="arrow down"></i>
-          </button>
-        </td>
-      </tr>
-    </table>
+    <li>
+      <button id="movement_container_close" class="menu_item">x</button>
+    </li>
+    <liv>
+      <div>
+        <label for="move_to_x">X</label>
+        <input type="number" id="move_to_x" class="menu_item">
+      </div>
+    </liv>
+    <li>
+      <label for="move_to_y">Y:</label>
+    </li>
+    <li>
+      <input type="number" id="move_to_y" class="menu_item">
+    </li>
+    <li>
+      <button id="move_button">Move</button>
+    </li>
+    <li>
+      <table id="incremental_movement_control_container">
+        <tr>
+          <td>
+          <td>
+            <button id="move_inc_up" class="incr_move_button">
+              <i class="arrow up"></i>
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <button id="move_inc_left" class="incr_move_button">
+              <i class="arrow left"></i>
+            </button>
+          </td>
+          <td>
+          <td>
+            <button id="move_inc_right" class="incr_move_button">
+              <i class="arrow right"></i>
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+          <td>
+            <button id="move_inc_down" class="incr_move_button">
+              <i class="arrow down"></i>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </li>
   </ul>
 
   <ul id="grid_space_container" class="sidebar list-unstyled">

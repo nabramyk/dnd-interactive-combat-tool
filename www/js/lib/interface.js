@@ -264,7 +264,6 @@ function bindEventHandlers() {
 				group_overlay.removeChildren();
 
 				eraseCursor();
-				console.log(msg);
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
@@ -341,6 +340,14 @@ function bindEventHandlers() {
 
 	$("#grid_space_container_close").click(function() {
 		$("#grid_space_container").toggleClass('active');
+	});
+
+	$("#move").click(function() {
+		$("#movement_container").toggleClass('active');
+	});
+
+	$("#movement_container_close").click(function() {
+		$("#movement_container").toggleClass('active');
 	});
 
 	$("#tqa_paste_delete").click(function () {

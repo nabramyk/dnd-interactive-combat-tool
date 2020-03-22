@@ -323,7 +323,6 @@ function draw_local_item() {
 }
 
 function draw_cursor() {
-	console.log($("#sidebar").hasClass("active"));
 	if($("#sidebar").hasClass("active")) {
 
 	}

@@ -18,6 +18,7 @@ module.exports = class Element {
 	 *         if it cannot move
 	 */
 	nudge(direction) {
+		console.log(direction);
 		var moveToX = this.el.matrix[4], moveToY = this.el.matrix[5];
 		switch (direction) {
 			case "right": // right
@@ -63,6 +64,7 @@ module.exports = class Element {
 	/**
 	 * Modify this elements properties
 	 * 
+	 * @return {Element}
 	 */
 	mutate(modifiedElement) {
 		console.log(modifiedElement);
