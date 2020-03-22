@@ -102,7 +102,7 @@ function interfaceInitialization() {
 
 	//Handles the redrawing on scrolling
 	toolPan.onMouseDrag = function (event) {
-		if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") {
+		if ($('#add_container').hasClass('active') && $('#selected_shape').val() == "freehand") {
 			if (gridraster.hitTest(event.point) != null) {
 				if (temp_line == null) {
 					temp_line = new paper.Path({
@@ -119,7 +119,6 @@ function interfaceInitialization() {
 					y_vertices.push(event.point.y);
 					temp_line.smooth();
 				}
-
 				$("#start_new_line_button").show();
 				$("#element_erase").show();
 			}

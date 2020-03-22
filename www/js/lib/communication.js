@@ -30,7 +30,6 @@ function bindSocketListeners() {
 			$(".tab").first().addClass("active");
 
 			msg.elements.map(function(el) {
-				console.log(el);
 				draw_item(el);
 			});
 
@@ -189,7 +188,8 @@ function add_element_to_server() {
 function pingPosition() {
 	socket.emit('ping_snd', {
 		position: cursor.position,
-		size: cursor.size
+		size: cursor.size,
+		username: $("#username").val()
 	});
 }
 
