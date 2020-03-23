@@ -9,6 +9,7 @@ function bindEventHandlers() {
 	});
 
 	$("#element_color").spectrum();
+	$("#outline_color").spectrum();
 
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
@@ -42,6 +43,7 @@ function bindEventHandlers() {
 				case "circle":
 				case "rectangle":
 				case "freehand":
+				case "room":
 					add_element_to_server();
 					break;
 				case "line":
@@ -60,7 +62,13 @@ function bindEventHandlers() {
 
 			selected_element.data.name = $("#element_name").val();
 			selected_element.data.category = $("#element_category").val();
-			selected_element.fillColor = $("#element_color").spectrum("get").toHexString();
+
+			if(selected_element.name == "room") {
+				selected_element.strokeColor = $("#outline_color").spectrum("get").toHexString();
+			} else {
+				selected_element.fillColor = $("#element_color").spectrum("get").toHexString();
+			}
+
 			selected_element.size.width = $("#element_width").val() * grid_size;
 			selected_element.size.height = $("#element_height").val() * grid_size;
 			selected_element.bounds.topLeft = bounds.topLeft;
@@ -117,10 +125,23 @@ function bindEventHandlers() {
 		line_path.remove();
 		line_path = new paper.Path();
 		temp_line.remove();
+		temp_line = null;
 
 		paper.view.update();
 
 		$("#start_new_line_button").toggle();
+	});
+
+	$("#element_erase").click(function () {
+		line_path.remove();
+		line_path = new paper.Path();
+		try {
+			temp_line.remove();
+			temp_line = null;
+		} catch (e) {
+			console.log(e);
+		}
+		paper.view.update();
 	});
 
 	$("#move_inc_up")
@@ -147,7 +168,6 @@ function bindEventHandlers() {
 	$("#grid_canvas").focus();
 	$(document).keydown(function (e) {
 		if (e.altKey) {
-			console.log(e.which);
 			e.preventDefault();
 			switch (e.which) {
 				case 8:
@@ -192,6 +212,8 @@ function bindEventHandlers() {
 				break;
 			case "freehand":
 				$('#dimensions_container').hide();
+				break;
+			case "room":
 				break;
 		}
 		if (selected_grid_x == -1 && selected_grid_y == -1) {
@@ -267,7 +289,7 @@ function bindEventHandlers() {
 
 				if (msg.grid_space.elements.length !== 0) {
 					$("#reset_board_button").prop("disabled", false);
-					msg.grid_space.elements.forEach(function (el) { draw_item(el.el); });
+					msg.grid_space.elements.forEach(function (el) { draw_item(el); });
 				}
 
 				if (msg.grid_space.annotations.length !== 0) {
@@ -288,14 +310,15 @@ function bindEventHandlers() {
 				"x": selected_grid_x,
 				"y": selected_grid_y
 			});
-		})
-		.on('click', '#tab_row .grid-space-delete', function (evt) {
-			if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
-				socket.emit("delete_grid_space_from_server", {
-					"grid_id": $(this).attr('id')
-				});
-			}
 		});
+
+	$("#delete_board_button").click(function () {
+		if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
+			socket.emit("delete_grid_space_from_server", {
+				"grid_id": grid_id
+			});
+		}
+	});
 
 	$("#overlapping_container_open").click(function () {
 		$("#sidebar").toggleClass('active');
@@ -315,6 +338,38 @@ function bindEventHandlers() {
 
 	$("#tqa_copy").click(function () {
 		copied_element = selected_element;
+	});
+
+	$("#add_edit").click(function () {
+		$("#add_container").toggleClass('active');
+	});
+
+	$("#add_container_close").click(function () {
+		$("#add_container").toggleClass('active');
+	});
+
+	$("#list").click(function () {
+		$("#list_container").toggleClass('active');
+	});
+
+	$("#list_container_close").click(function () {
+		$("#list_container").toggleClass('active');
+	});
+
+	$("#grid_space").click(function () {
+		$("#grid_space_container").toggleClass('active');
+	});
+
+	$("#grid_space_container_close").click(function () {
+		$("#grid_space_container").toggleClass('active');
+	});
+
+	$("#move").click(function () {
+		$("#movement_container").toggleClass('active');
+	});
+
+	$("#movement_container_close").click(function () {
+		$("#movement_container").toggleClass('active');
 	});
 
 	$("#tqa_paste_delete").click(function () {
@@ -411,14 +466,14 @@ function updateSideMenuContent() {
 		$("#options_movement_button").hide();
 
 		//Erase the editable info
-		$("#selected_shape").val("rectangle");
-		$("#element_width").val(1);
-		$("#element_height").val(1);
-		$("#element_depth").show();
+		// $("#selected_shape").val("rectangle");
+		// $("#element_width").val(1);
+		// $("#element_height").val(1);
+		// $("#element_depth").show();
 
-		$("#element_color").spectrum("set", "#000000");
-		$("#element_category").val("environment");
-		$("#element_name").val("object");
+		// $("#element_color").spectrum("set", "#000000");
+		// $("#element_category").val("environment");
+		// $("#element_name").val("object");
 		$("#place_element_button").text("Add");
 	} else if ($('#selected_shape').val() == "line") {
 		console.log("TODO: Handling line segments");
@@ -436,7 +491,18 @@ function updateSideMenuContent() {
 		$("#rotate_controls_container").show();
 
 		if (selected_element.shape != null) {
-			$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
+			try {
+				$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
+			} catch(e) {
+				console.log(e);
+			}
+
+			try {
+				$("#outline_color").spectrum("set", selected_element.strokeColor.toCSS(true));
+			} catch(e) {
+				console.log(e);
+			}
+
 			$("#element_width").val(selected_element.size.width / grid_size);
 			$("#element_height").val(selected_element.size.height / grid_size);
 			$("#zindex").val();
@@ -528,8 +594,16 @@ function refresh_elements_list() {
  * @param {int} id - the unique ID of the selected element
  */
 function clicked_element_list(id) {
-	//todo
-	console.log("TODO: Implement clicking element list items.");
+	try {
+		selected_element.selected = false;
+	} catch (e) {
+		console.log(e);
+	}
+
+	selected_element = group_elements.children.find(function (el) { return el.data.id === id });
+	console.log(selected_element);
+	selected_element.selected = true;
+	paper.view.update();
 }
 
 function clicked_annotation_list(id) {
@@ -573,7 +647,5 @@ function rotateElement(angle) {
 }
 
 function generateGridTab(id, name) {
-	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">"
-		+ name + "</a><a class=\"grid-space-delete\" id=\""
-		+ id + "\" href=\"javascript:;\">&times</a></li>").insertBefore("#addition_tab");
+	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">" + name + "</li>").insertBefore("#addition_tab");
 }

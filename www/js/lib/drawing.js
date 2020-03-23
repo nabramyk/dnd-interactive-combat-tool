@@ -52,7 +52,7 @@ function drawSelectedPositionTopRuler(pos) {
 	group_bottom_cursor.addChild(bottom_ruler_cursor);
 
 	group_top_cursor.position = new paper.Point((selected_element == null) ? selected_grid_x : selected_element.position.x,
-												toprulerraster.position.y);
+		toprulerraster.position.y);
 
 	group_bottom_cursor.position.y = bottomrulerraster.position.y;
 	group_bottom_cursor.position.x = group_top_cursor.position.x;
@@ -264,18 +264,28 @@ function draw_local_item() {
 			ele = paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(w) * grid_size, JSON.parse(h) * grid_size);
 			ele.fillColor = $("#element_color").spectrum("get").toHexString();
 			ele.pivot = paper.Shape.Rectangle.topLeft;
+			ele.name = "rectangle";
 			break;
 		case "circle":
 			ele = paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(w) * (grid_size / 2));
 			ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
 			ele.fillColor = $("#element_color").spectrum("get").toHexString();
 			ele.pivot = paper.Shape.Rectangle.topLeft;
+			ele.name = "circle";
 			break;
 		case "line":
 		case "freehand":
 			ele = temp_line.clone();
 			ele.fullySelected = false;
 			temp_line.remove();
+			ele.name = "line";
+			break;
+		case "room":
+			ele = paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(w) * grid_size, JSON.parse(h) * grid_size);
+			ele.strokeColor = $("#outline_color").spectrum("get").toHexString();
+			ele.strokeWidth = 10;
+			ele.pivot = paper.Shape.Rectangle.topLeft;
+			ele.name = "room";
 			break;
 	}
 
@@ -283,7 +293,7 @@ function draw_local_item() {
 	ele.data.category = $("#element_category").val();
 
 	ele.onMouseEnter = function (evt) {
-		if(isDragging) return;
+		if (isDragging) return;
 		t = new paper.PointText(evt.point.x, evt.point.y - 20);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
@@ -310,6 +320,11 @@ function draw_local_item() {
 	}
 
 	group_elements.addChild(ele);
+	try {
+		selected_element.selected = false;
+	} catch (e) {
+		console.log(e);
+	}
 	selected_element = ele;
 
 	ele.selected = false;
@@ -323,14 +338,13 @@ function draw_local_item() {
 }
 
 function draw_cursor() {
-	console.log($("#sidebar").hasClass("active"));
-	if($("#sidebar").hasClass("active")) {
+	if ($("#sidebar").hasClass("active")) {
 
 	}
 
 	try {
 		cursor.remove();
-	} catch(e) {}
+	} catch (e) { }
 
 	switch ($('#selected_shape').val()) {
 		case "line":
@@ -380,7 +394,7 @@ function draw_item(element) {
 	}
 
 	ele.onMouseEnter = function (evt) {
-		if(isDragging) return;
+		if (isDragging) return;
 		t = new paper.PointText(evt.point.x, evt.point.y - 20);
 		t.content = this.data.name;
 		t.pivot = paper.Shape.Rectangle.topLeft;
@@ -435,7 +449,7 @@ function drawScreen() {
  * Draws the ping
  */
 function drawPing(ping) {
-	group_overlay.addChild(paper.Shape.Circle({
+	group_overlay.addChildren(paper.Shape.Circle({
 		center: [ping.position[1], ping.position[2]],
 		radius: ping.size[1] / 2,
 		fillColor: "#f44242",
@@ -445,7 +459,22 @@ function drawPing(ping) {
 			}
 			paper.view.update();
 		}
-	}));
+	}),
+		new paper.PointText({
+			content: ping.username,
+			position: [ping.position[1], ping.position[2] - ping.size[2]],
+			fontWeight: 'bold',
+			fontSize: 16,
+			strokeColor: 'white',
+			strokeWidth: 0.5,
+			onFrame: function (event) {
+				if (event.count >= 100) {
+					this.remove();
+				}
+				paper.view.update();
+			}
+		})
+	);
 }
 
 function eraseCursor() {
@@ -453,9 +482,9 @@ function eraseCursor() {
 		cursor.remove();
 
 		group_top_cursor.removeChildren();
-		group_left_cursor.removeChildren();		
+		group_left_cursor.removeChildren();
 		group_bottom_cursor.removeChildren();
-		group_right_cursor.removeChildren();		
+		group_right_cursor.removeChildren();
 	} catch (e) {
 		console.log(e);
 	}

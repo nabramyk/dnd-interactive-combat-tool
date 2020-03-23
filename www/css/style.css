@@ -102,13 +102,13 @@ canvas[resize] {
 }
 
 #tab_row {
+  position: relative;
   overflow-x: scroll;
   background: #b7b7b7;
   white-space: nowrap;
   z-index: 2;
-  width: 100%;
+  width: calc(100% - 200px);
   display: inline-block;
-  position: fixed;
 }
 
 #grid_size_vertical,
@@ -206,18 +206,6 @@ canvas[resize] {
   outline: none;
 }
 
-.popup_items {
-  position: absolute;
-  display: inline;
-  background: white;
-  border: 1px solid #262626;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select:none;
-  user-select:none;
-  -o-user-select:none;
-}
-
 .tab {
   background-color: #dddddd;
   border: none;
@@ -233,23 +221,25 @@ canvas[resize] {
   border: none;
 }
 
+#content_row {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+}
+
 #overlapping_container_open {
-  position: fixed;
-  height: 100%;
-  width: 30px;
-  right: 0;
-  top: 0;
+  width: 200px;
+  height: auto;
   z-index: 4;
   background: #345eb2;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 #overlapping_container_open > a {
   height: 100%;
-  position: absolute;
-  top: 50%;
-  right: 25%;
   color: white;
-  font-size: xx-large;
 }
 
 #addition_tab {
@@ -317,39 +307,37 @@ p {
   min-width: 200px;
   max-width: 200px;
   transition: all 0.3s;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: none;
   background: #345eb2;
-}
-
-#sidebar ul p {
-  color: #fff;
-  padding: 10px;
-}
-
-#sidebar ul li a {
-  padding: 10px;
-  font-size: 1.1em;
-  display: block;
 }
 
 #sidebar.active {
   right: 0px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-#sidebar ul li.active > a, a[aria-expanded="true"] {
-  color: #fff;
-  background: #6d7fcc;
+.sidebar {
+  position: fixed;
+  right: -200px;
+  top: 0;
+  z-index: 6;
+  min-height: 100vh;
+  max-height: 100vh;
+  min-width: 200px;
+  max-width: 200px;
+  transition: all 0.3s;
+  background: #ffffff;
 }
 
-#sidebar ul p {
-  color: #fff;
-  padding: 10px;
+.sidebar.active {
+  right: 0px;
 }
 
 ul ul a {
   font-size: 0.9em !important;
   padding-left: 30px !important;
   background: #6d7fcc;
+  text-align: center;
 }
 
 .tab.active {
@@ -359,7 +347,6 @@ ul ul a {
 #content {
   width: 100%;
   height: 100%;
-  padding-right: 30px;
 }
 
 .wrapper {
@@ -389,17 +376,22 @@ ul ul a {
 #sidebar ul.components {
   padding: 20px 0;
   border-bottom: 1px solid #47748b;
+  width: 100%;
 }
 
 #sidebar ul li a:hover {
   color: #7386D5;
   background: #fff;
+  width: 100%;
 }
 
 a, a:hover, a:focus {
+  display: block;
   color: inherit;
   text-decoration: none;
   transition: all 0.3s;
+  min-width: 100%;
+  text-align: center;
 }
 
 #sidebar .sidebar-header {
@@ -414,6 +406,39 @@ a, a:hover, a:focus {
   width: 120px;
   height: 120px;
   animation: spin 2s linear infinite;
+}
+
+.collapse {
+  height: auto;
+  width: auto;
+}
+
+.collapse.height {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  -webkit-transition: height 0.35s ease;
+  -moz-transition: height 0.35s ease;
+  -o-transition: height 0.35s ease;
+  transition: height 0.35s ease;
+}
+
+.collapse.width {
+  position: relative;
+  width: 0;
+  overflow: hidden;
+  -webkit-transition: width 0.35s ease;
+  -moz-transition: width 0.35s ease;
+  -o-transition: width 0.35s ease;
+  transition: width 0.35s ease;
+}
+
+.collapse.in.width {
+  width: auto;
+}
+
+.collapse.in.height {
+  height: auto;
 }
 
 @keyframes spin {

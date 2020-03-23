@@ -2,17 +2,6 @@
 
 /**
  * @class Objects which are representable in the grid space
- * 
- * @constructor
- * @property {int} id - unique numerical identifier of this element
- * @property {int} x - horizontal grid coordinate of the element
- * @property {int} y - vertical grid coordinate of the element
- * @property {string} type - the geometric shape this element represents
- * @property {string} color - the hexadecimal value of the element color
- * @property {int} size - the amount of grid spaces this elements spans across
- * @property {string} category - the meta group this element belongs to
- * @property {string} name - the unique name of this element
- * @property {int} rotation - the angle which this element is facing (values 1 - 4)
  */
 module.exports = class Element {
 
@@ -28,7 +17,8 @@ module.exports = class Element {
 	 * @return {Element|undefine} This element at its new position, or undefined
 	 *         if it cannot move
 	 */
-	nudge(direction, gridSpace) {
+	nudge(direction) {
+		console.log(direction);
 		var moveToX = this.el.matrix[4], moveToY = this.el.matrix[5];
 		switch (direction) {
 			case "right": // right
@@ -74,6 +64,7 @@ module.exports = class Element {
 	/**
 	 * Modify this elements properties
 	 * 
+	 * @return {Element}
 	 */
 	mutate(modifiedElement) {
 		console.log(modifiedElement);

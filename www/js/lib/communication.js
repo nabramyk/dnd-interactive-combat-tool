@@ -100,8 +100,8 @@ function bindSocketListeners() {
 
 	socket.on('move_element', function (msg) {
 		if (msg.grid_id != grid_id) return;
-		var element = group_elements.children.find(function(el) { return el.data.id == msg.element.el.data.id; });
-		element.matrix = msg.element.el.matrix;
+		var element = group_elements.children.find(function(el) { return el.data.id == msg.element.data.id; });
+		element.matrix = msg.element.matrix;
 		if (selected_element != null && element === selected_element) {
 			selected_element = null;
 			eraseCursor();
@@ -188,7 +188,8 @@ function add_element_to_server() {
 function pingPosition() {
 	socket.emit('ping_snd', {
 		position: cursor.position,
-		size: cursor.size
+		size: cursor.size,
+		username: $("#username").val()
 	});
 }
 
@@ -244,7 +245,8 @@ function incremental_move_element(direction) {
 			"direction": direction,
 			"size": cursor_size
 		}, function (msg) {
-			console.log("TODO: incremental_move_element callback")
+			selected_element.matrix = msg.matrix;
+			paper.view.update();
 		});
 
 		selected_grid_x = temp.x - (grid_size / 2);

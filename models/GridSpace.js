@@ -13,7 +13,7 @@ const categories = ["npc", "environment", "enemy", "player"];
  * @property {int} elementIdCounter
  * @property {int} id - unique numerical identifier for this grid space
  * @property {int} history -
- * @property {[Element]} - collection of displayable elements in this grid space
+ * @property {[Element]} elements - collection of displayable elements in this grid space
  * @property {int} width - amount of horizontal grid points in this space
  * @property {int} height - amount of vertical grid points in this space
  * @property {{ width: int, height: int }} size -
@@ -70,7 +70,7 @@ module.exports = class GridSpace {
 	 *         undefined if no element with that id exists
 	 */
 	findElementById(id) {
-		return this.elements.find(function (el) { return el.el.data.id == id; })
+		return this.elements.find(function (el) { return el.data.id == id; })
 	};
 
 	/**
@@ -166,8 +166,16 @@ module.exports = class GridSpace {
 		return newElement;
 	};
 
+	/**
+	 * 
+	 * @param {*} obj
+	 * 
+	 * @returns {Element} 
+	 */
 	mutateElementInGridSpace(obj) {
-		return this.elements.find(function(el) { return obj.id == el.data.id; }).mutate(obj);
+		var ind = this.elements.findIndex(function(el) { return obj[1].data.id === el.data.id });
+		this.elements[ind] = obj[1];
+		return this.elements[ind];
 	}
 
     /**
@@ -246,8 +254,31 @@ module.exports = class GridSpace {
 	 * @return {Element|undefined} The element at its new position, or undefined
 	 */
 	nudgeElement(id, direction) {
+		var temp = this.findElementById(id);
+
+		var moveToX = temp.matrix[4], moveToY = temp.matrix[5];
+		switch (direction) {
+			case "right": // right
+				moveToX += 20;
+				break;
+			case "up": // up
+				moveToY -= 20;
+				break;
+			case "left": // left
+				moveToX -= 20;
+				break;
+			case "down": // down
+				moveToY += 20;
+				break;
+		}
+
+		temp.matrix[4] = moveToX;
+		temp.matrix[5] = moveToY;
+
+		this.elements[this.elements.findIndex(function (el) { return el.data.id === id; })] = temp;
+
 		try {
-			return this.findElementById(id).nudge(direction, this.elements);
+			return temp;
 		} catch (e) {
 			return undefined;
 		}
