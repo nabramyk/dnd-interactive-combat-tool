@@ -71,6 +71,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('add_element_to_server', (msg, fn) => {
+		console.log(msg);
 		var output = clutter.addElement(msg);
 		if(isUndefined(output)) {
 			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });

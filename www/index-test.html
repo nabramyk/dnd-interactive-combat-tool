@@ -6,6 +6,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+
   <script src="/socket.io/socket.io.js" type="text/javascript"></script>
   <script src="/js/lib/script.js" type="text/javascript"></script>
   <script src="/js/lib/interface.js" type="text/javascript"></script>
@@ -15,6 +17,7 @@
   <script src="/js/lib/communication.js" type="text/javascript"></script>
   <script src="/js/lib/fabric.min.js" type="text/javascript"></script>
   <script src="/js/lib/paper-full.min.js"></script>
+  <script src="/js/lib/socket.min.js" type="text/javascript"></script>
 
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css' />
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -27,15 +30,15 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
 </head>
 
-<body>
-  <div id="content">
-    <canvas id="canvas" resize="true"></canvas>
+<body ng-app="clutterApp" ng-controller="appController">
+  <div ng-controller="clutterController" id="content">
+    <canvas id="canvas" ng-click="canvasClicked()" resize></canvas>
     <div>
       <ul id="tab_row" class="nav nav-tabs">
         <li id="addition_tab">+</li>
       </ul>
     </div>
-    <div id="overlapping_container_open"><a>Menu</a></div>
+    <div id="overlapping_container_open" ng-click="toggleSidebar()"><a>Menu</a></div>
   </div>
 
   <nav id="sidebar">
@@ -44,16 +47,16 @@
       <input type="text" id="username" placeholder="username">
     </div>
     <ul class="list-unstyled components">
-      <li id="tqa_list"><a id="list" href="javascript:;">List</a></li>
-      <li id="tqa_add"><a id="add_edit" href="javascript:;">Add</a></li>
+      <li ng-click="toggleActive('#list_container')"><a href="javascript:;">List</a></li>
+      <li ng-click="toggleActive('#add_container')"><a href="javascript:;">Add</a></li>
       <li id="tqa_annotate"><a href="javascript:;">Annotate</a></li>
-      <li id="tqa_move"><a id="move" href="javascript:;">Move</a></li>
-      <li><a id="grid_space" href="javascript:;">Grid Space<a></li>
-      <li id="tqa_paste_delete"><a id="paste_delete" href="javascript:;">Delete</a></li>
+      <li ng-click="toggleActive('#movement_container')"><a href="javascript:;">Move</a></li>
+      <li ng-click="toggleActive('#grid_space_container')"><a href="javascript:;">Grid Space<a></li>
+      <li id="tqa_paste_delete"><a href="javascript:;">Delete</a></li>
       <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
-      <li id="tqa_ping"><a href="javascript:;">Ping</a></li>
+      <li ng-click="pingPosition()"><a href="javascript:;">Ping</a></li>
       <li id="tqa_help"><a href="javascript:;">Help</a></li>
-      <li id="overlapping_container_close"><a href="javascript:;">&laquo; Close</a></li>
+      <li ng-click="toggleSidebar()"><a href="javascript:;">&laquo; Close</a></li>
     </ul>
   </nav>
 
@@ -62,7 +65,7 @@
 
   <ul id="list_container" class="sidebar list-unstyled">
     <li>
-      <button id="list_container_close" class="menu_item">x</button>
+      <button ng-click="toggleActive('#list_container')" class="menu_item">x</button>
     </li>
     <button id="list_header_elements" class="list_header">
       Elements
@@ -101,7 +104,7 @@
 
   <ul id="add_container" class="sidebar list-unstyled">
     <li>
-      <button id="add_container_close" class="menu_item">x</button>
+      <button ng-click="toggleActive('#add_container')" class="menu_item">x</button>
     </li>
 
     <li>
@@ -117,7 +120,7 @@
     <li>
       <input type="checkbox" id="element_colour_enabled">
       <label for="element_colour_enabled">Fill Colour: </label>
-      <input type="color" name="elementcolor" id="element_color">
+      <input type="color" id="element_color" value="#000000">
     </li>
 
     <li>
@@ -183,7 +186,7 @@
     </li>
 
     <li>
-      <button id="place_element_button" class="menu_item">Add</button>
+      <button id="place_element_button" class="menu_item" ng-click="placeElementAction()">Add</button>
     </li>
 
     <li>
@@ -206,7 +209,7 @@
 
   <ul id="movement_container" class="sidebar list-unstyled">
     <li>
-      <button id="movement_container_close" class="menu_item">x</button>
+      <button ng-click="toggleActive('#movement_container')" class="menu_item">x</button>
     </li>
     <liv>
       <div>
@@ -260,7 +263,7 @@
 
   <ul id="grid_space_container" class="sidebar list-unstyled">
     <li>
-      <button id="grid_space_container_close" class="menu_item">x</button>
+      <button ng-click="toggleActive('#grid_space_container')" class="menu_item">x</button>
     </li>
     <li>
       <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
@@ -287,10 +290,6 @@
 
   <!-- Sidebar Containers -->
   <!-- SECTION END -->
-
-  <div id="lost_connection_div">
-    <h2 id="lost_connection_text"></h2>
-  </div>
 
   <div id="loading_div">
     <div class="loader"></div>

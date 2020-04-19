@@ -11,25 +11,6 @@ function bindEventHandlers() {
 	$("#element_color").spectrum();
 	$("#outline_color").spectrum();
 
-	$("#grid_size_vertical").val(grid_count_height);
-	$("#grid_size_horizontal").val(grid_count_width);
-
-	$("#grid_size_vertical").change(function () {
-		grid_count_height = $("#grid_size_vertical").val();
-		socket.emit('resize', {
-			"grid_id": grid_id,
-			"size": { "width": grid_count_width, "height": grid_count_height }
-		});
-	});
-
-	$("#grid_size_horizontal").change(function () {
-		grid_count_width = $("#grid_size_horizontal").val();
-		socket.emit('resize', {
-			"grid_id": grid_id,
-			"size": { "width": grid_count_width, "height": grid_count_height }
-		});
-	});
-
 	$("#grid_name").change(function () {
 		socket.emit('rename_grid', {
 			"grid_id": grid_id,
@@ -320,56 +301,12 @@ function bindEventHandlers() {
 		}
 	});
 
-	$("#overlapping_container_open").click(function () {
-		$("#sidebar").toggleClass('active');
-	});
-
-	$("#overlapping_container_close").click(function () {
-		$("#sidebar").toggleClass('active');
-		$(".dropdown-toggle").attr('aria-expanded', function (i, attr) {
-			return 'false';
-		});
-		$(".collapse").removeClass("show");
-	});
-
 	$("#tqa_ping").click(function () {
 		pingPosition();
 	});
 
 	$("#tqa_copy").click(function () {
 		copied_element = selected_element;
-	});
-
-	$("#add_edit").click(function () {
-		$("#add_container").toggleClass('active');
-	});
-
-	$("#add_container_close").click(function () {
-		$("#add_container").toggleClass('active');
-	});
-
-	$("#list").click(function () {
-		$("#list_container").toggleClass('active');
-	});
-
-	$("#list_container_close").click(function () {
-		$("#list_container").toggleClass('active');
-	});
-
-	$("#grid_space").click(function () {
-		$("#grid_space_container").toggleClass('active');
-	});
-
-	$("#grid_space_container_close").click(function () {
-		$("#grid_space_container").toggleClass('active');
-	});
-
-	$("#move").click(function () {
-		$("#movement_container").toggleClass('active');
-	});
-
-	$("#movement_container_close").click(function () {
-		$("#movement_container").toggleClass('active');
 	});
 
 	$("#tqa_paste_delete").click(function () {
@@ -451,79 +388,6 @@ function getContextMenu() {
 	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
 }
 
-function updateSideMenuContent() {
-	$("#options_add_or_edit_button").show();
-	if ((isUndefined(selected_element) || selected_element == null) && line_path.segments.length == 0 && $('#selected_shape').val() != "line") {
-		if (copied_element != null) {
-			$("#paste_delete").text("Paste");
-			$("#paste_delete").show();
-		} else {
-			$("#paste_delete").hide();
-		}
-		$("#add_edit").text("Add");
-		$("#tqa_copy").hide();
-		$("#options_paste_button").hide();
-		$("#options_movement_button").hide();
-
-		//Erase the editable info
-		// $("#selected_shape").val("rectangle");
-		// $("#element_width").val(1);
-		// $("#element_height").val(1);
-		// $("#element_depth").show();
-
-		// $("#element_color").spectrum("set", "#000000");
-		// $("#element_category").val("environment");
-		// $("#element_name").val("object");
-		$("#place_element_button").text("Add");
-	} else if ($('#selected_shape').val() == "line") {
-		console.log("TODO: Handling line segments");
-	} else {
-		$("#add_edit").text("Edit");
-		$("#tqa_copy").show();
-		$("#options_paste_button").show();
-
-		$("#paste_delete").text("Delete");
-		$("#paste_delete").show();
-
-		$("#options_movement_button").show();
-
-		//Populate the editable info
-		$("#rotate_controls_container").show();
-
-		if (selected_element.shape != null) {
-			try {
-				$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
-			} catch(e) {
-				console.log(e);
-			}
-
-			try {
-				$("#outline_color").spectrum("set", selected_element.strokeColor.toCSS(true));
-			} catch(e) {
-				console.log(e);
-			}
-
-			$("#element_width").val(selected_element.size.width / grid_size);
-			$("#element_height").val(selected_element.size.height / grid_size);
-			$("#zindex").val();
-		} else {
-			$("#element_color").spectrum("set", selected_element.strokeColor.toCSS(true));
-		}
-
-		$("#element_category").val(selected_element.data.category);
-		$("#element_name").val(selected_element.data.name);
-		$("#place_element_button").text("Submit");
-	}
-
-	if (copied_element === null) {
-		$("#options_paste_button").hide();
-	} else {
-		$("#options_paste_button").show();
-	}
-
-	$("#options_annotate_button").show();
-}
-
 function showAnnotations() {
 	local_stored_annotations.forEach(function (el) {
 		$("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
@@ -567,27 +431,6 @@ function editElementRow(id) {
 	$("#place_element_button").text("Submit");
 }
 
-function refresh_elements_list() {
-	var filters = document.querySelectorAll(".element_filter:checked");
-	var filter = [];
-	for (var i = 0; i <= filters.length - 1; i++) {
-		filter[i] = filters[i].value;
-	}
-
-	if (filters.length !== 0) {
-		$("#element_list").empty();
-		group_elements.children
-			.filter(function (el) {
-				return filter.indexOf(el.data.category) != -1;
-			})
-			.forEach(function (el) {
-				$("#element_list").append(composeElementListRowElement(el))
-			});
-	} else {
-		$("#element_list").empty();
-	}
-}
-
 /**
  * Move the cursor to the element that was selected from the list of elements
  *
@@ -611,24 +454,6 @@ function clicked_annotation_list(id) {
 		return el.id == id;
 	});
 	draw_cursor_at_position(temp.x, temp.y, 1);
-}
-
-function resizeGridWidth(width) {
-	grid_count_width = width;
-	$("#grid_size_horizontal").val(grid_count_width);
-	drawScreen();
-	drawTopRuler();
-	drawBottomRuler();
-	drawRightRuler();
-}
-
-function resizeGridHeight(height) {
-	grid_count_height = height;
-	$("#grid_size_vertical").val(grid_count_height);
-	drawScreen();
-	drawLeftRuler();
-	drawRightRuler();
-	drawBottomRuler();
 }
 
 function rotateElement(angle) {
