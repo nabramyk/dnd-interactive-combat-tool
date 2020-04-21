@@ -129,61 +129,12 @@ function delete_annotation_from_server(id) {
 	});
 }
 
-function determinePoint(dir, el) {
-	var out = { "x" : pixel2GridPoint(el.bounds.topLeft.x), "y" : pixel2GridPoint(el.bounds.topLeft.y)};
-	switch (dir) {
-		case "up": out.y -= grid_size; break;
-		case "down": out.y += grid_size; break;
-		case "left": out.x -= grid_size; break;
-		case "right": out.x += grid_size;
-	}
-	return out;
-}
-
 function collide(e1, e2) {
 	return e1.id != e2.id &&
 		e1.x < e2.x + e2.size.width &&
 		e1.x + e1.size.width > e2.x &&
 		e1.y < e2.y + e2.size.height &&
 		e1.y + e1.size.height > e2.y;
-}
-
-/**
- *
- */
-function incremental_move_element(direction) {
-	stored_edited_element_bounds = null;
-	if (selected_element != undefined) {
-		var temp = determinePoint(direction, selected_element);
-
-		socket.emit('move_element', {
-			"grid_id": grid_id,
-			"id": selected_element.data.id,
-			"direction": direction,
-			"size": cursor_size
-		}, function (msg) {
-			selected_element.matrix = msg.matrix;
-			paper.view.update();
-		});
-
-		selected_grid_x = temp.x - (grid_size / 2);
-		selected_grid_y = temp.y - (grid_size / 2);
-
-		var loc = new paper.Point(selected_grid_x, selected_grid_y);
-		selected_element.bounds.topLeft = loc;
-		cursor.bounds.topLeft = loc;
-
-		drawSelectedPositionTopRuler(Number(selected_grid_x + (grid_size / 2)), pixel2GridPoint(selected_element.size.width));
-		drawSelectedPositionLeftRuler(Number(selected_grid_y + (grid_size / 2)), pixel2GridPoint(selected_element.size.height));
-
-		try {
-			t.remove();
-			b.remove();
-		} catch (e) { }
-
-		group_overlay.addChild(cursor);
-		paper.view.update();
-	}
 }
 
 function refresh_annotations_list() {
@@ -199,3 +150,82 @@ function refresh_annotations_list() {
 function editAnnotationRow(id) {
 
 }
+
+app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', function ($scope, $rootScope, socket, globals) {
+	socket.on('connect', function (msg) {
+		socket.emit('init', {}, function (msg) {
+			$("#loading_div").show();
+			$rootScope.$broadcast('initializeCanvas', msg);
+		});
+	});
+
+	socket.on('ping_rcv', function (msg) {
+		$rootScope.$broadcast('drawPing', msg);
+	});
+
+	socket.on('resize', function (msg) {
+		$rootScope.$broadcast('resizeRcv', msg);
+	});
+
+	socket.on('added_element', function (msg) {
+		$rootScope.$broadcast('addedElement', msg);
+	});
+
+	socket.on('added_elements', function (msg) { });
+	socket.on('removed_element', function (msg) { });
+	socket.on('move_element', function (msg) { });
+	socket.on('edited_element', function (msg) { });
+	socket.on('new_grid_space', function (msg) { });
+	socket.on('reset_grid', function (msg) { });
+	socket.on('delete_grid_space', function (msg) { });
+	socket.on('renaming_grid', function (msg) { });
+	socket.on('added_annotation', function (msg) { });
+	socket.on('deleted_annotation', function (msg) { });
+	socket.on('error_channel', function (msg) { });
+
+	$scope.$on('resize', (_, args) => {
+		socket.emit('resize', {
+			"grid_id": args[0],
+			"size": { "width": args[1], "height": args[2] }
+		});
+	});
+
+	$scope.$on('ping', (_, args) => {
+		socket.emit('ping_snd', {
+			position: args[0].position,
+			size: args[0].size,
+			username: args[1]
+		});
+	});
+
+	$scope.$on('addElementToServer', (_, args) => {
+		socket.emit('add_element_to_server', {
+			"grid_id": args.grid_id,
+			"element": args.element
+		}, function (msg) {
+			args.element.data.id = msg.id;
+		});
+	});
+
+	$scope.$on('move_element', (_, args) => {
+		socket.emit('move_element', args, (msg) => {
+			$rootScope.$broadcast('move_element_rcv', msg);
+		});
+	});
+
+	$scope.toggleSidebar = () => {
+		$("#sidebar").toggleClass('active');
+	};
+
+	$scope.toggleActive = (event) => {
+		$(event).toggleClass('active');
+	};
+
+	$scope.pingPosition = () => {
+		$rootScope.$broadcast('ping', [globals.getCursor(), $("#username").val()]);
+	};
+
+	$scope.placeElementAction = () => {
+		$rootScope.$broadcast('add_element_to_server');
+	};
+}]);

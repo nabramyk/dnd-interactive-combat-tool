@@ -8,9 +8,6 @@ function bindEventHandlers() {
 		theme: "minimal"
 	});
 
-	$("#element_color").spectrum();
-	$("#outline_color").spectrum();
-
 	$("#grid_name").change(function () {
 		socket.emit('rename_grid', {
 			"grid_id": grid_id,

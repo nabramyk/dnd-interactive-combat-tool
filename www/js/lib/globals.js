@@ -43,3 +43,26 @@ var isDragging = false;
 var line_path, temp;
 var temp_line, stored_edited_element_bounds;
 var t, b;
+
+app.service('globals', function () {
+	var cursor;
+    var grid_id = 0;
+
+	/** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
+    var grid_size = 20;
+    
+	this.getCursor = () => { return cursor; };
+	this.setCursor = (value) => { cursor = value; };
+
+	this.getGridId = () => { return Number(grid_id); };
+	this.setGridId = (value) => { grid_id = value; };
+    
+    this.getGridSize = () => { return Number(grid_size); };
+    this.setGridSize = (value) => { grid_size = value; };
+
+    	/** @global {int} cursor_size - the span of grid spaces the cursor overlays */
+        var cursor_size = 1;
+
+    this.getCursorSize = () => { return Number(cursor_size); };
+    this.setCursorSize = (value) => { cursor_size = value; };
+});
