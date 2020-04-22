@@ -175,7 +175,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 	socket.on('removed_element', function (msg) { });
 	socket.on('move_element', function (msg) { });
 	socket.on('edited_element', function (msg) { });
-	socket.on('new_grid_space', function (msg) { });
+	socket.on('new_grid_space', function (msg) { 
+		$rootScope.$broadcast('generateGridTab', msg);
+	});
+
 	socket.on('reset_grid', function (msg) { });
 	socket.on('delete_grid_space', function (msg) { });
 	socket.on('renaming_grid', function (msg) { });
@@ -213,6 +216,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 		});
 	});
 
+	$scope.$on('createGridSpace', (_) => {
+		socket.emit('create_grid_space', {});
+	});
+
 	$scope.toggleSidebar = () => {
 		$("#sidebar").toggleClass('active');
 	};
@@ -223,9 +230,5 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 
 	$scope.pingPosition = () => {
 		$rootScope.$broadcast('ping', [globals.getCursor(), $("#username").val()]);
-	};
-
-	$scope.placeElementAction = () => {
-		$rootScope.$broadcast('add_element_to_server');
 	};
 }]);

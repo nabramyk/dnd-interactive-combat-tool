@@ -1,0 +1,54 @@
+
+  <ul id="movement_container" class="sidebar list-unstyled" ng-controller="movement_controller">
+    <li>
+      <button ng-click="toggleActive()" class="menu_item">x</button>
+    </li>
+    <liv>
+      <div>
+        <label for="move_to_x">X</label>
+        <input type="number" id="move_to_x" class="menu_item">
+      </div>
+    </liv>
+    <li>
+      <label for="move_to_y">Y:</label>
+    </li>
+    <li>
+      <input type="number" id="move_to_y" class="menu_item">
+    </li>
+    <li>
+      <button id="move_button">Move</button>
+    </li>
+    <li>
+      <table id="incremental_movement_control_container">
+        <tr>
+          <td>
+          <td>
+            <button id="move_inc_up" class="incr_move_button" ng-click="incrementalMoveElement('up')">
+              <i class="arrow up"></i>
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <button id="move_inc_left" class="incr_move_button" ng-click="incrementalMoveElement('left')">
+              <i class="arrow left"></i>
+            </button>
+          </td>
+          <td>
+          <td>
+            <button id="move_inc_right" class="incr_move_button" ng-click="incrementalMoveElement('right')">
+              <i class="arrow right"></i>
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+          <td>
+            <button id="move_inc_down" class="incr_move_button" ng-click="incrementalMoveElement('down')">
+              <i class="arrow down"></i>
+            </button>
+          </td>
+        </tr>
+      </table>
+    </li>
+  </ul>

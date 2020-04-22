@@ -122,56 +122,6 @@ function bindEventHandlers() {
 		paper.view.update();
 	});
 
-	$("#move_inc_up")
-		.mousedown(function () {
-			incremental_move_element("up");
-		})
-
-	$("#move_inc_down")
-		.mousedown(function () {
-			incremental_move_element("down");
-		})
-
-	$("#move_inc_left")
-		.mousedown(function () {
-			incremental_move_element("left");
-		})
-
-	$("#move_inc_right")
-		.mousedown(function () {
-			incremental_move_element("right");
-		})
-
-	//Hotkeys go here!
-	$("#grid_canvas").focus();
-	$(document).keydown(function (e) {
-		if (e.altKey) {
-			e.preventDefault();
-			switch (e.which) {
-				case 8:
-				// Delete
-				case 37:
-					incremental_move_element("left");
-					break;
-				case 38:
-					incremental_move_element("up");
-					break;
-				case 39:
-					incremental_move_element("right");
-					break;
-				case 40:
-					incremental_move_element("down");
-					break;
-				case 80:
-					$("#tqa_ping").click();
-					break;
-				case 79:
-					$("#overlapping_container_open").click();
-					break;
-			}
-		}
-	});
-
 	$("#selected_shape").change(function (el) {
 		eraseCursor();
 		selected_element = null;
@@ -214,10 +164,6 @@ function bindEventHandlers() {
 
 	$(".element_filter").click(function () {
 		refresh_elements_list();
-	});
-
-	$("#addition_tab").click(function () {
-		socket.emit('create_grid_space', {});
 	});
 
 	$("#list_header_elements").click(function () {
@@ -466,8 +412,4 @@ function rotateElement(angle) {
 		"id": selected_element.data.id,
 		"el": selected_element
 	});
-}
-
-function generateGridTab(id, name) {
-	$("<li class=\"tab\" href=\"javascript:;\" id=\"" + id + "\"><a class=\"grid-name\">" + name + "</li>").insertBefore("#addition_tab");
 }

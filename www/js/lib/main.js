@@ -50,7 +50,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 		$("#grid_name").val(msg.spaces[0].name);
 
 		msg.spaces.forEach(function (el) {
-			generateGridTab(el.id, el.name);
+			$rootScope.$broadcast('generateGridTab', {"id": el.id, "name": el.name})
 		});
 
 		$(".tab").first().addClass("active");
