@@ -55,8 +55,8 @@ io.on('connection', (socket) => {
 	socket.on('move_element', (msg, fn) => {
 		var movedElement = clutter.moveElement(msg);
 		if(isUndefined(movedElement)) return;
-		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-		fn({ "matrix" : movedElement.matrix });
+		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		//fn({ "matrix" : movedElement.matrix });
 	});
 
 	socket.on('warp_element', (msg, fn) => {

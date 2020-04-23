@@ -66,10 +66,6 @@ function bindSocketListeners() {
 	// 	$("#element_list>#" + element.data.id).replaceWith(composeElementListRowElement(element));
 	// });
 
-	// socket.on('new_grid_space', function (msg) {
-	// 	generateGridTab(msg.id, msg.name)
-	// });
-
 	// socket.on('reset_grid', function (msg) {
 	// 	if (grid_id != msg.grid_id) return;
 	// 	group_elements.removeChildren();
@@ -172,10 +168,17 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 	});
 
 	socket.on('added_elements', function (msg) { });
-	socket.on('removed_element', function (msg) { });
-	socket.on('move_element', function (msg) { });
+
+	socket.on('removed_element', function (msg) { 
+		$rootScope.$broadcast('removedElement', msg);
+	});
+	
+	socket.on('move_element', function (msg) {
+		$rootScope.$broadcast('move_element_rcv', msg);
+	});
+
 	socket.on('edited_element', function (msg) { });
-	socket.on('new_grid_space', function (msg) { 
+	socket.on('new_grid_space', function (msg) {
 		$rootScope.$broadcast('generateGridTab', msg);
 	});
 
@@ -231,4 +234,19 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 	$scope.pingPosition = () => {
 		$rootScope.$broadcast('ping', [globals.getCursor(), $("#username").val()]);
 	};
+
+	$scope.$on('changeGridSpaceSnd', (_, args) => {
+		socket.emit('request_grid_space', {
+			"id": args
+		}, (msg) => {
+			$rootScope.$broadcast('requestGridSpaceRcv', msg);
+		});
+	});
+
+	$scope.$on('deleteElement', () => {
+		socket.emit('delete_element_on_server', {
+			"grid_id": globals.getGridId(),
+			"element_id": globals.getSelectedElement().data.id
+		});
+	});
 }]);

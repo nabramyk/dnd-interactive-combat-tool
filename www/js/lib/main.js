@@ -25,13 +25,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	var grid_count_height = 0;
 	var grid_id = 0;
 
-    var cursor_size = globals.getCursorSize();
-    var grid_size = globals.getGridSize();
+	var cursor_size = globals.getCursorSize();
+	var grid_size = globals.getGridSize();
 
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
 
-	$scope.$on('initializeCanvas', function (evt, msg) {
+	$scope.$on('initializeCanvas', function (_, msg) {
 		group_elements.removeChildren();
 
 		grid_count_height = msg.size.height;
@@ -50,7 +50,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 		$("#grid_name").val(msg.spaces[0].name);
 
 		msg.spaces.forEach(function (el) {
-			$rootScope.$broadcast('generateGridTab', {"id": el.id, "name": el.name})
+			$rootScope.$broadcast('generateGridTab', { "id": el.id, "name": el.name })
 		});
 
 		$(".tab").first().addClass("active");
@@ -74,6 +74,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 
 		$("#loading_div").hide();
 	});
+
+	var selected_element = globals.getSelectedElement();
 
 	init();
 	function init() {
@@ -125,6 +127,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 			} catch (e) {
 				selected_element = null;
 			}
+
+			globals.setSelectedElement(selected_element);
 
 			stored_edited_element_bounds = null;
 
@@ -560,15 +564,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 			$("#options_paste_button").hide();
 			$("#options_movement_button").hide();
 
-			//Erase the editable info
-			// $("#selected_shape").val("rectangle");
-			// $("#element_width").val(1);
-			// $("#element_height").val(1);
-			// $("#element_depth").show();
-
-			// $("#element_color").spectrum("set", "#000000");
-			// $("#element_category").val("environment");
-			// $("#element_name").val("object");
 			$("#place_element_button").text("Add");
 		} else if ($('#selected_shape').val() == "line") {
 			console.log("TODO: Handling line segments");
@@ -582,7 +577,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 
 			$("#options_movement_button").show();
 
-			//Populate the editable info
 			$("#rotate_controls_container").show();
 
 			if (selected_element.shape != null) {
@@ -625,10 +619,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	}
 
 	function draw_local_item() {
-        var x = utils.pixel2GridPoint(Number(selected_grid_x));
+		var x = utils.pixel2GridPoint(Number(selected_grid_x));
 		var y = utils.pixel2GridPoint(Number(selected_grid_y));
-
-        console.log(selected_grid_x, y);
 
 		var w = $("#element_width").val();
 		var h = $("#element_height").val();
@@ -783,22 +775,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 		}
 	}
 
-	$scope.$on('add_element_to_server', function () {
-		var temp_new_ele = draw_local_item();
-		$("#reset_board_button").prop("disabled", false);
-		$rootScope.$broadcast('addElementToServer', { 'grid_id': globals.getGridId(), 'element': temp_new_ele });
-	});
-
-	$("#grid_size_vertical").change(function () {
-		grid_count_height = $("#grid_size_vertical").val();
-		$rootScope.$broadcast('resize', [globals.getGridId(), grid_count_width, grid_count_height]);
-	});
-
-	$("#grid_size_horizontal").change(function () {
-		grid_count_width = $("#grid_size_horizontal").val();
-		$rootScope.$broadcast('resize', [globals.getGridId(), grid_count_width, grid_count_height]);
-	});
-
 	$scope.$on('drawPing', function (_, ping) {
 		group_overlay.addChildren(paper.Shape.Circle({
 			center: [ping.position[1], ping.position[2]],
@@ -838,16 +814,75 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	});
 
 	$scope.$on('addedElement', function (_, msg) {
-		if (msg.grid_id != grid_id) return;
+		if (msg.grid_id != globals.getGridId()) return;
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.element.el);
 		refresh_elements_list();
-    });
-    
-    $scope.$on('move_element_rcv', (_, msg) => {
-        selected_element.matrix = msg.matrix;
-        $scope.paper.view.update();
-    });
+	});
+
+	$scope.$on('move_element_rcv', (_, msg) => {
+		if (msg.grid_id != globals.getGridId()) return;
+		var element = group_elements.children.find(function (el) { return el.data.id == msg.element.data.id; });
+		element.matrix = msg.element.matrix;
+		//if (selected_element != null && element === selected_element) {
+		//	selected_element = null;
+		//	eraseCursor();
+		//}
+		$scope.paper.view.update();
+	});
+
+	$scope.$on('requestGridSpaceRcv', (_, msg) => {
+		grid_count_height = msg.grid_space.size.height;
+		resizeGridHeight(grid_count_height);
+		grid_count_width = msg.grid_space.size.width;
+		resizeGridWidth(grid_count_width);
+		clearPlayerName();
+		local_stored_annotations = [];
+		$("#grid_name").val(msg.grid_space.name);
+
+		group_elements.removeChildren();
+		group_overlay.removeChildren();
+
+		eraseCursor();
+
+		if (msg.grid_space.elements.length !== 0) {
+			$("#reset_board_button").prop("disabled", false);
+			msg.grid_space.elements.forEach(function (el) { draw_item(el); });
+		}
+
+		if (msg.grid_space.annotations.length !== 0) {
+			local_stored_annotations = msg.grid_space.annotations;
+		}
+
+		refresh_elements_list();
+		refresh_annotations_list();
+
+		$scope.paper.view.update();
+	});
+
+	$scope.$on('drawLocalElement', () => {
+		var temp_new_ele = draw_local_item();
+		$("#reset_board_button").prop("disabled", false);
+		$rootScope.$broadcast('addElementToServer', { 'grid_id': globals.getGridId(), 'element': temp_new_ele });
+	});
+
+	$scope.$on('removedElement', (_, msg) => {
+		if (msg.grid_id != globals.getGridId()) return;
+
+		var temp = group_elements.children[group_elements.children.indexOf(
+			group_elements.children.find(
+				function (el) {
+					return msg.element_id == el.data.id;
+				}
+			)
+		)];
+
+		temp.remove();
+
+		drawElements();
+		$("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
+		refresh_elements_list();
+	});
 
 	/**
 	 * Determine if the value is undefined 

@@ -156,12 +156,6 @@ function bindEventHandlers() {
 		y_vertices.length = [];
 	});
 
-	$("#randomize").click(function () {
-		// socket.emit('randomize', {
-		// 	"grid_id": grid_id
-		// });
-	});
-
 	$(".element_filter").click(function () {
 		refresh_elements_list();
 	});
@@ -189,52 +183,6 @@ function bindEventHandlers() {
 	$("#annotations_display").change(function () {
 		$(".grid_canvas_annotation").toggle();
 	});
-
-	$(document)
-		.on('click', '#tab_row .tab', function () {
-			$(".tab").removeClass("active");
-			$(this).addClass("active");
-			grid_id = Number($(this).attr('id'));
-			socket.emit('request_grid_space', {
-				"id": grid_id
-			}, function (msg) {
-				grid_count_height = msg.grid_space.size.height;
-				resizeGridHeight(grid_count_height);
-				grid_count_width = msg.grid_space.size.width;
-				resizeGridWidth(grid_count_width);
-				clearPlayerName();
-				local_stored_annotations = [];
-				$("#grid_name").val(msg.grid_space.name);
-
-				group_elements.removeChildren();
-				group_overlay.removeChildren();
-
-				eraseCursor();
-
-				if (msg.grid_space.elements.length !== 0) {
-					$("#reset_board_button").prop("disabled", false);
-					msg.grid_space.elements.forEach(function (el) { draw_item(el); });
-				}
-
-				if (msg.grid_space.annotations.length !== 0) {
-					local_stored_annotations = msg.grid_space.annotations;
-				}
-
-				refresh_elements_list();
-				refresh_annotations_list();
-
-				paper.view.update();
-			});
-		})
-		.on('click', '#context_annotation_controls_done', function (evt) {
-			socket.emit('add_annotation_to_server', {
-				"grid_id": grid_id,
-				"title": "",
-				"content": $("#annotation_content").val(),
-				"x": selected_grid_x,
-				"y": selected_grid_y
-			});
-		});
 
 	$("#delete_board_button").click(function () {
 		if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
@@ -285,13 +233,6 @@ function bindEventHandlers() {
 			}, function (msg) {
 				newEl.data.id = msg.id;
 			});
-		} else {
-			socket.emit('delete_element_on_server', {
-				"grid_id": grid_id,
-				"element_id": selected_element.data.id
-			});
-			eraseCursor();
-			selected_element = null;
 		}
 	});
 }

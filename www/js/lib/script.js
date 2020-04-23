@@ -32,6 +32,7 @@ app.directive('keypressEvents', ['$rootScope', '$document', function ( $rootScop
 					case "ArrowRight": $rootScope.$broadcast('incrementalMoveElement', "right"); break;
 					case "ArrowDown": $rootScope.$broadcast('incrementalMoveElement', "down"); break;
 					case "ArrowLeft": $rootScope.$broadcast('incrementalMoveElement', "left"); break;
+					case "Delete": $rootScope.$broadcast('deleteElement', {}); break;
 				}
             });
         }
