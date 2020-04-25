@@ -1,8 +1,10 @@
 app.controller('movement_controller', ['$scope', '$rootScope', 'utils', 'globals', function ($scope, $rootScope, utils, globals) {
-    
+
     var cursor_size = globals.getCursorSize();
 
     function incremental_move_element(direction) {
+        var selected_element = globals.getSelectedElement();
+
         stored_edited_element_bounds = null;
         if (selected_element != undefined) {
             var temp = utils.determinePoint(direction, selected_element);
@@ -36,7 +38,7 @@ app.controller('movement_controller', ['$scope', '$rootScope', 'utils', 'globals
         }
     };
 
-    
+
     $scope.incrementalMoveElement = function (direction) {
         incremental_move_element(direction);
     };

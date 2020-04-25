@@ -8,6 +8,9 @@
 "use strict";
 
 const ClutterInstance = require("./models/ClutterInstance.js");
+const GridSpace = require("./models/GridSpace.js");
+const Element = require("./models/Element.js");
+const fs = require('fs');
 
 var app = require('express')();
 var express = require('express');
@@ -39,6 +42,10 @@ app.use('/js', express.static(__dirname + '/www/js'))
 //webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
+app.get('/download', (req, res) => {
+	res.download('clutter.json');
+});
+
 var clutter = new ClutterInstance();
 
 io.on('connection', (socket) => {
@@ -49,6 +56,8 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('resize', (msg) => {
+		console.log(msg);
+		console.log(clutter.grid_space);
 		io.emit('resize', clutter.resize(msg));
 	});
 
@@ -137,7 +146,29 @@ io.on('connection', (socket) => {
 
 	socket.on('ping_snd', (msg) => {
 		io.emit('ping_rcv', msg);
-	})
+	});
+
+	socket.on('export', (_, fn) => {
+		let data = JSON.stringify(clutter);
+		fs.writeFileSync('clutter.json', data);
+		fn({ "url": '/download'});
+	});
+
+	app.post('/upload', (req, res) => {
+		clutter.grid_id_counter = req.body.grid_id_counter;
+		clutter.grid_space = req.body.grid_space.map(element => {
+			var temp = new GridSpace(element.size, element.id);
+			temp.id = element.id;
+			temp.elementIdCounter = element.elemendIdCounter;
+			temp.elements = element.elements.map(el => {
+				new Element(el);
+			});
+			temp.name = element.name;
+			return temp;
+		});
+
+		io.emit('upload', clutter.init());
+	});
 });
 
 //Main driver for booting up the server

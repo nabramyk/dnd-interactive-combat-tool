@@ -23,7 +23,9 @@ module.exports = class ClutterInstance {
     }
 
     resize(msg) {
+        console.log(msg.grid_id, this.grid_space[0].id, msg.grid_id == this.grid_space[0].id);
         var temp = this.grid_space.find((el) => { return msg.grid_id == el.id });
+        console.log(temp);
         temp.resize(msg.size);
         return {
             "grid_id": msg.grid_id,

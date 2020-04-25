@@ -30,7 +30,7 @@ module.exports = class GridSpace {
         this.annotations = [];
 		this.size = size;
         this.name = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 7);
-    }
+	}
 
 	/**
 	 * Set the grid space width

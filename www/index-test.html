@@ -22,6 +22,8 @@
   <script src="/js/lib/sidebar_movement_container.component.js" type="text/javascript"></script>
   <script src="/js/lib/sidebar_grid_space_container.component.js" type="text/javascript"></script>
   <script src="/js/lib/sidebar_annotation_container.component.js" type="text/javascript"></script>
+  <script src="/js/lib/sidebar_system_container.component.js" type="text/javascript"></script>
+  <script src="/js/lib/sidebar.component.js" type="text/javascript"></script>
 
   <script src="/js/lib/fabric.min.js" type="text/javascript"></script>
   <script src="/js/lib/paper-full.min.js"></script>
@@ -44,30 +46,14 @@
     <div id="overlapping_container_open" ng-click="toggleSidebar()"><a>Menu</a></div>
   </div>
 
-  <nav id="sidebar">
-    <div class="sidebar-header">
-      <h3>Clutter</h3>
-      <input type="text" id="username" placeholder="username">
-    </div>
-    <ul class="list-unstyled components">
-      <li ng-click="toggleActive('#list_container')"><a href="javascript:;">List</a></li>
-      <li ng-click="toggleActive('#add_container')"><a href="javascript:;">Add</a></li>
-      <li id="tqa_annotate"><a href="javascript:;">Annotate</a></li>
-      <li ng-click="toggleActive('#movement_container')"><a href="javascript:;">Move</a></li>
-      <li ng-click="toggleActive('#grid_space_container')"><a href="javascript:;">Grid Space<a></li>
-      <li id="tqa_paste_delete"><a href="javascript:;">Delete</a></li>
-      <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
-      <li ng-click="pingPosition()"><a href="javascript:;">Ping</a></li>
-      <li id="tqa_help"><a href="javascript:;">Help</a></li>
-      <li ng-click="toggleSidebar()"><a href="javascript:;">&laquo; Close</a></li>
-    </ul>
-  </nav>
+  <sidebar></sidebar>
 
   <list-container></list-container>
   <add-container></add-container>
   <movement-container></movement-container>
   <grid-space-container></grid-space-container>
   <annotation-container></annotation-container>
+  <system-container></system-container>
 
   <div id="loading_div">
     <div class="loader"></div>

@@ -147,7 +147,7 @@ function editAnnotationRow(id) {
 
 }
 
-app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', function ($scope, $rootScope, socket, globals) {
+app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', '$location', '$window', '$http', function ($scope, $rootScope, socket, globals, $location, $window, $http) {
 	socket.on('connect', function (msg) {
 		socket.emit('init', {}, function (msg) {
 			$("#loading_div").show();
@@ -169,10 +169,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 
 	socket.on('added_elements', function (msg) { });
 
-	socket.on('removed_element', function (msg) { 
+	socket.on('removed_element', function (msg) {
 		$rootScope.$broadcast('removedElement', msg);
 	});
-	
+
 	socket.on('move_element', function (msg) {
 		$rootScope.$broadcast('move_element_rcv', msg);
 	});
@@ -188,6 +188,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 	socket.on('added_annotation', function (msg) { });
 	socket.on('deleted_annotation', function (msg) { });
 	socket.on('error_channel', function (msg) { });
+
+	socket.on('upload', (msg) => {
+		$rootScope.$broadcast('initializeCanvas', msg);
+	});
 
 	$scope.$on('resize', (_, args) => {
 		socket.emit('resize', {
@@ -227,14 +231,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 		$("#sidebar").toggleClass('active');
 	};
 
-	$scope.toggleActive = (event) => {
-		$(event).toggleClass('active');
-	};
-
-	$scope.pingPosition = () => {
-		$rootScope.$broadcast('ping', [globals.getCursor(), $("#username").val()]);
-	};
-
 	$scope.$on('changeGridSpaceSnd', (_, args) => {
 		socket.emit('request_grid_space', {
 			"id": args
@@ -248,5 +244,12 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', fu
 			"grid_id": globals.getGridId(),
 			"element_id": globals.getSelectedElement().data.id
 		});
+	});
+
+	$scope.$on('exportClutter', () => {
+		socket.emit('export', {
+		}, (msg) => {
+			$window.open($location.host() + ":" + $location.port() + '/download');
+		})
 	});
 }]);
