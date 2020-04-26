@@ -20,7 +20,6 @@ app.component('gridSpaceContainer', {
 
         $scope.$on('resizeRcv', (_, msg) => { setValues(msg.size.width, msg.size.height) });
         $scope.$on('initializeCanvas', (_, msg) => { 
-            console.log(msg);
             setValues(msg.size.width, msg.size.height);
             $scope.name = msg.spaces[0].name; 
         });
@@ -39,9 +38,13 @@ app.component('gridSpaceContainer', {
             $scope.height = height;
         }
 
-        $scope.$on('add_element_to_server', function () {
-            $rootScope.$broadcast('drawLocalElement', {});
+        $scope.$on('add_element_to_server', function (_, args) {
+            $rootScope.$broadcast('drawLocalElement', args);
         });
+
+        $scope.deleteGridSpace = () => {
+            $rootScope.$broadcast('deleteSpace', {});
+        }
     }],
     templateUrl: '/js/lib/grid_space_container.html'
 })

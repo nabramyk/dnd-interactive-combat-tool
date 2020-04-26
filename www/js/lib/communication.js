@@ -5,13 +5,6 @@ function bindSocketListeners() {
 	// // 	$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
 	// // });
 
-	// socket.on('added_element', function (msg) {
-	// 	if (msg.grid_id != grid_id) return;
-	// 	$("#reset_board_button").prop("disabled", false);
-	// 	draw_item(msg.element.el);
-	// 	refresh_elements_list();
-	// });
-
 	// socket.on('added_elements', function (msg) {
 	// 	if (msg.grid_id != grid_id) return;
 	// 	$("#reset_board_button").prop("disabled", false);
@@ -20,17 +13,6 @@ function bindSocketListeners() {
 	// 	refresh_elements_list();
 	// });
 
-	// socket.on('removed_element', function (msg) {
-	// 	if (msg.grid_id != grid_id) return;
-
-	// 	var temp = group_elements.children[group_elements.children.indexOf(
-	// 		group_elements.children.find(
-	// 			function (el) {
-	// 				return msg.element_id == el.data.id;
-	// 			}
-	// 		)
-	// 	)];
-
 	// 	temp.remove();
 
 	// 	drawElements();
@@ -38,51 +20,10 @@ function bindSocketListeners() {
 	// 	refresh_elements_list();
 	// });
 
-	// socket.on('move_element', function (msg) {
-	// 	if (msg.grid_id != grid_id) return;
-	// 	var element = group_elements.children.find(function(el) { return el.data.id == msg.element.data.id; });
-	// 	element.matrix = msg.element.matrix;
-	// 	if (selected_element != null && element === selected_element) {
-	// 		selected_element = null;
-	// 		eraseCursor();
-	// 	}
-	// 	paper.view.update();
-	// 	$("#element_list>#" + msg.element.id).replaceWith(composeElementListRowElement(msg.element));
-	// });
-
-	// socket.on('edited_element', function (msg) {
-	// 	if (msg.grid_id != grid_id) return;
-
-	// 	var element = group_elements.getItem({ data: { id: msg.element.data.id } });
-	// 	var bounds = element.bounds;
-
-	// 	element.fillColor = msg.element.fillColor;
-	// 	element.matrix = msg.element.matrix;
-	// 	element.data = msg.element.data;
-	// 	element.size = msg.element.size;
-	// 	element.bounds.topLeft = bounds.topLeft;
-
-	// 	paper.view.update();
-	// 	$("#element_list>#" + element.data.id).replaceWith(composeElementListRowElement(element));
-	// });
-
 	// socket.on('reset_grid', function (msg) {
 	// 	if (grid_id != msg.grid_id) return;
 	// 	group_elements.removeChildren();
 	// 	paper.view.draw();
-	// });
-
-	// socket.on('delete_grid_space', function (msg) {
-	// 	$("a[class=\"grid-space-delete\"][id=\"" + msg.grid_id + "\"]").parent().remove();
-	// 	if (msg.grid_id == grid_id) {
-	// 		alert("Well, someone decided that you don't need to be here anymore.");
-	// 		ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-	// 		socket.emit('init', {});
-	// 	}
-	// });
-
-	// socket.on('renaming_grid', function (msg) {
-	// 	$("li[class~=\"tab\"][id=\"" + msg.grid_id + "\"] > a[class=\"grid-name\"]").text(msg.grid_name);
 	// });
 
 	// socket.on('added_annotation', function (msg) {
@@ -189,7 +130,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 		$rootScope.$broadcast('move_element_rcv', msg);
 	});
 
-	socket.on('edited_element', function (msg) { });
+	socket.on('edited_element', function (msg) { 
+		$rootScope.$broadcast('updateElement', msg);
+	});
+
 	socket.on('new_grid_space', function (msg) {
 		$rootScope.$broadcast('generateGridTab', msg);
 	});
@@ -199,7 +143,11 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 	 });
 
 	socket.on('reset_grid', function (msg) { });
-	socket.on('delete_grid_space', function (msg) { });
+	
+	socket.on('delete_grid_space', function (msg) { 
+		$rootScope.$broadcast('deletedGridSpace', msg);
+	});
+
 	socket.on('added_annotation', function (msg) { });
 	socket.on('deleted_annotation', function (msg) { });
 	socket.on('error_channel', function (msg) { });
@@ -273,5 +221,17 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 			"grid_id": $rootScope._grid_id,
 			"grid_name": args.gridName
 		});
-	})
+	});
+
+	$scope.$on('sendUpdatedElementToServer', (_, args) => {
+		socket.emit('edit_element_on_server', {
+			"grid_id": $rootScope._grid_id,
+			"el": args
+		});
+	});
+
+	$scope.$on('deleteSpace', () => {
+		console.log($rootScope._grid_id);
+		socket.emit('delete_grid_space_from_server', {'grid_id' : $rootScope._grid_id});
+	});
 }]);

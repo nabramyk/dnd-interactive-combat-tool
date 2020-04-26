@@ -5,15 +5,16 @@
     </div>
     <ul class="list-unstyled components">
         <li ng-click="toggleActive('#list_container')"><a href="javascript:;">List</a></li>
-        <li ng-click="toggleActive('#add_container')"><a href="javascript:;">Add</a></li>
-        <li id="tqa_annotate"><a href="javascript:;">Annotate</a></li>
+        <li ng-click="toggleActive('#add_container')" ng-hide="positionSelected"><a href="javascript:;">{{ add_edit }}</a></li>
+        <li><a href="javascript:;">Annotate</a></li>
         <li ng-click="toggleActive('#movement_container')"><a href="javascript:;">Move</a></li>
         <li ng-click="toggleActive('#grid_space_container')"><a href="javascript:;">Grid Space<a></li>
-        <li id="tqa_paste_delete"><a href="javascript:;">Delete</a></li>
-        <li id="tqa_copy"><a href="javascript:;">Copy</a></li>
-        <li ng-click="pingPosition()"><a href="javascript:;">Ping</a></li>
-        <li id="tqa_help"><a href="javascript:;">Help</a></li>
+        <li ng-hide="positionNotSelected"><a href="javascript:;">{{ paste_delete }}</a></li>
+        <li ng-hide="positionNotSelected"><a href="javascript:;">Copy</a></li>
+        <li ng-click="pingPosition()" ng-hide="positionNotSelected"><a href="javascript:;">Ping</a></li>
+        <li><a href="javascript:;">Help</a></li>
         <li ng-click="toggleActive('#system_container')"><a href="javascript:;">System</a></li>
+        <li><a href="">Measure</a></li>
         <li ng-click="toggleSidebar()"><a href="javascript:;">&laquo; Close</a></li>
     </ul>
 </nav>

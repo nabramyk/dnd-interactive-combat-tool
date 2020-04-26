@@ -92,7 +92,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		$scope.paper.view.onClick = function (event) {
 			if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") { return; }
 			if (gridraster.hitTest(event.point) == null || isDragging) { return; }
-			$('#place_element_button').prop('disabled', false);
 
 			try {
 				t.remove();
@@ -120,6 +119,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			}
 
 			$rootScope._selected_element = selected_element;
+			$rootScope.$broadcast('selectedElement');
+			$rootScope.$broadcast('canvasClicked');
 
 			stored_edited_element_bounds = null;
 
@@ -131,7 +132,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			drawSelectedPositionTopRuler(Number(selected_grid_x));
 			drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
-			updateSideMenuContent();
+			
 			$scope.paper.view.update();
 		}
 
@@ -143,7 +144,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 				if (gridraster.hitTest(event.point) != null) {
 					if (temp_line == null) {
 						temp_line = new paper.Path({
-							strokeColor: $("#element_color").spectrum("get").toHexString(),
+							strokeColor: '#000000',
 							strokeWidth: $("#outline_thickness").val()
 						})
 						temp_line.moveTo(event.point);
@@ -541,94 +542,28 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		$scope.paper.view.update();
 	}
 
-	function updateSideMenuContent() {
-		$("#options_add_or_edit_button").show();
-		if ((isUndefined(selected_element) || selected_element == null) && line_path.segments.length == 0 && $('#selected_shape').val() != "line") {
-			if (copied_element != null) {
-				$("#paste_delete").text("Paste");
-				$("#paste_delete").show();
-			} else {
-				$("#paste_delete").hide();
-			}
-			$("#add_edit").text("Add");
-			$("#tqa_copy").hide();
-			$("#options_paste_button").hide();
-			$("#options_movement_button").hide();
-
-			$("#place_element_button").text("Add");
-		} else if ($('#selected_shape').val() == "line") {
-			console.log("TODO: Handling line segments");
-		} else {
-			$("#add_edit").text("Edit");
-			$("#tqa_copy").show();
-			$("#options_paste_button").show();
-
-			$("#paste_delete").text("Delete");
-			$("#paste_delete").show();
-
-			$("#options_movement_button").show();
-
-			$("#rotate_controls_container").show();
-
-			if (selected_element.shape != null) {
-				try {
-					$("#element_color").spectrum("set", selected_element.fillColor.toCSS(true));
-				} catch (e) {
-					console.log(e);
-				}
-
-				try {
-					$("#outline_color").spectrum("set", selected_element.strokeColor.toCSS(true));
-				} catch (e) {
-					console.log(e);
-				}
-
-				$("#element_width").val(selected_element.size.width / grid_size);
-				$("#element_height").val(selected_element.size.height / grid_size);
-				$("#zindex").val();
-			} else {
-				$("#element_color").spectrum("set", selected_element.strokeColor.toCSS(true));
-			}
-
-			$("#element_category").val(selected_element.data.category);
-			$("#element_name").val(selected_element.data.name);
-			$("#place_element_button").text("Submit");
-		}
-
-		if (copied_element === null) {
-			$("#options_paste_button").hide();
-		} else {
-			$("#options_paste_button").show();
-		}
-
-		$("#options_annotate_button").show();
-	}
-
 	function drawElements() {
 		try { elementsraster.remove() } catch (e) { };
 		$scope.paper.view.update();
 	}
 
-	function draw_local_item() {
+	function draw_local_item(args) {
 		var x = utils.pixel2GridPoint(Number(selected_grid_x));
 		var y = utils.pixel2GridPoint(Number(selected_grid_y));
-
-		var w = $("#element_width").val();
-		var h = $("#element_height").val();
 
 		var ele;
 
 		switch ($("#selected_shape").val()) {
 			case "rectangle":
-				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(w) * grid_size, JSON.parse(h) * grid_size);
-				ele.fillColor = $("#element_color").val();
+				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+				ele.fillColor = args.fillColor;
 				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
 				ele.name = "rectangle";
 				break;
 			case "circle":
-				ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(w) * (grid_size / 2));
+				ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.width) * (grid_size / 2));
 				ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
-				ele.fillColor = $("#element_color").spectrum("get").toHexString();
+				ele.fillColor = args.fillColor;
 				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
 				ele.name = "circle";
 				break;
@@ -640,16 +575,16 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 				ele.name = "line";
 				break;
 			case "room":
-				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(w) * grid_size, JSON.parse(h) * grid_size);
-				ele.strokeColor = $("#outline_color").spectrum("get").toHexString();
+				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+				ele.strokeColor = args.fillColor;
 				ele.strokeWidth = 10;
 				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
 				ele.name = "room";
 				break;
 		}
 
-		ele.data.name = $("#element_name").val();
-		ele.data.category = $("#element_category").val();
+		ele.data.name = args.name;
+		ele.data.category = args.category;
 
 		ele.onMouseEnter = function (evt) {
 			if (isDragging) return;
@@ -851,8 +786,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		$scope.paper.view.update();
 	});
 
-	$scope.$on('drawLocalElement', () => {
-		var temp_new_ele = draw_local_item();
+	$scope.$on('drawLocalElement', (_, args) => {
+		var temp_new_ele = draw_local_item(args);
 		$("#reset_board_button").prop("disabled", false);
 		$rootScope.$broadcast('addElementToServer', { 'grid_id': $rootScope._grid_id, 'element': temp_new_ele });
 	});
@@ -873,6 +808,33 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		drawElements();
 		$("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
 		refresh_elements_list();
+	});
+
+	$scope.$on('updateElement', (_, msg) => {
+		if (msg.grid_id != grid_id) return;
+
+		var element = group_elements.getItem({ data: { id: msg.element.data.id } });
+		var bounds = element.bounds;
+
+		element.fillColor = msg.element.fillColor;
+		element.matrix = msg.element.matrix;
+		element.data = msg.element.data;
+		element.size = msg.element.size;
+		element.bounds.topLeft = bounds.topLeft;
+
+		$scope.paper.view.update();
+	});
+
+	$scope.$on('updateLocalElement', (_, msg) => {
+		var element = group_elements.getItem({ data: { id: msg.element.data.id } });
+
+		element.fillColor = msg.element.fillColor;
+		element.matrix = msg.element.matrix;
+		element.data = msg.element.data;
+		element.size = msg.element.size;
+		element.bounds.topLeft = bounds.topLeft;
+
+		$rootScope.$broadcast('sendUpdatedElementToServer', element);
 	});
 
 	/**

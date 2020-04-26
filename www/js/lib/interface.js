@@ -111,39 +111,39 @@ function bindEventHandlers() {
 		paper.view.update();
 	});
 
-	$("#selected_shape").change(function (el) {
-		eraseCursor();
-		selected_element = null;
-		selected_grid_x = null;
-		selected_grid_y = null;
-		$('#place_element_button').prop('disabled', true);
-		paper.view.update();
-		switch ($("#selected_shape").val()) {
-			case 'line':
-				$('#place_element_button').html("Add Vertex");
-				break;
-			case "square":
-			case "circle":
-				$('#place_element_button').html("Add");
-				$('#start_new_line_button').hide();
-				break;
-			case "freehand":
-				$('#dimensions_container').hide();
-				break;
-			case "room":
-				break;
-		}
-		if (selected_grid_x == -1 && selected_grid_y == -1) {
-			return;
-		}
+	// $("#selected_shape").change(function (el) {
+	// 	eraseCursor();
+	// 	selected_element = null;
+	// 	selected_grid_x = null;
+	// 	selected_grid_y = null;
+	// 	$('#place_element_button').prop('disabled', true);
+	// 	paper.view.update();
+	// 	switch ($("#selected_shape").val()) {
+	// 		case 'line':
+	// 			$('#place_element_button').html("Add Vertex");
+	// 			break;
+	// 		case "square":
+	// 		case "circle":
+	// 			$('#place_element_button').html("Add");
+	// 			$('#start_new_line_button').hide();
+	// 			break;
+	// 		case "freehand":
+	// 			$('#dimensions_container').hide();
+	// 			break;
+	// 		case "room":
+	// 			break;
+	// 	}
+	// 	if (selected_grid_x == -1 && selected_grid_y == -1) {
+	// 		return;
+	// 	}
 
-		for (var i = 1; i < x_vertices.length; i++) {
-			//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
-		}
+	// 	for (var i = 1; i < x_vertices.length; i++) {
+	// 		//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
+	// 	}
 
-		x_vertices.length = [];
-		y_vertices.length = [];
-	});
+	// 	x_vertices.length = [];
+	// 	y_vertices.length = [];
+	// });
 
 	$(".element_filter").click(function () {
 		refresh_elements_list();
@@ -171,14 +171,6 @@ function bindEventHandlers() {
 
 	$("#annotations_display").change(function () {
 		$(".grid_canvas_annotation").toggle();
-	});
-
-	$("#delete_board_button").click(function () {
-		if (confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
-			socket.emit("delete_grid_space_from_server", {
-				"grid_id": grid_id
-			});
-		}
 	});
 
 	$("#tqa_ping").click(function () {
@@ -226,33 +218,6 @@ function bindEventHandlers() {
 	});
 }
 
-/**
- * Create an HTML DOM element
- *
- * @param {Element} el -
- * @return {string} An html element to display
- */
-function composeElementListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_element_list(" + el.data.id + ")\" id=" + el.data.id + ">" +
-		"<div style=\"width: 25%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller; color: #000000;\">" + el.data.name + "<\p>" +
-		"</div>" +
-		"<div style=\"width: 35%; display: inline-block;\">" +
-		"<p style=\"font-size: smaller; color: #000000;\">" + el.data.category + "<\p>" +
-		"</div>" +
-		"<button id=\"element_row_edit\" onClick=\"editElementRow(" + el.data.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_element_from_server(" + el.data.id + ")\">&times</button>" +
-		"</div>";
-}
-
-function composeAnnotationListRowElement(el) {
-	return "<div class=\"element_list_row\" onclick=\"clicked_annotation_list(" + el.id + ")\">" +
-		"<p>" + el.content + "<\p>" +
-		"<button id=\"element_row_edit\" onClick=\"editAnnotationRow(" + el.id + ")\">&#x270E;</button>" +
-		"<button id=\"element_row_delete\" onclick=\"delete_annotation_from_server(" + el.id + ")\">&times</button>" +
-		"</div>";
-}
-
 function getContextMenu() {
 	$("#overlapping_back_button").hide();
 	$("#side_container_swap > *").hide();
@@ -270,15 +235,6 @@ function showAnnotations() {
 
 function hideAnnotations() {
 	$("#grid_canvas_scrolling_container .grid_canvas_annotation").remove();
-}
-
-
-function showPlayerName(x, y, name) {
-	$("body").append("<div id=\"popup_name\" class=\"popup_items\" style=\"top:" + y + "px; left:" + x + "px\"><p>" + name + "</p></div>");
-}
-
-function clearPlayerName() {
-	$("#popup_name").remove();
 }
 
 function editElementRow(id) {

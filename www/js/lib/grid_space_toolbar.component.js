@@ -14,6 +14,14 @@ app.component('gridSpaceBar', {
             $scope.spaces.push(args);
         });
 
+        $scope.$on('renamedGrid', (_, msg) => {
+            $scope.spaces.find((el) => { return el.id == msg.grid_id }).name = msg.grid_name;
+        });
+
+        $scope.$on('deletedGridSpace', (_, msg) => {
+            $scope.spaces = $scope.spaces.filter((el) => { return el.id != msg.grid_id; });
+        });
+
         $scope.changeGridSpace = (index, args) => {
             $rootScope.$broadcast('changeGridSpaceSnd', args);
             $scope.selected = index;
@@ -23,10 +31,6 @@ app.component('gridSpaceBar', {
         $scope.createGridSpace = () => {
             $rootScope.$broadcast('createGridSpace', {});
         };
-        
-        $scope.$on('renamedGrid', (_, msg) => {
-            $scope.spaces.find((el) => { return el.id == msg.grid_id }).name = msg.grid_name;
-        });
     },
     templateUrl: '/js/lib/grid_space_toolbar.html'
 })

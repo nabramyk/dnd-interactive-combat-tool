@@ -22,22 +22,13 @@ var copied_element = null;
 
 var socket;
 
-var movementInterval = 100;
-
-var opacity_rate = 0.04;
 var cursor_line_width = 1;
 
 var grid_color = 'rgba(200,200,200,1)';
 var grid_highlight = 'rgba(0,153,0,1)';
 var grid_line_width = 0.5;
 
-var hoverTimer, movementTimer;
-
 var isDragging = false;
 var line_path, temp;
 var temp_line, stored_edited_element_bounds;
 var t, b;
-
-app.controller('globals', ($rootScope) => {
-
-});
