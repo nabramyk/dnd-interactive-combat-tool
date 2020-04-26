@@ -3,18 +3,7 @@
  * @returns
  */
 function bindEventHandlers() {
-
-	$("#sidebar").mCustomScrollbar({
-		theme: "minimal"
-	});
-
-	$("#grid_name").change(function () {
-		socket.emit('rename_grid', {
-			"grid_id": grid_id,
-			"grid_name": $("#grid_name").val()
-		});
-	});
-
+	
 	$('#place_element_button').click(function () {
 		if ($("#place_element_button").text() === "Add" || $("#place_element_button").text() === "Add Vertex") {
 			switch ($("#selected_shape").val()) {

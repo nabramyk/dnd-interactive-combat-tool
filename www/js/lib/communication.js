@@ -194,9 +194,12 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 		$rootScope.$broadcast('generateGridTab', msg);
 	});
 
+	socket.on('renaming_grid', function (msg) {
+		$rootScope.$broadcast('renamedGrid', msg);
+	 });
+
 	socket.on('reset_grid', function (msg) { });
 	socket.on('delete_grid_space', function (msg) { });
-	socket.on('renaming_grid', function (msg) { });
 	socket.on('added_annotation', function (msg) { });
 	socket.on('deleted_annotation', function (msg) { });
 	socket.on('error_channel', function (msg) { });
@@ -264,4 +267,11 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 			$window.open($location.host() + ":" + $location.port() + '/download');
 		})
 	});
+
+	$scope.$on('changeGridName', (_, args) => {
+		socket.emit('rename_grid', {
+			"grid_id": $rootScope._grid_id,
+			"grid_name": args.gridName
+		});
+	})
 }]);

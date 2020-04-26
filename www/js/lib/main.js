@@ -23,7 +23,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 
 	var grid_count_width = 0;
 	var grid_count_height = 0;
-	var grid_id = 0;
 
 	var cursor_size = $rootScope._cursor_size;
 	var grid_size = $rootScope._grid_size;
@@ -46,15 +45,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		$("#element_list").empty();
 		refresh_elements_list();
 
-		$(".tab").remove();
 		$rootScope._grid_id = msg.spaces[0].id;
-		$("#grid_name").val(msg.spaces[0].name);
-
-		msg.spaces.forEach(function (el) {
-			$rootScope.$broadcast('generateGridTab', { "id": el.id, "name": el.name })
-		});
-
-		$(".tab").first().addClass("active");
+		$rootScope.$broadcast('generateGridTabs', msg.spaces);
 
 		msg.elements.map(function (el) {
 			draw_item(el);

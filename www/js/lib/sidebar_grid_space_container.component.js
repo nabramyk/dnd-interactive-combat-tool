@@ -1,26 +1,47 @@
 app.component('gridSpaceContainer', {
-    templateUrl: '/js/lib/grid_space_container.html',
+    bindings: {
+        height: '=',
+        width: '=',
+        name: '='
+    },
     controller: ['$scope', '$rootScope', ($scope, $rootScope) => {
-
-        var grid_count_height = $("#grid_size_vertical").val();
-        var grid_count_width = $("#grid_size_horizontal").val();
 
         $scope.toggleActive = () => {
             $("#grid_space_container").toggleClass('active');
         }
 
-        $("#grid_size_vertical").change(function () {
-            grid_count_height = $("#grid_size_vertical").val();
-            $rootScope.$broadcast('resize', [$rootScope._grid_id, grid_count_width, grid_count_height]);
+        $scope.onChange = () => {
+            $rootScope.$broadcast('resize', [$rootScope._grid_id, $scope.width, $scope.height]);
+        }
+
+        $scope.onRename = () => {
+            $rootScope.$broadcast('changeGridName', { 'gridName': $scope.name });
+        }
+
+        $scope.$on('resizeRcv', (_, msg) => { setValues(msg.size.width, msg.size.height) });
+        $scope.$on('initializeCanvas', (_, msg) => { 
+            console.log(msg);
+            setValues(msg.size.width, msg.size.height);
+            $scope.name = msg.spaces[0].name; 
         });
-    
-        $("#grid_size_horizontal").change(function () {
-            grid_count_width = $("#grid_size_horizontal").val();
-            $rootScope.$broadcast('resize', [$rootScope._grid_id, grid_count_width, grid_count_height]);
+        
+        $scope.$on('requestGridSpaceRcv', (_, msg) => { 
+            setValues(Number(msg.grid_space.size.width), Number(msg.grid_space.size.height));
+            $scope.name = msg.grid_space.name;
         });
+
+        $scope.$on('renamedGrid', (_, msg) => {
+            $scope.name = msg.grid_name;
+        });
+
+        function setValues(width, height) {
+            $scope.width = width;
+            $scope.height = height;
+        }
 
         $scope.$on('add_element_to_server', function () {
             $rootScope.$broadcast('drawLocalElement', {});
         });
-    }]
+    }],
+    templateUrl: '/js/lib/grid_space_container.html'
 })

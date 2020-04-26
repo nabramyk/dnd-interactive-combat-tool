@@ -1,27 +1,32 @@
 app.component('gridSpaceBar', {
-    template: '<ul id="tab_row" class="nav nav-tabs">' +
-                '<li id="addition_tab" ng-click="createGridSpace();">+</li>' +
-                '</ul>',
-    controller: ($scope, $rootScope, $compile) => {
-        $scope.$on('generateGridTab', (_, args) => { generateGridTab(args) });
+    bindings: {
+        spaces: '='
+    },
+    controller: ($scope, $rootScope) => {
+        $scope.spaces = [];
+        $scope.selected = 0;
 
-        this.generateGridTab = (args) => {
-            var tab = $compile('<li class="tab" href="javascript:;" id="' + args.id + '" ng-click=\"changeGridSpace(' + args.id + ');\"><a class="grid-name">' + args.name + '</li>')($scope);
-            $(tab).insertBefore('#addition_tab');
-        }
+        $scope.$on('generateGridTabs', (_, args) => {
+            $scope.spaces = args;
+        });
 
-        $scope.changeGridSpace = (args) => {
+        $scope.$on('generateGridTab', (_, args) => {
+            $scope.spaces.push(args);
+        });
+
+        $scope.changeGridSpace = (index, args) => {
             $rootScope.$broadcast('changeGridSpaceSnd', args);
-        }
+            $scope.selected = index;
+            $rootScope._grid_id = args;
+        };
 
         $scope.createGridSpace = () => {
             $rootScope.$broadcast('createGridSpace', {});
-        }
-
-        $scope.$on('requestGridSpaceRcv', (_, msg) => {
-            $rootScope._grid_id = msg.grid_space.id;
-            $(".tab").removeClass("active");
-			$(".tab[id=" + msg.grid_space.id + "]").addClass("active");
+        };
+        
+        $scope.$on('renamedGrid', (_, msg) => {
+            $scope.spaces.find((el) => { return el.id == msg.grid_id }).name = msg.grid_name;
         });
-    }
+    },
+    templateUrl: '/js/lib/grid_space_toolbar.html'
 })

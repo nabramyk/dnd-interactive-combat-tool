@@ -4,15 +4,17 @@
     </li>
     <li>
         <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
-        <input id="grid_size_vertical" name="grid_size_vertical" type="number" class="menu_item">
+        <input name="grid_size_vertical" type="number" class="menu_item" ng-change="onChange()"
+            ng-model="height">
     </li>
     <li>
         <label for="grid_size_horizontal">Width Size</label>
-        <input id="grid_size_horizontal" name="grid_size_horizontal" type="number" class="menu_item">
+        <input name="grid_size_horizontal" type="number" class="menu_item" ng-change="onChange()"
+            ng-model="width">
     </li>
     <li>
         <label for="grid_name">Name</label>
-        <input id="grid_name" name="grid_name" type="text" class="menu_item">
+        <input name="grid_name" type="text" class="menu_item" ng-model="name" ng-change="onRename()">
     </li>
     <li>
         <button id="randomize">Randomize</button>

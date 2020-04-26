@@ -56,8 +56,6 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('resize', (msg) => {
-		console.log(msg);
-		console.log(clutter.grid_space);
 		io.emit('resize', clutter.resize(msg));
 	});
 
@@ -164,7 +162,6 @@ io.on('connection', (socket) => {
 				console.log(el);
 				return new Element(el).el;
 			});
-			console.log(temp.elements);
 			temp.name = element.name;
 			return temp;
 		});
