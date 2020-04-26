@@ -38,27 +38,6 @@ var line_path, temp;
 var temp_line, stored_edited_element_bounds;
 var t, b;
 
-app.service('globals', function () {
-    
-    var _cursor;
-    this.getCursor = () => { return _cursor; };
-    this.setCursor = (value) => { _cursor = value; };
+app.controller('globals', ($rootScope) => {
 
-    var _grid_id = 0;
-    this.getGridId = () => { return Number(_grid_id); };
-    this.setGridId = (value) => { _grid_id = value; };
-
-    /** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
-    var _grid_size = 20;
-    this.getGridSize = () => { return Number(_grid_size); };
-    this.setGridSize = (value) => { _grid_size = value; };
-
-    /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
-    var _cursor_size = 1;
-    this.getCursorSize = () => { return Number(_cursor_size); };
-    this.setCursorSize = (value) => { _cursor_size = value; };
-
-    var _selected_element = null;
-    this.getSelectedElement = () => { return _selected_element; };
-    this.setSelectedElement = (value) => { _selected_element = value; };
 });

@@ -1,11 +1,11 @@
-app.service('utils', ['globals', function (globals) {
+app.service('utils', function ($rootScope) {
 	this.determinePoint = (dir, el) => {
 		var out = { "x": this.pixel2GridPoint(el.bounds.topLeft.x), "y": this.pixel2GridPoint(el.bounds.topLeft.y) };
 		switch (dir) {
-			case "up": out.y -= globals.grid_size; break;
-			case "down": out.y += globals.grid_size; break;
-			case "left": out.x -= globals.grid_size; break;
-			case "right": out.x += globals.grid_size;
+			case "up": out.y -= $rootScope._grid_size; break;
+			case "down": out.y += $rootScope._grid_size; break;
+			case "left": out.x -= $rootScope._grid_size; break;
+			case "right": out.x += $rootScope._grid_size;
 		}
 		return out;
 	}
@@ -17,7 +17,7 @@ app.service('utils', ['globals', function (globals) {
  	* @returns {int} a quantized grid point
  	*/
 	this.pixel2GridPoint = (raw_location) => {
-		return raw_location - (raw_location % globals.getGridSize()) + (globals.getGridSize() / 2) + grid_line_width;
+		return raw_location - (raw_location % $rootScope._grid_size) + ($rootScope._grid_size / 2) + grid_line_width;
 	}
 
 	/**
@@ -27,7 +27,7 @@ app.service('utils', ['globals', function (globals) {
  	* @returns {int} a pixel location
  	*/
 	this.gridPoint2Pixel = (grid_point) => {
-		return (grid_point - 1) * globals.getGridSize();
+		return (grid_point - 1) * $rootScope._grid_size;
 	}
 
 	/**
@@ -39,6 +39,6 @@ app.service('utils', ['globals', function (globals) {
 		console.log("Error: " + status.status + ", " + error);
 	}
 
-	this.screenWidth = () => { return globals.grid_size * grid_count_width + 2 * grid_line_width; };
-	this.screenHeight = () => { return globals.grid_size * grid_count_height + 2 * grid_line_width; };
-}]);
+	this.screenWidth = () => { return $rootScope._grid_size * grid_count_width + 2 * grid_line_width; };
+	this.screenHeight = () => { return $rootScope._grid_size * grid_count_height + 2 * grid_line_width; };
+});

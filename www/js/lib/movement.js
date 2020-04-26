@@ -1,16 +1,16 @@
-app.controller('movement_controller', ['$scope', '$rootScope', 'utils', 'globals', function ($scope, $rootScope, utils, globals) {
+app.controller('movement_controller', ['$scope', '$rootScope', 'utils', function ($scope, $rootScope, utils) {
 
-    var cursor_size = globals.getCursorSize();
+    var cursor_size = $rootScope._cursor_size;
 
     function incremental_move_element(direction) {
-        var selected_element = globals.getSelectedElement();
+        var selected_element = $rootScope._selected_element;
 
         stored_edited_element_bounds = null;
         if (selected_element != undefined) {
             var temp = utils.determinePoint(direction, selected_element);
 
             $rootScope.$broadcast('move_element', {
-                "grid_id": globals.getGridId(),
+                "grid_id": $rootScope._grid_id,
                 "id": selected_element.data.id,
                 "direction": direction,
                 "size": cursor_size

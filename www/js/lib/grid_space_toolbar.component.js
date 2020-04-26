@@ -19,6 +19,7 @@ app.component('gridSpaceBar', {
         }
 
         $scope.$on('requestGridSpaceRcv', (_, msg) => {
+            $rootScope._grid_id = msg.grid_space.id;
             $(".tab").removeClass("active");
 			$(".tab[id=" + msg.grid_space.id + "]").addClass("active");
         });

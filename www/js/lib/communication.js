@@ -147,7 +147,19 @@ function editAnnotationRow(id) {
 
 }
 
-app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', '$location', '$window', '$http', function ($scope, $rootScope, socket, globals, $location, $window, $http) {
+app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', '$window', '$http', function ($scope, $rootScope, socket, $location, $window, $http) {
+
+    $rootScope._cursor = [];
+    $rootScope._grid_id = 0;
+
+    /** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
+    $rootScope._grid_size = 20;
+
+    /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
+    $rootScope._cursor_size = 1;
+
+    $rootScope._selected_element = null;
+
 	socket.on('connect', function (msg) {
 		socket.emit('init', {}, function (msg) {
 			$("#loading_div").show();
@@ -241,8 +253,8 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', 'globals', '$
 
 	$scope.$on('deleteElement', () => {
 		socket.emit('delete_element_on_server', {
-			"grid_id": globals.getGridId(),
-			"element_id": globals.getSelectedElement().data.id
+			"grid_id": $rootScope._grid_id,
+			"element_id": $rootScope._selected_element.data.id
 		});
 	});
 

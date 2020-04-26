@@ -1,4 +1,4 @@
-app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils', function ($scope, $rootScope, globals, utils) {
+app.controller('clutterController', ['$scope', '$rootScope', 'utils', function ($scope, $rootScope, utils) {
 	var group_grid,
 		group_elements,
 		group_overlay,
@@ -25,8 +25,9 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	var grid_count_height = 0;
 	var grid_id = 0;
 
-	var cursor_size = globals.getCursorSize();
-	var grid_size = globals.getGridSize();
+	var cursor_size = $rootScope._cursor_size;
+	var grid_size = $rootScope._grid_size;
+	var selected_element = $rootScope._selected_element;
 
 	$("#grid_size_vertical").val(grid_count_height);
 	$("#grid_size_horizontal").val(grid_count_width);
@@ -46,7 +47,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 		refresh_elements_list();
 
 		$(".tab").remove();
-		globals.setGridId(msg.spaces[0].id);
+		$rootScope._grid_id = msg.spaces[0].id;
 		$("#grid_name").val(msg.spaces[0].name);
 
 		msg.spaces.forEach(function (el) {
@@ -74,8 +75,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 
 		$("#loading_div").hide();
 	});
-
-	var selected_element = globals.getSelectedElement();
 
 	init();
 	function init() {
@@ -113,11 +112,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 
 			cursor_size = { "width": 1, "height": 1 };
 
-			var cursor = globals.getCursor();
+			var cursor = $rootScope._cursor;
 			if (isUndefined(cursor)) {
 				cursor = paper.Shape.Rectangle(selected_grid_x, selected_grid_y, grid_size * cursor_size.width, grid_size * cursor_size.height);
 				cursor.strokeColor = grid_highlight;
-				globals.setCursor(cursor);
+				$rootScope._cursor = cursor;
 			}
 
 			if (selected_element != null) selected_element.selected = false;
@@ -128,7 +127,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 				selected_element = null;
 			}
 
-			globals.setSelectedElement(selected_element);
+			$rootScope._selected_element = selected_element;
 
 			stored_edited_element_bounds = null;
 
@@ -372,7 +371,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 
 		var cursor;
 		try {
-			cursor = globals.getCursor();
+			cursor = $rootScope._cursor;
 			cursor.remove();
 		} catch (e) { }
 
@@ -401,7 +400,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 				}
 		}
 
-		globals.setCursor(cursor);
+		$rootScope._cursor = cursor;
 	}
 
 	function drawSelectedPositionTopRuler(pos) {
@@ -805,7 +804,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	});
 
 	$scope.$on('resizeRcv', function (_, msg) {
-		if (globals.getGridId() != msg.grid_id) return;
+		if ($rootScope._grid_id != msg.grid_id) return;
 		grid_count_width = msg.size.width;
 		grid_count_height = msg.size.height;
 		resizeGridWidth(grid_count_width);
@@ -814,14 +813,14 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	});
 
 	$scope.$on('addedElement', function (_, msg) {
-		if (msg.grid_id != globals.getGridId()) return;
+		if (msg.grid_id != $rootScope._grid_id) return;
 		$("#reset_board_button").prop("disabled", false);
 		draw_item(msg.element.el);
 		refresh_elements_list();
 	});
 
 	$scope.$on('move_element_rcv', (_, msg) => {
-		if (msg.grid_id != globals.getGridId()) return;
+		if (msg.grid_id != $rootScope._grid_id) return;
 		var element = group_elements.children.find(function (el) { return el.data.id == msg.element.data.id; });
 		element.matrix = msg.element.matrix;
 		//if (selected_element != null && element === selected_element) {
@@ -863,11 +862,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'globals', 'utils',
 	$scope.$on('drawLocalElement', () => {
 		var temp_new_ele = draw_local_item();
 		$("#reset_board_button").prop("disabled", false);
-		$rootScope.$broadcast('addElementToServer', { 'grid_id': globals.getGridId(), 'element': temp_new_ele });
+		$rootScope.$broadcast('addElementToServer', { 'grid_id': $rootScope._grid_id, 'element': temp_new_ele });
 	});
 
 	$scope.$on('removedElement', (_, msg) => {
-		if (msg.grid_id != globals.getGridId()) return;
+		if (msg.grid_id != $rootScope._grid_id) return;
 
 		var temp = group_elements.children[group_elements.children.indexOf(
 			group_elements.children.find(

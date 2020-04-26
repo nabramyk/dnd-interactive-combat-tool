@@ -161,8 +161,10 @@ io.on('connection', (socket) => {
 			temp.id = element.id;
 			temp.elementIdCounter = element.elemendIdCounter;
 			temp.elements = element.elements.map(el => {
-				new Element(el);
+				console.log(el);
+				return new Element(el).el;
 			});
+			console.log(temp.elements);
 			temp.name = element.name;
 			return temp;
 		});

@@ -1,6 +1,6 @@
 app.component('sidebar', {
     templateUrl: '/js/lib/sidebar.html',
-    controller: ['$scope', '$rootScope', 'globals', ($scope, $rootScope, globals) => {
+    controller: ['$scope', '$rootScope', ($scope, $rootScope) => {
         $scope.toggleActive = (event) => {
             $(event).toggleClass('active');
         };
@@ -10,7 +10,7 @@ app.component('sidebar', {
         };
 
         $scope.pingPosition = () => {
-            $rootScope.$broadcast('ping', [globals.getCursor(), $("#username").val()]);
+            $rootScope.$broadcast('ping', [$rootScope._cursor, $("#username").val()]);
         };
     }]
 })
