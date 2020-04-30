@@ -66,39 +66,6 @@ function bindEventHandlers() {
 		}
 	});
 
-	$("#start_new_line_button").click(function () {
-		try {
-			if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
-				x_vertices.push(cursor.position.x);
-				y_vertices.push(cursor.position.y);
-			}
-		} catch (e) { }
-
-		if (x_vertices.length > 1 && y_vertices.length > 1) {
-			add_element_to_server($("#element_color").spectrum("get").toHexString(),
-				x_vertices,
-				y_vertices,
-				$("#selected_shape").val(),
-				$("#element_name").val(),
-				{ "width": 0, "height": 0 },
-				$("#element_category").val(),
-				$("#outline_thickness").val()
-			);
-		}
-
-		x_vertices = [];
-		y_vertices = [];
-
-		line_path.remove();
-		line_path = new paper.Path();
-		temp_line.remove();
-		temp_line = null;
-
-		paper.view.update();
-
-		$("#start_new_line_button").toggle();
-	});
-
 	$("#element_erase").click(function () {
 		line_path.remove();
 		line_path = new paper.Path();
@@ -109,68 +76,6 @@ function bindEventHandlers() {
 			console.log(e);
 		}
 		paper.view.update();
-	});
-
-	// $("#selected_shape").change(function (el) {
-	// 	eraseCursor();
-	// 	selected_element = null;
-	// 	selected_grid_x = null;
-	// 	selected_grid_y = null;
-	// 	$('#place_element_button').prop('disabled', true);
-	// 	paper.view.update();
-	// 	switch ($("#selected_shape").val()) {
-	// 		case 'line':
-	// 			$('#place_element_button').html("Add Vertex");
-	// 			break;
-	// 		case "square":
-	// 		case "circle":
-	// 			$('#place_element_button').html("Add");
-	// 			$('#start_new_line_button').hide();
-	// 			break;
-	// 		case "freehand":
-	// 			$('#dimensions_container').hide();
-	// 			break;
-	// 		case "room":
-	// 			break;
-	// 	}
-	// 	if (selected_grid_x == -1 && selected_grid_y == -1) {
-	// 		return;
-	// 	}
-
-	// 	for (var i = 1; i < x_vertices.length; i++) {
-	// 		//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
-	// 	}
-
-	// 	x_vertices.length = [];
-	// 	y_vertices.length = [];
-	// });
-
-	$(".element_filter").click(function () {
-		refresh_elements_list();
-	});
-
-	$("#list_header_elements").click(function () {
-		$("#list_header_elements").css("background", "#345eb2");
-		$("#list_header_elements").css("color", "white");
-		$("#list_header_annotations").css("background", " #dddddd");
-		$("#list_header_annotations").css("color", "black");
-
-		$("#annotations_list_container").hide();
-		$("#element_list_container").show();
-	});
-
-	$("#list_header_annotations").click(function () {
-		$("#list_header_annotations").css("background", "#345eb2");
-		$("#list_header_annotations").css("color", "white");
-		$("#list_header_elements").css("background", " #dddddd");
-		$("#list_header_elements").css("color", "black");
-
-		$("#element_list_container").hide();
-		$("#annotations_list_container").show();
-	});
-
-	$("#annotations_display").change(function () {
-		$(".grid_canvas_annotation").toggle();
 	});
 
 	$("#tqa_ping").click(function () {
@@ -216,73 +121,6 @@ function bindEventHandlers() {
 			});
 		}
 	});
-}
-
-function getContextMenu() {
-	$("#overlapping_back_button").hide();
-	$("#side_container_swap > *").hide();
-	$("#options_container").show();
-	$("#overlapping_side_container").show();
-	$("#tab_row").css("padding-right", (($("#overlapping_side_container").css("display") == "block") ? "500px" : "0"));
-}
-
-function showAnnotations() {
-	local_stored_annotations.forEach(function (el) {
-		$("#grid_canvas_scrolling_container").append("<span class=\"grid_canvas_annotation\" style=\"position: absolute; top: " + (gridPoint2Pixel(el.y) + $("#temporary_drawing_canvas").offset().top) + "px; left: " + (gridPoint2Pixel(el.x) + $("#temporary_drawing_canvas").offset().left) + "px; z-index: 2;\">&#x2139;</span>");
-	});
-	if (!$("#annotations_display").attr("checked")) $(".grid_canvas_annotations").hide();
-}
-
-function hideAnnotations() {
-	$("#grid_canvas_scrolling_container .grid_canvas_annotation").remove();
-}
-
-function editElementRow(id) {
-	console.log("TODO: Find selected element");
-
-	$("#overlapping_container").hide();
-	$("#add_container").show();
-
-	$("#selected_shape").val(selected_element.shape);
-	$("#element_color").spectrum("set", selected_element.color);
-	$("#element_width").val(selected_element.size.width);
-	$("#element_height").val(selected_element.size.height);
-	$("#element_category").val(selected_element.category);
-	$("#element_name").val(selected_element.name);
-
-	$("#vertices_list").empty();
-	if (selected_element.shape === "line") {
-		selected_element.x.forEach(function (_, ind) {
-			$("#vertices_list").append("<p>" + selected_element.x[ind] + "," + selected_element.y[ind] + "</p>");
-		});
-	}
-
-	$("#place_element_button").text("Submit");
-}
-
-/**
- * Move the cursor to the element that was selected from the list of elements
- *
- * @param {int} id - the unique ID of the selected element
- */
-function clicked_element_list(id) {
-	try {
-		selected_element.selected = false;
-	} catch (e) {
-		console.log(e);
-	}
-
-	selected_element = group_elements.children.find(function (el) { return el.data.id === id });
-	console.log(selected_element);
-	selected_element.selected = true;
-	paper.view.update();
-}
-
-function clicked_annotation_list(id) {
-	var temp = local_stored_annotations.find(function (el) {
-		return el.id == id;
-	});
-	draw_cursor_at_position(temp.x, temp.y, 1);
 }
 
 function rotateElement(angle) {

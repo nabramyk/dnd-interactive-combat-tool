@@ -10,7 +10,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		group_right_cursor,
 		group_top_cursor,
 		group_bottom_cursor,
-		line_path;
+		line_path,
+		group_temporary_drawing_layer;
 
 	var leftrulerraster,
 		toprulerraster,
@@ -21,6 +22,12 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		leftcursorraster,
 		rightcursorraster;
 
+	var hover_square = null;
+	var hover_point_left = null;
+	var hover_point_right = null;
+	var hover_point_top = null;
+	var hover_point_bottom = null;
+
 	var grid_count_width = 0;
 	var grid_count_height = 0;
 
@@ -28,8 +35,17 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	var grid_size = $rootScope._grid_size;
 	var selected_element = $rootScope._selected_element;
 
-	$("#grid_size_vertical").val(grid_count_height);
-	$("#grid_size_horizontal").val(grid_count_width);
+	var hover_colour = "#ff0000";
+	var cursor_line_width = 1;
+
+	var grid_color = 'rgba(200,200,200,1)';
+	var grid_highlight = 'rgba(0,153,0,1)';
+	var grid_line_width = 0.5;
+
+	var isDragging = false;
+	var line_path, temp;
+	var temp_line, stored_edited_element_bounds;
+	var t, b;
 
 	$scope.$on('initializeCanvas', function (_, msg) {
 		group_elements.removeChildren();
@@ -42,7 +58,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		selected_grid_x = -1;
 		selected_grid_y = -1;
 
-		$("#element_list").empty();
 		refresh_elements_list();
 
 		$rootScope._grid_id = msg.spaces[0].id;
@@ -53,17 +68,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		});
 
 		local_stored_annotations = msg.annotations;
-		showAnnotations();
-		refresh_annotations_list();
-
-		refresh_elements_list();
-
-		$("#options_add_or_edit_button").hide();
-		$("#options_annotate_button").hide();
-		$("#options_delete_button").hide();
-		$("#options_copy_button").hide();
-		$("#options_paste_button").hide();
-		$("#options_movement_button").hide();
 
 		$("#loading_div").hide();
 	});
@@ -86,6 +90,12 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		group_top_cursor = new $scope.paper.Group();
 		group_bottom_cursor = new $scope.paper.Group();
 		group_overlay = new $scope.paper.Group();
+		group_temporary_drawing_layer = new $scope.paper.Group();
+
+		hover_point_top = new $scope.paper.Group();
+		hover_point_right = new $scope.paper.Group();
+		hover_point_bottom = new $scope.paper.Group();
+		hover_point_left = new $scope.paper.Group();
 
 		line_path = new $scope.paper.Path();
 
@@ -132,7 +142,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			drawSelectedPositionTopRuler(Number(selected_grid_x));
 			drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
-			
+
 			$scope.paper.view.update();
 		}
 
@@ -217,9 +227,47 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 				group_grid.addChild(rect);
 			}
 		}
+
 		try { gridraster.remove(); } catch (e) { };
 		gridraster = group_grid.rasterize();
 		group_grid.removeChildren();
+
+		gridraster.onMouseEnter = (event) => {
+			try {
+				hover_square.remove();
+			} catch (e) { };
+
+			var hover_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
+			var hover_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
+
+			hover_square = new paper.Shape.Rectangle(hover_x, hover_y, grid_size, grid_size);
+			hover_square.strokeColor = hover_colour;
+		}
+
+		gridraster.onMouseMove = (event) => {
+			var hover_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
+			var hover_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
+
+			hover_square.position = new paper.Point(hover_x, hover_y);
+
+			drawHoverPositionTopRuler({ "x": hover_x, "y": hover_y });
+			drawHoverPositionLeftRuler({ "x": hover_x, "y": hover_y });
+
+			$scope.paper.view.update();
+		};
+
+		gridraster.onMouseLeave = (event) => {
+			hover_square.remove();
+			hover_square = null;
+
+			hover_point_top.removeChildren();
+			hover_point_bottom.removeChildren();
+
+			hover_point_left.removeChildren();
+			hover_point_right.removeChildren();
+
+			$scope.paper.view.update();
+		};
 
 		$scope.paper.view.update();
 	};
@@ -542,6 +590,90 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		$scope.paper.view.update();
 	}
 
+	function drawHoverPositionTopRuler(pos) {
+		var screen = $scope.paper.view.center._owner.topLeft;
+
+		hover_point_top.removeChildren();
+		hover_point_bottom.removeChildren();
+
+		var top_hover_cursor = paper.Shape.Rectangle(pos.x, grid_line_width, 0, 0);
+		top_hover_cursor.fillColor = hover_colour;
+		top_hover_cursor.size.height = grid_size;
+		top_hover_cursor.size.width = grid_size;
+
+		var bottom_hover_cursor = top_hover_cursor.clone();
+
+		hover_point_top.addChild(top_hover_cursor);
+		hover_point_bottom.addChild(bottom_hover_cursor);
+
+		hover_point_top.position = new paper.Point(pos.x, toprulerraster.position.y);
+
+		hover_point_bottom.position.y = bottomrulerraster.position.y;
+		hover_point_bottom.position.x = hover_point_top.position.x;
+
+		var top_ruler_number = new paper.PointText(grid_size, new paper.Point(pos.x + grid_size));
+		top_ruler_number.fillColor = 'white';
+		top_ruler_number.justification = 'center';
+
+		top_ruler_number.content = ((pos.x - grid_line_width) / grid_size) + 0.5;
+		top_ruler_number.position = new paper.Point(pos.x, (screen.y > -60 ? screen.y + 50 : -10));
+
+		var bottom_ruler_number = top_ruler_number.clone();
+		bottom_ruler_number.content = (grid_count_width - top_ruler_number.content) + 1;
+		bottom_ruler_number.position.y = bottomrulerraster.position.y;
+
+		hover_point_top.addChild(top_ruler_number);
+		hover_point_bottom.addChild(bottom_ruler_number);
+
+		top_ruler_number.bringToFront();
+		bottom_ruler_number.bringToFront();
+
+		hover_point_top.bringToFront();
+		hover_point_bottom.bringToFront();
+	}
+
+	function drawHoverPositionLeftRuler(pos) {
+		var screen = $scope.paper.view.center._owner.topLeft;
+
+		hover_point_left.removeChildren();
+		hover_point_right.removeChildren();
+
+		var left_hover_cursor = paper.Shape.Rectangle(grid_line_width, pos.y, 0, 0);
+		left_hover_cursor.fillColor = hover_colour;
+		left_hover_cursor.size.height = grid_size;
+		left_hover_cursor.size.width = grid_size;
+
+		var right_hover_cursor = left_hover_cursor.clone();
+
+		hover_point_left.addChild(left_hover_cursor);
+		hover_point_right.addChild(right_hover_cursor);
+
+		hover_point_left.position = new paper.Point(leftrulerraster.position.x, pos.y);
+
+		hover_point_right.position.x = rightrulerraster.position.x;
+		hover_point_right.position.y = hover_point_left.position.y;
+
+		var left_ruler_number = new paper.PointText(new paper.Point(grid_size, 0));
+		left_ruler_number.fillColor = 'white';
+		left_ruler_number.justification = 'center';
+
+		left_ruler_number.content = ((pos.y - grid_line_width) / grid_size) + 0.5;
+		left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos.y);
+
+		var right_ruler_number = left_ruler_number.clone();
+		right_ruler_number.content = (grid_count_height - left_ruler_number.content) + 1;
+		right_ruler_number.position = new paper.Point(hover_point_right.position.x, pos.y);
+
+		hover_point_left.addChild(left_ruler_number);
+		hover_point_right.addChild(right_ruler_number);
+
+		left_ruler_number.bringToFront();
+		right_ruler_number.bringToFront();
+
+		hover_point_left.bringToFront();
+		hover_point_right.bringToFront();
+	}
+
 	function drawElements() {
 		try { elementsraster.remove() } catch (e) { };
 		$scope.paper.view.update();
@@ -553,7 +685,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 
 		var ele;
 
-		switch ($("#selected_shape").val()) {
+		switch (args.shape) {
 			case "rectangle":
 				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
 				ele.fillColor = args.fillColor;
@@ -619,9 +751,9 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		} catch (e) {
 			console.log(e);
 		}
-		selected_element = ele;
 
-		ele.selected = false;
+		selected_element = ele;
+		ele.selected = true;
 
 		draw_cursor();
 		drawSelectedPositionTopRuler(Number(selected_grid_x));
@@ -690,15 +822,19 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 
 	function eraseCursor() {
 		try {
-			cursor.remove();
+			$rootScope._cursor.remove();
 
 			group_top_cursor.removeChildren();
 			group_left_cursor.removeChildren();
 			group_bottom_cursor.removeChildren();
 			group_right_cursor.removeChildren();
+
+			console.log('eraseCursor');
 		} catch (e) {
 			console.log(e);
 		}
+
+		$scope.paper.view.update();
 	}
 
 	$scope.$on('drawPing', function (_, ping) {
@@ -826,15 +962,92 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	});
 
 	$scope.$on('updateLocalElement', (_, msg) => {
-		var element = group_elements.getItem({ data: { id: msg.element.data.id } });
+		var bounds = $rootScope._selected_element.bounds;
 
-		element.fillColor = msg.element.fillColor;
-		element.matrix = msg.element.matrix;
-		element.data = msg.element.data;
-		element.size = msg.element.size;
-		element.bounds.topLeft = bounds.topLeft;
+		$rootScope._selected_element.data.name = msg.name;
+		$rootScope._selected_element.data.category = msg.category;
 
-		$rootScope.$broadcast('sendUpdatedElementToServer', element);
+		if ($rootScope._selected_element.name == "room") {
+			$rootScope._selected_element.strokeColor = msg.fillColor;
+		} else {
+			$rootScope._selected_element.fillColor = msg.fillColor;
+		}
+
+		$rootScope._selected_element.size.width = msg.width * grid_size;
+		$rootScope._selected_element.size.height = msg.height * grid_size;
+		$rootScope._selected_element.bounds.topLeft = bounds.topLeft;
+
+		draw_cursor();
+		drawSelectedPositionTopRuler(Number(selected_grid_x));
+		drawSelectedPositionLeftRuler(Number(selected_grid_y));
+
+		$rootScope.$broadcast('sendUpdatedElementToServer', {});
+
+		$scope.paper.view.update();
+	});
+
+	$scope.$on('drawTemporaryElement', (_, args) => {
+		console.log(msg);
+
+		var x = utils.pixel2GridPoint(Number(selected_grid_x));
+		var y = utils.pixel2GridPoint(Number(selected_grid_y));
+
+		var ele;
+
+		switch ($("#selected_shape").val()) {
+			case "rectangle":
+				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+				ele.fillColor = args.fillColor;
+				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+				ele.name = "rectangle";
+				break;
+			case "circle":
+				ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.width) * (grid_size / 2));
+				ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
+				ele.fillColor = args.fillColor;
+				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+				ele.name = "circle";
+				break;
+			case "line":
+			case "freehand":
+				ele = temp_line.clone();
+				ele.fullySelected = false;
+				temp_line.remove();
+				ele.name = "line";
+				break;
+			case "room":
+				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+				ele.strokeColor = args.fillColor;
+				ele.strokeWidth = 10;
+				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+				ele.name = "room";
+				break;
+		}
+
+		group_temporary_drawing_layer.add(ele);
+	});
+
+	$scope.$on('changeOfShape', (_, args) => {
+		eraseCursor();
+
+		if (selected_grid_x == -1 && selected_grid_y == -1) {
+			return;
+		}
+
+		for (var i = 1; i < x_vertices.length; i++) {
+			//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
+		}
+
+		x_vertices.length = [];
+		y_vertices.length = [];
+
+		selected_element = null;
+		selected_grid_x = null;
+		selected_grid_y = null;
+	});
+
+	$scope.$on('deleteElement', () => {
+		eraseCursor();
 	});
 
 	/**

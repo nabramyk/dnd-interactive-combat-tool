@@ -117,6 +117,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 	});
 
 	socket.on('added_element', function (msg) {
+		console.log(msg);
 		$rootScope.$broadcast('addedElement', msg);
 	});
 
@@ -226,7 +227,8 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 	$scope.$on('sendUpdatedElementToServer', (_, args) => {
 		socket.emit('edit_element_on_server', {
 			"grid_id": $rootScope._grid_id,
-			"el": args
+			"id": $rootScope._selected_element.data.id,
+			"el": $rootScope._selected_element
 		});
 	});
 
