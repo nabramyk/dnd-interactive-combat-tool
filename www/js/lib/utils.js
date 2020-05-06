@@ -17,7 +17,7 @@ app.service('utils', function ($rootScope) {
  	* @returns {int} a quantized grid point
  	*/
 	this.pixel2GridPoint = (raw_location) => {
-		return raw_location - (raw_location % $rootScope._grid_size) + ($rootScope._grid_size / 2) + grid_line_width;
+		return raw_location - (raw_location % $rootScope._grid_size) + ($rootScope._grid_size / 2) + $rootScope._grid_line_width;
 	}
 
 	/**

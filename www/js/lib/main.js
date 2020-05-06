@@ -34,13 +34,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	var cursor_size = $rootScope._cursor_size;
 	var grid_size = $rootScope._grid_size;
 	var selected_element = $rootScope._selected_element;
+	var grid_line_width = $rootScope._grid_line_width;
 
 	var hover_colour = "#ff0000";
 	var cursor_line_width = 1;
 
 	var grid_color = 'rgba(200,200,200,1)';
 	var grid_highlight = 'rgba(0,153,0,1)';
-	var grid_line_width = 0.5;
 
 	var isDragging = false;
 	var line_path, temp;
@@ -150,25 +150,23 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		toolPan.activate();
 
 		toolPan.onMouseDrag = function (event) {
-			if ($('#add_container').hasClass('active') && $('#selected_shape').val() == "freehand") {
+			if ($('#add_container').hasClass('active') && $rootScope._drawing_option == "freehand") {
 				if (gridraster.hitTest(event.point) != null) {
 					if (temp_line == null) {
 						temp_line = new paper.Path({
 							strokeColor: '#000000',
-							strokeWidth: $("#outline_thickness").val()
+							strokeWidth: 1
 						})
 						temp_line.moveTo(event.point);
-						x_vertices.push(event.point.x);
-						y_vertices.push(event.point.y);
+						$rootScope._x_vertices.push(event.point.x);
+						$rootScope._y_vertices.push(event.point.y);
 						temp_line.fullySelected = true;
 					} else {
 						temp_line.lineTo(event.point);
-						x_vertices.push(event.point.x);
-						y_vertices.push(event.point.y);
+						$rootScope._x_vertices.push(event.point.x);
+						$rootScope._y_vertices.push(event.point.y);
 						temp_line.smooth();
 					}
-					$("#start_new_line_button").show();
-					$("#element_erase").show();
 				}
 			} else {
 				isDragging = true;
@@ -680,6 +678,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	}
 
 	function draw_local_item(args) {
+		console.log(args);
 		var x = utils.pixel2GridPoint(Number(selected_grid_x));
 		var y = utils.pixel2GridPoint(Number(selected_grid_y));
 
@@ -705,6 +704,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 				ele.fullySelected = false;
 				temp_line.remove();
 				ele.name = "line";
+				ele.strokeColor = args.strokeColor;
+				ele.strokeWidth = args.strokeThickness;
+
+				line_path.remove();
+				line_path = new paper.Path();
+				temp_line = null;
+
 				break;
 			case "room":
 				ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
@@ -760,6 +766,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
 		$scope.paper.view.update();
+		console.log(ele);
 		return ele;
 	}
 
@@ -923,6 +930,21 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	});
 
 	$scope.$on('drawLocalElement', (_, args) => {
+		if (args.shape == "line" || args.shape == "freehand") {
+			if ($rootScope._x_vertices.length <= 1 && $rootScope._y_vertices.length <= 1) {
+				return;
+			}
+
+			try {
+				if (selected_grid_x !== $rootScope._x_vertices[$rootScope._x_vertices.length - 1] || selected_grid_y !== $rootScope._y_vertices[$rootScope._y_vertices.length - 1]) {
+					$rootScope._x_vertices.push(cursor.position.x);
+					$rootScope._y_vertices.push(cursor.position.y);
+				}
+			} catch (e) { }
+	
+			x_vertices = [];
+			y_vertices = [];
+		}
 		var temp_new_ele = draw_local_item(args);
 		$("#reset_board_button").prop("disabled", false);
 		$rootScope.$broadcast('addElementToServer', { 'grid_id': $rootScope._grid_id, 'element': temp_new_ele });
@@ -1038,8 +1060,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
 		}
 
-		x_vertices.length = [];
-		y_vertices.length = [];
+		$rootScope._x_vertices = [];
+		$rootScope._y_vertices.length = [];
 
 		selected_element = null;
 		selected_grid_x = null;

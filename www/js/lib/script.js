@@ -23,8 +23,6 @@ app.factory('socket', function (socketFactory) {
 });
 
 app.factory('readFile', function ($window, $q) {
-    'use strict';
-
     var readFile = function (file) {
         var deferred = $q.defer(),  
             reader = new $window.FileReader();
@@ -41,8 +39,6 @@ app.factory('readFile', function ($window, $q) {
     return readFile;
 })
 .directive('fileBrowser', function (readFile, $http, $location) {
-    'use strict';
-
     return {
         template: '<input type="file" style="display: none;" />' +
             '<ng-transclude></ng-transclude>',
@@ -53,7 +49,9 @@ app.factory('readFile', function ($window, $q) {
             fileInput.on('change', function (event) {
                 var file = event.target.files[0];
                 readFile(file).then(function (content) {
-					$http.post("http://" + $location.host() + ":" + $location.port() + "/upload", content, {});
+					$http.post("http://" + $location.host() + ":" + $location.port() + "/upload", content, () => {
+                        
+                    });
                 });
             });
             

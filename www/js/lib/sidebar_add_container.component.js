@@ -5,20 +5,28 @@ app.component('addContainer', {
         height: '=',
         category: '=',
         name: '=',
-        fillColour: '='
+        fillColour: '=',
+        strokeColour: '=',
+        strokeThickness: '='
     },
     controller: ($scope, $rootScope) => {
 
         $scope.shapes = ["rectangle", "circle", "line", "freehand", "room"];
 
         $scope.shape = 'rectangle';
-        $scope.width = 1;
-        $scope.height = 1;
         $scope.category = 'environment';
         $scope.name = '';
+
+        $scope.width = 1;
+        $scope.height = 1;
         $scope.fillColour = '#000000';
 
+        $scope.strokeColour = '#000000';
+        $scope.strokeThickness = 1;
+
         $scope.addMode = true;
+
+        $rootScope._drawing_option = $scope.shapes[0];
 
         function drawTemporaryElement() {
             $rootScope.$broadcast('drawTemporaryElement', {
@@ -27,7 +35,7 @@ app.component('addContainer', {
                 'height': $scope.height,
                 'category': $scope.category,
                 'name': $scope.name,
-                'fillColor': $scope.fillColour
+                'fillColor': $scope.fill.colour
             });
         };
 
@@ -36,24 +44,30 @@ app.component('addContainer', {
         };
 
         $scope.placeElementAction = () => {
+            console.log($scope.fillColour);
             $rootScope.$broadcast('add_element_to_server', {
                 'shape': $scope.shape,
                 'width': $scope.width,
                 'height': $scope.height,
                 'category': $scope.category,
                 'name': $scope.name,
-                'fillColor': $scope.fillColour
+                'fillColor': $scope.fillColour,
+                'strokeColor': $scope.strokeColour,
+                'strokeThickness': $scope.strokeThickness
             });
         };
 
         $scope.updateElementAction = () => {
+            console.log($scope.fill.colour);
             $rootScope.$broadcast('updateLocalElement', {
                 'shape': $scope.shape,
                 'width': $scope.width,
                 'height': $scope.height,
                 'category': $scope.category,
                 'name': $scope.name,
-                'fillColor': $scope.fillColour
+                'fillColor': $scope.fillColour,
+                'strokeColor': $scope.strokeColour,
+                'strokeThickness': $scope.strokeThickness
             });
         };
 
@@ -65,17 +79,27 @@ app.component('addContainer', {
             //not sure why I have to do this here and nowhere else
             $scope.$apply(() => {
                 $scope.shape = $rootScope._selected_element.shape;
-                $scope.width = $rootScope._selected_element.size.width / $rootScope._grid_size;
-                $scope.height = $rootScope._selected_element.size.height / $rootScope._grid_size;
                 $scope.category = $rootScope._selected_element.data.category;
                 $scope.name = $rootScope._selected_element.data.name;
-                $scope.fillColour = $rootScope._selected_element.fillColor.toCSS(true);
+
+                try {
+                    $scope.width = $rootScope._selected_element.size.width / $rootScope._grid_size;
+                    $scope.height = $rootScope._selected_element.size.height / $rootScope._grid_size;
+                    $scope.fillColour = $rootScope._selected_element.fillColor.toCSS(true);
+                } catch(e) {}
+
+                try {
+                    $scope.strokeColour = $rootScope._selected_element.strokeColor.toCSS(true);
+                    $scope.strokeThickness = $rootScope._selected_element.strokeWidth.toCSS(true);
+                } catch(e) {}
+
 
                 $scope.addMode = false;
             });
         });
 
         $scope.changeOfShape = () => {
+            $rootScope._drawing_option = $scope.shape;
             $rootScope.$broadcast('changeOfShape', {'value' : $scope.shape });
         };
 
@@ -84,38 +108,9 @@ app.component('addContainer', {
             //$rootScope.$broadcast();
         }
 
-        $("#start_new_line_button").click(function () {
-            try {
-                if (selected_grid_x !== x_vertices[x_vertices.length - 1] || selected_grid_y !== y_vertices[y_vertices.length - 1]) {
-                    x_vertices.push(cursor.position.x);
-                    y_vertices.push(cursor.position.y);
-                }
-            } catch (e) { }
-
-            if (x_vertices.length > 1 && y_vertices.length > 1) {
-                add_element_to_server($("#element_color").spectrum("get").toHexString(),
-                    x_vertices,
-                    y_vertices,
-                    $("#selected_shape").val(),
-                    $("#element_name").val(),
-                    { "width": 0, "height": 0 },
-                    $("#element_category").val(),
-                    $("#outline_thickness").val()
-                );
-            }
-
-            x_vertices = [];
-            y_vertices = [];
-
-            line_path.remove();
-            line_path = new paper.Path();
-            temp_line.remove();
-            temp_line = null;
-
-            paper.view.update();
-
-            $("#start_new_line_button").toggle();
-        });
+        $scope.drawingLines = () => {
+            return $rootScope._drawing_option == 'line' || $rootScope._drawing_option == 'freehand';
+        }
     },
     templateUrl: '/js/lib/add_container.html'
 })

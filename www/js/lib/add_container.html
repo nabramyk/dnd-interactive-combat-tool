@@ -8,13 +8,12 @@
       </select>
     </li>
 
-    <li>
-      <input type="checkbox" id="element_colour_enabled">
+    <li ng-if="!drawingLines()">
       <label for="element_colour_enabled">Fill Colour: </label>
-      <input type="color" name="element_color" ng-model="fillColour">
+      <input type="color" ng-model="$parent.fillColour">
     </li>
 
-    <li>
+    <li ng-if="!drawingLines()">
       <input type="checkbox" id="outline_colour_enabled">
       <label for="outline_colour_enabled">Outline Colour: </label>
       <input type="color" name="outlinecolor" id="outline_color">
@@ -24,13 +23,20 @@
       <input type="number" id="zindex">
     </li>
 
+    <li ng-if="drawingLines()">
+      <label for="outline_colour_enabled">Line Colour: </label>
+      <input type="color" ng-model="$parent.strokeColour">
+      <label for="outline_colour_enabled">Line Thickness: </label>
+      <input type="number" ng-model="$parent.strokeThickness">
+    </li>
+
     <li>
       <input type="checkbox" name="snap_to_grid">
       <label for="snap_to_grid">Snap to grid: </label>
     </li>
 
     <li>
-      <div id="dimensions_container" class="sidebar_container">
+      <div class="sidebar_container" ng-if="!drawingLines()">
         <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
         <br>
         <input type="number" name="element_width" class="menu_item" ng-model="width">
@@ -38,17 +44,11 @@
         <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
         <br>
         <input type="number" name="element_height" class="menu_item" ng-model="height">
-
-        <!-- Uncomment at some point if isometric layouts become a thing
-      <label for="element_depth" style="width: 50px; margin-left: auto; margin-right: auto;">Depth</label>
-      <br>
-      <input type="number" id="element_depth" class="menu_item" value=1>
-      -->
       </div>
     </li>
 
     <li>
-      <div id="rotate_controls_container" style="display: inline-block;">
+      <div ng-if="!drawingLines()" style="display: inline-block;">
         Rotate
         <button class="menu_item" ng-click="rotateElement(90)">&#8634;</button>
         <button class="menu_item" ng-click="rotateElement(-90)">&#8635;</button>
@@ -90,6 +90,6 @@
     </li>
 
     <li>
-      <button id="start_new_line_button" class="menu_item">Start New Line</button>
+      <button class="menu_item" ng-if="$root._drawing_option == 'line' || $root._drawing_option == 'freehand'" class="menu_item">Start New Line</button>
     </li>
   </ul>

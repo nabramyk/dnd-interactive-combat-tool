@@ -98,8 +98,10 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
     $rootScope._cursor_size = 1;
-
-    $rootScope._selected_element = null;
+	$rootScope._selected_element = null;
+	$rootScope._grid_line_width = 0.5;
+	$rootScope._x_vertices = [];
+	$rootScope._y_vertices = [];
 
 	socket.on('connect', function (msg) {
 		socket.emit('init', {}, function (msg) {
@@ -213,7 +215,14 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 	$scope.$on('exportClutter', () => {
 		socket.emit('export', {
 		}, (msg) => {
-			$window.open($location.host() + ":" + $location.port() + '/download');
+			$http.get('/download', {}).then((data) => {
+				console.log(data);
+
+				var a = document.createElement("a");
+				a.href = "data:text/json;charset=utf-8," + JSON.stringify(data.data);
+				a.download = 'clutter.json';
+				a.click();
+			}, () => {});
 		})
 	});
 
