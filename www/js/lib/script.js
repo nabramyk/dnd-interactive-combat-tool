@@ -14,7 +14,7 @@ function canvasApp() {
 	$("loading_div").show();
 }
 
-var app = angular.module('clutterApp', ['btford.socket-io']);
+var app = angular.module('clutterApp', ['btford.socket-io', 'ngMaterial']);
 app.factory('socket', function (socketFactory) {
 	return socketFactory({
 		prefix: '',
@@ -49,8 +49,8 @@ app.factory('readFile', function ($window, $q) {
             fileInput.on('change', function (event) {
                 var file = event.target.files[0];
                 readFile(file).then(function (content) {
-					$http.post("http://" + $location.host() + ":" + $location.port() + "/upload", content, () => {
-                        
+					$http.post("https://" + $location.host() + ":" + $location.port() + "/upload", content, () => {
+
                     });
                 });
             });

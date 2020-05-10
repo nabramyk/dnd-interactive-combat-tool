@@ -9,7 +9,7 @@ app.component('addContainer', {
         strokeColour: '=',
         strokeThickness: '='
     },
-    controller: ($scope, $rootScope) => {
+    controller: ($scope, $rootScope, utils) => {
 
         $scope.shapes = ["rectangle", "circle", "line", "freehand", "room"];
 
@@ -40,11 +40,10 @@ app.component('addContainer', {
         };
 
         $scope.toggleActive = () => {
-            $("#add_container").toggleClass('active');
+            utils.toggle('add_container');
         };
 
         $scope.placeElementAction = () => {
-            console.log($scope.fillColour);
             $rootScope.$broadcast('add_element_to_server', {
                 'shape': $scope.shape,
                 'width': $scope.width,
@@ -58,7 +57,6 @@ app.component('addContainer', {
         };
 
         $scope.updateElementAction = () => {
-            console.log($scope.fill.colour);
             $rootScope.$broadcast('updateLocalElement', {
                 'shape': $scope.shape,
                 'width': $scope.width,

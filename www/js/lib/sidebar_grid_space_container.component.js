@@ -4,10 +4,10 @@ app.component('gridSpaceContainer', {
         width: '=',
         name: '='
     },
-    controller: ['$scope', '$rootScope', ($scope, $rootScope) => {
+    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
 
         $scope.toggleActive = () => {
-            $("#grid_space_container").toggleClass('active');
+            utils.toggle('grid_space_container');
         }
 
         $scope.onChange = () => {

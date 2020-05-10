@@ -1,8 +1,8 @@
 app.component('systemContainer', {
     templateUrl: '/js/lib/system_container.html',
-    controller: ['$scope', '$rootScope', ($scope, $rootScope) => {
+    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
         $scope.toggleActive = (event) => {
-            $(event).toggleClass('active');
+            utils.toggle('system_container');
         };
 
         $scope.export = () => {

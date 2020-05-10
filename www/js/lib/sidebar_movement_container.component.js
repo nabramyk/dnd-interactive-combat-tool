@@ -1,8 +1,8 @@
 app.component('movementContainer', {
     templateUrl: '/js/lib/movement_container.html',
-    controller: ($scope, $rootScope) => {
+    controller: ($scope, $rootScope, utils) => {
         $scope.toggleActive = () => {
-            $("#movement_container").toggleClass('active');
+            utils.toggle('movement_container');
         }
     }
 })

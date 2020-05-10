@@ -1,30 +1,19 @@
 app.component('sidebar', {
-    controller: ['$scope', '$rootScope', ($scope, $rootScope) => {
-
+    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
         $scope.add_edit = "Add";
         $scope.paste_delete = "Delete";
         $scope.positionNotSelected = true;
 
-        $scope.toggleActive = (event) => {
-            $(event).toggleClass('active');
-        };
-
-        $scope.toggleSidebar = () => {
-            $("#sidebar").toggleClass('active');
+        $scope.toggleSection = (element) => {
+            utils.toggle(element);
         };
 
         $scope.pingPosition = () => {
             $rootScope.$broadcast('ping', [$rootScope._cursor, $("#username").val()]);
         };
 
-        $scope.$on('canvasClicked', () => {
-            if($rootScope._selected_element != null) {
-                $scope.add_edit = "Edit";
-            } else {
-                $scope.add_edit = "Add";
-            }
-
-            $scope.positionNotSelected = false;
+        $rootScope.$watch('_selected_element', (val1, val2) => {
+            console.log(val1, val2); 
         });
     }],
     templateUrl: '/js/lib/sidebar.html'

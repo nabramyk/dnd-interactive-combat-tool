@@ -1,20 +1,19 @@
-<nav id="sidebar">
-    <div class="sidebar-header">
+<md-sidenav class="md-sidenav-right" md-component-id="sidebar" md-disable-backdrop="">
+    <md-toolbar class="sidebar-header">
         <h3>Clutter</h3>
         <input type="text" id="username" placeholder="username">
-    </div>
+    </md-toolbar>
     <ul class="list-unstyled components">
-        <li ng-click="toggleActive('#list_container')"><a href="javascript:;">List</a></li>
-        <li ng-click="toggleActive('#add_container')" ng-hide="positionSelected"><a href="javascript:;">{{ add_edit }}</a></li>
-        <li><a href="javascript:;">Annotate</a></li>
-        <li ng-click="toggleActive('#movement_container')"><a href="javascript:;">Move</a></li>
-        <li ng-click="toggleActive('#grid_space_container')"><a href="javascript:;">Grid Space<a></li>
-        <li ng-hide="positionNotSelected"><a href="javascript:;">{{ paste_delete }}</a></li>
-        <li ng-hide="positionNotSelected"><a href="javascript:;">Copy</a></li>
-        <li ng-click="pingPosition()" ng-hide="positionNotSelected"><a href="javascript:;">Ping</a></li>
-        <li><a href="javascript:;">Help</a></li>
-        <li ng-click="toggleActive('#system_container')"><a href="javascript:;">System</a></li>
-        <li><a href="">Measure</a></li>
-        <li ng-click="toggleSidebar()"><a href="javascript:;">&laquo; Close</a></li>
+        <li><md-button ng-click="toggleSection('list_container')">List</md-button></li>
+        <li><md-button ng-click="toggleSection('add_container')" ng-hide="positionSelected">{{ add_edit }}</md-button></li>
+        <li><md-button>Annotate</md-button></li>
+        <li><md-button ng-click="toggleSection('movement_container')">Move</md-button></li>
+        <li><md-button ng-click="toggleSection('grid_space_container')">Grid Space</md-button></li>
+        <li><md-button ng-hide="positionNotSelected">{{ paste_delete }}</md-button></li>
+        <li><md-button ng-hide="positionNotSelected">Copy</md-button></li>
+        <li><md-button ng-click="pingPosition()" ng-hide="positionNotSelected">Ping</md-button></li>
+        <li><md-button>Help</md-button></li>
+        <li><md-button ng-click="toggleSection('system_container')">System</md-button></li>
+        <li><md-button ng-click="toggleSection('sidebar')">&laquo; Close</md-button></li>
     </ul>
 </nav>

@@ -1,8 +1,8 @@
 app.component('listContainer', {
     templateUrl: '/js/lib/list_container.html',
-    controller: ($scope, $rootScope) => {
+    controller: ($scope, $rootScope, utils) => {
         $scope.toggleActive = () => {
-            $("#list_container").toggleClass('active');
+            utils.toggle('list_container');
         }
 
         $(".element_filter").click(function () {

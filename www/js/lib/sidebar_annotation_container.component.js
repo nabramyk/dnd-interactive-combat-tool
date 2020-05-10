@@ -1,6 +1,8 @@
 app.component('annotationContainer', {
     templateUrl: '/js/lib/annotation_container.html',
-    controller: () => {
-        
+    controller: ($scope, utils) => {
+        $scope.toggleActive = () => {
+            utils.toggle('annotation_container');
+        };
     }
 })

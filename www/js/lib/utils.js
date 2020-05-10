@@ -1,4 +1,4 @@
-app.service('utils', function ($rootScope) {
+app.service('utils', function ($rootScope, $mdSidenav) {
 	this.determinePoint = (dir, el) => {
 		var out = { "x": this.pixel2GridPoint(el.bounds.topLeft.x), "y": this.pixel2GridPoint(el.bounds.topLeft.y) };
 		switch (dir) {
@@ -41,4 +41,9 @@ app.service('utils', function ($rootScope) {
 
 	this.screenWidth = () => { return $rootScope._grid_size * grid_count_width + 2 * grid_line_width; };
 	this.screenHeight = () => { return $rootScope._grid_size * grid_count_height + 2 * grid_line_width; };
+
+	this.toggle = (componentId) => {
+		console.log(componentId);
+		$mdSidenav(componentId).toggle();
+	}
 });

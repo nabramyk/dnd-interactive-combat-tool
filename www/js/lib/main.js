@@ -129,7 +129,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			}
 
 			$rootScope._selected_element = selected_element;
-			$rootScope.$broadcast('selectedElement');
 			$rootScope.$broadcast('canvasClicked');
 
 			stored_edited_element_bounds = null;
@@ -404,11 +403,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	}
 
 	function draw_cursor() {
-		if ($("#sidebar").hasClass("active")) {
-
-		}
-
 		var cursor;
+
 		try {
 			cursor = $rootScope._cursor;
 			cursor.remove();
@@ -1071,6 +1067,10 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	$scope.$on('deleteElement', () => {
 		eraseCursor();
 	});
+
+	$scope.toggleSidebar = () => {
+		utils.toggle('sidebar');
+	};
 
 	/**
 	 * Determine if the value is undefined 
