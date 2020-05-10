@@ -7,6 +7,6 @@ app.component('systemContainer', {
 
         $scope.export = () => {
             $rootScope.$broadcast('exportClutter', {});
-        }
+        };
     }]
 })

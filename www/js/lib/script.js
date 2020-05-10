@@ -49,9 +49,11 @@ app.factory('readFile', function ($window, $q) {
             fileInput.on('change', function (event) {
                 var file = event.target.files[0];
                 readFile(file).then(function (content) {
-					$http.post("https://" + $location.host() + ":" + $location.port() + "/upload", content, () => {
-
-                    });
+                    try {
+                        $http.post("https://" + $location.host() + ":" + $location.port() + "/upload", content, () => {});
+                    } catch (e) {
+                        console.log(e);
+                    }
                 });
             });
             
