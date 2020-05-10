@@ -472,7 +472,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 				top_ruler_number.fillColor = 'white';
 				top_ruler_number.justification = 'center';
 
-				top_ruler_number.content = ((selected_element.bounds.left - 0.5) / grid_size) + i + 1;
+				top_ruler_number.content = (selected_element.bounds.left / grid_size) + i + 1;
 				top_ruler_number.position = new paper.Point(selected_element.bounds.left + (i * grid_size) + (grid_size / 2), toprulerraster.position.y);
 
 				var bottom_ruler_number = top_ruler_number.clone();
@@ -493,7 +493,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			top_ruler_number.fillColor = 'white';
 			top_ruler_number.justification = 'center';
 
-			top_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+			top_ruler_number.content = Math.ceil(pos / grid_size);
 			top_ruler_number.position = new paper.Point(pos, (screen.y > -60 ? screen.y + 50 : -10));
 
 			var bottom_ruler_number = top_ruler_number.clone();
@@ -545,7 +545,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 				left_ruler_number.fillColor = 'white';
 				left_ruler_number.justification = 'center';
 
-				left_ruler_number.content = ((selected_element.bounds.top - 0.5) / grid_size) + i + 1;
+				left_ruler_number.content = (selected_element.bounds.top / grid_size) + i + 1;
 				left_ruler_number.position = new paper.Point(leftrulerraster.position.x, selected_element.bounds.top + (i * grid_size) + (grid_size / 2));
 
 				var right_ruler_number = left_ruler_number.clone();
@@ -566,7 +566,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			left_ruler_number.fillColor = 'white';
 			left_ruler_number.justification = 'center';
 
-			left_ruler_number.content = ((pos - grid_line_width) / grid_size) + 0.5;
+			left_ruler_number.content = Math.ceil(pos / grid_size);
 			left_ruler_number.position = new paper.Point((screen.x > -10 ? screen.x + 10 : -10), pos);
 
 			var right_ruler_number = left_ruler_number.clone();
@@ -903,7 +903,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 		resizeGridHeight(grid_count_height);
 		grid_count_width = msg.grid_space.size.width;
 		resizeGridWidth(grid_count_width);
-		clearPlayerName();
 		local_stored_annotations = [];
 		$("#grid_name").val(msg.grid_space.name);
 
@@ -1097,25 +1096,24 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
                 "size": cursor_size
             });
 
-            // selected_grid_x = temp.x - (globals.getGridSize() / 2);
-            // selected_grid_y = temp.y - (globals.getGridSize() / 2);
+            selected_grid_x = temp.x - ($rootScope._grid_size / 2);
+            selected_grid_y = temp.y - ($rootScope._grid_size / 2);
 
-            // var loc = new paper.Point(selected_grid_x, selected_grid_y);
-            // selected_element.bounds.topLeft = loc;
-            // cursor.bounds.topLeft = loc;
+            var loc = new paper.Point(selected_grid_x, selected_grid_y);
+            selected_element.bounds.topLeft = loc;
+            //cursor.bounds.topLeft = loc;
 
-            // drawSelectedPositionTopRuler(Number(selected_grid_x + (globals.getGridSize() / 2)), pixel2GridPoint(selected_element.size.width));
-            // drawSelectedPositionLeftRuler(Number(selected_grid_y + (globals.getGridSize() / 2)), pixel2GridPoint(selected_element.size.height));
+            drawSelectedPositionTopRuler(Number(selected_grid_x + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.width));
+            drawSelectedPositionLeftRuler(Number(selected_grid_y + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.height));
 
-            // try {
-            //     t.remove();
-            //     b.remove();
-            // } catch (e) {
-            //     console.log(e);
-            // }
+            try {
+                t.remove();
+                b.remove();
+            } catch (e) {
+                console.log(e);
+            }
 
-            // group_overlay.addChild(cursor);
-            // paper.view.update();
+            $scope.paper.view.update();
         }
     };
 

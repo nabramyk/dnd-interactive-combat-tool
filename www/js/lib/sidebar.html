@@ -10,7 +10,7 @@
         <li><md-button ng-click="toggleSection('movement_container')" ng-hide="positionNotSelected">Move</md-button></li>
         <li><md-button ng-click="toggleSection('grid_space_container')">Grid Space</md-button></li>
         <li><md-button ng-hide="positionNotSelected">{{ paste_delete }}</md-button></li>
-        <li><md-button ng-hide="positionNotSelected">Copy</md-button></li>
+        <li><md-button ng-hide="positionNotSelected || $root._selected_element == null">Copy</md-button></li>
         <li><md-button ng-click="pingPosition()" ng-hide="positionNotSelected">Ping</md-button></li>
         <li><md-button>Help</md-button></li>
         <li><md-button ng-click="clearCursor()" ng-hide="positionNotSelected">Clear Cursor</md-button></li>

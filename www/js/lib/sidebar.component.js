@@ -2,12 +2,14 @@ app.component('sidebar', {
     bindings: { 
         'add_edit': '<',
         'paste_delete': '<',
-        'positionNotSelected': '<' 
+        'positionNotSelected': '<',
+        'copiedElement': '<'
     },
     controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
         $scope.add_edit = "Add";
         $scope.paste_delete = "Delete";
         $scope.positionNotSelected = true;
+        $scope.copiedElement = null;
 
         $scope.toggleSection = (element) => {
             utils.toggle(element);
@@ -18,7 +20,9 @@ app.component('sidebar', {
         };
 
         $scope.clearCursor = () => {
-            $scope.positionNotSelected = true;                
+            $scope.positionNotSelected = true;
+            //$rootScope._selected_element = null;
+            $scope.add_edit = "Add";           
             $rootScope.$broadcast('clearCursor', {});
         };
 
@@ -28,12 +32,18 @@ app.component('sidebar', {
             $scope.$apply(() => {
                 if ($rootScope._selected_element != null) {
                     $scope.add_edit = "Edit";
+                    
                 } else {
                     $scope.add_edit = "Add";
                 }
 
                 $scope.positionNotSelected = false;
             })
+        });
+
+        $scope.$on('deleteElement', () => {
+            $scope.add_edit = "Add";
+            $scope.positionNotSelected = true;
         });
     }],
     templateUrl: '/js/lib/sidebar.html'

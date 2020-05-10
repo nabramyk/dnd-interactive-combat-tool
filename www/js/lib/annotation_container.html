@@ -1,12 +1,15 @@
 <md-sidenav md-component-id="annotations_container" class="md-sidenav-right" md-disable-backdrop="">
-  <li>
-    <button ng-click="toggleActive()" class="menu_item">x</button>
-  </li>
+  <ul class="list-unstyled components">
 
-  <label for="annotation_title">Title</label><br>
-  <textarea id="annotation_title"></textarea><br>
-  <label for="annotation_content">Content</label><br>
-  <textarea id="annotation_content"></textarea><br>
-  <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
-  <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
+    <li>
+      <button ng-click="toggleActive()" class="menu_item">x</button>
+    </li>
+
+    <label for="annotation_title">Title</label><br>
+    <textarea id="annotation_title"></textarea><br>
+    <label for="annotation_content">Content</label><br>
+    <textarea id="annotation_content"></textarea><br>
+    <button id="context_annotation_controls_done" class="menu_item">Add</button><br>
+    <button id="context_annotation_controls_cancel" class="menu_item destructive">Cancel</button>
+  </ul>
 </md-sidenav>

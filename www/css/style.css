@@ -165,13 +165,6 @@ canvas[resize] {
   margin-right: 5px;
 }
 
-.tab > button {
-  display: inline-block;
-  height: 100%;
-  background: none;
-  border: none;
-}
-
 #overlapping_container_open {
   width: 200px;
   height: auto;
@@ -186,11 +179,9 @@ canvas[resize] {
 #addition_tab {
   background: white;
   border: none;
-  height: 100%;
   width: 20px;
   margin-right: 40px;
   margin: 2px;
-  display: inline-block;
 }
 
 #element_list {

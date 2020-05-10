@@ -57,6 +57,7 @@ app.component('addContainer', {
         };
 
         $scope.updateElementAction = () => {
+            console.log($scope.width);
             $rootScope.$broadcast('updateLocalElement', {
                 'shape': $scope.shape,
                 'width': $scope.width,
@@ -69,7 +70,7 @@ app.component('addContainer', {
             });
         };
 
-        $scope.$on('selectedElement', () => {
+        $scope.$on('canvasClicked', () => {
             if ($rootScope._selected_element == null) {
                 $scope.addMode = true;
                 return;

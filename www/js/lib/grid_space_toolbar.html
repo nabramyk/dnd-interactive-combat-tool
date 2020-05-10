@@ -1,4 +1,4 @@
-<ul id="tab_row" class="nav nav-tabs">
-    <li class="tab" href="javascript:;" ng-repeat="space in spaces" ng-class="{active: $index == selected}" ng-click="changeGridSpace($index, space.id)">{{ space.name }}</li>
-    <li id="addition_tab" ng-click="createGridSpace();">+</li>
-</ul>
+<section layout="row" id="tab_row" layout-wrap>
+    <md-button class="tab" ng-repeat="space in spaces" ng-class="{active: $index == selected}" ng-click="changeGridSpace($index, space.id)">{{ space.name }}</md-button>
+    <md-button class="tab" id="addition_tab" ng-click="createGridSpace();">+</md-button>
+</section>

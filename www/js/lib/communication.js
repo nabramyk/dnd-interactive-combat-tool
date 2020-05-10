@@ -210,6 +210,8 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 			"grid_id": $rootScope._grid_id,
 			"element_id": $rootScope._selected_element.data.id
 		});
+
+		$rootScope._selected_element = null;
 	});
 
 	$scope.$on('exportClutter', () => {
