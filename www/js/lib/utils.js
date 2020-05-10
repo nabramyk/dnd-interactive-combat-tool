@@ -43,7 +43,6 @@ app.service('utils', function ($rootScope, $mdSidenav) {
 	this.screenHeight = () => { return $rootScope._grid_size * grid_count_height + 2 * grid_line_width; };
 
 	this.toggle = (componentId) => {
-		console.log(componentId);
 		$mdSidenav(componentId).toggle();
 	}
 });

@@ -38,12 +38,7 @@ app.controller('movement_controller', ['$scope', '$rootScope', 'utils', function
         }
     };
 
-
     $scope.incrementalMoveElement = function (direction) {
         incremental_move_element(direction);
     };
-
-    $scope.$on('incrementalMoveElement', (_, args) => {
-        incremental_move_element(args);
-    });
 }]);

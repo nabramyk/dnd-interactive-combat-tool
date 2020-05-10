@@ -99,7 +99,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
     $rootScope._cursor_size = 1;
 	$rootScope._selected_element = null;
-	$rootScope._grid_line_width = 0.5;
+	$rootScope._grid_line_width = 0;
 	$rootScope._x_vertices = [];
 	$rootScope._y_vertices = [];
 

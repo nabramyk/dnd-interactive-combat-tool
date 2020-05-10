@@ -256,6 +256,11 @@ module.exports = class GridSpace {
 	nudgeElement(id, direction) {
 		var temp = this.findElementById(id);
 
+		console.log(temp);
+		if(temp.name == 'line') {
+			return undefined;
+		}
+
 		var moveToX = temp.matrix[4], moveToY = temp.matrix[5];
 		switch (direction) {
 			case "right": // right

@@ -1,4 +1,4 @@
-app.controller('clutterController', ['$scope', '$rootScope', 'utils', function ($scope, $rootScope, utils) {
+app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidenav', function ($scope, $rootScope, utils, $mdSidenav) {
 	var group_grid,
 		group_elements,
 		group_overlay,
@@ -39,6 +39,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	var hover_colour = "#ff0000";
 	var cursor_line_width = 1;
 
+	var background_color = 'rgba(256,256,256,1)';
 	var grid_color = 'rgba(200,200,200,1)';
 	var grid_highlight = 'rgba(0,153,0,1)';
 
@@ -100,7 +101,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		line_path = new $scope.paper.Path();
 
 		$scope.paper.view.onClick = function (event) {
-			if ($('#sidebar').hasClass('active') && $('#selected_shape').val() == "freehand") { return; }
+			if ($mdSidenav('add_container').isOpen() && $rootScope._drawing_option == "freehand") { return; }
 			if (gridraster.hitTest(event.point) == null || isDragging) { return; }
 
 			try {
@@ -149,7 +150,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 		toolPan.activate();
 
 		toolPan.onMouseDrag = function (event) {
-			if ($('#add_container').hasClass('active') && $rootScope._drawing_option == "freehand") {
+			if ($mdSidenav('add_container').isOpen() && $rootScope._drawing_option == "freehand") {
 				if (gridraster.hitTest(event.point) != null) {
 					if (temp_line == null) {
 						temp_line = new paper.Path({
@@ -221,6 +222,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			for (var j = 0; j < grid_count_width; j++) {
 				var rect = paper.Shape.Rectangle(j * grid_size + grid_line_width, i * grid_size + grid_line_width, grid_size, grid_size);
 				rect.strokeColor = grid_color;
+				rect.fillColor = background_color;
 				group_grid.addChild(rect);
 			}
 		}
@@ -832,7 +834,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 			group_bottom_cursor.removeChildren();
 			group_right_cursor.removeChildren();
 
-			console.log('eraseCursor');
+			$rootScope._selected_element.selected = false;
 		} catch (e) {
 			console.log(e);
 		}
@@ -937,7 +939,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 					$rootScope._y_vertices.push(cursor.position.y);
 				}
 			} catch (e) { }
-	
+
 			x_vertices = [];
 			y_vertices = [];
 		}
@@ -1071,6 +1073,51 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', function (
 	$scope.toggleSidebar = () => {
 		utils.toggle('sidebar');
 	};
+
+	$scope.$on('incrementalMoveElement', (_, args) => {
+        incremental_move_element(args);
+	});
+
+	$scope.$on('clearCursor', () => {
+		eraseCursor();
+		$rootScope._selected_element = null;
+	});
+	
+	function incremental_move_element(direction) {
+        var selected_element = $rootScope._selected_element;
+
+        stored_edited_element_bounds = null;
+        if (selected_element != undefined) {
+            var temp = utils.determinePoint(direction, selected_element);
+
+            $rootScope.$broadcast('move_element', {
+                "grid_id": $rootScope._grid_id,
+                "id": selected_element.data.id,
+                "direction": direction,
+                "size": cursor_size
+            });
+
+            // selected_grid_x = temp.x - (globals.getGridSize() / 2);
+            // selected_grid_y = temp.y - (globals.getGridSize() / 2);
+
+            // var loc = new paper.Point(selected_grid_x, selected_grid_y);
+            // selected_element.bounds.topLeft = loc;
+            // cursor.bounds.topLeft = loc;
+
+            // drawSelectedPositionTopRuler(Number(selected_grid_x + (globals.getGridSize() / 2)), pixel2GridPoint(selected_element.size.width));
+            // drawSelectedPositionLeftRuler(Number(selected_grid_y + (globals.getGridSize() / 2)), pixel2GridPoint(selected_element.size.height));
+
+            // try {
+            //     t.remove();
+            //     b.remove();
+            // } catch (e) {
+            //     console.log(e);
+            // }
+
+            // group_overlay.addChild(cursor);
+            // paper.view.update();
+        }
+    };
 
 	/**
 	 * Determine if the value is undefined 
