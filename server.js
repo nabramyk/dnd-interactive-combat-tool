@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
 	socket.on('move_element', (msg, fn) => {
 		var movedElement = clutter.moveElement(msg);
 		if(isUndefined(movedElement)) return;
-		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
 		//fn({ "matrix" : movedElement.matrix });
 	});
 
@@ -78,7 +78,6 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('add_element_to_server', (msg, fn) => {
-		console.log(msg);
 		var output = clutter.addElement(msg);
 		if(isUndefined(output)) {
 			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });

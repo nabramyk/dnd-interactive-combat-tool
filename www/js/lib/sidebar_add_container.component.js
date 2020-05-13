@@ -7,7 +7,8 @@ app.component('addContainer', {
         name: '=',
         fillColour: '=',
         strokeColour: '=',
-        strokeThickness: '='
+        strokeThickness: '=',
+        diameter: '='
     },
     controller: ($scope, $rootScope, utils) => {
 
@@ -19,6 +20,7 @@ app.component('addContainer', {
 
         $scope.width = 1;
         $scope.height = 1;
+        $scope.diameter = 1;
         $scope.fillColour = '#000000';
 
         $scope.strokeColour = '#000000';
@@ -52,7 +54,8 @@ app.component('addContainer', {
                 'name': $scope.name,
                 'fillColor': $scope.fillColour,
                 'strokeColor': $scope.strokeColour,
-                'strokeThickness': $scope.strokeThickness
+                'strokeThickness': $scope.strokeThickness,
+                'diameter': $scope.diameter
             });
         };
 
@@ -66,7 +69,8 @@ app.component('addContainer', {
                 'name': $scope.name,
                 'fillColor': $scope.fillColour,
                 'strokeColor': $scope.strokeColour,
-                'strokeThickness': $scope.strokeThickness
+                'strokeThickness': $scope.strokeThickness,
+                'diamter': $scope.diameter
             });
         };
 

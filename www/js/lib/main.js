@@ -690,7 +690,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 				ele.name = "rectangle";
 				break;
 			case "circle":
-				ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.width) * (grid_size / 2));
+				ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.diameter) * (grid_size / 2));
 				ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
 				ele.fillColor = args.fillColor;
 				ele.pivot = $scope.paper.Shape.Rectangle.topLeft;

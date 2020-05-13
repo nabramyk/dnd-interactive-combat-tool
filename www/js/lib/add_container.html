@@ -37,16 +37,22 @@
       <label for="snap_to_grid">Snap to grid: </label>
     </li>
 
-    <li>
+    <li ng-show="shape == 'rectangle' || shape == 'room'">
       <div class="sidebar_container" ng-if="!drawingLines()">
-        <label for="element_width" style="width: 50px; margin-left: auto; margin-right: auto;">Width</label>
+        <label for="element_width">Width</label>
         <br>
         <input type="number" name="element_width" class="menu_item" ng-model="$parent.width">
 
-        <label for="element_height" style="width: 50px; margin-left: auto; margin-right: auto;">Height</label>
+        <label for="element_height">Height</label>
         <br>
         <input type="number" name="element_height" class="menu_item" ng-model="$parent.height">
       </div>
+    </li>
+
+    <li ng-hide="shape != 'circle'">
+      <label for="element_diameter">Diameter</label>
+      <br>
+      <input type="number" name="element_diameter" class="menu_item" ng-model="$parent.diameter">
     </li>
 
     <li>
