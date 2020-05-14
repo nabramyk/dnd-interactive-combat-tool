@@ -830,7 +830,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 	function eraseCursor() {
 		try {
 			$rootScope._cursor.remove();
-
+		} catch(e) {
+			console.log(e);
+		}
+		
+		try {
 			group_top_cursor.removeChildren();
 			group_left_cursor.removeChildren();
 			group_bottom_cursor.removeChildren();
@@ -922,8 +926,8 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			local_stored_annotations = msg.grid_space.annotations;
 		}
 
-		refresh_elements_list();
-		refresh_annotations_list();
+		//refresh_elements_list();
+		//refresh_annotations_list();
 
 		$scope.paper.view.update();
 	});
@@ -996,6 +1000,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
 		$rootScope._selected_element.size.width = msg.width * grid_size;
 		$rootScope._selected_element.size.height = msg.height * grid_size;
+		
+		if($rootScope._selected_element.name == "circle") {
+			$rootScope._selected_element.radius = msg.diameter / 2 * grid_size;
+		}
+		
 		$rootScope._selected_element.bounds.topLeft = bounds.topLeft;
 
 		draw_cursor();
@@ -1055,12 +1064,16 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			return;
 		}
 
-		for (var i = 1; i < x_vertices.length; i++) {
-			//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
+		try {
+			for (var i = 1; i < x_vertices.length; i++) {
+				//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
+			}
+	
+			$rootScope._x_vertices = [];
+			$rootScope._y_vertices.length = [];
+		} catch (e) {
+			console.log(e);
 		}
-
-		$rootScope._x_vertices = [];
-		$rootScope._y_vertices.length = [];
 
 		selected_element = null;
 		selected_grid_x = null;
