@@ -109,8 +109,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 				b.remove();
 			} catch (e) { };
 
-			selected_grid_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
-			selected_grid_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
+			$rootScope._selected_grid_x = event.point.x - (event.point.x % grid_size) + (grid_size / 2) + grid_line_width;
+			$rootScope._selected_grid_y = event.point.y - (event.point.y % grid_size) + (grid_size / 2) + grid_line_width;
+
+			selected_grid_x = $rootScope._selected_grid_x;
+			selected_grid_y = $rootScope._selected_grid_y;
 
 			cursor_size = { "width": 1, "height": 1 };
 
@@ -676,7 +679,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 	}
 
 	function draw_local_item(args) {
-		console.log(args);
 		var x = utils.pixel2GridPoint(Number(selected_grid_x));
 		var y = utils.pixel2GridPoint(Number(selected_grid_y));
 

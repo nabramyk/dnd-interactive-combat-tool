@@ -60,7 +60,6 @@ app.component('addContainer', {
         };
 
         $scope.updateElementAction = () => {
-            console.log($scope.width);
             $rootScope.$broadcast('updateLocalElement', {
                 'shape': $scope.shape,
                 'width': $scope.width,
@@ -70,7 +69,7 @@ app.component('addContainer', {
                 'fillColor': $scope.fillColour,
                 'strokeColor': $scope.strokeColour,
                 'strokeThickness': $scope.strokeThickness,
-                'diamter': $scope.diameter
+                'diameter': $scope.diameter
             });
         };
 
@@ -96,6 +95,11 @@ app.component('addContainer', {
                     $scope.strokeThickness = $rootScope._selected_element.strokeWidth.toCSS(true);
                 } catch(e) {}
 
+                try {
+                    $scope.diameter = $rootScope._selected_element.radius / $rootScope._grid_size * 2;
+                } catch(e) {
+                    console.log(e);
+                }
 
                 $scope.addMode = false;
             });

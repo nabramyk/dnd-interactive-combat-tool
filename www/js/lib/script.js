@@ -70,10 +70,10 @@ app.directive('keypressEvents', ['$rootScope', '$document', function ( $rootScop
         link: function () {
             $document.bind('keydown', function (e) {
                 switch (e.key) {
-					case "ArrowUp": $rootScope.$broadcast('incrementalMoveElement', "up"); break;
-					case "ArrowRight": $rootScope.$broadcast('incrementalMoveElement', "right"); break;
-					case "ArrowDown": $rootScope.$broadcast('incrementalMoveElement', "down"); break;
-					case "ArrowLeft": $rootScope.$broadcast('incrementalMoveElement', "left"); break;
+					case "ArrowUp": $rootScope.$broadcast('incrementalMoveElement', 2); break;
+					case "ArrowRight": $rootScope.$broadcast('incrementalMoveElement', 0); break;
+					case "ArrowDown": $rootScope.$broadcast('incrementalMoveElement', 6); break;
+					case "ArrowLeft": $rootScope.$broadcast('incrementalMoveElement', 4); break;
 					case "Delete": $rootScope.$broadcast('deleteElement', {}); break;
 				}
             });

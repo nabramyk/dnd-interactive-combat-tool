@@ -102,6 +102,8 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 	$rootScope._grid_line_width = 0;
 	$rootScope._x_vertices = [];
 	$rootScope._y_vertices = [];
+	$rootScope._selected_grid_x = null;
+	$rootScope._selected_grid_y = null;
 
 	socket.on('connect', function (msg) {
 		socket.emit('init', {}, function (msg) {

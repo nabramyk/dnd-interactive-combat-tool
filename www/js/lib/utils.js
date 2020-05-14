@@ -1,11 +1,36 @@
 app.service('utils', function ($rootScope, $mdSidenav) {
 	this.determinePoint = (dir, el) => {
+		var grid_size = $rootScope._grid_size;
 		var out = { "x": this.pixel2GridPoint(el.bounds.topLeft.x), "y": this.pixel2GridPoint(el.bounds.topLeft.y) };
 		switch (dir) {
-			case "up": out.y -= $rootScope._grid_size; break;
-			case "down": out.y += $rootScope._grid_size; break;
-			case "left": out.x -= $rootScope._grid_size; break;
-			case "right": out.x += $rootScope._grid_size;
+			case 0: 
+				out.x += grid_size; 
+				break; //right
+			case 1: 
+				out.x += grid_size;
+				out.y -= grid_size; 
+				break; //up-right
+			case 2: 
+				out.y -= grid_size; 
+				break; //up
+			case 3: 
+				out.x -= grid_size;
+				out.y -= grid_size; 
+				break; //up-left
+			case 4: 
+				out.x -= grid_size; 
+				break; //left
+			case 5: 
+				out.x -= grid_size;
+				out.y += grid_size; 
+				break; //down-left
+			case 6: 
+				out.y += grid_size; 
+				break; //down 
+			case 7: 
+				out.x += grid_size;
+				out.y += grid_size; 
+				break; //down-right
 		}
 		return out;
 	}

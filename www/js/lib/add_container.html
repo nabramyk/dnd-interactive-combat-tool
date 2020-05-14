@@ -6,7 +6,8 @@
     </li>
 
     <li>
-      <select class="menu_item" ng-options="x for x in shapes" ng-model="shape" ng-change="changeOfShape()" ng-hide="$root._selected_element != null">
+      <select class="menu_item" ng-options="x for x in shapes" ng-model="shape" ng-change="changeOfShape()"
+        ng-hide="$root._selected_element != null">
       </select>
     </li>
 
@@ -38,21 +39,19 @@
     </li>
 
     <li ng-show="shape == 'rectangle' || shape == 'room'">
-      <div class="sidebar_container" ng-if="!drawingLines()">
-        <label for="element_width">Width</label>
-        <br>
-        <input type="number" name="element_width" class="menu_item" ng-model="$parent.width">
+      <label for="element_width">Width</label>
+      <br>
+      <input type="number" name="element_width" class="menu_item" ng-model="width">
 
-        <label for="element_height">Height</label>
-        <br>
-        <input type="number" name="element_height" class="menu_item" ng-model="$parent.height">
-      </div>
+      <label for="element_height">Height</label>
+      <br>
+      <input type="number" name="element_height" class="menu_item" ng-model="height">
     </li>
 
     <li ng-hide="shape != 'circle'">
       <label for="element_diameter">Diameter</label>
       <br>
-      <input type="number" name="element_diameter" class="menu_item" ng-model="$parent.diameter">
+      <input type="number" name="element_diameter" class="menu_item" ng-model="diameter">
     </li>
 
     <li>
