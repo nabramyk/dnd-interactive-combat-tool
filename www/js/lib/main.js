@@ -1,4 +1,8 @@
-app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidenav', function ($scope, $rootScope, utils, $mdSidenav) {
+app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidenav', '$mdToast', function ($scope, $rootScope, utils, $mdSidenav, $mdToast) {
+
+	$("#loading_text").text(utils.getRandomQuote());
+	$("#loading_div").show();
+
 	var group_grid,
 		group_elements,
 		group_overlay,
@@ -58,8 +62,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
 		selected_grid_x = -1;
 		selected_grid_y = -1;
-
-		refresh_elements_list();
 
 		$rootScope._grid_id = msg.spaces[0].id;
 		$rootScope.$broadcast('generateGridTabs', msg.spaces);
@@ -384,27 +386,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 		group_top_ruler.removeChildren();
 		toprulerraster.bringToFront();
 		$scope.paper.view.update();
-	}
-
-	function refresh_elements_list() {
-		var filters = document.querySelectorAll(".element_filter:checked");
-		var filter = [];
-		for (var i = 0; i <= filters.length - 1; i++) {
-			filter[i] = filters[i].value;
-		}
-
-		if (filters.length !== 0) {
-			$("#element_list").empty();
-			group_elements.children
-				.filter(function (el) {
-					return filter.indexOf(el.data.category) != -1;
-				})
-				.forEach(function (el) {
-					$("#element_list").append(composeElementListRowElement(el))
-				});
-		} else {
-			$("#element_list").empty();
-		}
 	}
 
 	function draw_cursor() {
@@ -766,7 +747,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 		drawSelectedPositionLeftRuler(Number(selected_grid_y));
 
 		$scope.paper.view.update();
-		console.log(ele);
 		return ele;
 	}
 
@@ -809,9 +789,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 		}
 
 		ele.onMouseLeave = function () {
-			t.remove();
-			b.remove();
-			$scope.paper.view.update();
+			try {
+				t.remove();
+				b.remove();
+				$scope.paper.view.update();
+			} catch(e) {
+				console.log(e);
+			}
 		}
 
 		ele.onMouseMove = function (evt) {
@@ -830,10 +814,10 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 	function eraseCursor() {
 		try {
 			$rootScope._cursor.remove();
-		} catch(e) {
+		} catch (e) {
 			console.log(e);
 		}
-		
+
 		try {
 			group_top_cursor.removeChildren();
 			group_left_cursor.removeChildren();
@@ -926,9 +910,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			local_stored_annotations = msg.grid_space.annotations;
 		}
 
-		//refresh_elements_list();
-		//refresh_annotations_list();
-
 		$scope.paper.view.update();
 	});
 
@@ -1000,11 +981,11 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
 		$rootScope._selected_element.size.width = msg.width * grid_size;
 		$rootScope._selected_element.size.height = msg.height * grid_size;
-		
-		if($rootScope._selected_element.name == "circle") {
+
+		if ($rootScope._selected_element.name == "circle") {
 			$rootScope._selected_element.radius = msg.diameter / 2 * grid_size;
 		}
-		
+
 		$rootScope._selected_element.bounds.topLeft = bounds.topLeft;
 
 		draw_cursor();
@@ -1068,7 +1049,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 			for (var i = 1; i < x_vertices.length; i++) {
 				//clear_item("line", [x_vertices[i - 1], x_vertices[i]], [y_vertices[i - 1], y_vertices[i]], {}, 0);
 			}
-	
+
 			$rootScope._x_vertices = [];
 			$rootScope._y_vertices.length = [];
 		} catch (e) {
@@ -1089,48 +1070,59 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 	};
 
 	$scope.$on('incrementalMoveElement', (_, args) => {
-        incremental_move_element(args);
+		incremental_move_element(args);
 	});
 
 	$scope.$on('clearCursor', () => {
 		eraseCursor();
 		$rootScope._selected_element = null;
 	});
-	
+
+	$scope.$on('error_channel', (_, msg) => {
+		$mdToast.show(
+			$mdToast.simple().textContent(msg.message)
+		)
+	});
+
+	$scope.$on('pause', (_, msg) => {
+		$("#loading_text").text(msg.message);
+		$("#loading_div").show();
+	});
+
 	function incremental_move_element(direction) {
-        var selected_element = $rootScope._selected_element;
+		var selected_element = $rootScope._selected_element;
 
-        stored_edited_element_bounds = null;
-        if (selected_element != undefined) {
-            var temp = utils.determinePoint(direction, selected_element);
+		stored_edited_element_bounds = null;
+		if (selected_element != undefined) {
+			var temp = utils.determinePoint(direction, selected_element);
 
-            $rootScope.$broadcast('move_element', {
-                "grid_id": $rootScope._grid_id,
-                "id": selected_element.data.id,
-                "direction": direction,
-                "size": cursor_size
-            });
+			$rootScope.$broadcast('move_element', {
+				"grid_id": $rootScope._grid_id,
+				"id": selected_element.data.id,
+				"direction": direction,
+				"size": cursor_size
+			});
 
-            selected_grid_x = temp.x - ($rootScope._grid_size / 2);
-            selected_grid_y = temp.y - ($rootScope._grid_size / 2);
+			selected_grid_x = temp.x - ($rootScope._grid_size / 2);
+			selected_grid_y = temp.y - ($rootScope._grid_size / 2);
 
-            var loc = new paper.Point(selected_grid_x, selected_grid_y);
-            selected_element.bounds.topLeft = loc;
-            //cursor.bounds.topLeft = loc;
+			var loc = new paper.Point(selected_grid_x, selected_grid_y);
+			selected_element.bounds.topLeft = loc;
+			//cursor.bounds.topLeft = loc;
 
-            drawSelectedPositionTopRuler(Number(selected_grid_x + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.width));
-            drawSelectedPositionLeftRuler(Number(selected_grid_y + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.height));
+			drawSelectedPositionTopRuler(Number(selected_grid_x + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.width));
+			drawSelectedPositionLeftRuler(Number(selected_grid_y + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.height));
 
-            try {
-                t.remove();
-                b.remove();
-            } catch (e) {
-                console.log(e);
-            }
+			try {
+				t.remove();
+				b.remove();
+			} catch (e) {
+				console.log(e);
+			}
 
-            $scope.paper.view.update();
-        }
-    };
+			$scope.paper.view.update();
+		}
+	};
 
 	/**
 	 * Determine if the value is undefined 

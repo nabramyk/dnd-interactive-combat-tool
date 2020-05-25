@@ -256,25 +256,41 @@ module.exports = class GridSpace {
 	nudgeElement(id, direction) {
 		var temp = this.findElementById(id);
 
-		console.log(temp);
 		if(temp.name == 'line') {
 			return undefined;
 		}
 
 		var moveToX = temp.matrix[4], moveToY = temp.matrix[5];
+		var grid_size = 20;
 		switch (direction) {
-			case "right": // right
-				moveToX += 20;
-				break;
-			case "up": // up
-				moveToY -= 20;
-				break;
-			case "left": // left
-				moveToX -= 20;
-				break;
-			case "down": // down
-				moveToY += 20;
-				break;
+			case 0: 
+				moveToX += grid_size; 
+				break; //right
+			case 1: 
+				moveToX += grid_size;
+				moveToY -= grid_size; 
+				break; //up-right
+			case 2: 
+				moveToY -= grid_size; 
+				break; //up
+			case 3: 
+				moveToX -= grid_size;
+				moveToY -= grid_size; 
+				break; //up-left
+			case 4: 
+				moveToX -= grid_size; 
+				break; //left
+			case 5: 
+				moveToX -= grid_size;
+				moveToY += grid_size; 
+				break; //down-left
+			case 6: 
+				moveToY += grid_size; 
+				break; //down 
+			case 7: 
+				moveToX += grid_size;
+				moveToY += grid_size; 
+				break; //down-right
 		}
 
 		temp.matrix[4] = moveToX;

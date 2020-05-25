@@ -60,10 +60,14 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('move_element', (msg, fn) => {
-		var movedElement = clutter.moveElement(msg);
-		if(isUndefined(movedElement)) return;
-		socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-		//fn({ "matrix" : movedElement.matrix });
+		try {
+			var movedElement = clutter.moveElement(msg);
+			if(isUndefined(movedElement)) return;
+			socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+			//fn({ "matrix" : movedElement.matrix });
+		} catch(e) {
+			socket.emit('error_channel', {"message" : "unable to move element"});
+		}
 	});
 
 	socket.on('warp_element', (msg, fn) => {
@@ -152,6 +156,8 @@ io.on('connection', (socket) => {
 	});
 
 	app.post('/upload', (req, res) => {
+		io.emit('pause', {"message": "Someone is uploading some clutter..."});
+
 		clutter.grid_id_counter = req.body.grid_id_counter;
 		clutter.grid_space = req.body.grid_space.map(element => {
 			var temp = new GridSpace(element.size, element.id);

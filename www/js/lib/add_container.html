@@ -1,99 +1,100 @@
 <md-sidenav class="md-sidenav-right" md-component-id="add_container" md-disable-backdrop="">
-  <ul class="list-unstyled components">
+    <md-button ng-click="toggleActive()">x</md-button>
 
-    <li>
-      <button ng-click="toggleActive()" class="menu_item">x</button>
-    </li>
+    <br>
+    <md-input-container ng-hide="$root._selected_element != null">
+        <md-select aria-label="Shape" ng-model="shape" ng-change="changeOfShape()">
+            <md-option ng-repeat="shape in shapes" value="{{ shape }}">{{ shape }}</md-option>
+        </md-select>
+    </md-input-container>
 
-    <li>
-      <select class="menu_item" ng-options="x for x in shapes" ng-model="shape" ng-change="changeOfShape()"
-        ng-hide="$root._selected_element != null">
-      </select>
-    </li>
+    <md-input-container ng-if="!drawingLines()" style="width: 100%">
+        <label>Fill Colour</label>
+        <input type="color" color-picker ng-model="$parent.fillColour" ng-style="{background: $parent.fillColour}">
+    </md-input-container>
 
-    <li ng-if="!drawingLines()">
-      <label for="element_colour_enabled">Fill Colour: </label>
-      <input type="color" ng-model="$parent.fillColour">
-    </li>
+    <md-input-container ng-if="!drawingLines()" style="width: 100%">
+        <label for="outline_colour_enabled">Outline Colour: </label>
+        <input type="color" name="outlinecolor" id="outline_color">
+    </md-input-container>
 
-    <li ng-if="!drawingLines()">
-      <input type="checkbox" id="outline_colour_enabled">
-      <label for="outline_colour_enabled">Outline Colour: </label>
-      <input type="color" name="outlinecolor" id="outline_color">
-      <label for="outline_colour_enabled">Outline Thickness: </label>
-      <input type="number" id="outline_thickness">
-      <label for="zindex">Z-Index: </label>
-      <input type="number" id="zindex">
-    </li>
+    <md-input-container ng-if="!drawingLines()">
+        <label for="outline_colour_enabled">Outline Thickness: </label>
+        <input type="number" id="outline_thickness">
+    </md-input-container>
+
+    <md-input-container ng-if="!drawingLines()">
+        <label for="zindex">Z-Index: </label>
+        <input type="number" id="zindex">
+    </md-input-container>
 
     <li ng-if="drawingLines()">
-      <label for="outline_colour_enabled">Line Colour: </label>
-      <input type="color" ng-model="$parent.strokeColour">
-      <label for="outline_colour_enabled">Line Thickness: </label>
-      <input type="number" ng-model="$parent.strokeThickness">
+        <label for="outline_colour_enabled">Line Colour: </label>
+        <input type="color" ng-model="$parent.strokeColour">
+        <label for="outline_colour_enabled">Line Thickness: </label>
+        <input type="number" ng-model="$parent.strokeThickness">
     </li>
 
     <li>
-      <input type="checkbox" name="snap_to_grid">
-      <label for="snap_to_grid">Snap to grid: </label>
+        <input type="checkbox" name="snap_to_grid">
+        <label for="snap_to_grid">Snap to grid: </label>
     </li>
 
     <li ng-show="shape == 'rectangle' || shape == 'room'">
-      <label for="element_width">Width</label>
-      <br>
-      <input type="number" name="element_width" class="menu_item" ng-model="width">
+        <label for="element_width">Width</label>
+        <br>
+        <input type="number" name="element_width" class="menu_item" ng-model="width">
 
-      <label for="element_height">Height</label>
-      <br>
-      <input type="number" name="element_height" class="menu_item" ng-model="height">
+        <label for="element_height">Height</label>
+        <br>
+        <input type="number" name="element_height" class="menu_item" ng-model="height">
     </li>
 
     <li ng-hide="shape != 'circle'">
-      <label for="element_diameter">Diameter</label>
-      <br>
-      <input type="number" name="element_diameter" class="menu_item" ng-model="diameter">
-    </li>
-
-    <li>
-      <div ng-if="!drawingLines()" style="display: inline-block;">
-        Rotate
-        <button class="menu_item" ng-click="rotateElement(90)">&#8634;</button>
-        <button class="menu_item" ng-click="rotateElement(-90)">&#8635;</button>
-      </div>
-    </li>
-
-    <li>
-      <div style="display: inline-block;">
-        <label for="element_category">Category</label>
+        <label for="element_diameter">Diameter</label>
         <br>
-        <select name="element_category" class="menu_item" ng-model="category">
-          <option value="environment">Environment</option>
-          <option value="player">Player</option>
-          <option value="enemy">Enemy</option>
-          <option value="npc">NPC</option>
-        </select>
-      </div>
+        <input type="number" name="element_diameter" class="menu_item" ng-model="diameter">
     </li>
 
     <li>
-      <div style="display: inline-block;">
-        <label for="element_name">Name</label>
-        <br>
-        <input type="text" name="element_name" class="menu_item" ng-model="name">
-      </div>
+        <div ng-if="!drawingLines()" style="display: inline-block;">
+            Rotate
+            <button class="menu_item" ng-click="rotateElement(90)">&#8634;</button>
+            <button class="menu_item" ng-click="rotateElement(-90)">&#8635;</button>
+        </div>
     </li>
 
     <li>
-      <div id="vertices_list" style="display: inline-block;">
-      </div>
+        <div style="display: inline-block;">
+            <label for="element_category">Category</label>
+            <br>
+            <select name="element_category" class="menu_item" ng-model="category">
+        <option value="environment">Environment</option>
+        <option value="player">Player</option>
+        <option value="enemy">Enemy</option>
+        <option value="npc">NPC</option>
+      </select>
+        </div>
     </li>
 
     <li>
-      <button class="menu_item" ng-hide="!addMode" ng-click="placeElementAction()">Add</button>
+        <div style="display: inline-block;">
+            <label for="element_name">Name</label>
+            <br>
+            <input type="text" name="element_name" class="menu_item" ng-model="name">
+        </div>
     </li>
 
     <li>
-      <button class="menu_item" ng-hide="addMode" ng-click="updateElementAction()">Update</button>
+        <div id="vertices_list" style="display: inline-block;">
+        </div>
     </li>
-  </ul>
+
+    <li>
+        <button class="menu_item" ng-hide="!addMode" ng-click="placeElementAction()">Add</button>
+    </li>
+
+    <li>
+        <button class="menu_item" ng-hide="addMode" ng-click="updateElementAction()">Update</button>
+    </li>
 </md-sidenav>

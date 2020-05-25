@@ -3,33 +3,33 @@ app.service('utils', function ($rootScope, $mdSidenav) {
 		var grid_size = $rootScope._grid_size;
 		var out = { "x": this.pixel2GridPoint(el.bounds.topLeft.x), "y": this.pixel2GridPoint(el.bounds.topLeft.y) };
 		switch (dir) {
-			case 0: 
-				out.x += grid_size; 
+			case 0:
+				out.x += grid_size;
 				break; //right
-			case 1: 
+			case 1:
 				out.x += grid_size;
-				out.y -= grid_size; 
+				out.y -= grid_size;
 				break; //up-right
-			case 2: 
-				out.y -= grid_size; 
+			case 2:
+				out.y -= grid_size;
 				break; //up
-			case 3: 
+			case 3:
 				out.x -= grid_size;
-				out.y -= grid_size; 
+				out.y -= grid_size;
 				break; //up-left
-			case 4: 
-				out.x -= grid_size; 
-				break; //left
-			case 5: 
+			case 4:
 				out.x -= grid_size;
-				out.y += grid_size; 
+				break; //left
+			case 5:
+				out.x -= grid_size;
+				out.y += grid_size;
 				break; //down-left
-			case 6: 
-				out.y += grid_size; 
+			case 6:
+				out.y += grid_size;
 				break; //down 
-			case 7: 
+			case 7:
 				out.x += grid_size;
-				out.y += grid_size; 
+				out.y += grid_size;
 				break; //down-right
 		}
 		return out;
@@ -70,4 +70,83 @@ app.service('utils', function ($rootScope, $mdSidenav) {
 	this.toggle = (componentId) => {
 		$mdSidenav(componentId).toggle();
 	}
+
+	this.getRandomQuote = () => {
+		var quotes = [
+			'Stupid is as stupid quotes',
+			'In case of emergency, the key is under the mat',
+			'3, 2, 1.......',
+			'I am standing behind you',
+			'Smankle',
+			'Do the dew',
+			'Oh god, do not let the progress bar hit 100\%\!',
+			'And behind curtain 3 is.....',
+			'I only have the power of Grey Skull.',
+			'Where the !#%& are my hard boiled eggs!',
+			'It\'s open\!',
+			'Oh, that\'s your solution for everything.',
+			'(╯°□°)╯︵ ┻━┻',
+			'The cake is a lie',
+			'Whose been screwing with this thing\?\!',
+			'That old grey mare, ain\'t what she used to be',
+			'Hail to thee Kamp Krusty!',
+			'To be or not to be......not to be.',
+			'Fun fact: Jet fuel CAN melt steel beams.',
+			'Free masons run the country!',
+			'From my point of view the Jedi are evil!',
+			'Trains are blameless, holy creatures.',
+			'Oh right, the quicksand!',
+			'Corona made me do it',
+			'BEAT MUSIC! BEAT MUSIC! BEAT MUSIC!',
+			'Does anybody know the plot yet?',
+			'**miami vice theme song',
+			'Do you able to smell that code?',
+			'Merry Christmas to all, now you\'re all gonna die!',
+			'This is page 3.',
+			'Help, I\'ve fallen and I can\'t get up!',
+			'Dead or alive, you\'re coming with me.',
+			'Garbagio, my boy! What are you doing in the middle of the road?',
+			'The force is strong with you, young Skywalker, but you are not a Jedi yet.',
+			'Line?',
+			'I saw it on T.V.',
+			'I am Jack\'s smirking revenge',
+			'Stir you around like a soup!',
+			'*smokebomb',
+			'Wait for it.....',
+			'Reticulating splines.....',
+			'Your call cannot be completed as dialed.',
+			'Supplies!',
+			'ACELIPS, that\'ll be the name of our new system!',
+			'Where\'s my burrito!',
+			'Not Lenny!',
+			'I\'m not asking for a fight!',
+			'Hey! Listen!',
+			'Never gonna let you go!',
+			'There\'s always money in the banana stand',
+			'#Slpapt',
+			'42',
+			'I am Error',
+			'www.thisman.org',
+			'Museums don\'t have foosball, do they?',
+			'Watch out Radioactive Man!',
+			'Your princess is in another castle.',
+			'You Died',
+			'I want you to hit me as hard as you can.',
+			'Push the little red button',
+			'You\'re a wizard Harry',
+			'No one expects the Spanish Inquisition',
+			'Duff Man can\'t breathe! Oh no!',
+			'Na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na na Batman!',
+			'Obey',
+			'Consume',
+			'No free will',
+			'Are you smoking yet?',
+			'_UCK _E _N THE A__ TON_GHT',
+			'Did you leave the stove on?',
+			'I know what you\'re thinking. Did he fire six shots or only five?',
+			'A new challenger approaches'
+		];
+
+		return quotes[Math.floor(Math.random() * quotes.length)];
+	};
 });

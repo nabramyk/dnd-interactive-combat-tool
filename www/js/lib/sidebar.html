@@ -3,18 +3,16 @@
         <h3>Clutter</h3>
         <input type="text" id="username" placeholder="username">
     </md-toolbar>
-    <ul class="list-unstyled components">
-        <li><md-button ng-click="toggleSection('list_container')">List</md-button></li>
-        <li><md-button ng-click="toggleSection('add_container')">{{ add_edit }}</md-button></li>
-        <li><md-button ng-hide="positionNotSelected">Annotate</md-button></li>
-        <li><md-button ng-click="toggleSection('movement_container')" ng-hide="positionNotSelected">Move</md-button></li>
-        <li><md-button ng-click="toggleSection('grid_space_container')">Grid Space</md-button></li>
-        <li><md-button ng-hide="positionNotSelected">{{ paste_delete }}</md-button></li>
-        <li><md-button ng-hide="positionNotSelected || $root._selected_element == null">Copy</md-button></li>
-        <li><md-button ng-click="pingPosition()" ng-hide="positionNotSelected">Ping</md-button></li>
-        <li><md-button>Help</md-button></li>
-        <li><md-button ng-click="clearCursor()" ng-hide="positionNotSelected">Clear Cursor</md-button></li>
-        <li><md-button ng-click="toggleSection('system_container')">System</md-button></li>
-        <li><md-button ng-click="toggleSection('sidebar')">&laquo; Close</md-button></li>
-    </ul>
-</nav>
+    <md-button ng-click="toggleSection('list_container')">List</md-button>
+    <md-button ng-click="toggleSection('add_container')">{{ add_edit }}</md-button>
+    <md-button ng-hide="positionNotSelected">Annotate</md-button>
+    <md-button ng-click="toggleSection('movement_container')" ng-hide="positionNotSelected">Move</md-button>
+    <md-button ng-click="toggleSection('grid_space_container')">Grid Space</md-button>
+    <md-button ng-hide="positionNotSelected">{{ paste_delete }}</md-button>
+    <md-button ng-hide="positionNotSelected || $root._selected_element == null">Copy</md-button>
+    <md-button ng-click="pingPosition()" ng-hide="positionNotSelected">Ping</md-button>
+    <md-button>Help</md-button>
+    <md-button ng-click="clearCursor()" ng-hide="positionNotSelected">Clear Cursor</md-button>
+    <md-button ng-click="toggleSection('system_container')">System</md-button>
+    <md-button ng-click="toggleSection('sidebar')">&laquo; Close</md-button>
+</md-sidenav>

@@ -90,14 +90,14 @@ function editAnnotationRow(id) {
 
 app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', '$window', '$http', function ($scope, $rootScope, socket, $location, $window, $http) {
 
-    $rootScope._cursor = [];
-    $rootScope._grid_id = 0;
+	$rootScope._cursor = [];
+	$rootScope._grid_id = 0;
 
-    /** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
-    $rootScope._grid_size = 20;
+	/** @global {int} grid_size - minimum height/width of a single grid tile (in pixels) */
+	$rootScope._grid_size = 20;
 
-    /** @global {int} cursor_size - the span of grid spaces the cursor overlays */
-    $rootScope._cursor_size = 1;
+	/** @global {int} cursor_size - the span of grid spaces the cursor overlays */
+	$rootScope._cursor_size = 1;
 	$rootScope._selected_element = null;
 	$rootScope._grid_line_width = 0;
 	$rootScope._x_vertices = [];
@@ -135,7 +135,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 		$rootScope.$broadcast('move_element_rcv', msg);
 	});
 
-	socket.on('edited_element', function (msg) { 
+	socket.on('edited_element', function (msg) {
 		$rootScope.$broadcast('updateElement', msg);
 	});
 
@@ -145,17 +145,25 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
 	socket.on('renaming_grid', function (msg) {
 		$rootScope.$broadcast('renamedGrid', msg);
-	 });
+	});
 
 	socket.on('reset_grid', function (msg) { });
-	
-	socket.on('delete_grid_space', function (msg) { 
+
+	socket.on('delete_grid_space', function (msg) {
 		$rootScope.$broadcast('deletedGridSpace', msg);
 	});
 
 	socket.on('added_annotation', function (msg) { });
 	socket.on('deleted_annotation', function (msg) { });
-	socket.on('error_channel', function (msg) { });
+
+	socket.on('error_channel', function (msg) {
+		$rootScope.$broadcast('error_channel', msg);
+	});
+
+	socket.on('pause', (msg) => {
+		$rootScope.$broadcast('pause', msg);
+		console.log(msg);
+	});
 
 	socket.on('upload', (msg) => {
 		$rootScope.$broadcast('initializeCanvas', msg);
@@ -226,7 +234,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 				a.href = "data:text/json;charset=utf-8," + JSON.stringify(data.data);
 				a.download = 'clutter.json';
 				a.click();
-			}, () => {});
+			}, () => { });
 		})
 	});
 
@@ -247,6 +255,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
 	$scope.$on('deleteSpace', () => {
 		console.log($rootScope._grid_id);
-		socket.emit('delete_grid_space_from_server', {'grid_id' : $rootScope._grid_id});
+		socket.emit('delete_grid_space_from_server', { 'grid_id': $rootScope._grid_id });
 	});
 }]);

@@ -88,16 +88,16 @@ app.component('addContainer', {
                     $scope.width = $rootScope._selected_element.size.width / $rootScope._grid_size;
                     $scope.height = $rootScope._selected_element.size.height / $rootScope._grid_size;
                     $scope.fillColour = $rootScope._selected_element.fillColor.toCSS(true);
-                } catch(e) {}
+                } catch (e) {}
 
                 try {
                     $scope.strokeColour = $rootScope._selected_element.strokeColor.toCSS(true);
                     $scope.strokeThickness = $rootScope._selected_element.strokeWidth.toCSS(true);
-                } catch(e) {}
+                } catch (e) {}
 
                 try {
                     $scope.diameter = $rootScope._selected_element.radius / $rootScope._grid_size * 2;
-                } catch(e) {
+                } catch (e) {
                     console.log(e);
                 }
 
@@ -107,7 +107,7 @@ app.component('addContainer', {
 
         $scope.changeOfShape = () => {
             $rootScope._drawing_option = $scope.shape;
-            $rootScope.$broadcast('changeOfShape', {'value' : $scope.shape });
+            $rootScope.$broadcast('changeOfShape', { 'value': $scope.shape });
         };
 
         $scope.rotateElement = (angle) => {

@@ -1,4 +1,5 @@
-<section layout="row" id="tab_row" layout-wrap>
-    <md-button class="tab" ng-repeat="space in spaces" ng-class="{active: $index == selected}" ng-click="changeGridSpace($index, space.id)">{{ space.name }}</md-button>
-    <md-button class="tab" id="addition_tab" ng-click="createGridSpace();">+</md-button>
+<section layout="row" id="tab_row">
+    <md-tabs md-swipe-content>
+        <md-tab ng-repeat="space in spaces" ng-click="changeGridSpace($index, space.id)" label="{{ space.name }}"></md-tab>
+    </md-tabs>
 </section>

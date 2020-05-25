@@ -48,7 +48,12 @@ app.component('gridSpaceContainer', {
 
         $scope.deleteGridSpace = () => {
             $rootScope.$broadcast('deleteSpace', {});
-        }
+        };
+
+        
+        $scope.createGridSpace = () => {
+            $rootScope.$broadcast('createGridSpace', {});
+        };
     }],
     templateUrl: '/js/lib/grid_space_container.html'
 })

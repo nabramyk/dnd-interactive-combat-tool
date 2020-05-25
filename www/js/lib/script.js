@@ -1,19 +1,5 @@
 'use strict';
 
-/**
- * @author Nathan Abramyk
- * @version 1.0.0
- */
-window.addEventListener('load', eventWindowLoaded, false);
-
-function eventWindowLoaded() {
-	canvasApp();
-}
-
-function canvasApp() {
-	$("loading_div").show();
-}
-
 var app = angular.module('clutterApp', ['btford.socket-io', 'ngMaterial']);
 app.factory('socket', function (socketFactory) {
 	return socketFactory({
@@ -80,12 +66,3 @@ app.directive('keypressEvents', ['$rootScope', '$document', function ( $rootScop
         }
     }
 }]);
-
-function interfaceInitialization() {
-	underlay_canvas = document.getElementById('canvas');
-
-	$("#movement_controls").hide();
-	$("#reset_board_button").prop("disabled", true);
-	$("#start_new_line_button").hide();
-	$("#lost_connection_div").hide();
-}

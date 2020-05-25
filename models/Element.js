@@ -10,41 +10,6 @@ module.exports = class Element {
 	}
 
 	/**
-	 * Move the element 1 unit in a specific direction
-	 * 
-	 * @param {String}
-	 *            direction - the direction to move this element
-	 * @return {Element|undefine} This element at its new position, or undefined
-	 *         if it cannot move
-	 */
-	nudge(direction) {
-		console.log(direction);
-		var moveToX = this.el.matrix[4], moveToY = this.el.matrix[5];
-		switch (direction) {
-			case "right": // right
-				moveToX += 20;
-				break;
-			case "up": // up
-				moveToY -= 20;
-				break;
-			case "left": // left
-				moveToX -= 20;
-				break;
-			case "down": // down
-				moveToY += 20;
-				break;
-		}
-
-		//if (gridSpace.find(function (el) { return el.collide(moveToX, moveToY, moveToSize, moveToId); }) === undefined) {
-			this.el.matrix[4] = moveToX;
-			this.el.matrix[5] = moveToY;
-			return this;
-		//} else {
-		//	return undefined;
-		//}
-	};
-
-	/**
 	 * Move the element to a new grid location
 	 */
 	warp(x, y, gridSpace) {

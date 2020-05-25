@@ -26,10 +26,7 @@ app.component('gridSpaceBar', {
             $rootScope.$broadcast('changeGridSpaceSnd', args);
             $scope.selected = index;
             $rootScope._grid_id = args;
-        };
-
-        $scope.createGridSpace = () => {
-            $rootScope.$broadcast('createGridSpace', {});
+            $rootScope._selected_element = null;
         };
     },
     templateUrl: '/js/lib/grid_space_toolbar.html'

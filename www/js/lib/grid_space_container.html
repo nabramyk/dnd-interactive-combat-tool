@@ -1,29 +1,28 @@
 <md-sidenav class="md-sidenav-right" md-component-id="grid_space_container" md-disable-backdrop="">
-    <ul class="list-unstyled components">
+    <md-button ng-click="toggleActive('#grid_space_container')">x</md-button>
 
-        <li>
-            <button ng-click="toggleActive('#grid_space_container')" class="menu_item">x</button>
-        </li>
-        <li>
-            <label for="grid_size_vertical" style="text-align: center;">Height Size</label>
-            <input name="grid_size_vertical" type="number" class="menu_item" ng-keypress="onChange($event)" ng-model="height">
-        </li>
-        <li>
-            <label for="grid_size_horizontal">Width Size</label>
-            <input name="grid_size_horizontal" type="number" class="menu_item" ng-keypress="onChange($event)" ng-model="width">
-        </li>
-        <li>
-            <label for="grid_name">Name</label>
-            <input name="grid_name" type="text" class="menu_item" ng-model="name" ng-keypress="onRename($event)">
-        </li>
-        <li>
-            <button id="randomize">Randomize</button>
-        </li>
-        <li>
-            <button id="reset_board_button" class="destructive">Reset Board</button>
-        </li>
-        <li>
-            <button id="delete_board_button" class="destructive" ng-click="deleteGridSpace()">Delete Board</button>
-        </li>
-    </ul>
+    <md-input-container>
+        <label for="grid_size_vertical">Height Size</label>
+        <input name="grid_size_vertical" type="number" ng-keypress="onChange($event)"
+            ng-model="height">
+    </md-input-container>
+
+    <md-input-container>
+        <label for="grid_size_horizontal">Width Size</label>
+        <input name="grid_size_horizontal" type="number" ng-keypress="onChange($event)"
+            ng-model="width">
+    </md-input-container>
+
+    <md-input-container>
+        <label for="grid_name">Name</label>
+        <input name="grid_name" type="text" ng-model="name" ng-keypress="onRename($event)">
+    </md-input-container>
+
+    <md-button id="randomize">Randomize</md-button>
+
+    <md-button ng-click="createGridSpace()">New Space</md-button>
+
+    <md-button id="reset_board_button" class="destructive">Reset Board</md-button>
+
+    <md-button id="delete_board_button" class="destructive" ng-click="deleteGridSpace()">Delete Board</md-button>
 </md-sidenav>
