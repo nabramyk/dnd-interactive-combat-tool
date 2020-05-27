@@ -13,6 +13,7 @@ app.component('addContainer', {
     controller: ($scope, $rootScope, utils) => {
 
         $scope.shapes = ["rectangle", "circle", "line", "freehand", "room"];
+        $scope.categories = ["environment", "player", "enemy", "npc"];
 
         $scope.shape = 'rectangle';
         $scope.category = 'environment';

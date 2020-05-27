@@ -1,45 +1,45 @@
 <md-sidenav md-component-id="movement_container" class="md-sidenav-right" md-disable-backdrop="">
-  <button ng-click="toggleActive()" class="menu_item">x</button>
+    <md-button ng-click="toggleActive()">x</md-button>
 
-  <md-input-container>
-    <label>X</label>
-    <input type="number" ng-model="location_x">
-  </md-input-container>
+    <md-input-container>
+        <label>X</label>
+        <input type="number" ng-model="location_x">
+    </md-input-container>
 
-  <md-input-container>
-    <label for="move_to_y">Y:</label>
-    <input type="number" ng-model="location_y">
-  </md-input-container>
+    <md-input-container>
+        <label for="move_to_y">Y:</label>
+        <input type="number" ng-model="location_y">
+    </md-input-container>
 
-  <md-button id="move_button">Move</md-button>
+    <md-button id="move_button">Move</md-button>
 
-  <md-grid-list md-cols="3" md-row-height="3:3">
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(3)">NW</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(2)">N</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(1)">NE</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(4)">W</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button>o</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(0)">E</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(5)">SW</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(6)">S</md-button>
-    </md-grid-tile>
-    <md-grid-tile>
-      <md-button ng-click="incrementalMoveElement(7)">SE</md-button>
-    </md-grid-tile>
-  </md-grid-list>
+    <md-grid-list md-cols="3" md-row-height="3:3">
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(3)">NW</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(2)">N</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(1)">NE</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(4)">W</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button>o</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(0)">E</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(5)">SW</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(6)">S</md-button>
+        </md-grid-tile>
+        <md-grid-tile>
+            <md-button ng-click="incrementalMoveElement(7)">SE</md-button>
+        </md-grid-tile>
+    </md-grid-list>
 </md-sidenav>

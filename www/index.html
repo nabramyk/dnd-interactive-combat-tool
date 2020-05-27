@@ -21,6 +21,7 @@
     <script src="/js/lib/movement.js" type="text/javascript"></script>
     <script src="/js/lib/utils.js" type="text/javascript"></script>
     <script src="/js/lib/communication.js" type="text/javascript"></script>
+    <script src="/js/lib/loading_screen.component.js" type="text/javascript"></script>
     <script src="/js/lib/grid_space_toolbar.component.js" type="text/javascript"></script>
     <script src="/js/lib/sidebar_list_container.component.js" type="text/javascript"></script>
     <script src="/js/lib/sidebar_add_container.component.js" type="text/javascript"></script>
@@ -49,6 +50,8 @@
         <md-button id="overlapping_container_open" ng-click="toggleSidebar()">Menu</md-button>
     </div>
 
+    <loading-container></loading-container>
+
     <sidebar></sidebar>
 
     <list-container></list-container>
@@ -57,11 +60,6 @@
     <grid-space-container></grid-space-container>
     <annotation-container></annotation-container>
     <system-container></system-container>
-
-    <div id="loading_div" layout="column" layout-align="center">
-        <md-progress-linear md-mode="indeterminate"></md-progress-linear>
-        <h2 id="loading_text"></h2>
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
