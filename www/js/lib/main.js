@@ -139,9 +139,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
             draw_cursor();
 
-            //$("#move_to_x").val(utils.pixel2GridPoint(selected_grid_x) - 1);
-            //$("#move_to_y").val(utils.pixel2GridPoint(selected_grid_y) - 1);
-
             drawSelectedPositionTopRuler(Number(selected_grid_x));
             drawSelectedPositionLeftRuler(Number(selected_grid_y));
 

@@ -1,37 +1,20 @@
 <md-sidenav md-component-id="list_container" class="md-sidenav-right" md-disable-backdrop="">
-    <ul class="list-unstyled components">
-        <li>
-            <button ng-click="toggleActive()" class="menu_item">x</button>
-        </li>
-        <button id="list_header_elements" class="list_header">Elements</button>
-        <button id="list_header_annotations" class="list_header">Annotations</button>
-        <div id="element_list_container" class="">
-            <div style="display: inline;">
-                <div style="display: block;">
-                    <input type="checkbox" class="element_filter" id="element_list_filter_npc" value="npc" !checked>
-                    <label for="element_list_filter_npc" class="element_filter_label">NPC</label>
-                </div>
-                <div style="display: block;">
-                    <input type="checkbox" class="element_filter" id="element_list_filter_environment"
-                        value="environment" !checked>
-                    <label for="element_list_filter_environment" class="element_filter_label">Environment</label>
-                </div>
-                <div style="display: block;">
-                    <input type="checkbox" class="element_filter" id="element_list_filter_enemy" value="enemy" !checked>
-                    <label for="element_list_filter_enemy" class="element_filter_label">Enemy</label>
-                </div>
-                <div style="display: block;">
-                    <input type="checkbox" class="element_filter" id="element_list_filter_player" value="player"
-                        checked>
-                    <label for="element_list_filter_player" class="element_filter_label">Player</label>
-                </div>
-            </div>
-            <div id="element_list"></div>
-        </div>
-        <div id="annotations_list_container">
-            <input type="checkbox" id="annotations_display">
-            <label for="annotations_display">Highlight on map</label>
-            <div id="annotations_list" class=""></div>
-        </div>
-    </ul>
+    <md-button ng-click="toggleActive()" class="menu_item">x</md-button>
+    <md-tabs>
+        <md-tab label="Elements"></md-tab>
+        <md-tab label="Annotations"></md-tab>
+    </md-tabs>
+
+    <md-radio-group>
+        <md-radio-button value="Player">Player</md-radio-button>
+        <md-radio-button value="NPC">NPC</md-radio-button>
+        <md-radio-button value="Enemy">Enemy</md-radio-button>
+        <md-radio-button value="Environment">Environment</md-radio-button>
+    </md-radio-group>
+
+    <md-list ng-model="elements">
+        <md-list-item ng-repeat="element in elements">
+            <p>{{ element.name }}</p>
+        </md-list-item>
+    </md-list>
 </md-sidenav>

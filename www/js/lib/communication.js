@@ -39,6 +39,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     socket.on('disconnect', (reason) => {
         if (reason === 'io server disconnect') {
+            $rootScope.$broadcast('showLoading', msg);
             socket.connect();
         };
     });
