@@ -41,7 +41,9 @@
     <div ng-controller="clutterController" id="content" keypress-events>
         <canvas id="canvas" resize></canvas>
         <grid-space-bar></grid-space-bar>
-        <md-button id="overlapping_container_open" ng-click="toggleSidebar()">Menu</md-button>
+        <md-button aria-label="Menu Open" ng-click="toggleSidebar()" id="overlapping_container_open" class="md-icon-button">
+            <span class="material-icons">menu_open</span>
+        </md-button>
     </div>
 
     <loading-container></loading-container>

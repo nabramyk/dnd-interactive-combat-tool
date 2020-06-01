@@ -1,3 +1,10 @@
-<md-sidenav class="md-sidenav-left" md-component-id='manual_container'  md-disable-backdrop="">
-    <md-button ng-click="toggleManual()">x</md-button>
+<md-sidenav class="md-sidenav-left" md-component-id="manual_container"  md-disable-backdrop="">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+            <md-button class="md-icon-button" aria-label="Cancel" ng-click="toggleManual()">
+                <span class="material-icons">cancel</span>
+            </md-button>
+            <h3 flex md-truncate>Manual</h3>
+            </div>
+        </md-toolbar>
 </md-sidenav>
