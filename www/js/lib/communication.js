@@ -1,93 +1,3 @@
-function bindSocketListeners() {
-
-    // // socket.on('disconnect', function () {
-    // // 	$("#lost_connection_div").show();
-    // // 	$("#lost_connection_text").text("(ง'̀-'́)ง  The server could not be reached");
-    // // });
-
-    // socket.on('added_elements', function (msg) {
-    // 	if (msg.grid_id != grid_id) return;
-    // 	$("#reset_board_button").prop("disabled", false);
-    // 	ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
-    // 	drawElements();
-    // 	refresh_elements_list();
-    // });
-
-    // 	temp.remove();
-
-    // 	drawElements();
-    // 	$("#reset_board_button").prop("disabled", msg.gridSpaceEmpty);
-    // 	refresh_elements_list();
-    // });
-
-    // socket.on('reset_grid', function (msg) {
-    // 	if (grid_id != msg.grid_id) return;
-    // 	group_elements.removeChildren();
-    // 	paper.view.draw();
-    // });
-
-    // socket.on('added_annotation', function (msg) {
-    // 	if (grid_id != msg.grid_id) return;
-    // 	local_stored_annotations.push(msg.annotation);
-    // 	hideAnnotations();
-    // 	showAnnotations();
-    // 	refresh_annotations_list();
-    // });
-
-    // socket.on('deleted_annotation', function (msg) {
-    // 	if (grid_id != msg.grid_id) return;
-    // 	local_stored_annotations.splice(local_stored_annotations.findIndex(function (el) {
-    // 		return el.id == msg.annotation_id
-    // 	}), 1);
-    // 	refresh_annotations_list();
-    // });
-
-    // socket.on('error_channel', function (msg) {
-    // 	alert(msg.message);
-    // });
-}
-
-/**
- * Delete's a specific element from the server
- *
- * @param {int} id - the unique ID of the element to delete
- */
-function delete_element_from_server(id) {
-    socket.emit('delete_element_on_server', {
-        "grid_id": grid_id,
-        "element_id": id
-    });
-}
-
-function delete_annotation_from_server(id) {
-    socket.emit('delete_annotation_from_server', {
-        "grid_id": grid_id,
-        "annotation_id": id
-    });
-}
-
-function collide(e1, e2) {
-    return e1.id != e2.id &&
-        e1.x < e2.x + e2.size.width &&
-        e1.x + e1.size.width > e2.x &&
-        e1.y < e2.y + e2.size.height &&
-        e1.y + e1.size.height > e2.y;
-}
-
-function refresh_annotations_list() {
-    $("#annotations_list").empty();
-    local_stored_annotations.forEach(function(el) {
-        $("#annotations_list").append(composeAnnotationListRowElement(el));
-    });
-    hideAnnotations();
-    showAnnotations();
-    $(".grid_canvas_annotation").toggle(false);
-}
-
-function editAnnotationRow(id) {
-
-}
-
 app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', '$window', '$http', function($scope, $rootScope, socket, $location, $window, $http) {
 
     $rootScope._cursor = [];
@@ -115,7 +25,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
         else alreadyConnected = true;
 
         socket.emit('init', {}, function(msg) {
-            $("#loading_div").show();
             $rootScope.$broadcast('initializeCanvas', msg);
         });
     });
@@ -143,13 +52,13 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     });
 
     socket.on('added_element', function(msg) {
-        console.log(msg);
         $rootScope.$broadcast('addedElement', msg);
     });
 
     socket.on('added_elements', function(msg) {});
 
     socket.on('removed_element', function(msg) {
+        console.log(msg);
         $rootScope.$broadcast('removedElement', msg);
     });
 
@@ -169,7 +78,9 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
         $rootScope.$broadcast('renamedGrid', msg);
     });
 
-    socket.on('reset_grid', function(msg) {});
+    socket.on('reset_grid', function(msg) {
+
+    });
 
     socket.on('delete_grid_space', function(msg) {
         $rootScope.$broadcast('deletedGridSpace', msg);
@@ -213,6 +124,7 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
             "element": args.element
         }, function(msg) {
             args.element.data.id = msg.id;
+            $rootScope._selected_element = args.element;
         });
     });
 
@@ -225,10 +137,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     $scope.$on('createGridSpace', (_) => {
         socket.emit('create_grid_space', {});
     });
-
-    $scope.toggleSidebar = () => {
-        $("#sidebar").toggleClass('active');
-    };
 
     $scope.$on('changeGridSpaceSnd', (_, args) => {
         socket.emit('request_grid_space', {
@@ -277,5 +185,9 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     $scope.$on('deleteSpace', () => {
         socket.emit('delete_grid_space_from_server', { 'grid_id': $rootScope._grid_id });
+    });
+
+    $scope.$on('reset', () => {
+        socket.emit('reset_board', { 'grid_id': $rootScope._grid_id });
     });
 }]);

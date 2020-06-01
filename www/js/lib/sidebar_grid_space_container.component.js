@@ -42,7 +42,7 @@ app.component('gridSpaceContainer', {
             $scope.height = height;
         }
 
-        $scope.$on('add_element_to_server', function (_, args) {
+        $scope.$on('add_element_to_server', function(_, args) {
             $rootScope.$broadcast('drawLocalElement', args);
         });
 
@@ -50,9 +50,13 @@ app.component('gridSpaceContainer', {
             $rootScope.$broadcast('deleteSpace', {});
         };
 
-        
         $scope.createGridSpace = () => {
             $rootScope.$broadcast('createGridSpace', {});
+        };
+
+        $scope.resetGrid = () => {
+            console.log('here');
+            $rootScope.$broadcast('reset', {});
         };
     }],
     templateUrl: '/js/lib/grid_space_container.html'

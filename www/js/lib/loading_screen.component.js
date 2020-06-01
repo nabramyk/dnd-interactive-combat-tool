@@ -19,18 +19,13 @@ app.component('loadingContainer', {
             $scope.isShowing = false;
         });
 
-        $scope.$on('pause', (_, msg) => {
-
-        });
-
         $scope.$on('changeGridSpaceSnd', () => {
-            message = "Hotswapping grid spaces....";
+            $scope.message = "Hotswapping grid spaces....";
             $scope.quote = utils.getRandomQuote();
             $scope.isShowing = true;
         });
 
         $scope.$on('requestGridSpaceRcv', (_, msg) => {
-            $scope.quote = utils.getRandomQuote();
             $scope.isShowing = false;
         });
     }],

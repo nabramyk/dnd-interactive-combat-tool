@@ -275,7 +275,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
     function resizeGridHeight(height) {
         grid_count_height = height;
-        $("#grid_size_vertical").val(grid_count_height);
         drawScreen();
         drawLeftRuler();
         drawRightRuler();
@@ -284,7 +283,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
     function resizeGridWidth(width) {
         grid_count_width = width;
-        $("#grid_size_horizontal").val(grid_count_width);
         drawScreen();
         drawTopRuler();
         drawBottomRuler();
@@ -393,30 +391,30 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
             cursor.remove();
         } catch (e) {}
 
-        switch ($('#selected_shape').val()) {
-            case "line":
-                cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2)), 5);
-                cursor.fillColor = grid_highlight;
-                group_overlay.addChild(cursor);
-                if (line_path.segments.length > 0) {
-                    try { temp_line.remove(); } catch (e) { console.log(e) };
-                    temp_line = new paper.Path(line_path.segments);
-                    temp_line.add(cursor.position);
-                    temp_line.strokeColor = "#ff0000";
-                    group_overlay.addChild(temp_line);
-                }
-                break;
-            default:
-                if (!isUndefined(selected_element) && selected_element != null) {
-                    selected_element.selected = true;
-                    selected_element.selectedColor = grid_highlight;
-                } else {
-                    cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
-                    cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
-                    cursor.strokeColor = grid_highlight;
-                    group_overlay.addChild(cursor);
-                }
+        // switch ($('#selected_shape').val()) {
+        //    case "line":
+        // cursor = paper.Shape.Circle(new paper.Point(selected_grid_x - (grid_size / 2), selected_grid_y - (grid_size / 2)), 5);
+        // cursor.fillColor = grid_highlight;
+        // group_overlay.addChild(cursor);
+        // if (line_path.segments.length > 0) {
+        //     try { temp_line.remove(); } catch (e) { console.log(e) };
+        //     temp_line = new paper.Path(line_path.segments);
+        //     temp_line.add(cursor.position);
+        //     temp_line.strokeColor = "#ff0000";
+        //     group_overlay.addChild(temp_line);
+        // }
+        //         break;
+        //     default:
+        if (!isUndefined(selected_element) && selected_element != null) {
+            selected_element.selected = true;
+            selected_element.selectedColor = grid_highlight;
+        } else {
+            cursor = paper.Shape.Rectangle(0, 0, grid_size * cursor_size.width, grid_size * cursor_size.height);
+            cursor.position = new paper.Point(selected_grid_x, selected_grid_y);
+            cursor.strokeColor = grid_highlight;
+            group_overlay.addChild(cursor);
         }
+        // }
 
         $rootScope._cursor = cursor;
     }
@@ -654,6 +652,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
     function drawElements() {
         try { elementsraster.remove() } catch (e) {};
         $scope.paper.view.update();
+        $rootScope.$broadcast('hideLoading', {});
     }
 
     function draw_local_item(args) {
@@ -811,9 +810,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
     function eraseCursor() {
         try {
             $rootScope._cursor.remove();
-        } catch (e) {
-            console.log(e);
-        }
+        } catch (e) {}
 
         try {
             group_top_cursor.removeChildren();
@@ -822,9 +819,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
             group_right_cursor.removeChildren();
 
             $rootScope._selected_element.selected = false;
-        } catch (e) {
-            console.log(e);
-        }
+        } catch (e) {}
 
         $scope.paper.view.update();
     }
@@ -869,19 +864,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
     $scope.$on('addedElement', function(_, msg) {
         if (msg.grid_id != $rootScope._grid_id) return;
-        $("#reset_board_button").prop("disabled", false);
         draw_item(msg.element.el);
-        refresh_elements_list();
     });
 
     $scope.$on('move_element_rcv', (_, msg) => {
         if (msg.grid_id != $rootScope._grid_id) return;
         var element = group_elements.children.find(function(el) { return el.data.id == msg.element.data.id; });
         element.matrix = msg.element.matrix;
-        //if (selected_element != null && element === selected_element) {
-        //	selected_element = null;
-        //	eraseCursor();
-        //}
         $scope.paper.view.update();
     });
 
@@ -891,7 +880,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         grid_count_width = msg.grid_space.size.width;
         resizeGridWidth(grid_count_width);
         local_stored_annotations = [];
-        $("#grid_name").val(msg.grid_space.name);
 
         group_elements.removeChildren();
         group_overlay.removeChildren();
@@ -899,7 +887,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         eraseCursor();
 
         if (msg.grid_space.elements.length !== 0) {
-            $("#reset_board_button").prop("disabled", false);
             msg.grid_space.elements.forEach(function(el) { draw_item(el); });
         }
 
@@ -928,7 +915,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
             y_vertices = [];
         }
         var temp_new_ele = draw_local_item(args);
-        $("#reset_board_button").prop("disabled", false);
         $rootScope.$broadcast('addElementToServer', { 'grid_id': $rootScope._grid_id, 'element': temp_new_ele });
     });
 
@@ -948,7 +934,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
     });
 
     $scope.$on('updateElement', (_, msg) => {
-        if (msg.grid_id != grid_id) return;
+        if (msg.grid_id != $rootScope._grid_id) return;
 
         var element = group_elements.getItem({ data: { id: msg.element.data.id } });
         var bounds = element.bounds;
@@ -1000,35 +986,35 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
         var ele;
 
-        switch ($("#selected_shape").val()) {
-            case "rectangle":
-                ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
-                ele.fillColor = args.fillColor;
-                ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
-                ele.name = "rectangle";
-                break;
-            case "circle":
-                ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.width) * (grid_size / 2));
-                ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
-                ele.fillColor = args.fillColor;
-                ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
-                ele.name = "circle";
-                break;
-            case "line":
-            case "freehand":
-                ele = temp_line.clone();
-                ele.fullySelected = false;
-                temp_line.remove();
-                ele.name = "line";
-                break;
-            case "room":
-                ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
-                ele.strokeColor = args.fillColor;
-                ele.strokeWidth = 10;
-                ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
-                ele.name = "room";
-                break;
-        }
+        // switch ($("#selected_shape").val()) {
+        //     case "rectangle":
+        //         ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+        //         ele.fillColor = args.fillColor;
+        //         ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+        //         ele.name = "rectangle";
+        //         break;
+        //     case "circle":
+        //         ele = new paper.Shape.Circle(x + cursor_line_width / 2, y + cursor_line_width / 2, JSON.parse(args.width) * (grid_size / 2));
+        //         ele.bounds.topLeft = new paper.Point(x - (grid_size / 2), y - (grid_size / 2));
+        //         ele.fillColor = args.fillColor;
+        //         ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+        //         ele.name = "circle";
+        //         break;
+        //     case "line":
+        //     case "freehand":
+        //         ele = temp_line.clone();
+        //         ele.fullySelected = false;
+        //         temp_line.remove();
+        //         ele.name = "line";
+        //         break;
+        //     case "room":
+        //         ele = new paper.Shape.Rectangle(x - (grid_size / 2), y - (grid_size / 2), JSON.parse(args.width) * grid_size, JSON.parse(args.height) * grid_size);
+        //         ele.strokeColor = args.fillColor;
+        //         ele.strokeWidth = 10;
+        //         ele.pivot = $scope.paper.Shape.Rectangle.topLeft;
+        //         ele.name = "room";
+        //         break;
+        // }
 
         group_temporary_drawing_layer.add(ele);
     });
@@ -1093,21 +1079,23 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
                 "size": cursor_size
             });
 
-            selected_grid_x = temp.x - ($rootScope._grid_size / 2);
-            selected_grid_y = temp.y - ($rootScope._grid_size / 2);
+            if (selected_element.name != "line") {
+                selected_grid_x = temp.x - ($rootScope._grid_size / 2);
+                selected_grid_y = temp.y - ($rootScope._grid_size / 2);
 
-            var loc = new paper.Point(selected_grid_x, selected_grid_y);
-            selected_element.bounds.topLeft = loc;
-            //cursor.bounds.topLeft = loc;
+                var loc = new paper.Point(selected_grid_x, selected_grid_y);
+                selected_element.bounds.topLeft = loc;
+                //cursor.bounds.topLeft = loc;
 
-            drawSelectedPositionTopRuler(Number(selected_grid_x + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.width));
-            drawSelectedPositionLeftRuler(Number(selected_grid_y + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.height));
+                drawSelectedPositionTopRuler(Number(selected_grid_x + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.width));
+                drawSelectedPositionLeftRuler(Number(selected_grid_y + ($rootScope._grid_size / 2)), utils.pixel2GridPoint(selected_element.size.height));
 
-            try {
-                t.remove();
-                b.remove();
-            } catch (e) {
-                console.log(e);
+                try {
+                    t.remove();
+                    b.remove();
+                } catch (e) {
+                    console.log(e);
+                }
             }
 
             $scope.paper.view.update();

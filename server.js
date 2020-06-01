@@ -19,14 +19,20 @@ var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var isUndefined = require('./utils.js').isUndefined;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: false
+app.use(bodyParser.json({
+    parameterLimit: 500000,
+    limit: '50mb',
+    extended: true
 }));
-app.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	next();
+app.use(bodyParser.urlencoded({
+    parameterLimit: 500000,
+    limit: '50mb',
+    extended: true
+}));
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
 //Define the main path to index.html, which will be automatically loaded when
@@ -43,139 +49,142 @@ app.use('/js', express.static(__dirname + '/www/js'))
 app.use('/css', express.static(__dirname + '/www/css'))
 
 app.get('/download', (req, res) => {
-	res.download('clutter.json');
+    res.download('clutter.json');
 });
 
 var clutter = new ClutterInstance();
 
 io.on('connection', (socket) => {
-	console.log("a user connected");
+    console.log("a user connected");
 
-	socket.on('init', (_, fn) => {
-		fn(clutter.init());
-	});
+    socket.on('init', (_, fn) => {
+        fn(clutter.init());
+    });
 
-	socket.on('resize', (msg) => {
-		io.emit('resize', clutter.resize(msg));
-	});
+    socket.on('resize', (msg) => {
+        io.emit('resize', clutter.resize(msg));
+    });
 
-	socket.on('move_element', (msg, fn) => {
-		try {
-			var movedElement = clutter.moveElement(msg);
-			if(isUndefined(movedElement)) return;
-			socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-			//fn({ "matrix" : movedElement.matrix });
-		} catch(e) {
-			socket.emit('error_channel', {"message" : "unable to move element"});
-		}
-	});
+    socket.on('move_element', (msg, fn) => {
+        try {
+            var movedElement = clutter.moveElement(msg);
+            if (isUndefined(movedElement)) return;
+            socket.broadcast.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+            //fn({ "matrix" : movedElement.matrix });
+        } catch (e) {
+            socket.emit('error_channel', { "message": "unable to move element" });
+        }
+    });
 
-	socket.on('warp_element', (msg, fn) => {
-		var movedElement = clutter.warpElement(msg);
-		if (isUndefined(movedElement)) {
-			socket.emit('error_channel', { "message": "Somethings already there! " });
-			return;
-		}
+    socket.on('warp_element', (msg, fn) => {
+        var movedElement = clutter.warpElement(msg);
+        if (isUndefined(movedElement)) {
+            socket.emit('error_channel', { "message": "Somethings already there! " });
+            return;
+        }
 
-		io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
-		fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
-	});
+        io.emit('move_element', { "grid_id": msg.grid_id, "element": movedElement });
+        fn({ "x": movedElement.x, "y": movedElement.y, "size": movedElement.size });
+    });
 
-	socket.on('add_element_to_server', (msg, fn) => {
-		var output = clutter.addElement(msg);
-		if(isUndefined(output)) {
-			socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
-		} else {
-			socket.broadcast.emit('added_element', { "grid_id": msg.grid_id, "element": output });
-			fn({ "id" : output.el.data.id }); //Return the id of the newly created element to the user who created it
-		}
-	});
+    socket.on('add_element_to_server', (msg, fn) => {
+        var output = clutter.addElement(msg);
+        if (isUndefined(output)) {
+            socket.emit('error_channel', { "message": "Cannot place an element where one already exists." });
+        } else {
+            socket.broadcast.emit('added_element', { "grid_id": msg.grid_id, "element": output });
+            fn({ "id": output.el.data.id }); //Return the id of the newly created element to the user who created it
+        }
+    });
 
-	socket.on('delete_element_on_server', (msg) => {
-		clutter.deleteElement(msg);
-		io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": msg.element_id });
-	});
+    socket.on('delete_element_on_server', (msg) => {
+        clutter.deleteElement(msg);
+        io.emit('removed_element', { "grid_id": msg.grid_id, "element_id": msg.element_id });
+    });
 
-	socket.on('edit_element_on_server', (msg) => {
-		var temp = clutter.editElement(msg);
-		if(isUndefined(temp)) {
-			socket.emit('error_channel', {"message" : "Unable to modify element properties."});
-		} else {
-			socket.broadcast.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
-		}
-	});
+    socket.on('edit_element_on_server', (msg) => {
+        var temp = clutter.editElement(msg);
+        if (isUndefined(temp)) {
+            socket.emit('error_channel', { "message": "Unable to modify element properties." });
+        } else {
+            socket.broadcast.emit('edited_element', { "grid_id": msg.grid_id, "element": temp });
+        }
+    });
 
-	socket.on('randomize', (msg) => {
-		io.emit('added_elements', { "grid_id": msg.grid_id, "element": clutter.randomize(msg).elements });
-	});
+    socket.on('randomize', (msg) => {
+        io.emit('added_elements', { "grid_id": msg.grid_id, "element": clutter.randomize(msg).elements });
+    });
 
-	socket.on('reset_board', (msg) => {
-		io.emit('reset_grid', clutter.reset(msg));
-	});
+    socket.on('reset_board', (msg) => {
+        io.emit('reset_grid', clutter.reset(msg));
+    });
 
-	socket.on('create_grid_space', () => {
-		io.emit('new_grid_space', clutter.createGridSpace());
-	});
+    socket.on('create_grid_space', () => {
+        io.emit('new_grid_space', clutter.createGridSpace());
+    });
 
-	socket.on('request_grid_space', (msg, fn) => {
-		fn({ "grid_space": clutter.findGridSpace(msg) });
-	});
+    socket.on('request_grid_space', (msg, fn) => {
+        fn({ "grid_space": clutter.findGridSpace(msg) });
+    });
 
-	socket.on('delete_grid_space_from_server', (msg) => {
-		io.emit('delete_grid_space', clutter.deleteGridSpace(msg));
-	});
+    socket.on('delete_grid_space_from_server', (msg) => {
+        io.emit('delete_grid_space', clutter.deleteGridSpace(msg));
+    });
 
-	socket.on('rename_grid', (msg) => {
-		io.emit('renaming_grid', clutter.renameGrid(msg));
-	});
+    socket.on('rename_grid', (msg) => {
+        io.emit('renaming_grid', clutter.renameGrid(msg));
+    });
 
-	socket.on('add_annotation_to_server', (msg) => {
-		io.emit('added_annotation', clutter.addAnnotation(msg));
-	});
+    socket.on('add_annotation_to_server', (msg) => {
+        io.emit('added_annotation', clutter.addAnnotation(msg));
+    });
 
-	socket.on('delete_annotation_from_server', (msg) => {
-		io.emit('deleted_annotation', clutter.deleteAnnotation(msg));
-	});
+    socket.on('delete_annotation_from_server', (msg) => {
+        io.emit('deleted_annotation', clutter.deleteAnnotation(msg));
+    });
 
-	socket.on('undo', (msg) => {
-		clutter.undo(msg);
-	});
+    socket.on('undo', (msg) => {
+        clutter.undo(msg);
+    });
 
-	socket.on('redo', (msg) => {
-		clutter.redo(msg);
-	});
+    socket.on('redo', (msg) => {
+        clutter.redo(msg);
+    });
 
-	socket.on('ping_snd', (msg) => {
-		io.emit('ping_rcv', msg);
-	});
+    socket.on('ping_snd', (msg) => {
+        io.emit('ping_rcv', msg);
+    });
 
-	socket.on('export', (_, fn) => {
-		let data = JSON.stringify(clutter);
-		fs.writeFileSync('clutter.json', data);
-		fn({ "url": '/download'});
-	});
+    socket.on('export', (_, fn) => {
+        let data = JSON.stringify(clutter);
+        fs.writeFileSync('clutter.json', data);
+        fn({ "url": '/download' });
+    });
 
-	app.post('/upload', (req, res) => {
-		io.emit('pause', {"message": "Someone is uploading some clutter..."});
+    app.post('/upload', (req, res) => {
+        io.emit('pause', { "message": "Someone is uploading some clutter..." });
 
-		clutter.grid_id_counter = req.body.grid_id_counter;
-		clutter.grid_space = req.body.grid_space.map(element => {
-			var temp = new GridSpace(element.size, element.id);
-			temp.id = element.id;
-			temp.elementIdCounter = element.elemendIdCounter;
-			temp.elements = element.elements.map(el => {
-				console.log(el);
-				return new Element(el).el;
-			});
-			temp.name = element.name;
-			return temp;
-		});
+        clutter.grid_id_counter = req.body.grid_id_counter;
+        clutter.grid_space = req.body.grid_space.map(element => {
+            var temp = new GridSpace(element.size, element.id);
+            temp.id = element.id;
+            temp.elementIdCounter = element.elemendIdCounter;
+            temp.elements = element.elements.map(el => {
+                if (el.data.id == null) {
+                    temp.elementIdCounter += 1;
+                    el.data.id = temp.elementIdCounter;
+                };
+                return new Element(el).el;
+            });
+            temp.name = element.name;
+            return temp;
+        });
 
-		io.emit('upload', clutter.init());
-	});
+        io.emit('upload', clutter.init());
+    });
 });
 
 //Main driver for booting up the server
 http.listen(8080, () => {
-	console.log("%s:%s", http.address().address, http.address().port)
+    console.log("%s:%s", http.address().address, http.address().port)
 });
