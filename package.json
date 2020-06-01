@@ -8,9 +8,8 @@
     "angularjs-color-picker": "^3.4.8",
     "express": "^4.16.2",
     "express-logging": "^1.1.1",
-    "log4js": "^2.5.2",
+    "log4js": "^6.3.0",
     "logops": "^2.1.0",
-    "mocha": "^5.2.0",
     "paper": "^0.11.8",
     "simple-node-logger": "^0.93.37",
     "socket.io": "^2.1.0",
@@ -18,7 +17,7 @@
   },
   "devDependencies": {
     "jsdoc": "^3.6.4",
-    "mocha": "^5.2.0"
+    "mocha": "^7.2.0"
   },
   "scripts": {
     "test": "mocha",
