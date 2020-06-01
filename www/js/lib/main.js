@@ -850,7 +850,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         );
     });
 
-    $scope.$on('resizeRcv', function(_, msg) {
+    $scope.$on('resizeRcv', (_, msg) => {
         if ($rootScope._grid_id != msg.grid_id) return;
         grid_count_width = msg.size.width;
         grid_count_height = msg.size.height;
@@ -859,7 +859,7 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         drawElements();
     });
 
-    $scope.$on('addedElement', function(_, msg) {
+    $scope.$on('addedElement', (_, msg) => {
         if (msg.grid_id != $rootScope._grid_id) return;
         draw_item(msg.element.el);
     });
@@ -1060,6 +1060,65 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         $mdToast.show(
             $mdToast.simple().textContent(msg.message)
         )
+    });
+
+    $scope.$on('highlightElement', (_, element) => {
+        var ele;
+
+        switch (element.type) {
+            case "square":
+            case "rectangle":
+                ele = new paper.Shape.Rectangle(element);
+                break;
+            case "circle":
+            case "oval":
+                ele = new paper.Shape.Circle(element);
+                break;
+            default:
+                ele = new paper.Path(element);
+                break;
+        }
+
+        ele.strokeColor = '#ebe72d';
+        ele.strokeWidth = '3';
+        ele.selected = false;
+
+        group_overlay.addChild(ele);
+
+        $scope.paper.view.update();
+    });
+
+    $scope.$on('unhighlightElement', (_, element) => {
+        var temp = group_overlay.children[group_overlay.children.indexOf(
+            group_overlay.children.find(
+                function(el) {
+                    return element.data.id == el.data.id;
+                }
+            )
+        )];
+
+        temp.remove();
+
+        $scope.paper.view.update();
+    });
+
+    $scope.$on('selectElementFromList', (_, element) => {
+        var temp = group_overlay.children[group_overlay.children.indexOf(
+            group_overlay.children.find(
+                function(el) {
+                    return element.data.id == el.data.id;
+                }
+            )
+        )];
+
+        temp.remove();
+
+        temp = group_elements.getItem({ data: { id: element.data.id } });
+
+        $rootScope._selected_element = temp;
+        temp.selected = true;
+
+        $scope.paper.view.update();
     });
 
     function incremental_move_element(direction) {

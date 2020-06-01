@@ -10,6 +10,22 @@ app.component('listContainer', {
             utils.toggle('list_container');
         };
 
+        $scope.highlightElement = (element) => {
+            $rootScope.$broadcast('highlightElement', element);
+        };
+
+        $scope.unhighlightElement = (element) => {
+            $rootScope.$broadcast('unhighlightElement', element);
+        };
+
+        $scope.clickListItem = (element) => {
+            $rootScope.$broadcast('selectElementFromList', element);
+        };
+
+        $scope.editListItem = (element) => {
+            console.log(element);
+        };
+
         $scope.$on('addedElement', function(_, msg) {
             $scope.elements.push(msg.element.el);
         });

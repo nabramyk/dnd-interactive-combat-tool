@@ -13,8 +13,9 @@
     </md-radio-group>
 
     <md-list ng-model="elements">
-        <md-list-item ng-repeat="element in elements">
-            <p>{{ element.name }}</p>
+        <md-list-item ng-repeat="element in elements" ng-click="clickListItem(element)" ng-mouseenter="highlightElement(element)" ng-mouseleave="unhighlightElement(element)">
+            <h3>{{ element.data.name }}</h3>
+            <md-icon class="md-secondary" ng-click="editListItem(element)" aria-label="Chat">edit</md-icon>
         </md-list-item>
     </md-list>
 </md-sidenav>

@@ -20,7 +20,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     // startregion Sockets
 
     socket.on('connect', function(msg) {
-
         if (alreadyConnected) return;
         else alreadyConnected = true;
 
@@ -30,15 +29,18 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     });
 
     socket.on('connect_error', (error) => {
+        alreadyConnected = false;
         $rootScope.$broadcast('error_channel', error);
     });
 
     socket.on('connection_timeout', () => {
+        alreadyConnected = false;
         $rootScope.$broadcast('error_channel', {});
     });
 
     socket.on('disconnect', (reason) => {
         if (reason === 'io server disconnect') {
+            alreadyConnected = false;
             $rootScope.$broadcast('showLoading', msg);
             socket.connect();
         };
