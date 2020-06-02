@@ -1062,40 +1062,20 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         )
     });
 
-    $scope.$on('highlightElement', (_, element) => {
-        var ele;
+    $scope.$on('highlightElement', (_, elem) => {
+        var element = group_elements.getItem({ data: { id: elem.id } });
+        var ele = element.copyTo(group_overlay);
 
-        switch (element.type) {
-            case "square":
-            case "rectangle":
-                ele = new paper.Shape.Rectangle(element);
-                break;
-            case "circle":
-            case "oval":
-                ele = new paper.Shape.Circle(element);
-                break;
-            default:
-                ele = new paper.Path(element);
-                break;
-        }
-
+        ele.fillColor = null;
         ele.strokeColor = '#ebe72d';
         ele.strokeWidth = '3';
         ele.selected = false;
-
-        group_overlay.addChild(ele);
 
         $scope.paper.view.update();
     });
 
     $scope.$on('unhighlightElement', (_, element) => {
-        var temp = group_overlay.children[group_overlay.children.indexOf(
-            group_overlay.children.find(
-                function(el) {
-                    return element.data.id == el.data.id;
-                }
-            )
-        )];
+        var temp = group_overlay.getItem({ data: { id: element.id } });
 
         temp.remove();
 
@@ -1106,14 +1086,14 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         var temp = group_overlay.children[group_overlay.children.indexOf(
             group_overlay.children.find(
                 function(el) {
-                    return element.data.id == el.data.id;
+                    return element.id == el.data.id;
                 }
             )
         )];
 
         temp.remove();
 
-        temp = group_elements.getItem({ data: { id: element.data.id } });
+        temp = group_elements.getItem({ data: { id: element.id } });
 
         $rootScope._selected_element = temp;
         temp.selected = true;

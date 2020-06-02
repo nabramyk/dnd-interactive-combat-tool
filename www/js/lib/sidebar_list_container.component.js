@@ -5,6 +5,7 @@ app.component('listContainer', {
     controller: ($scope, $rootScope, utils) => {
 
         $scope.elements = [];
+        $scope.filteredElements = [];
 
         $scope.toggleActive = () => {
             utils.toggle('list_container');
@@ -27,12 +28,12 @@ app.component('listContainer', {
         };
 
         $scope.$on('addedElement', function(_, msg) {
-            $scope.elements.push(msg.element.el);
+            $scope.elements.push(msg.element.el.data);
         });
 
         $scope.$on('initializeCanvas', function(_, msg) {
             msg.elements.map(function(el) {
-                $scope.elements.push(el);
+                $scope.elements.push(el.data);
             });
         });
     },
