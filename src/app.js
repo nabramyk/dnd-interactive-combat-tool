@@ -248,32 +248,9 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     var temp_line, stored_edited_element_bounds;
     var t, b;
 
-    $scope.$on('initializeCanvas', function(_, msg) {
-        group_elements.removeChildren();
-
-        grid_count_height = msg.size.height;
-        resizeGridHeight(grid_count_height);
-        grid_count_width = msg.size.width;
-        resizeGridWidth(grid_count_width);
-
-        var selected_grid_x = -1;
-        var selected_grid_y = -1;
-
-        $rootScope._grid_id = msg.spaces[0].id;
-        $rootScope.$broadcast('generateGridTabs', msg.spaces);
-
-        msg.elements.map(function(el) {
-            draw_item(el);
-        });
-
-        local_stored_annotations = msg.annotations;
-
-        $rootScope.$broadcast('hideLoading', {});
-    });
-
-    init();
-
     function init() {
+        $scope.$broadcast('showLoading', {});
+
         if (!$scope.paper) {
             $scope.paper = new paper.PaperScope();
             $scope.paper.setup('canvas');
@@ -414,6 +391,31 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
             $scope.paper.view.update();
         });
     };
+
+    $scope.$on('initializeCanvas', function(_, msg) {
+        init();
+
+        group_elements.removeChildren();
+
+        grid_count_height = msg.size.height;
+        resizeGridHeight(grid_count_height);
+        grid_count_width = msg.size.width;
+        resizeGridWidth(grid_count_width);
+
+        var selected_grid_x = -1;
+        var selected_grid_y = -1;
+
+        $rootScope._grid_id = msg.spaces[0].id;
+        $rootScope.$broadcast('generateGridTabs', msg.spaces);
+        $rootScope.$broadcast('hideLoading');
+
+        msg.elements.map(function(el) {
+            draw_item(el);
+        });
+
+        //local_stored_annotations = msg.annotations;
+
+    });
 
     function drawScreen() {
         for (var i = 0; i < grid_count_height; i++) {
@@ -1695,7 +1697,14 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
     },
     templateUrl: 'components/list_container/list_container.html'
-});;app.component('loadingContainer', {
+});;app.component('manualContainer', {
+    controller: ['$scope', 'utils', ($scope, utils) => {
+        $scope.toggleManual = () => {
+            utils.toggle('manual_container');
+        };
+    }],
+    templateUrl: 'components/manual/manual_container.html'
+});app.component('loadingContainer', {
     bindings: {
         isShowing: '=',
         quote: '=',
@@ -1707,7 +1716,7 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         var isFinishedLoading = false;
         var isTimerFinished = false;
 
-        $scope.isShowing = true;
+        $scope.isShowing = false;
         $scope.quote = utils.getRandomQuote();
         $scope.message = "";
 
@@ -1716,7 +1725,6 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
 
         $scope.$on('hideLoading', () => {
-            console.log('here');
             if (isTimerFinished) {
                 $scope.isShowing = false;
                 reset();
@@ -1756,14 +1764,7 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         };
     }],
     templateUrl: 'components/loading_screen/loading_screen.html'
-});;app.component('manualContainer', {
-    controller: ['$scope', 'utils', ($scope, utils) => {
-        $scope.toggleManual = () => {
-            utils.toggle('manual_container');
-        };
-    }],
-    templateUrl: 'components/manual/manual_container.html'
-});app.component('movementContainer', {
+});;app.component('movementContainer', {
     bindings: {
         location_x: '=',
         location_y: '='
@@ -1791,6 +1792,17 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         }
     },
     templateUrl: 'components/movement_container/movement_container.html'
+});app.component('systemContainer', {
+    templateUrl: 'components/system_container/system_container.html',
+    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
+        $scope.toggleActive = (event) => {
+            utils.toggle('system_container');
+        };
+
+        $scope.export = () => {
+            $rootScope.$broadcast('exportClutter', {});
+        };
+    }]
 });app.component('sidebar', {
     bindings: {
         'add_edit': '<',
@@ -1840,17 +1852,6 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
     }],
     templateUrl: 'components/sidebar/sidebar.html'
-});app.component('systemContainer', {
-    templateUrl: 'components/system_container/system_container.html',
-    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
-        $scope.toggleActive = (event) => {
-            utils.toggle('system_container');
-        };
-
-        $scope.export = () => {
-            $rootScope.$broadcast('exportClutter', {});
-        };
-    }]
 });app.component('gridSpaceBar', {
     bindings: {
         spaces: '='

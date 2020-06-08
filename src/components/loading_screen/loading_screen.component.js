@@ -10,7 +10,7 @@ app.component('loadingContainer', {
         var isFinishedLoading = false;
         var isTimerFinished = false;
 
-        $scope.isShowing = true;
+        $scope.isShowing = false;
         $scope.quote = utils.getRandomQuote();
         $scope.message = "";
 
@@ -19,7 +19,6 @@ app.component('loadingContainer', {
         });
 
         $scope.$on('hideLoading', () => {
-            console.log('here');
             if (isTimerFinished) {
                 $scope.isShowing = false;
                 reset();
