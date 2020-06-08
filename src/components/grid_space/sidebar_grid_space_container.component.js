@@ -59,5 +59,5 @@ app.component('gridSpaceContainer', {
             $rootScope.$broadcast('reset', {});
         };
     }],
-    templateUrl: '/js/lib/grid_space_container.html'
+    templateUrl: 'components/grid_space/grid_space_container.html'
 })

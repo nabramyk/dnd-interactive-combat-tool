@@ -1,3 +1,7 @@
+'use strict';
+
+var app = angular.module('clutterApp', ['btford.socket-io', 'ngMaterial']);
+
 app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', '$window', '$http', function($scope, $rootScope, socket, $location, $window, $http) {
 
     $rootScope._cursor = [];

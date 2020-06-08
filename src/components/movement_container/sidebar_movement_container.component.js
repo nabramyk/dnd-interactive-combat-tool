@@ -25,5 +25,5 @@ app.component('movementContainer', {
             $rootScope.$broadcast('incrementalMoveElement', args);
         }
     },
-    templateUrl: '/js/lib/movement_container.html'
+    templateUrl: 'components/movement_container/movement_container.html'
 })

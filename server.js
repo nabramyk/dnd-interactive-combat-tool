@@ -35,17 +35,13 @@ app.use(function(req, res, next) {
     next();
 });
 
-//Define the main path to index.html, which will be automatically loaded when
-//the user visits for the
-//first time
-app.use(express.static('www'));
+//Define the main path to index.html, which will be automatically loaded when the user visits for the first time
+app.use(express.static('src'));
 
-//Define the path for where the javscript files are located for the users
-//webpage
+//Define the path for where the javscript files are located for the users webpage
 app.use('/js', express.static(__dirname + '/www/js'))
 
-//Define the path for where the css stylesheets are located for the users
-//webpage
+//Define the path for where the css stylesheets are located for the users webpage
 app.use('/css', express.static(__dirname + '/www/css'))
 
 app.get('/download', (req, res) => {

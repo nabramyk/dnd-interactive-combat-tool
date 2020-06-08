@@ -120,5 +120,5 @@ app.component('addContainer', {
             return $rootScope._drawing_option == 'line' || $rootScope._drawing_option == 'freehand';
         }
     },
-    templateUrl: '/js/lib/add_container.html'
+    templateUrl: 'components/add_container/add_container.html'
 })

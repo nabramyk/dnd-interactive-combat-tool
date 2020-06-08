@@ -4,5 +4,5 @@ app.component('manualContainer', {
             utils.toggle('manual_container');
         };
     }],
-    templateUrl: '/js/lib/manual_container.html'
+    templateUrl: 'components/manual/manual_container.html'
 })

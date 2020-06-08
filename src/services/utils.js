@@ -156,7 +156,17 @@ app.service('utils', function($rootScope, $mdSidenav) {
             'My belt is holding my pants up, but my belt loop is holding my belt in place. I don\'t know who\'s the real hero down there!',
             'I hate it when the waffles stick together.',
             'We get it, you vape!',
-            'Madness is the emergency door.'
+            'Madness is the emergency door.',
+            'Timmy get down!',
+            'Not the gnome!',
+            'Feel the power of the holy flame!',
+            'In my restless dreams,\nI see that town.\nSilent Hill.',
+            'No whammie, no whammie.....',
+            'More like \"Gaygoth\"',
+            'Husky Pete\'s',
+            'Spaceballs 2: The search for more money',
+            'It\'s a fake!',
+            'Shikaka!'
         ];
 
         return quotes[Math.floor(Math.random() * quotes.length)];

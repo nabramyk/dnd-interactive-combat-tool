@@ -1,5 +1,5 @@
 app.component('sidebar', {
-    bindings: { 
+    bindings: {
         'add_edit': '<',
         'paste_delete': '<',
         'positionNotSelected': '<',
@@ -22,7 +22,7 @@ app.component('sidebar', {
         $scope.clearCursor = () => {
             $scope.positionNotSelected = true;
             //$rootScope._selected_element = null;
-            $scope.add_edit = "Add";           
+            $scope.add_edit = "Add";
             $rootScope.$broadcast('clearCursor', {});
         };
 
@@ -32,7 +32,7 @@ app.component('sidebar', {
             $scope.$apply(() => {
                 if ($rootScope._selected_element != null) {
                     $scope.add_edit = "Edit";
-                    
+
                 } else {
                     $scope.add_edit = "Add";
                 }
@@ -46,5 +46,5 @@ app.component('sidebar', {
             $scope.positionNotSelected = true;
         });
     }],
-    templateUrl: '/js/lib/sidebar.html'
+    templateUrl: 'components/sidebar/sidebar.html'
 })

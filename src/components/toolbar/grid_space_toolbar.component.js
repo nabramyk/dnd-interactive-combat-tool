@@ -29,5 +29,5 @@ app.component('gridSpaceBar', {
             $rootScope._selected_element = null;
         };
     },
-    templateUrl: '/js/lib/grid_space_toolbar.html'
+    templateUrl: 'components/toolbar/grid_space_toolbar.html'
 })

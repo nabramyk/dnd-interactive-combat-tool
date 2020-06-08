@@ -37,5 +37,5 @@ app.component('listContainer', {
             });
         });
     },
-    templateUrl: '/js/lib/list_container.html'
+    templateUrl: 'components/list_container/list_container.html'
 });
