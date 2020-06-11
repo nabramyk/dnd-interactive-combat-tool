@@ -166,7 +166,14 @@ app.service('utils', function($rootScope, $mdSidenav) {
             'Husky Pete\'s',
             'Spaceballs 2: The search for more money',
             'It\'s a fake!',
-            'Shikaka!'
+            'Shikaka!',
+            'Hello Jerry.',
+            'Who runs Barter Town?',
+            'Ask me about Loom.',
+            'Insult: “You fight like a dairy farmer.”\nComeback: “How appropriate. You fight like a cow.”',
+            'I\'ll name him John, since that\'s where we found him.',
+            'So, a game of Gwent?',
+            'Wind\'s howling.'
         ];
 
         return quotes[Math.floor(Math.random() * quotes.length)];

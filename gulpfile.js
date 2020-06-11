@@ -11,3 +11,11 @@ gulp.task('app', function() {
         .pipe(plumber.stop())
         .pipe(gulp.dest('src/'));
 });
+
+gulp.task('watch', ['app'], function() {
+    gulp.watch(['src/components/*.js', 'src/components/**/*.component.js', 'src/services/*.js'], ['app']);
+});
+
+gulp.task('default', function() {
+    console.log('default');
+});
