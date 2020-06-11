@@ -26,10 +26,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     socket.on('connect', function(msg) {
         if (alreadyConnected) return;
         else alreadyConnected = true;
-
-        socket.emit('init', {}, function(msg) {
-            $rootScope.$broadcast('initializeCanvas', msg);
-        });
     });
 
     socket.on('connect_error', (error) => {
@@ -196,6 +192,12 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     $scope.$on('reset', () => {
         socket.emit('reset_board', { 'grid_id': $rootScope._grid_id });
+    });
+
+    $scope.$on('readyToInit', () => {
+        socket.emit('init', {}, function(msg) {
+            $rootScope.$broadcast('initializeCanvas', msg);
+        });
     });
 }]);;app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidenav', '$mdToast', function($scope, $rootScope, utils, $mdSidenav, $mdToast) {
 
@@ -390,11 +392,13 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
         window.addEventListener('resize', function(evt) {
             $scope.paper.view.update();
         });
+
+        $rootScope.$broadcast('readyToInit', {});
     };
 
-    $scope.$on('initializeCanvas', function(_, msg) {
-        init();
+    init();
 
+    $scope.$on('initializeCanvas', function(_, msg) {
         group_elements.removeChildren();
 
         grid_count_height = msg.size.height;
@@ -1053,11 +1057,16 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     $scope.$on('resizeRcv', (_, msg) => {
         if ($rootScope._grid_id != msg.grid_id) return;
+
+        $rootScope.$broadcast('showLoading', {});
+
         grid_count_width = msg.size.width;
         grid_count_height = msg.size.height;
         resizeGridWidth(grid_count_width);
         resizeGridHeight(grid_count_height);
         drawElements();
+
+        $rootScope.$broadcast('hideLoading', {});
     });
 
     $scope.$on('addedElement', (_, msg) => {
@@ -1077,7 +1086,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
         resizeGridHeight(grid_count_height);
         grid_count_width = msg.grid_space.size.width;
         resizeGridWidth(grid_count_width);
-        local_stored_annotations = [];
 
         group_elements.removeChildren();
         group_overlay.removeChildren();
@@ -1697,14 +1705,7 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
     },
     templateUrl: 'components/list_container/list_container.html'
-});;app.component('manualContainer', {
-    controller: ['$scope', 'utils', ($scope, utils) => {
-        $scope.toggleManual = () => {
-            utils.toggle('manual_container');
-        };
-    }],
-    templateUrl: 'components/manual/manual_container.html'
-});app.component('loadingContainer', {
+});;app.component('loadingContainer', {
     bindings: {
         isShowing: '=',
         quote: '=',
@@ -1764,7 +1765,14 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         };
     }],
     templateUrl: 'components/loading_screen/loading_screen.html'
-});;app.component('movementContainer', {
+});;app.component('manualContainer', {
+    controller: ['$scope', 'utils', ($scope, utils) => {
+        $scope.toggleManual = () => {
+            utils.toggle('manual_container');
+        };
+    }],
+    templateUrl: 'components/manual/manual_container.html'
+});app.component('movementContainer', {
     bindings: {
         location_x: '=',
         location_y: '='
@@ -1792,17 +1800,6 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         }
     },
     templateUrl: 'components/movement_container/movement_container.html'
-});app.component('systemContainer', {
-    templateUrl: 'components/system_container/system_container.html',
-    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
-        $scope.toggleActive = (event) => {
-            utils.toggle('system_container');
-        };
-
-        $scope.export = () => {
-            $rootScope.$broadcast('exportClutter', {});
-        };
-    }]
 });app.component('sidebar', {
     bindings: {
         'add_edit': '<',
@@ -1852,6 +1849,17 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
     }],
     templateUrl: 'components/sidebar/sidebar.html'
+});app.component('systemContainer', {
+    templateUrl: 'components/system_container/system_container.html',
+    controller: ['$scope', '$rootScope', 'utils', ($scope, $rootScope, utils) => {
+        $scope.toggleActive = (event) => {
+            utils.toggle('system_container');
+        };
+
+        $scope.export = () => {
+            $rootScope.$broadcast('exportClutter', {});
+        };
+    }]
 });app.component('gridSpaceBar', {
     bindings: {
         spaces: '='
@@ -1877,6 +1885,7 @@ app.directive('keypressEvents', ['$rootScope', '$document', function($rootScope,
         });
 
         $scope.changeGridSpace = (index, args) => {
+            $rootScope.$broadcast('showLoading', {});
             $rootScope.$broadcast('changeGridSpaceSnd', args);
             $scope.selected = index;
             $rootScope._grid_id = args;

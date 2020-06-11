@@ -26,10 +26,6 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
     socket.on('connect', function(msg) {
         if (alreadyConnected) return;
         else alreadyConnected = true;
-
-        socket.emit('init', {}, function(msg) {
-            $rootScope.$broadcast('initializeCanvas', msg);
-        });
     });
 
     socket.on('connect_error', (error) => {
@@ -196,5 +192,11 @@ app.controller('appController', ['$scope', '$rootScope', 'socket', '$location', 
 
     $scope.$on('reset', () => {
         socket.emit('reset_board', { 'grid_id': $rootScope._grid_id });
+    });
+
+    $scope.$on('readyToInit', () => {
+        socket.emit('init', {}, function(msg) {
+            $rootScope.$broadcast('initializeCanvas', msg);
+        });
     });
 }]);

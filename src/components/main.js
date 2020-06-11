@@ -191,11 +191,13 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         window.addEventListener('resize', function(evt) {
             $scope.paper.view.update();
         });
+
+        $rootScope.$broadcast('readyToInit', {});
     };
 
-    $scope.$on('initializeCanvas', function(_, msg) {
-        init();
+    init();
 
+    $scope.$on('initializeCanvas', function(_, msg) {
         group_elements.removeChildren();
 
         grid_count_height = msg.size.height;
@@ -854,11 +856,16 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
 
     $scope.$on('resizeRcv', (_, msg) => {
         if ($rootScope._grid_id != msg.grid_id) return;
+
+        $rootScope.$broadcast('showLoading', {});
+
         grid_count_width = msg.size.width;
         grid_count_height = msg.size.height;
         resizeGridWidth(grid_count_width);
         resizeGridHeight(grid_count_height);
         drawElements();
+
+        $rootScope.$broadcast('hideLoading', {});
     });
 
     $scope.$on('addedElement', (_, msg) => {
@@ -878,7 +885,6 @@ app.controller('clutterController', ['$scope', '$rootScope', 'utils', '$mdSidena
         resizeGridHeight(grid_count_height);
         grid_count_width = msg.grid_space.size.width;
         resizeGridWidth(grid_count_width);
-        local_stored_annotations = [];
 
         group_elements.removeChildren();
         group_overlay.removeChildren();

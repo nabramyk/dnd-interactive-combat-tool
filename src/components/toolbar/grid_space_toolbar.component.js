@@ -23,6 +23,7 @@ app.component('gridSpaceBar', {
         });
 
         $scope.changeGridSpace = (index, args) => {
+            $rootScope.$broadcast('showLoading', {});
             $rootScope.$broadcast('changeGridSpaceSnd', args);
             $scope.selected = index;
             $rootScope._grid_id = args;
